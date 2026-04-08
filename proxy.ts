@@ -26,19 +26,25 @@ export async function proxy(req: NextRequest) {
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect /admin routes except login
-  if (req.nextUrl.pathname.startsWith('/admin') && req.nextUrl.pathname !== '/admin/login') {
-    if (!session) {
-      return NextResponse.redirect(new URL('/admin/login', req.url))
-    }
+  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
+  const isLoginPage = req.nextUrl.pathname === '/admin/login'
+
+  // Unauthenticated user trying to access admin → redirect to login
+  if (isAdminRoute && !isLoginPage && !user) {
+    return NextResponse.redirect(new URL('/admin/login', req.url))
   }
 
-  // Redirect /admin → /admin/dashboard or /admin/login
+  // Authenticated user on login page → redirect to dashboard
+  if (isLoginPage && user) {
+    return NextResponse.redirect(new URL('/admin/dashboard', req.url))
+  }
+
+  // /admin root → redirect to dashboard or login
   if (req.nextUrl.pathname === '/admin') {
     return NextResponse.redirect(
-      new URL(session ? '/admin/dashboard' : '/admin/login', req.url)
+      new URL(user ? '/admin/dashboard' : '/admin/login', req.url)
     )
   }
 
