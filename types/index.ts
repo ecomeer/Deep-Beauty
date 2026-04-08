@@ -25,6 +25,7 @@ export interface Category {
   name_en: string
   slug: string
   is_active: boolean
+  image_url?: string
 }
 
 export interface Order {

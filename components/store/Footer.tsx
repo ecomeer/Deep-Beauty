@@ -8,17 +8,21 @@ import { supabase } from '@/lib/supabase'
 export default function Footer() {
   const [whatsapp, setWhatsapp] = useState('96522289182')
   const [instagram, setInstagram] = useState('https://instagram.com/deepbeautykw')
+  const [tiktok, setTiktok] = useState('')
+  const [snapchat, setSnapchat] = useState('')
 
   useEffect(() => {
     supabase
       .from('settings')
       .select('key, value')
-      .in('key', ['whatsapp_number', 'instagram_url'])
+      .in('key', ['whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url'])
       .then(({ data }) => {
         if (!data) return
         for (const row of data) {
           if (row.key === 'whatsapp_number' && row.value) setWhatsapp(row.value)
           if (row.key === 'instagram_url' && row.value) setInstagram(row.value)
+          if (row.key === 'tiktok_url' && row.value) setTiktok(row.value)
+          if (row.key === 'snapchat_url' && row.value) setSnapchat(row.value)
         }
       }, () => {})
   }, [])
@@ -43,17 +47,18 @@ export default function Footer() {
             >
               IN
             </a>
-            {[
-              { label: 'TK', href: '#' },
-              { label: 'SN', href: '#' },
-            ].map((s) => (
-              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+            {tiktok && (
+              <a href={tiktok} target="_blank" rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 hover:opacity-100 opacity-70"
                 style={{ background: 'rgba(255,255,255,0.1)' }}
-              >
-                {s.label}
-              </a>
-            ))}
+              >TK</a>
+            )}
+            {snapchat && (
+              <a href={snapchat} target="_blank" rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 hover:opacity-100 opacity-70"
+                style={{ background: 'rgba(255,255,255,0.1)' }}
+              >SN</a>
+            )}
             <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"
               className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200 hover:opacity-100 opacity-70"
               style={{ background: 'rgba(255,255,255,0.1)' }}
@@ -79,11 +84,10 @@ export default function Footer() {
         <div>
           <h4 className="text-white font-bold mb-4 text-sm tracking-wide">الشركة</h4>
           <ul className="space-y-2.5 text-sm opacity-70">
-            {['من نحن', 'مدونتنا', 'الشروط والأحكام', 'سياسة الخصوصية', 'سياسة الاسترجاع'].map((item) => (
-              <li key={item}>
-                <a href="#" className="hover:opacity-100 transition-opacity">{item}</a>
-              </li>
-            ))}
+            <li><Link href="/about" className="hover:opacity-100 transition-opacity">من نحن</Link></li>
+            <li><Link href="/terms" className="hover:opacity-100 transition-opacity">الشروط والأحكام</Link></li>
+            <li><Link href="/privacy" className="hover:opacity-100 transition-opacity">سياسة الخصوصية</Link></li>
+            <li><Link href="/returns" className="hover:opacity-100 transition-opacity">سياسة الاسترجاع</Link></li>
           </ul>
         </div>
 

@@ -3,24 +3,29 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { 
-  HomeIcon, 
-  ShoppingBagIcon, 
-  InboxIcon, 
-  UsersIcon, 
-  Cog6ToothIcon, 
+import {
+  HomeIcon,
+  ShoppingBagIcon,
+  InboxIcon,
+  UsersIcon,
+  Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   TagIcon,
   BoltIcon,
-  MegaphoneIcon
+  MegaphoneIcon,
+  EnvelopeIcon,
+  Squares2X2Icon,
+  PhotoIcon,
 } from '@heroicons/react/24/outline'
 
 const NAV_LINKS = [
   { href: '/admin/dashboard', icon: HomeIcon, label: 'لوحة التحكم' },
   { href: '/admin/products', icon: ShoppingBagIcon, label: 'المنتجات' },
+  { href: '/admin/categories', icon: Squares2X2Icon, label: 'الفئات' },
+  { href: '/admin/banners', icon: PhotoIcon, label: 'البنرات' },
   { href: '/admin/orders', icon: InboxIcon, label: 'الطلبات' },
   { href: '/admin/customers', icon: UsersIcon, label: 'العملاء' },
-  { href: '/admin/coupons', icon: TagIcon, label: 'الكوبونات والخصومات' },
+  { href: '/admin/newsletter', icon: EnvelopeIcon, label: 'المشتركون' },
   { href: '/admin/flash-sales', icon: BoltIcon, label: 'عروض الفلاش' },
   { href: '/admin/marketing', icon: MegaphoneIcon, label: 'التسويق' },
   { href: '/admin/settings', icon: Cog6ToothIcon, label: 'الإعدادات' },

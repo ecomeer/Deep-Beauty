@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { ShoppingBagIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCartContext } from '@/context/CartContext'
 import CartSidebar from './CartSidebar'
@@ -33,16 +32,8 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center flex-shrink-0">
-            <Image
-              src="/logo-horizontal.png"
-              alt="Deep Beauty"
-              width={400}
-              height={100}
-              priority
-              className="object-contain"
-              style={{ height: '44px', width: 'auto' }}
-            />
+          <Link href="/" className="flex items-center flex-shrink-0 text-xl font-bold" style={{ color: 'var(--primary)' }}>
+            Deep Beauty
           </Link>
 
           {/* Desktop Links */}
