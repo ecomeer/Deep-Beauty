@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Product } from '@/types'
+import { Product, Category } from '@/types'
 import { toArabicPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { MagnifyingGlassIcon, PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
@@ -10,11 +10,14 @@ import toast from 'react-hot-toast'
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [search, setSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [stockFilter, setStockFilter] = useState('all')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchProducts()
+    Promise.all([fetchProducts(), fetchCategories()])
   }, [])
 
   async function fetchProducts() {
@@ -23,47 +26,91 @@ export default function AdminProducts() {
     setLoading(false)
   }
 
+  async function fetchCategories() {
+    const { data } = await supabase.from('categories').select('*').eq('is_active', true).order('name_ar')
+    setCategories(data || [])
+  }
+
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return
-    const { error } = await supabase.from('products').delete().eq('id', id)
-    if (error) toast.error('حدث خطأ أثناء الحذف')
-    else {
-      toast.success('تم حذف المنتج بنجاح')
-      fetchProducts()
-    }
+    const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' })
+    if (!res.ok) toast.error('حدث خطأ أثناء الحذف')
+    else { toast.success('تم حذف المنتج بنجاح'); fetchProducts() }
   }
 
   const toggleStatus = async (id: string, currentStatus: boolean) => {
-    const { error } = await supabase.from('products').update({ is_active: !currentStatus }).eq('id', id)
-    if (error) toast.error('حدث خطأ')
+    const res = await fetch(`/api/admin/products/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: !currentStatus }),
+    })
+    if (!res.ok) toast.error('حدث خطأ')
     else fetchProducts()
   }
 
-  const filtered = products.filter(p => p.name_ar.includes(search) || p.name_en.toLowerCase().includes(search.toLowerCase()))
+  const filtered = products
+    .filter(p => categoryFilter === 'all' ? true : p.category === categoryFilter)
+    .filter(p => {
+      if (stockFilter === 'out') return p.stock_quantity === 0
+      if (stockFilter === 'low') return p.stock_quantity > 0 && p.stock_quantity < 10
+      return true
+    })
+    .filter(p => p.name_ar.includes(search) || p.name_en.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>إدارة المنتجات</h1>
-          <p className="text-sm opacity-60">عرض وإضافة وتعديل المنتجات ({products.length})</p>
+          <p className="text-sm opacity-60">عرض وإضافة وتعديل المنتجات ({filtered.length})</p>
         </div>
-        <Link href="/admin/products/new" className="btn-primary py-2 px-4 shadow-md">
+        <Link href="/admin/products/new" className="btn-primary py-2 px-4 shadow-md flex items-center gap-2">
           <PlusIcon className="w-5 h-5" /> إضافة منتج
         </Link>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border overflow-hidden" style={{ borderColor: 'var(--beige)' }}>
-        <div className="p-4 border-b flex items-center" style={{ borderColor: 'var(--beige)' }}>
+        {/* Filters Bar */}
+        <div className="p-4 border-b space-y-3" style={{ borderColor: 'var(--beige)' }}>
+          {/* Search */}
           <div className="relative w-full max-w-sm">
             <MagnifyingGlassIcon className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="ابحث عن منتج..." 
+            <input
+              type="text"
+              placeholder="ابحث عن منتج..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
               className="input-field py-2 pr-10"
             />
+          </div>
+
+          {/* Filter Chips */}
+          <div className="flex flex-wrap gap-2 items-center">
+            {/* Category filter */}
+            <div className="flex gap-1.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('all')}
+                className={`badge ${categoryFilter === 'all' ? 'badge-primary' : 'badge-gray'} cursor-pointer`}
+              >الكل</button>
+              {categories.map(cat => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategoryFilter(cat.name_ar)}
+                  className={`badge ${categoryFilter === cat.name_ar ? 'badge-primary' : 'badge-gray'} cursor-pointer`}
+                >{cat.name_ar}</button>
+              ))}
+            </div>
+
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+
+            {/* Stock filter */}
+            <div className="flex gap-1.5">
+              <button type="button" onClick={() => setStockFilter('all')} className={`badge ${stockFilter === 'all' ? 'badge-primary' : 'badge-gray'} cursor-pointer`}>كل المخزون</button>
+              <button type="button" onClick={() => setStockFilter('low')} className={`badge ${stockFilter === 'low' ? 'bg-orange-100 text-orange-700' : 'badge-gray'} cursor-pointer`}>مخزون منخفض</button>
+              <button type="button" onClick={() => setStockFilter('out')} className={`badge ${stockFilter === 'out' ? 'badge-danger' : 'badge-gray'} cursor-pointer`}>نفذ المخزون</button>
+            </div>
           </div>
         </div>
 
@@ -90,7 +137,9 @@ export default function AdminProducts() {
                   <tr key={p.id}>
                     <td>
                       <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
-                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : '🧴'}
+                        {p.images?.[0]
+                          ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
+                          : <span className="text-lg">🧴</span>}
                       </div>
                     </td>
                     <td>
@@ -98,16 +147,17 @@ export default function AdminProducts() {
                       <div className="text-xs opacity-50 font-en">{p.name_en}</div>
                     </td>
                     <td><span className="badge badge-primary">{p.category}</span></td>
-                    <td className="font-bold text-[#9C6644]">{toArabicPrice(p.price)}</td>
+                    <td className="font-bold" style={{ color: 'var(--primary)' }}>{toArabicPrice(p.price)}</td>
                     <td>
                       <span className={`font-bold ${p.stock_quantity === 0 ? 'text-red-500' : p.stock_quantity < 10 ? 'text-orange-500' : 'text-green-600'}`}>
                         {p.stock_quantity}
                       </span>
                     </td>
                     <td>
-                      <button 
+                      <button
+                        type="button"
                         onClick={() => toggleStatus(p.id, p.is_active)}
-                        className={`badge ${p.is_active ? 'badge-success' : 'badge-gray'} hover:opacity-80 transition-opacity`}
+                        className={`badge ${p.is_active ? 'badge-success' : 'badge-gray'} hover:opacity-80 transition-opacity cursor-pointer`}
                       >
                         {p.is_active ? 'نشط' : 'معطل'}
                       </button>
@@ -117,7 +167,7 @@ export default function AdminProducts() {
                         <Link href={`/admin/products/${p.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
                           <PencilSquareIcon className="w-5 h-5" />
                         </Link>
-                        <button onClick={() => handleDelete(p.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                        <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
                           <TrashIcon className="w-5 h-5" />
                         </button>
                       </div>

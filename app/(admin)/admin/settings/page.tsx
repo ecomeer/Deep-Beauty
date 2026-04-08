@@ -10,6 +10,8 @@ interface Settings {
   free_shipping_above: string
   whatsapp_number: string
   instagram_url: string
+  tiktok_url: string
+  snapchat_url: string
   announcement_text: string
 }
 
@@ -19,6 +21,8 @@ const DEFAULTS: Settings = {
   free_shipping_above: '20.000',
   whatsapp_number: '96522289182',
   instagram_url: 'https://instagram.com/deepbeautykw',
+  tiktok_url: '',
+  snapchat_url: '',
   announcement_text: '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك',
 }
 
@@ -52,15 +56,14 @@ export default function AdminSettings() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
-
-    const upserts = Object.entries(settings).map(([key, value]) => ({ key, value }))
-
-    const { error } = await supabase
-      .from('settings')
-      .upsert(upserts, { onConflict: 'key' })
-
-    if (error) {
-      toast.error('حدث خطأ أثناء الحفظ: ' + error.message)
+    const res = await fetch('/api/admin/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings),
+    })
+    if (!res.ok) {
+      const { error } = await res.json()
+      toast.error('حدث خطأ أثناء الحفظ: ' + error)
     } else {
       toast.success('تم حفظ الإعدادات بنجاح ✓')
     }
@@ -117,6 +120,16 @@ export default function AdminSettings() {
           <div>
             <label className="block text-sm font-bold mb-1.5">رابط انستجرام</label>
             <input name="instagram_url" value={settings.instagram_url} onChange={handleChange} className="input-field" dir="ltr" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold mb-1.5">رابط تيك توك</label>
+            <input name="tiktok_url" value={settings.tiktok_url} onChange={handleChange} className="input-field" dir="ltr" placeholder="https://tiktok.com/@deepbeautykw" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold mb-1.5">رابط سناب شات</label>
+            <input name="snapchat_url" value={settings.snapchat_url} onChange={handleChange} className="input-field" dir="ltr" placeholder="https://snapchat.com/add/deepbeautykw" />
           </div>
         </div>
 

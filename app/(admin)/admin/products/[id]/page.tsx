@@ -67,28 +67,31 @@ export default function ProductForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    try {
+      const payload = {
+        ...form,
+        compare_price: form.compare_price > 0 ? form.compare_price : null,
+        weight_grams: form.weight_grams > 0 ? form.weight_grams : null,
+      }
 
-    const payload = {
-      ...form,
-      compare_price: form.compare_price > 0 ? form.compare_price : null,
-      weight_grams: form.weight_grams > 0 ? form.weight_grams : null,
-    }
+      const url = isEdit ? `/api/admin/products/${params.id}` : '/api/admin/products'
+      const method = isEdit ? 'PATCH' : 'POST'
 
-    let error
-    if (isEdit) {
-      const { error: err } = await supabase.from('products').update(payload).eq('id', params.id)
-      error = err
-    } else {
-      const { error: err } = await supabase.from('products').insert([payload])
-      error = err
-    }
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
 
-    if (error) {
-      console.error(error)
-      toast.error('حدث خطأ أثناء الحفظ. تأكد أن الـ Slug غير مقرر.')
-    } else {
-      toast.success('تم الحفظ بنجاح')
+      if (!res.ok) {
+        const { error } = await res.json()
+        throw new Error(error || 'حدث خطأ أثناء الحفظ')
+      }
+
+      toast.success(isEdit ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح')
       router.push('/admin/products')
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'حدث خطأ أثناء الحفظ. تأكد أن الـ Slug غير مكرر.')
     }
     setLoading(false)
   }
@@ -216,16 +219,78 @@ export default function ProductForm() {
 
         {/* Images */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-[var(--beige)]">
-          <h2 className="text-lg font-bold mb-4 border-b pb-2">صور المنتج</h2>
-          <div className="flex gap-4 flex-wrap mb-4">
-            {form.images.map((img, i) => (
-              <div key={i} className="relative w-24 h-24 rounded-xl border overflow-hidden">
-                <img src={img} alt={`صورة المنتج ${i + 1}`} className="w-full h-full object-cover" />
-                <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-white p-1 rounded-full text-red-500 shadow-sm leading-none">✕</button>
-              </div>
-            ))}
-            {form.images.length === 0 && <p className="text-sm opacity-50 w-full text-center py-4">لا توجد صور مضافة</p>}
-          </div>
+          <h2 className="text-lg font-bold mb-1 border-b pb-2">صور المنتج</h2>
+          <p className="text-xs opacity-50 mb-4">الصورة الأولى هي الصورة الرئيسية. استخدم الأسهم لإعادة الترتيب.</p>
+
+          {form.images.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              {form.images.map((img, i) => (
+                <div key={i} className={`relative rounded-xl border-2 overflow-hidden aspect-square ${i === 0 ? 'border-[var(--primary)]' : 'border-transparent'}`}>
+                  <img src={img} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" />
+
+                  {/* Primary badge */}
+                  {i === 0 && (
+                    <span className="absolute bottom-1 right-1 text-[0.6rem] font-bold bg-[var(--primary)] text-white px-1.5 py-0.5 rounded-full">
+                      رئيسية
+                    </span>
+                  )}
+
+                  {/* Controls overlay */}
+                  <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all flex items-center justify-center gap-1 opacity-0 hover:opacity-100">
+                    {/* Move left (RTL = move forward) */}
+                    {i > 0 && (
+                      <button
+                        type="button"
+                        title="تقديم"
+                        onClick={() => {
+                          const imgs = [...form.images]
+                          ;[imgs[i - 1], imgs[i]] = [imgs[i], imgs[i - 1]]
+                          setForm(f => ({ ...f, images: imgs }))
+                        }}
+                        className="bg-white rounded-full p-1 text-xs font-bold shadow hover:bg-gray-100"
+                      >←</button>
+                    )}
+                    {/* Move right */}
+                    {i < form.images.length - 1 && (
+                      <button
+                        type="button"
+                        title="تأخير"
+                        onClick={() => {
+                          const imgs = [...form.images]
+                          ;[imgs[i + 1], imgs[i]] = [imgs[i], imgs[i + 1]]
+                          setForm(f => ({ ...f, images: imgs }))
+                        }}
+                        className="bg-white rounded-full p-1 text-xs font-bold shadow hover:bg-gray-100"
+                      >→</button>
+                    )}
+                    {/* Set as primary */}
+                    {i > 0 && (
+                      <button
+                        type="button"
+                        title="تعيين كرئيسية"
+                        onClick={() => {
+                          const imgs = [...form.images]
+                          const [main] = imgs.splice(i, 1)
+                          setForm(f => ({ ...f, images: [main, ...imgs] }))
+                        }}
+                        className="bg-[var(--primary)] text-white rounded-full p-1 text-xs font-bold shadow"
+                      >★</button>
+                    )}
+                    {/* Delete */}
+                    <button
+                      type="button"
+                      title="حذف"
+                      onClick={() => removeImage(i)}
+                      className="bg-red-500 text-white rounded-full p-1 text-xs font-bold shadow"
+                    >✕</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm opacity-50 text-center py-6 mb-4">لا توجد صور مضافة بعد</p>
+          )}
+
           <label className="inline-flex items-center gap-2 cursor-pointer btn-outline py-2 px-4 text-sm">
             {uploading ? 'جاري الرفع...' : '+ رفع صور من الجهاز'}
             <input

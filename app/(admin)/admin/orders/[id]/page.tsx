@@ -30,8 +30,12 @@ export default function AdminOrderDetail() {
   }
 
   const updateStatus = async (newStatus: string) => {
-    const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', order.id)
-    if (error) {
+    const res = await fetch(`/api/admin/orders/${order.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    })
+    if (!res.ok) {
       toast.error('حدث خطأ أثناء تحديث الحالة')
     } else {
       toast.success('تم تحديث الطلب بنجاح')
