@@ -146,3 +146,14 @@ export interface Setting {
   value?: string
   updated_at: string
 }
+
+export interface Review {
+  id: string
+  product_id: string
+  customer_name: string
+  rating: number
+  comment: string
+  is_approved: boolean
+  order_id?: string
+  created_at: string
+}

@@ -1,10 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Product, Category } from '@/types'
 import ProductCard from '@/components/store/ProductCard'
-import { AdjustmentsHorizontalIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+
+// Loading skeleton
+function ProductSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="rounded-2xl overflow-hidden" style={{ background: 'white' }}>
+          <div className="aspect-square animate-pulse" style={{ background: 'var(--beige)' }} />
+          <div className="p-4 space-y-3">
+            <div className="h-4 w-20 rounded animate-pulse" style={{ background: 'var(--beige)' }} />
+            <div className="h-6 w-3/4 rounded animate-pulse" style={{ background: 'var(--beige)' }} />
+            <div className="h-4 w-full rounded animate-pulse" style={{ background: 'var(--beige)' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -90,11 +108,7 @@ export default function ProductsPage() {
 
         {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="skeleton h-96 rounded-2xl" />
-            ))}
-          </div>
+          <ProductSkeleton />
         ) : filtered.length === 0 ? (
           <div className="text-center py-24">
             <div className="text-6xl mb-4">🔍</div>

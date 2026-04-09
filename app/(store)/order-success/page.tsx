@@ -3,7 +3,9 @@
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Suspense, useEffect, useState } from 'react'
-import { CheckCircleIcon } from '@heroicons/react/24/solid'
+import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/24/solid'
+import { UserIcon } from '@heroicons/react/24/outline'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { toArabicPrice } from '@/lib/utils'
 
@@ -25,6 +27,8 @@ interface Order {
   total: number
   status: string
   address_area: string
+  payment_method: string
+  payment_status: string
   order_items: OrderItem[]
 }
 
@@ -32,6 +36,7 @@ function OrderSuccessContent() {
   const params = useSearchParams()
   const orderId = params.get('id')
   const orderNum = params.get('num') || 'DB-XXXXXXXX'
+  const accountCreated = params.get('account') === 'created'
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -42,8 +47,8 @@ function OrderSuccessContent() {
       .select('*, order_items(*)')
       .eq('id', orderId)
       .single()
-      .then(({ data }) => {
-        if (data) setOrder(data as Order)
+      .then(({ data }: { data: Order | null }) => {
+        if (data) setOrder(data)
         setLoading(false)
       }, () => setLoading(false))
   }, [orderId])
@@ -68,11 +73,47 @@ function OrderSuccessContent() {
           </p>
         </div>
 
+        {/* Account Created Banner */}
+        {accountCreated && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5 mb-6"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                <UserIcon className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-green-800">تم إنشاء حسابك بنجاح! 🎉</h3>
+                <p className="text-sm text-green-700">
+                  يمكنك الآن تتبع طلباتك وحفظ عناوينك للطلبات القادمة
+                </p>
+              </div>
+              <Link
+                href="/account"
+                className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors whitespace-nowrap"
+              >
+                حسابي
+              </Link>
+            </div>
+          </motion.div>
+        )}
+
         {/* Order Number */}
         <div className="rounded-2xl p-5 mb-6 text-center" style={{ background: 'var(--beige)' }}>
           <div className="text-sm opacity-60 mb-1">رقم الطلب</div>
           <div className="text-2xl font-bold" style={{ color: 'var(--primary)', direction: 'ltr' }}>{orderNum}</div>
           <div className="text-sm opacity-60 mt-2">⏱️ موعد التسليم المتوقع: ٢-٣ أيام عمل</div>
+          {order && order.payment_method === 'online' && (
+            <div className={`mt-3 inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
+              order.payment_status === 'paid'
+                ? 'bg-green-100 text-green-700'
+                : 'bg-yellow-100 text-yellow-700'
+            }`}>
+              {order.payment_status === 'paid' ? '✅ تم الدفع' : '⏳ في انتظار الدفع'}
+            </div>
+          )}
         </div>
 
         {/* Order Items */}
@@ -120,14 +161,15 @@ function OrderSuccessContent() {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/products" className="btn-primary px-8 py-4 text-center">
-            متابعة التسوق ✦
+          <Link href="/products" className="btn-primary px-8 py-4 text-center flex items-center justify-center gap-2">
+            <SparklesIcon className="w-5 h-5" />
+            متابعة التسوق
           </Link>
           <a
             href="https://wa.me/96522289182"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-outline px-8 py-4 flex items-center justify-center gap-2"
+            className="px-8 py-4 border border-gray-200 rounded-xl hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors"
           >
             <span>💬</span> واتساب الدعم
           </a>

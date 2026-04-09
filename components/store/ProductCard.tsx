@@ -5,8 +5,14 @@ import Image from 'next/image'
 import { Product } from '@/types'
 import { toArabicPrice } from '@/lib/utils'
 import { useCartContext } from '@/context/CartContext'
-import { ShoppingBagIcon } from '@heroicons/react/24/outline'
+import { useWishlistContext } from '@/context/WishlistContext'
+import { useCountry } from '@/context/CountryContext'
+import { ShoppingBagIcon, HeartIcon, EyeIcon } from '@heroicons/react/24/outline'
+import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
+import QuickViewModal from './QuickViewModal'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   product: Product
@@ -15,7 +21,11 @@ interface Props {
 
 export default function ProductCard({ product, salePercentage }: Props) {
   const { addItem } = useCartContext()
+  const { isInWishlist, toggleItem } = useWishlistContext()
+  const { formatPrice } = useCountry()
   const [adding, setAdding] = useState(false)
+  const [quickViewOpen, setQuickViewOpen] = useState(false)
+  const isWishlisted = isInWishlist(product.id)
 
   const displayPrice = salePercentage
     ? product.price * (1 - salePercentage / 100)
@@ -37,9 +47,31 @@ export default function ProductCard({ product, salePercentage }: Props) {
     setTimeout(() => setAdding(false), 800)
   }
 
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleItem({
+      id: product.id,
+      name_ar: product.name_ar,
+      name_en: product.name_en,
+      price: displayPrice,
+      image: product.images?.[0] || '',
+      slug: product.slug,
+    })
+    toast.success(isWishlisted ? 'تم إزالة من المفضلة' : 'تم إضافة للمفضلة ❤️')
+  }
+
+  const router = useRouter()
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons
+    if ((e.target as HTMLElement).closest('button')) return
+    router.push(`/products/${product.slug}`)
+  }
+
   return (
-    <Link href={`/products/${product.slug}`}>
-      <div className="product-card group">
+    <>
+      <div className="product-card group cursor-pointer" onClick={handleCardClick}>
         <div className="card-top-border" />
         {/* Image */}
         <div className="relative overflow-hidden" style={{ background: 'var(--beige)', aspectRatio: '1/1' }}>
@@ -66,6 +98,28 @@ export default function ProductCard({ product, salePercentage }: Props) {
               <span className="badge badge-gray text-xs">نفذت الكمية</span>
             )}
           </div>
+          {/* Wishlist Button */}
+          <button
+            onClick={handleToggleWishlist}
+            className={`absolute top-3 left-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 ${
+              isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/90 text-gray-600 hover:text-rose-500'
+            }`}
+            aria-label={isWishlisted ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+          >
+            {isWishlisted ? <HeartSolid className="w-5 h-5" /> : <HeartIcon className="w-5 h-5" />}
+          </button>
+          {/* Quick View Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setQuickViewOpen(true)
+            }}
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-white/90 hover:bg-white text-sm font-medium shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1"
+          >
+            <EyeIcon className="w-4 h-4" />
+            نظرة سريعة
+          </button>
         </div>
 
         {/* Content */}
@@ -82,11 +136,11 @@ export default function ProductCard({ product, salePercentage }: Props) {
           <div className="flex items-center justify-between gap-2">
             <div>
               <span className="text-lg font-bold" style={{ color: 'var(--primary)', fontFamily: 'Cormorant Garamond, serif' }}>
-                {toArabicPrice(displayPrice)}
+                {formatPrice(displayPrice)}
               </span>
               {(product.compare_price || salePercentage) && (
                 <span className="text-xs line-through mr-2 opacity-50">
-                  {toArabicPrice(product.price)}
+                  {formatPrice(product.compare_price || product.price)}
                 </span>
               )}
             </div>
@@ -111,6 +165,12 @@ export default function ProductCard({ product, salePercentage }: Props) {
           </div>
         </div>
       </div>
-    </Link>
+      
+      <QuickViewModal 
+        product={product}
+        isOpen={quickViewOpen}
+        onClose={() => setQuickViewOpen(false)}
+      />
+    </>
   )
 }

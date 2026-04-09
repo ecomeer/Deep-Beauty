@@ -16,7 +16,7 @@ export default function Footer() {
       .from('settings')
       .select('key, value')
       .in('key', ['whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url'])
-      .then(({ data }) => {
+      .then(({ data }: { data: { key: string, value: string }[] | null }) => {
         if (!data) return
         for (const row of data) {
           if (row.key === 'whatsapp_number' && row.value) setWhatsapp(row.value)
@@ -85,6 +85,7 @@ export default function Footer() {
           <h4 className="text-white font-bold mb-4 text-sm tracking-wide">الشركة</h4>
           <ul className="space-y-2.5 text-sm opacity-70">
             <li><Link href="/about" className="hover:opacity-100 transition-opacity">من نحن</Link></li>
+            <li><Link href="/track" className="hover:opacity-100 transition-opacity">تتبع طلبك 🚚</Link></li>
             <li><Link href="/terms" className="hover:opacity-100 transition-opacity">الشروط والأحكام</Link></li>
             <li><Link href="/privacy" className="hover:opacity-100 transition-opacity">سياسة الخصوصية</Link></li>
             <li><Link href="/returns" className="hover:opacity-100 transition-opacity">سياسة الاسترجاع</Link></li>

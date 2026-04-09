@@ -38,9 +38,16 @@ export default function ProductForm() {
     const { data } = await supabase.from('products').select('*').eq('id', params.id).single()
     if (data) {
       setForm({
-        ...data,
+        name_ar: data.name_ar,
+        name_en: data.name_en,
+        slug: data.slug,
+        category: data.category,
+        price: data.price,
         compare_price: data.compare_price || 0,
+        stock_quantity: data.stock_quantity,
         weight_grams: data.weight_grams || 0,
+        is_active: data.is_active,
+        is_featured: data.is_featured,
         description_ar: data.description_ar || '',
         description_en: data.description_en || '',
         ingredients_ar: data.ingredients_ar || '',
@@ -84,8 +91,9 @@ export default function ProductForm() {
       })
 
       if (!res.ok) {
-        const { error } = await res.json()
-        throw new Error(error || 'حدث خطأ أثناء الحفظ')
+        const errorData = await res.json()
+        console.error('API Error:', errorData)
+        throw new Error(errorData.error || errorData.details || 'حدث خطأ أثناء الحفظ')
       }
 
       toast.success(isEdit ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح')

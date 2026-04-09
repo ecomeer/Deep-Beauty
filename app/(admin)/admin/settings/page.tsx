@@ -39,7 +39,7 @@ export default function AdminSettings() {
     const { data } = await supabase.from('settings').select('key, value')
     if (data && data.length > 0) {
       const map: Partial<Settings> = {}
-      data.forEach(({ key, value }) => {
+      data.forEach(({ key, value }: { key: string, value: string | null }) => {
         if (key in DEFAULTS) {
           (map as Record<string, string>)[key] = value ?? ''
         }

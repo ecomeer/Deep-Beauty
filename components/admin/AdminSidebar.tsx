@@ -16,6 +16,9 @@ import {
   EnvelopeIcon,
   Squares2X2Icon,
   PhotoIcon,
+  StarIcon,
+  ChartBarIcon,
+  TruckIcon,
 } from '@heroicons/react/24/outline'
 
 const NAV_LINKS = [
@@ -25,6 +28,9 @@ const NAV_LINKS = [
   { href: '/admin/banners', icon: PhotoIcon, label: 'البنرات' },
   { href: '/admin/orders', icon: InboxIcon, label: 'الطلبات' },
   { href: '/admin/customers', icon: UsersIcon, label: 'العملاء' },
+  { href: '/admin/reviews', icon: StarIcon, label: 'التقييمات' },
+  { href: '/admin/stats', icon: ChartBarIcon, label: 'الإحصائيات' },
+  { href: '/admin/shipping', icon: TruckIcon, label: 'الشحن' },
   { href: '/admin/newsletter', icon: EnvelopeIcon, label: 'المشتركون' },
   { href: '/admin/flash-sales', icon: BoltIcon, label: 'عروض الفلاش' },
   { href: '/admin/marketing', icon: MegaphoneIcon, label: 'التسويق' },

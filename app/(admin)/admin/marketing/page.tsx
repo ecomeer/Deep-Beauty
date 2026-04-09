@@ -37,8 +37,8 @@ export default function AdminMarketing() {
       .from('coupons')
       .select('*')
       .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) setCoupons(data as CouponRow[])
+      .then(({ data }: { data: CouponRow[] | null }) => {
+        if (data) setCoupons(data)
         setLoading(false)
       }, () => setLoading(false))
   }

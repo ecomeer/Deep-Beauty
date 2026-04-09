@@ -1,17 +1,39 @@
 'use client'
 
 import { useCartContext } from '@/context/CartContext'
-import { toArabicPrice } from '@/lib/utils'
+import { useCountry } from '@/context/CountryContext'
 import { XMarkIcon, TrashIcon, PlusIcon, MinusIcon, ShoppingBagIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import Image from 'next/image'
 
 export default function CartSidebar() {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal } = useCartContext()
+  const { formatPrice, countryConfig } = useCountry()
 
-  const SHIPPING_COST = 1.5
-  const FREE_SHIPPING_ABOVE = 20
-  const shipping = subtotal >= FREE_SHIPPING_ABOVE ? 0 : SHIPPING_COST
+  // Shipping costs based on country (in KWD, will be converted)
+  const SHIPPING_COSTS: Record<string, number> = {
+    'KW': 0,      // Free shipping in Kuwait
+    'SA': 2.5,
+    'AE': 2.5,
+    'QA': 3,
+    'BH': 2.5,
+    'OM': 3.5
+  }
+  
+  // Free shipping thresholds based on country (in KWD)
+  const FREE_SHIPPING_THRESHOLDS: Record<string, number | null> = {
+    'KW': null,   // Always free in Kuwait
+    'SA': 50,
+    'AE': 50,
+    'QA': 50,
+    'BH': 50,
+    'OM': 60
+  }
+  
+  const countryCode = countryConfig.code
+  const shippingCost = SHIPPING_COSTS[countryCode] ?? 2.5
+  const freeThreshold = FREE_SHIPPING_THRESHOLDS[countryCode]
+  const shipping = freeThreshold && subtotal >= freeThreshold ? 0 : shippingCost
   const total = subtotal + shipping
 
   if (!isOpen) return null
@@ -61,7 +83,7 @@ export default function CartSidebar() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-dark)' }}>{item.name_ar}</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }}>{toArabicPrice(item.price)}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }}>{formatPrice(item.price)}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -88,7 +110,7 @@ export default function CartSidebar() {
                     <TrashIcon className="w-4 h-4" />
                   </button>
                   <p className="text-sm font-bold" style={{ color: 'var(--text-dark)' }}>
-                    {toArabicPrice(item.price * item.quantity)}
+                    {formatPrice(item.price * item.quantity)}
                   </p>
                 </div>
               </div>
@@ -99,25 +121,25 @@ export default function CartSidebar() {
         {/* Footer */}
         {items.length > 0 && (
           <div className="p-4 border-t space-y-3" style={{ borderColor: 'var(--beige)' }}>
-            {subtotal < FREE_SHIPPING_ABOVE && (
+            {freeThreshold && subtotal < freeThreshold && (
               <div className="text-xs text-center py-2 px-3 rounded-lg" style={{ background: 'rgba(156,102,68,0.08)', color: 'var(--primary)' }}>
-                أضف {toArabicPrice(FREE_SHIPPING_ABOVE - subtotal)} للحصول على شحن مجاني! 🎁
+                أضف {formatPrice(freeThreshold - subtotal)} للحصول على شحن مجاني! 🎁
               </div>
             )}
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span style={{ color: '#7a6055' }}>المجموع الجزئي</span>
-                <span className="font-semibold">{toArabicPrice(subtotal)}</span>
+                <span className="font-semibold">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span style={{ color: '#7a6055' }}>الشحن</span>
                 <span className={shipping === 0 ? 'text-green-600 font-semibold' : 'font-semibold'}>
-                  {shipping === 0 ? 'مجاني 🎉' : toArabicPrice(shipping)}
+                  {shipping === 0 ? 'مجاني 🎉' : formatPrice(shipping)}
                 </span>
               </div>
               <div className="flex justify-between text-base font-bold pt-2 border-t" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>
                 <span>الإجمالي</span>
-                <span style={{ color: 'var(--primary)' }}>{toArabicPrice(total)}</span>
+                <span style={{ color: 'var(--primary)' }}>{formatPrice(total)}</span>
               </div>
             </div>
             <Link

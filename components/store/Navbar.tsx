@@ -2,18 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShoppingBagIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { ShoppingBagIcon, Bars3Icon, XMarkIcon, HeartIcon, UserIcon } from '@heroicons/react/24/outline'
 import { useCartContext } from '@/context/CartContext'
-import CartSidebar from './CartSidebar'
+import { useWishlistContext } from '@/context/WishlistContext'
+import EnhancedCartSidebar from './EnhancedCartSidebar'
+import CountrySelector from './CountrySelector'
 
 const NAV_LINKS = [
   { href: '/products', label: 'المنتجات' },
   { href: '/about', label: 'من نحن' },
   { href: '/#contact', label: 'تواصل معنا' },
+  { href: '/track', label: 'تتبع الطلب' },
+  { href: '/wishlist', label: 'المفضلة' },
 ]
 
 export default function Navbar() {
   const { totalItems, setIsOpen } = useCartContext()
+  const { totalItems: wishlistCount } = useWishlistContext()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [lang, setLang] = useState<'ar' | 'en'>('ar')
@@ -47,6 +52,9 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {/* Country Selector */}
+            <CountrySelector />
+
             {/* Language Toggle */}
             <button
               type="button"
@@ -57,6 +65,20 @@ export default function Navbar() {
             >
               {lang === 'ar' ? 'EN' : 'عر'}
             </button>
+
+            {/* Wishlist */}
+            <Link
+              href="/wishlist"
+              className="relative p-2 rounded-xl transition-all duration-200 hover:bg-[#EEE0D5]"
+              aria-label="المفضلة"
+            >
+              <HeartIcon className="w-6 h-6" style={{ color: 'var(--text-dark)' }} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center text-white" style={{ background: 'var(--rose-gold)' }}>
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
 
             {/* Cart */}
             <button
@@ -99,6 +121,14 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/wishlist"
+              onClick={() => setMobileOpen(false)}
+              className="mobile-nav-link flex items-center gap-2"
+            >
+              <HeartIcon className="w-5 h-5" />
+              المفضلة {wishlistCount > 0 && `(${wishlistCount})`}
+            </Link>
             <button
               type="button"
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
@@ -110,7 +140,7 @@ export default function Navbar() {
         )}
       </nav>
 
-      <CartSidebar />
+      <EnhancedCartSidebar />
     </>
   )
 }

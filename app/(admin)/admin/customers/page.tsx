@@ -21,7 +21,7 @@ export default function AdminCustomers() {
     
     // Group by phone number
     const customerMap = new Map()
-    orders?.forEach(o => {
+    orders?.forEach((o: { customer_phone: string, customer_name: string, customer_email: string, created_at: string, total: number }) => {
       const existing = customerMap.get(o.customer_phone) || {
         phone: o.customer_phone,
         name: o.customer_name,

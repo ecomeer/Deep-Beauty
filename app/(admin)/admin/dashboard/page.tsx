@@ -6,7 +6,8 @@ import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/l
 import Link from 'next/link'
 import {
   ShoppingBagIcon, CurrencyDollarIcon, InboxStackIcon, TagIcon,
-  ExclamationCircleIcon, ExclamationTriangleIcon,
+  ExclamationCircleIcon, ExclamationTriangleIcon, StarIcon,
+  ChartBarIcon, UsersIcon
 } from '@heroicons/react/24/outline'
 
 interface DayData { label: string; count: number; revenue: number }
@@ -65,7 +66,7 @@ export default function AdminDashboard() {
         supabase.from('orders').select('created_at, total').gte('created_at', sevenDaysAgo.toISOString()),
       ])
 
-      const totalSales = salesData?.reduce((s, o) => s + Number(o.total), 0) || 0
+      const totalSales = salesData?.reduce((s: number, o: { total: number }) => s + Number(o.total), 0) || 0
       setStats({ totalOrders: tOrders || 0, todayOrders: todayCount || 0, totalSales, activeProducts: activeProd || 0, pendingOrders: pendingCount || 0 })
       setRecentOrders(recOrders || [])
       setLowStock(lowStockData || [])
@@ -76,8 +77,8 @@ export default function AdminDashboard() {
         const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
         const label = d.toLocaleDateString('ar-KW', { weekday: 'short' })
         const dateStr = d.toISOString().slice(0, 10)
-        const dayOrders = (recentOrdersForChart || []).filter(o => o.created_at.slice(0, 10) === dateStr)
-        days.push({ label, count: dayOrders.length, revenue: dayOrders.reduce((s, o) => s + Number(o.total), 0) })
+        const dayOrders = (recentOrdersForChart || []).filter((o: { created_at: string }) => o.created_at.slice(0, 10) === dateStr)
+        days.push({ label, count: dayOrders.length, revenue: dayOrders.reduce((s: number, o: { total: number }) => s + Number(o.total), 0) })
       }
       setChartDays(days)
     } catch (e) {
@@ -121,6 +122,37 @@ export default function AdminDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Link href="/admin/reviews" className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center flex-shrink-0">
+            <StarIcon className="w-6 h-6 text-yellow-600" />
+          </div>
+          <div>
+            <p className="font-bold text-gray-800">التقييمات</p>
+            <p className="text-sm text-gray-500">إدارة تقييمات العملاء</p>
+          </div>
+        </Link>
+        <Link href="/admin/stats" className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <ChartBarIcon className="w-6 h-6 text-blue-600" />
+          </div>
+          <div>
+            <p className="font-bold text-gray-800">إحصائيات متقدمة</p>
+            <p className="text-sm text-gray-500">تحليل المبيعات والعملاء</p>
+          </div>
+        </Link>
+        <Link href="/admin/customers" className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+            <UsersIcon className="w-6 h-6 text-green-600" />
+          </div>
+          <div>
+            <p className="font-bold text-gray-800">العملاء</p>
+            <p className="text-sm text-gray-500">قائمة العملاء والمشتريات</p>
+          </div>
+        </Link>
       </div>
 
       {/* Low Stock Alert */}

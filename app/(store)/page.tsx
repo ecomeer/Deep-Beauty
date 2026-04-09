@@ -1,25 +1,26 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import HomeContent from '@/components/store/HomeContent'
-import { Product, FlashSale } from '@/types'
+import EnhancedHomeContent from '@/components/store/EnhancedHomeContent'
+import { Product, FlashSale, Category } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   let featuredProducts: Product[] = []
   let activeFlashSale: FlashSale | null = null
+  let categories: Category[] = []
 
   try {
     const supabase = await createServerSupabaseClient()
     const now = new Date().toISOString()
 
-    const [productsRes, flashRes] = await Promise.all([
+    const [productsRes, flashRes, categoriesRes] = await Promise.all([
       supabase
         .from('products')
         .select('*')
         .eq('is_featured', true)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(6),
+        .limit(8),
       supabase
         .from('flash_sales')
         .select('*')
@@ -29,13 +30,26 @@ export default async function HomePage() {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
+      supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(4),
     ])
 
     featuredProducts = productsRes.data || []
     activeFlashSale = flashRes.data || null
+    categories = categoriesRes.data || []
   } catch (e) {
     console.error('Failed to fetch home data:', e)
   }
 
-  return <HomeContent featuredProducts={featuredProducts} activeFlashSale={activeFlashSale} />
+  return (
+    <EnhancedHomeContent 
+      featuredProducts={featuredProducts} 
+      activeFlashSale={activeFlashSale}
+      categories={categories}
+    />
+  )
 }

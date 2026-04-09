@@ -47,7 +47,7 @@ const REVIEWS = [
   { name: 'فاطمة العنزي', area: 'الجهراء', text: 'جربت منتجات كثيرة لكن ديب بيوتي مختلفة — طبيعية وفعّالة. أنصح فيها كل البنات بدون تردد.' },
 ]
 
-export default function HomePage({ featuredProducts, activeFlashSale }: {
+export default function HomeContent({ featuredProducts, activeFlashSale }: {
   featuredProducts: Product[]
   activeFlashSale: FlashSale | null
 }) {

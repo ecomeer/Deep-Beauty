@@ -14,7 +14,7 @@ export default function AnnouncementBanner() {
       .select('value')
       .eq('key', 'announcement_text')
       .single()
-      .then(({ data }) => {
+      .then(({ data }: { data: { value: string } | null }) => {
         const val = data?.value ?? ''
         if (val) {
           setText(val)
