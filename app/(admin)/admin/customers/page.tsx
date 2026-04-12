@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { formatDateTime } from '@/lib/utils'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
@@ -15,36 +14,15 @@ export default function AdminCustomers() {
   }, [])
 
   async function fetchCustomers() {
-    // In this basic version, we deduce customers from orders
-    // Real app would have a dedicated users/profiles table linked to Auth
-    const { data: orders } = await supabase.from('orders').select('customer_name, customer_phone, customer_email, created_at, total')
-    
-    // Group by phone number
-    const customerMap = new Map()
-    orders?.forEach((o: { customer_phone: string, customer_name: string, customer_email: string, created_at: string, total: number }) => {
-      const existing = customerMap.get(o.customer_phone) || {
-        phone: o.customer_phone,
-        name: o.customer_name,
-        email: o.customer_email,
-        totalSpent: 0,
-        ordersCount: 0,
-        firstOrder: o.created_at,
-        lastOrder: o.created_at,
-      }
-      
-      existing.totalSpent += Number(o.total)
-      existing.ordersCount += 1
-      if (new Date(o.created_at) < new Date(existing.firstOrder)) existing.firstOrder = o.created_at
-      if (new Date(o.created_at) > new Date(existing.lastOrder)) existing.lastOrder = o.created_at
-      
-      customerMap.set(o.customer_phone, existing)
-    })
-    
-    setCustomers(Array.from(customerMap.values()).sort((a, b) => b.totalSpent - a.totalSpent))
+    const res = await fetch('/api/admin/customers')
+    const data = await res.json()
+    setCustomers(data.customers || [])
     setLoading(false)
   }
 
-  const filtered = customers.filter(c => c.name.includes(search) || c.phone.includes(search))
+  const filtered = customers.filter(c =>
+    (c.full_name || '').includes(search) || (c.phone || '').includes(search)
+  )
 
   return (
     <div>
@@ -88,14 +66,16 @@ export default function AdminCustomers() {
               ) : (
                 filtered.map((c, i) => (
                   <tr key={i}>
-                    <td className="font-bold">{c.name}</td>
-                    <td className="font-en text-sm">{c.phone}</td>
+                    <td className="font-bold">{c.full_name || '-'}</td>
+                    <td className="font-en text-sm">{c.phone || '-'}</td>
                     <td className="font-en text-sm">{c.email || '-'}</td>
-                    <td className="font-bold">{c.ordersCount}</td>
-                    <td className="font-bold text-[#9C6644]">{c.totalSpent.toFixed(3)} د.ك</td>
-                    <td className="text-xs" dir="ltr">{formatDateTime(c.lastOrder)}</td>
+                    <td className="font-bold">-</td>
+                    <td className="font-bold text-[#9C6644]">-</td>
+                    <td className="text-xs" dir="ltr">{formatDateTime(c.created_at)}</td>
                     <td>
-                      <a href={`https://wa.me/965${c.phone}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200">واتساب</a>
+                      {c.phone ? (
+                        <a href={`https://wa.me/965${c.phone}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200">واتساب</a>
+                      ) : '-'}
                     </td>
                   </tr>
                 ))

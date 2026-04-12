@@ -1,11 +1,10 @@
 'use client'
 
-import { useContext } from 'react'
-import { CountryContext } from '@/context/CountryContext'
+import { useCountry } from '@/context/CountryContext'
 import { GULF_COUNTRIES, CURRENCY_SYMBOLS } from '@/lib/currency'
 
 export default function CurrencySelector() {
-  const { country, setCountry } = useContext(CountryContext)
+  const { selectedCountry: country, setCountry } = useCountry()
 
   return (
     <div className="flex items-center gap-2">

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 
 interface Settings {
@@ -36,15 +35,19 @@ export default function AdminSettings() {
   }, [])
 
   async function fetchSettings() {
-    const { data } = await supabase.from('settings').select('key, value')
-    if (data && data.length > 0) {
-      const map: Partial<Settings> = {}
-      data.forEach(({ key, value }: { key: string, value: string | null }) => {
-        if (key in DEFAULTS) {
-          (map as Record<string, string>)[key] = value ?? ''
-        }
-      })
-      setSettings({ ...DEFAULTS, ...map })
+    const res = await fetch('/api/admin/settings')
+    if (res.ok) {
+      const data = await res.json()
+      const rows: { key: string; value: string | null }[] = data.settings || []
+      if (rows.length > 0) {
+        const map: Partial<Settings> = {}
+        rows.forEach(({ key, value }) => {
+          if (key in DEFAULTS) {
+            (map as Record<string, string>)[key] = value ?? ''
+          }
+        })
+        setSettings({ ...DEFAULTS, ...map })
+      }
     }
     setLoading(false)
   }

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { formatDateTime } from '@/lib/utils'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon, TrashIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -20,19 +19,17 @@ export default function AdminNewsletter() {
   useEffect(() => { fetchSubscribers() }, [])
 
   async function fetchSubscribers() {
-    const { data, error } = await supabase
-      .from('newsletter_subscribers')
-      .select('id, email, created_at')
-      .order('created_at', { ascending: false })
-    if (error) toast.error('تعذّر تحميل المشتركين')
-    setSubscribers(data || [])
+    const res = await fetch('/api/admin/newsletter')
+    if (!res.ok) { toast.error('تعذّر تحميل المشتركين'); setLoading(false); return }
+    const data = await res.json()
+    setSubscribers(data.subscribers || [])
     setLoading(false)
   }
 
   const handleDelete = async (id: string, email: string) => {
     if (!confirm(`هل أنت متأكد من حذف ${email}؟`)) return
-    const { error } = await supabase.from('newsletter_subscribers').delete().eq('id', id)
-    if (error) { toast.error('حدث خطأ أثناء الحذف'); return }
+    const res = await fetch(`/api/admin/newsletter/${id}`, { method: 'DELETE' })
+    if (!res.ok) { toast.error('حدث خطأ أثناء الحذف'); return }
     toast.success('تم الحذف')
     setSubscribers(prev => prev.filter(s => s.id !== id))
   }

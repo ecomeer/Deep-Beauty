@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { formatDateTime } from '@/lib/utils'
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -21,40 +20,51 @@ export default function AdminCoupons() {
   }, [])
 
   async function fetchCoupons() {
-    const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false })
+    const res = await fetch('/api/admin/coupons')
+    const data = await res.json()
     setCoupons(data || [])
     setLoading(false)
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('هل متأكد من الحذف؟')) return
-    await supabase.from('coupons').delete().eq('id', id)
+    await fetch(`/api/admin/coupons/${id}`, { method: 'DELETE' })
     fetchCoupons()
     toast.success('تم الحذف')
   }
 
   const toggleStatus = async (id: string, current: boolean) => {
-    await supabase.from('coupons').update({ is_active: !current }).eq('id', id)
+    await fetch(`/api/admin/coupons/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: !current }),
+    })
     fetchCoupons()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.code || form.value <= 0) return toast.error('أكمل البيانات المطلوبة')
-    
+
     setAdding(true)
-    const { error } = await supabase.from('coupons').insert([{
-      ...form, 
-      code: form.code.toUpperCase(),
-      usage_limit: form.usage_limit ? Number(form.usage_limit) : null,
-      expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
-    }])
-    
-    if (error) { toast.error(error.message) } 
-    else { 
-      toast.success('تم الإضافة') 
+    const res = await fetch('/api/admin/coupons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: form.code.toUpperCase(),
+        type: form.type,
+        value: form.value,
+        min_order_amount: form.min_order_amount,
+        usage_limit: form.usage_limit ? Number(form.usage_limit) : null,
+        expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
+      }),
+    })
+
+    if (!res.ok) { const d = await res.json(); toast.error(d.error || 'حدث خطأ') }
+    else {
+      toast.success('تم الإضافة')
       setForm({ code: '', type: 'percentage', value: 0, min_order_amount: 0, usage_limit: '', expires_at: '' })
-      fetchCoupons() 
+      fetchCoupons()
     }
     setAdding(false)
   }

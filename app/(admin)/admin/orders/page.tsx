@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
 import Link from 'next/link'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
@@ -18,8 +17,9 @@ export default function AdminOrders() {
   useEffect(() => { fetchOrders() }, [])
 
   async function fetchOrders() {
-    const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
-    setOrders(data || [])
+    const res = await fetch('/api/admin/orders')
+    const data = await res.json()
+    setOrders(data.orders || [])
     setLoading(false)
   }
 

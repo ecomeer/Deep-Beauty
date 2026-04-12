@@ -1,7 +1,6 @@
 'use client'
 
-import { useContext } from 'react'
-import { CountryContext } from '@/context/CountryContext'
+import { useCountry } from '@/context/CountryContext'
 import { GULF_COUNTRIES, EXCHANGE_RATES, CURRENCY_SYMBOLS } from '@/lib/currency'
 
 interface CurrencyDisplayProps {
@@ -11,13 +10,13 @@ interface CurrencyDisplayProps {
   decimals?: number
 }
 
-export default function CurrencyDisplay({ 
-  amountKWD, 
-  className = '', 
+export default function CurrencyDisplay({
+  amountKWD,
+  className = '',
   showSymbol = true,
-  decimals = 2 
+  decimals = 2
 }: CurrencyDisplayProps) {
-  const { country } = useContext(CountryContext)
+  const { selectedCountry: country } = useCountry()
   const currency = GULF_COUNTRIES[country]?.currency || 'KWD'
   const rate = EXCHANGE_RATES[currency as keyof typeof EXCHANGE_RATES] || 1
   const symbol = CURRENCY_SYMBOLS[currency as keyof typeof CURRENCY_SYMBOLS] || 'د.ك'

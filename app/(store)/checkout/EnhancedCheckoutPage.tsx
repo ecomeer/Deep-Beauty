@@ -215,11 +215,27 @@ export default function EnhancedCheckoutPage() {
       )
 
       // Decrement stock
-      await Promise.all(
-        items.map((item) =>
-          supabase.rpc('decrement_stock', { product_id: item.id, qty: item.quantity })
-        )
-      )
+      for (const item of items) {
+        await supabase.rpc('decrement_stock', { 
+          product_id: item.id, 
+          quantity: item.quantity 
+        })
+      }
+
+      // Send push notification for new order
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: 'طلب جديد! 🛍️',
+            body: `طلب #${order.order_number} من ${form.customer_name} - ${paymentMethod === 'cod' ? 'الدفع عند الاستلام' : 'دفع إلكتروني'}`,
+            url: `/admin/orders/${order.id}`
+          })
+        })
+      } catch (notifError) {
+        console.error('Failed to send push notification:', notifError)
+      }
 
       // Increment coupon usage
       if (couponApplied) {

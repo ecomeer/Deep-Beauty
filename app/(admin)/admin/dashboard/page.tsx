@@ -190,7 +190,9 @@ export default function AdminDashboard() {
             عرض الكل
           </Link>
         </div>
-        <div className="overflow-x-auto">
+        
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="admin-table w-full">
             <thead>
               <tr>
@@ -227,6 +229,34 @@ export default function AdminDashboard() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden p-4 space-y-3">
+          {recentOrders.length === 0 ? (
+            <div className="text-center py-8 opacity-50">لا توجد طلبات بعد</div>
+          ) : (
+            recentOrders.map((order: any) => (
+              <div key={order.id} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <span className="font-en font-bold text-xs">#{order.order_number}</span>
+                    <p className="font-medium text-sm">{order.customer_name}</p>
+                  </div>
+                  <span className={`badge ${STATUS_COLORS[order.status] || 'badge-gray'} text-xs`}>
+                    {STATUS_LABELS[order.status] || order.status}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-bold" style={{ color: 'var(--primary)' }}>{toArabicPrice(order.total)}</span>
+                  <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline" style={{ color: 'var(--primary)' }}>
+                    تفاصيل
+                  </Link>
+                </div>
+                <p className="text-xs opacity-50 mt-2" dir="ltr">{formatDateTime(order.created_at)}</p>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { formatDateTime } from '@/lib/utils'
 import { PlusIcon, TrashIcon, BoltIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -51,11 +50,9 @@ export default function AdminFlashSales() {
   useEffect(() => { fetchSales() }, [])
 
   async function fetchSales() {
-    const { data } = await supabase
-      .from('flash_sales')
-      .select('*')
-      .order('created_at', { ascending: false })
-    setSales(data || [])
+    const res = await fetch('/api/admin/flash-sales')
+    const data = await res.json()
+    setSales(data.sales || [])
     setLoading(false)
   }
 
@@ -65,14 +62,19 @@ export default function AdminFlashSales() {
     if (new Date(form.ends_at) <= new Date(form.starts_at)) return toast.error('تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء')
 
     setAdding(true)
-    const { error } = await supabase.from('flash_sales').insert([{
-      ...form,
-      is_active: true,
-      starts_at: new Date(form.starts_at).toISOString(),
-      ends_at: new Date(form.ends_at).toISOString(),
-    }])
-    if (error) {
-      toast.error('حدث خطأ: ' + error.message)
+    const res = await fetch('/api/admin/flash-sales', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...form,
+        is_active: true,
+        starts_at: new Date(form.starts_at).toISOString(),
+        ends_at: new Date(form.ends_at).toISOString(),
+      }),
+    })
+    if (!res.ok) {
+      const d = await res.json()
+      toast.error('حدث خطأ: ' + (d.error || ''))
     } else {
       toast.success('تم إنشاء عرض الفلاش بنجاح ⚡')
       setForm({ name_ar: '', discount_percentage: 10, starts_at: '', ends_at: '', apply_to: 'all' })
@@ -82,13 +84,17 @@ export default function AdminFlashSales() {
   }
 
   const toggleStatus = async (id: string, current: boolean) => {
-    await supabase.from('flash_sales').update({ is_active: !current }).eq('id', id)
+    await fetch('/api/admin/flash-sales', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, is_active: !current }),
+    })
     fetchSales()
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من الحذف؟')) return
-    await supabase.from('flash_sales').delete().eq('id', id)
+    await fetch(`/api/admin/flash-sales?id=${id}`, { method: 'DELETE' })
     toast.success('تم الحذف')
     fetchSales()
   }
