@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 
 interface CouponRow {
@@ -32,15 +31,11 @@ export default function AdminMarketing() {
     expires_at: '',
   })
 
-  const fetchCoupons = () => {
-    supabase
-      .from('coupons')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data }: { data: CouponRow[] | null }) => {
-        if (data) setCoupons(data)
-        setLoading(false)
-      }, () => setLoading(false))
+  const fetchCoupons = async () => {
+    const res = await fetch('/api/admin/coupons')
+    const data = await res.json()
+    setCoupons(Array.isArray(data) ? data : [])
+    setLoading(false)
   }
 
   useEffect(() => { fetchCoupons() }, [])
@@ -53,16 +48,22 @@ export default function AdminMarketing() {
     e.preventDefault()
     if (!form.code.trim() || !form.value) return
     setSaving(true)
-    const { error } = await supabase.from('coupons').insert({
-      code: form.code.trim().toUpperCase(),
-      description_ar: form.description_ar || null,
-      type: form.type,
-      value: parseFloat(form.value),
-      min_order_amount: parseFloat(form.min_order_amount) || 0,
-      usage_limit: form.usage_limit ? parseInt(form.usage_limit) : null,
-      expires_at: form.expires_at || null,
-      is_active: true,
+    const res = await fetch('/api/admin/coupons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: form.code.trim().toUpperCase(),
+        description_ar: form.description_ar || null,
+        type: form.type,
+        value: parseFloat(form.value),
+        min_order_amount: parseFloat(form.min_order_amount) || 0,
+        usage_limit: form.usage_limit ? parseInt(form.usage_limit) : null,
+        expires_at: form.expires_at || null,
+        is_active: true,
+      }),
     })
+    const resJson = await res.json()
+    const error = !res.ok ? resJson : null
     setSaving(false)
     if (error) { toast.error('حدث خطأ أثناء الحفظ'); return }
     toast.success('تم إضافة الكوبون')
@@ -72,13 +73,17 @@ export default function AdminMarketing() {
   }
 
   const toggleActive = async (id: string, current: boolean) => {
-    await supabase.from('coupons').update({ is_active: !current }).eq('id', id)
+    await fetch(`/api/admin/coupons/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: !current }),
+    })
     setCoupons((prev) => prev.map((c) => c.id === id ? { ...c, is_active: !current } : c))
   }
 
   const deleteCoupon = async (id: string) => {
     if (!confirm('هل أنت متأكد من الحذف؟')) return
-    await supabase.from('coupons').delete().eq('id', id)
+    await fetch(`/api/admin/coupons/${id}`, { method: 'DELETE' })
     setCoupons((prev) => prev.filter((c) => c.id !== id))
     toast.success('تم الحذف')
   }

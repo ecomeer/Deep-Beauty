@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'

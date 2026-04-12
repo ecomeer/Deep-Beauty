@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { slugify } from '@/lib/utils'
 import { Category } from '@/types'
 import toast from 'react-hot-toast'
@@ -30,12 +29,12 @@ export default function ProductForm() {
   }, [isEdit, params])
 
   async function fetchCategories() {
-    const { data } = await supabase.from('categories').select('*')
+    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
     setCategories(data || [])
   }
 
   async function fetchProduct() {
-    const { data } = await supabase.from('products').select('*').eq('id', params.id).single()
+    const res = await fetch(`/api/admin/products/${params.id}`); const { product: data } = await res.json()
     if (data) {
       setForm({
         name_ar: data.name_ar,
@@ -112,15 +111,13 @@ export default function ProductForm() {
     setUploading(true)
     const uploaded: string[] = []
     for (const file of Array.from(files)) {
-      const ext = file.name.split('.').pop()
-      const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { error } = await supabase.storage.from('product-images').upload(path, file, { upsert: true })
-      if (!error) {
-        const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-        uploaded.push(data.publicUrl)
-      } else {
-        toast.error(`فشل رفع ${file.name}: ${error.message}`)
-      }
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'products')
+      const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+      if (!uploadRes.ok) { toast.error(`فشل رفع ${file.name}`); continue }
+      const { url } = await uploadRes.json()
+      uploaded.push(url)
     }
     if (uploaded.length > 0) {
       setForm(f => ({ ...f, images: [...f.images, ...uploaded] }))

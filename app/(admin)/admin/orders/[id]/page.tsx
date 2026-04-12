@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -40,15 +39,12 @@ export default function AdminOrderDetail() {
   }, [])
 
   async function fetchOrder() {
-    const { data: oData } = await supabase.from('orders').select('*').eq('id', params.id).single()
-    if (oData) {
-      setOrder(oData)
-      const { data: iData } = await supabase.from('order_items').select('*').eq('order_id', oData.id)
-      setItems(iData || [])
-      // Fetch tracking
-      const { data: tData } = await supabase.from('order_tracking').select('*').eq('order_id', oData.id).order('created_at', { ascending: false })
-      setTracking(tData || [])
-    }
+    const res = await fetch(`/api/admin/orders/${params.id}`)
+    if (!res.ok) { setLoading(false); return }
+    const { order: oData, items: iData, tracking: tData } = await res.json()
+    setOrder(oData)
+    setItems(iData || [])
+    setTracking(tData || [])
     setLoading(false)
   }
 

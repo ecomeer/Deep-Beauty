@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { TrashIcon, PhotoIcon, ChevronUpIcon, ChevronDownIcon, PlusIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -28,10 +27,7 @@ export default function AdminBanners() {
   useEffect(() => { fetchBanners() }, [])
 
   async function fetchBanners() {
-    const { data } = await supabase
-      .from('banners')
-      .select('*')
-      .order('sort_order', { ascending: true })
+    const res = await fetch('/api/admin/banners'); const { banners: data } = await res.json()
     setBanners(data || [])
     setLoading(false)
   }
@@ -40,14 +36,16 @@ export default function AdminBanners() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const ext = file.name.split('.').pop()
-    const path = `banners/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage.from('product-images').upload(path, file, { upsert: true })
-    if (error) {
-      toast.error('فشل رفع الصورة: ' + error.message)
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('folder', 'banners')
+    const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+    if (!uploadRes.ok) {
+      const { error } = await uploadRes.json()
+      toast.error('فشل رفع الصورة: ' + error)
     } else {
-      const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-      setForm(f => ({ ...f, image_url: data.publicUrl }))
+      const { url } = await uploadRes.json()
+      setForm(f => ({ ...f, image_url: url }))
       toast.success('تم رفع الصورة')
     }
     setUploading(false)

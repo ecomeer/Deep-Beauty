@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Category } from '@/types'
 import { PlusIcon, TrashIcon, PhotoIcon, PencilSquareIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -29,22 +28,19 @@ export default function AdminCategories() {
   useEffect(() => { fetchCategories() }, [])
 
   async function fetchCategories() {
-    const { data } = await supabase
-      .from('categories')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
     setCategories(data || [])
     setLoading(false)
   }
 
-  // Upload image to Supabase Storage
   async function uploadImage(file: File, prefix: string): Promise<string | null> {
-    const ext = file.name.split('.').pop()
-    const path = `categories/${prefix}-${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('product-images').upload(path, file, { upsert: true })
-    if (error) { toast.error('فشل رفع الصورة: ' + error.message); return null }
-    const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-    return data.publicUrl
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('folder', `categories`)
+    const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+    if (!res.ok) { toast.error('فشل رفع الصورة'); return null }
+    const { url } = await res.json()
+    return url
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {

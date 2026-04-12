@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Product, Category } from '@/types'
 import { toArabicPrice } from '@/lib/utils'
 import Link from 'next/link'
@@ -21,13 +20,13 @@ export default function AdminProducts() {
   }, [])
 
   async function fetchProducts() {
-    const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false })
+    const res = await fetch('/api/admin/products'); const { products: data } = await res.json()
     setProducts(data || [])
     setLoading(false)
   }
 
   async function fetchCategories() {
-    const { data } = await supabase.from('categories').select('*').eq('is_active', true).order('name_ar')
+    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
     setCategories(data || [])
   }
 
