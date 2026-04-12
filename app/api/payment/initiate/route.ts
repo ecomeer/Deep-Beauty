@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { initiatePayment } from '@/lib/payment'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,17 +14,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update order payment method to online
-    const supabase = await createServerSupabaseClient()
-    await supabase
+    await supabaseAdmin
       .from('orders')
-      .update({
-        payment_method: 'online',
-        payment_status: 'unpaid',
-      })
+      .update({ payment_method: 'online', payment_status: 'unpaid' })
       .eq('id', orderId)
 
-    // Initiate payment
     const payment = await initiatePayment({
       orderId,
       orderNumber,

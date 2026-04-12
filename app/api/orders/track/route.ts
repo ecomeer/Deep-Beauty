@@ -1,23 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const orderNumber = searchParams.get('order')
     const phone = searchParams.get('phone')
-    
+
     if (!orderNumber || !phone) {
       return NextResponse.json(
         { error: 'Order number and phone required' },
         { status: 400 }
       )
     }
-    
-    const supabase = await createServerSupabaseClient()
-    
-    // Find order by order number and phone
-    const { data: order, error: orderError } = await supabase
+
+    const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .select(`
         id,
@@ -39,28 +36,22 @@ export async function GET(request: NextRequest) {
       .eq('order_number', orderNumber)
       .eq('customer_phone', phone)
       .single()
-    
+
     if (orderError || !order) {
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
       )
     }
-    
-    // Get tracking history
-    const { data: tracking, error: trackingError } = await supabase
+
+    const { data: tracking } = await supabaseAdmin
       .from('order_tracking')
       .select('*')
       .eq('order_id', order.id)
       .eq('is_customer_visible', true)
       .order('created_at', { ascending: false })
-    
-    if (trackingError) throw trackingError
-    
-    return NextResponse.json({
-      order,
-      tracking: tracking || []
-    })
+
+    return NextResponse.json({ order, tracking: tracking || [] })
   } catch (error: any) {
     console.error('Track order error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

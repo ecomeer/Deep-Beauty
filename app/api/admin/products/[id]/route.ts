@@ -4,18 +4,11 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    console.log('PATCH request received for id:', id)
-    console.log('ENV check:', {
-      url: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'exists' : 'missing',
-      key: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'exists' : 'missing'
-    })
 
     let body
     try {
       body = await req.json()
-      console.log('Request body:', JSON.stringify(body, null, 2))
     } catch (parseError) {
-      console.error('Failed to parse JSON body:', parseError)
       return NextResponse.json({ error: 'Invalid JSON body', details: String(parseError) }, { status: 400 })
     }
 
@@ -29,9 +22,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       if (key in body) updateFields[key] = body[key]
     }
 
-    console.log('Filtered update fields:', updateFields)
-    console.log('Supabase client exists:', !!supabaseAdmin)
-
     const { data, error } = await supabaseAdmin
       .from('products')
       .update(updateFields)
@@ -44,7 +34,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: error.message, details: error }, { status: 400 })
     }
 
-    console.log('Update successful:', data)
     return NextResponse.json({ data })
   } catch (err) {
     console.error('PATCH error:', err)

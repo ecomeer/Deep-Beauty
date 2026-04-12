@@ -1,7 +1,10 @@
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import PwaProvider from '@/components/admin/PwaProvider'
 import { Toaster } from 'react-hot-toast'
 
-// Auth protection is handled by middleware.ts for all /admin/* routes except /admin/login
+export const metadata = {
+  manifest: '/manifest.json',
+}
 
 export default function AdminLayout({
   children,
@@ -18,7 +21,10 @@ export default function AdminLayout({
         }
       }} />
       <AdminSidebar />
-      <main className="flex-1 overflow-x-hidden pt-4 pb-10 px-6">
+      <main className="flex-1 overflow-x-hidden pt-4 pb-10 px-4 md:px-6 mt-14 mb-16 md:mt-0 md:mb-0">
+        <div className="flex justify-end mb-4">
+          <PwaProvider />
+        </div>
         {children}
       </main>
     </div>

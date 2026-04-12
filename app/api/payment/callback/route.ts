@@ -1,26 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyPayment } from '@/lib/payment'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const paymentId = searchParams.get('paymentId')
+    const paymentId = request.nextUrl.searchParams.get('paymentId')
 
     if (!paymentId) {
       return NextResponse.redirect(new URL('/payment-failed?reason=missing_id', request.url))
     }
 
-    // Verify payment status
     const result = await verifyPayment(paymentId)
 
     if (!result.success || !result.orderId) {
       return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
     }
 
-    // Update order status in database
-    const supabase = await createServerSupabaseClient()
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('orders')
       .update({
         payment_status: 'paid',
@@ -34,7 +30,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/payment-failed?reason=database_error', request.url))
     }
 
-    // Redirect to success page
+    // Send push notification for new order
+    try {
+      const { data: order } = await supabaseAdmin
+        .from('orders')
+        .select('order_number, customer_name, total_amount')
+        .eq('id', result.orderId)
+        .single()
+
+      if (order) {
+        await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: 'طلب جديد مدفوع! 💳',
+            body: `طلب #${order.order_number} من ${order.customer_name} - المبلغ: ${order.total_amount} د.ك`,
+            url: `/admin/orders/${result.orderId}`
+          })
+        })
+      }
+    } catch (notifError) {
+      console.error('Failed to send push notification:', notifError)
+    }
+
     return NextResponse.redirect(new URL(`/order-success?id=${result.orderId}&paid=true`, request.url))
   } catch (error) {
     console.error('Payment callback error:', error)

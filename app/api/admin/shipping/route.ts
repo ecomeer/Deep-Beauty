@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 // GET - Fetch all shipping zones
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     
     const { data, error } = await supabase
       .from('shipping_zones')
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     
     const { data, error } = await supabase
       .from('shipping_zones')
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     
     const { id, ...updates } = body
     
@@ -85,7 +85,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Zone ID required' }, { status: 400 })
     }
     
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     
     const { error } = await supabase
       .from('shipping_zones')

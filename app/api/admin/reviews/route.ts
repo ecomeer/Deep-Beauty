@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'all' // all, pending, approved
     
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     
     let query = supabase
       .from('reviews')
@@ -42,7 +42,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Review ID required' }, { status: 400 })
     }
     
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     
     const { data, error } = await supabase
       .from('reviews')
@@ -69,7 +69,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Review ID required' }, { status: 400 })
     }
     
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     
     const { error } = await supabase
       .from('reviews')

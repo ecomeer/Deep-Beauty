@@ -6,7 +6,6 @@ import { Suspense, useEffect, useState } from 'react'
 import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/24/solid'
 import { UserIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
 import { toArabicPrice } from '@/lib/utils'
 
 interface OrderItem {
@@ -42,15 +41,13 @@ function OrderSuccessContent() {
 
   useEffect(() => {
     if (!orderId) { setLoading(false); return }
-    supabase
-      .from('orders')
-      .select('*, order_items(*)')
-      .eq('id', orderId)
-      .single()
-      .then(({ data }: { data: Order | null }) => {
-        if (data) setOrder(data)
+    fetch(`/api/orders/${orderId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then((json: { order: Order } | null) => {
+        if (json?.order) setOrder(json.order)
         setLoading(false)
-      }, () => setLoading(false))
+      })
+      .catch(() => setLoading(false))
   }, [orderId])
 
   return (

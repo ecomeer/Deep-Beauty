@@ -7,6 +7,7 @@ import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
 import EnhancedCartSidebar from './EnhancedCartSidebar'
 import CountrySelector from './CountrySelector'
+import CurrencySelector from './CurrencySelector'
 
 const NAV_LINKS = [
   { href: '/products', label: 'المنتجات' },
@@ -54,6 +55,10 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             {/* Country Selector */}
             <CountrySelector />
+            {/* Currency Selector */}
+            <div className="hidden lg:block">
+              <CurrencySelector />
+            </div>
 
             {/* Language Toggle */}
             <button

@@ -64,8 +64,14 @@ export default function AdminCategories() {
     const url = await uploadImage(file, catId)
     if (url) {
       setEditImageUrl(url)
-      // Save immediately
-      await supabase.from('categories').update({ image_url: url }).eq('id', catId)
+      const cat = categories.find(c => c.id === catId)
+      if (cat) {
+        await fetch(`/api/admin/categories/${catId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name_ar: cat.name_ar, name_en: cat.name_en, slug: cat.slug, image_url: url, is_active: cat.is_active }),
+        })
+      }
       setCategories(prev => prev.map(c => c.id === catId ? { ...c, image_url: url } : c))
       toast.success('تم تحديث صورة الفئة')
     }
@@ -82,16 +88,21 @@ export default function AdminCategories() {
     e.preventDefault()
     if (!form.name_ar || !form.name_en || !form.slug) return
     setSaving(true)
-    const { error } = await supabase.from('categories').insert({
-      name_ar: form.name_ar.trim(),
-      name_en: form.name_en.trim(),
-      slug: form.slug.trim(),
-      image_url: form.image_url || null,
-      is_active: true,
+    const res = await fetch('/api/admin/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name_ar: form.name_ar.trim(),
+        name_en: form.name_en.trim(),
+        slug: form.slug.trim(),
+        image_url: form.image_url || null,
+        is_active: true,
+      }),
     })
     setSaving(false)
-    if (error) {
-      toast.error(error.code === '23505' ? 'هذا الـ slug مستخدم بالفعل' : 'حدث خطأ أثناء الحفظ')
+    if (!res.ok) {
+      const { error } = await res.json()
+      toast.error(error?.includes('23505') ? 'هذا الـ slug مستخدم بالفعل' : 'حدث خطأ أثناء الحفظ')
       return
     }
     toast.success('تم إضافة الفئة')
@@ -101,14 +112,20 @@ export default function AdminCategories() {
   }
 
   const toggleStatus = async (id: string, current: boolean) => {
-    await supabase.from('categories').update({ is_active: !current }).eq('id', id)
+    const cat = categories.find(c => c.id === id)
+    if (!cat) return
+    await fetch(`/api/admin/categories/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name_ar: cat.name_ar, name_en: cat.name_en, slug: cat.slug, image_url: cat.image_url || null, is_active: !current }),
+    })
     setCategories(prev => prev.map(c => c.id === id ? { ...c, is_active: !current } : c))
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذه الفئة؟')) return
-    const { error } = await supabase.from('categories').delete().eq('id', id)
-    if (error) { toast.error('حدث خطأ أثناء الحذف'); return }
+    const res = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' })
+    if (!res.ok) { toast.error('حدث خطأ أثناء الحذف'); return }
     toast.success('تم الحذف')
     setCategories(prev => prev.filter(c => c.id !== id))
   }

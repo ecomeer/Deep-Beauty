@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import EnhancedHomeContent from '@/components/store/EnhancedHomeContent'
 import { Product, FlashSale, Category } from '@/types'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60 // revalidate every 60 seconds
 
 export default async function HomePage() {
   let featuredProducts: Product[] = []

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const period = searchParams.get('period') || '7d' // 7d, 30d, 90d, 1y
-    
-    const supabase = await createServerSupabaseClient()
+
+    const supabase = supabaseAdmin
     
     // Calculate date range
     const now = new Date()
@@ -66,10 +66,11 @@ export async function GET(request: NextRequest) {
       .slice(0, 10)
     
     // Reviews stats
-    const pendingReviews = reviewsStats?.filter(r => !r.is_approved).length || 0
-    const approvedReviews = reviewsStats?.filter(r => r.is_approved).length || 0
-    const avgRating = reviewsStats?.length > 0
-      ? reviewsStats.reduce((sum, r) => sum + r.rating, 0) / reviewsStats.length
+    const reviews = reviewsStats ?? []
+    const pendingReviews = reviews.filter(r => !r.is_approved).length
+    const approvedReviews = reviews.filter(r => r.is_approved).length
+    const avgRating = reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : 0
     
     return NextResponse.json({

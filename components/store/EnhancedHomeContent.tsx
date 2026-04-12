@@ -6,22 +6,17 @@ import Link from 'next/link'
 import { Product, FlashSale, Category } from '@/types'
 import { toArabicPrice } from '@/lib/utils'
 import { 
-  ShoppingBagIcon, 
   HeartIcon,
   ArrowRightIcon,
   TruckIcon,
   ShieldCheckIcon,
-  ClockIcon,
   StarIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   SparklesIcon,
-  GiftIcon,
-  ChatBubbleBottomCenterTextIcon,
-  UserIcon,
-  ArrowLeftIcon
 } from '@heroicons/react/24/outline'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import EnhancedProductCard from './EnhancedProductCard'
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -38,10 +33,10 @@ const scaleIn = {
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } 
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }
   }
 }
 
@@ -557,18 +552,7 @@ function FeaturedProductsSection({ products }: { products: Product[] }) {
 
 // New Section: Bestsellers Section (Curated for you)
 function BestsellersSectionV2({ products }: { products: Product[] }) {
-  const [bestsellers, setBestsellers] = useState<Product[]>(products.slice(0, 4))
-  
-  useEffect(() => {
-    fetch('/api/products/bestsellers?limit=4')
-      .then(res => res.json())
-      .then(data => {
-        if (data.products && data.products.length > 0) {
-          setBestsellers(data.products)
-        }
-      })
-      .catch(() => {})
-  }, [])
+  const bestsellers = products.slice(0, 4)
   
   return (
     <motion.section
@@ -610,18 +594,7 @@ function BestsellersSectionV2({ products }: { products: Product[] }) {
 
 // New Section: Most Requested Products
 function MostRequestedSection({ products }: { products: Product[] }) {
-  const [requested, setRequested] = useState<Product[]>(products.slice(4, 8))
-  
-  useEffect(() => {
-    fetch('/api/products/featured?limit=8')
-      .then(res => res.json())
-      .then(data => {
-        if (data.products && data.products.length > 4) {
-          setRequested(data.products.slice(4, 8))
-        }
-      })
-      .catch(() => {})
-  }, [])
+  const requested = products.slice(4, 8)
   
   return (
     <motion.section

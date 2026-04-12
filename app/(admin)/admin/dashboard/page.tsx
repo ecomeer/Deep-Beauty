@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
 import Link from 'next/link'
 import {
@@ -32,67 +31,56 @@ function BarChart({ days, valueKey }: { days: DayData[]; valueKey: 'count' | 're
   )
 }
 
+interface DashboardData {
+  stats: { totalOrders: number; todayOrders: number; totalSales: number; activeProducts: number; pendingOrders: number }
+  recentOrders: any[]
+  lowStock: any[]
+  chartData: { created_at: string; total: number }[]
+}
+
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ totalOrders: 0, todayOrders: 0, totalSales: 0, activeProducts: 0, pendingOrders: 0 })
-  const [recentOrders, setRecentOrders] = useState<any[]>([])
-  const [lowStock, setLowStock] = useState<any[]>([])
+  const [data, setData] = useState<DashboardData | null>(null)
   const [chartDays, setChartDays] = useState<DayData[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => { fetchDashboardData() }, [])
+  useEffect(() => {
+    fetch('/api/admin/dashboard')
+      .then(r => r.json())
+      .then((json: DashboardData) => {
+        setData(json)
 
-  async function fetchDashboardData() {
-    try {
-      const today = new Date(); today.setHours(0, 0, 0, 0)
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-
-      const [
-        { count: tOrders },
-        { count: todayCount },
-        { count: pendingCount },
-        { data: salesData },
-        { count: activeProd },
-        { data: recOrders },
-        { data: lowStockData },
-        { data: recentOrdersForChart },
-      ] = await Promise.all([
-        supabase.from('orders').select('*', { count: 'exact', head: true }),
-        supabase.from('orders').select('*', { count: 'exact', head: true }).gte('created_at', today.toISOString()),
-        supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('orders').select('total').eq('payment_status', 'paid'),
-        supabase.from('products').select('*', { count: 'exact', head: true }).eq('is_active', true),
-        supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(8),
-        supabase.from('products').select('id, name_ar, stock_quantity').lt('stock_quantity', 10).eq('is_active', true).order('stock_quantity', { ascending: true }).limit(5),
-        supabase.from('orders').select('created_at, total').gte('created_at', sevenDaysAgo.toISOString()),
-      ])
-
-      const totalSales = salesData?.reduce((s: number, o: { total: number }) => s + Number(o.total), 0) || 0
-      setStats({ totalOrders: tOrders || 0, todayOrders: todayCount || 0, totalSales, activeProducts: activeProd || 0, pendingOrders: pendingCount || 0 })
-      setRecentOrders(recOrders || [])
-      setLowStock(lowStockData || [])
-
-      // Build 7-day chart
-      const days: DayData[] = []
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-        const label = d.toLocaleDateString('ar-KW', { weekday: 'short' })
-        const dateStr = d.toISOString().slice(0, 10)
-        const dayOrders = (recentOrdersForChart || []).filter((o: { created_at: string }) => o.created_at.slice(0, 10) === dateStr)
-        days.push({ label, count: dayOrders.length, revenue: dayOrders.reduce((s: number, o: { total: number }) => s + Number(o.total), 0) })
-      }
-      setChartDays(days)
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
-  }
+        // Build 7-day chart from raw order data
+        const days: DayData[] = []
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+          const label = d.toLocaleDateString('ar-KW', { weekday: 'short' })
+          const dateStr = d.toISOString().slice(0, 10)
+          const dayOrders = (json.chartData || []).filter(o => o.created_at.slice(0, 10) === dateStr)
+          days.push({
+            label,
+            count: dayOrders.length,
+            revenue: dayOrders.reduce((s, o) => s + Number(o.total), 0),
+          })
+        }
+        setChartDays(days)
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [])
 
   if (loading) return (
     <div className="flex h-64 items-center justify-center">
       <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
     </div>
   )
+
+  if (!data) return (
+    <div className="flex h-64 items-center justify-center text-red-500">
+      فشل تحميل البيانات
+    </div>
+  )
+
+  const { stats, recentOrders, lowStock } = data
 
   const statCards = [
     { title: 'إجمالي الطلبات', value: stats.totalOrders, icon: InboxStackIcon, color: 'text-blue-500', bg: 'bg-blue-50' },
@@ -163,7 +151,7 @@ export default function AdminDashboard() {
             <p className="text-sm font-bold text-orange-700">تنبيه: منتجات تحتاج تجديد المخزون</p>
           </div>
           <div className="space-y-2">
-            {lowStock.map(p => (
+            {lowStock.map((p: any) => (
               <Link key={p.id} href={`/admin/products/${p.id}`}
                 className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition-shadow">
                 <span className="text-sm font-medium">{p.name_ar}</span>
@@ -218,7 +206,7 @@ export default function AdminDashboard() {
               {recentOrders.length === 0 ? (
                 <tr><td colSpan={6} className="text-center py-8 opacity-50">لا توجد طلبات بعد</td></tr>
               ) : (
-                recentOrders.map(order => (
+                recentOrders.map((order: any) => (
                   <tr key={order.id}>
                     <td className="font-en font-bold text-xs">{order.order_number}</td>
                     <td className="font-medium">{order.customer_name}</td>
