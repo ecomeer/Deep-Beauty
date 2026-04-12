@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, notFound } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
+
 import { Product } from '@/types'
 import { toArabicPrice } from '@/lib/utils'
 import { useCartContext } from '@/context/CartContext'
@@ -54,18 +54,15 @@ export default function EnhancedProductDetail() {
 
   async function fetchProduct() {
     setLoading(true)
-    const { data } = await supabase.from('products').select('*').eq('slug', slug).single()
-    if (!data) { setLoading(false); return }
-    setProduct(data)
-
-    const { data: rel } = await supabase
-      .from('products')
-      .select('*')
-      .eq('category', data.category)
-      .neq('id', data.id)
-      .eq('is_active', true)
-      .limit(4)
-    setRelated(rel || [])
+    try {
+      const res = await fetch(`/api/products/${slug}`)
+      if (!res.ok) { setLoading(false); return }
+      const json = await res.json()
+      setProduct(json.product)
+      setRelated(json.related || [])
+    } catch {
+      // product not found
+    }
     setLoading(false)
   }
 

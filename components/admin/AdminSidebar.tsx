@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+
 import {
   HomeIcon,
   ShoppingBagIcon,
@@ -56,7 +56,7 @@ export default function AdminSidebar() {
   if (pathname === '/admin/login') return null
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    await fetch('/api/auth/logout', { method: 'POST' })
     router.push('/admin/login')
   }
 

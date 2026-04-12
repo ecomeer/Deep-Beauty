@@ -2,27 +2,20 @@
 
 import { useState, useEffect } from 'react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { supabase } from '@/lib/supabase'
 
 export default function AnnouncementBanner() {
   const [visible, setVisible] = useState(false)
-  const [text, setText] = useState('🚚 شحن مجاني للطلبات فوق ٢٠ د.ك')
+  const [text, setText] = useState('شحن مجاني للطلبات فوق ٢٠ د.ك')
 
   useEffect(() => {
-    supabase
-      .from('settings')
-      .select('value')
-      .eq('key', 'announcement_text')
-      .single()
-      .then(({ data }: { data: { value: string } | null }) => {
-        const val = data?.value ?? ''
-        if (val) {
-          setText(val)
-          setVisible(true)
-        }
-      }, () => {
+    fetch('/api/settings')
+      .then(r => r.ok ? r.json() : null)
+      .then((json: { settings: { key: string; value: string }[] } | null) => {
+        const val = json?.settings?.find(s => s.key === 'announcement_text')?.value ?? ''
+        if (val) setText(val)
         setVisible(true)
       })
+      .catch(() => setVisible(true))
   }, [])
 
   if (!visible) return null

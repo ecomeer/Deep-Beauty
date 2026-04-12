@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCartContext } from '@/context/CartContext'
 import { useCountry } from '@/context/CountryContext'
-import { supabase } from '@/lib/supabase'
+
 import { toArabicPrice, generateOrderNumber, isKuwaitPhone, KUWAIT_AREAS } from '@/lib/utils'
 import { 
   UserIcon, 
@@ -105,26 +105,16 @@ export default function EnhancedCheckoutPage() {
     if (!couponCode.trim()) return
     setCouponLoading(true)
     try {
-      const { data: coupon } = await supabase
-        .from('coupons')
-        .select('*')
-        .eq('code', couponCode.trim().toUpperCase())
-        .eq('is_active', true)
-        .single()
-
-      if (!coupon) { toast.error('❌ كود غير صحيح'); setCouponLoading(false); return }
-      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) { toast.error('❌ الكود منتهي الصلاحية'); setCouponLoading(false); return }
-      if (coupon.usage_limit && coupon.usage_count >= coupon.usage_limit) { toast.error('❌ تجاوز هذا الكود الحد الأقصى للاستخدام'); setCouponLoading(false); return }
-      if (subtotal < coupon.min_order_amount) { toast.error(`❌ الحد الأدنى للطلب ${toArabicPrice(coupon.min_order_amount)}`); setCouponLoading(false); return }
-
-      let discount = coupon.type === 'percentage'
-        ? (subtotal * coupon.value) / 100
-        : coupon.value
-      if (coupon.max_discount_amount) discount = Math.min(discount, coupon.max_discount_amount)
-
-      setCouponDiscount(discount)
-      setCouponApplied(coupon.code)
-      toast.success(`✅ تم تطبيق كود ${coupon.code} — خصم ${toArabicPrice(discount)}`)
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode.trim(), subtotal }),
+      })
+      const json = await res.json()
+      if (!res.ok) { toast.error(`❌ ${json.error}`); setCouponLoading(false); return }
+      setCouponDiscount(json.discount)
+      setCouponApplied(json.code)
+      toast.success(`✅ تم تطبيق كود ${json.code} — خصم ${toArabicPrice(json.discount)}`)
     } catch {
       toast.error('❌ حدث خطأ')
     }
@@ -167,80 +157,40 @@ export default function EnhancedCheckoutPage() {
       const orderNumber = generateOrderNumber()
       const address = `${form.address_area}، قطعة ${form.address_block}، شارع ${form.address_street}، ${form.address_house}`
 
-      // Build order data - only include user_id if it exists
-      const orderData: any = {
-        order_number: orderNumber,
-        customer_name: form.customer_name,
-        customer_phone: form.customer_phone,
-        customer_email: form.customer_email || null,
-        address_line1: address,
-        address_area: form.address_area,
-        address_block: form.address_block,
-        address_street: form.address_street,
-        address_house: form.address_house,
-        notes: form.notes || null,
-        subtotal,
-        shipping_cost: shipping,
-        total: Math.max(0, total),
-        coupon_code: couponApplied || null,
-        coupon_discount: couponDiscount,
-        status: 'pending',
-        payment_method: paymentMethod,
-        payment_status: 'unpaid',
-      }
-      
-      // Only add user_id if the user is authenticated
-      if (userId) {
-        orderData.user_id = userId
-      }
+      const checkoutRes = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderNumber,
+          customer_name: form.customer_name,
+          customer_phone: form.customer_phone,
+          customer_email: form.customer_email || null,
+          address_line1: address,
+          address_area: form.address_area,
+          address_block: form.address_block,
+          address_street: form.address_street,
+          address_house: form.address_house,
+          notes: form.notes || null,
+          subtotal,
+          shipping_cost: shipping,
+          total: Math.max(0, total),
+          coupon_code: couponApplied || null,
+          coupon_discount: couponDiscount,
+          payment_method: paymentMethod,
+          user_id: userId || null,
+          items: items.map(item => ({
+            id: item.id,
+            name_ar: item.name_ar,
+            name_en: item.name_en,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+        }),
+      })
 
-      const { data: order, error } = await supabase.from('orders').insert(orderData).select().single()
-
-      if (error) {
-        console.error('Order creation error:', error)
-        throw new Error(error.message || 'فشل في إنشاء الطلب')
-      }
-      if (!order) throw new Error('لم يتم إنشاء الطلب')
-
-      await supabase.from('order_items').insert(
-        items.map((item) => ({
-          order_id: order.id,
-          product_id: item.id,
-          product_name_ar: item.name_ar,
-          product_name_en: item.name_en,
-          quantity: item.quantity,
-          unit_price: item.price,
-          total_price: item.price * item.quantity,
-        }))
-      )
-
-      // Decrement stock
-      for (const item of items) {
-        await supabase.rpc('decrement_stock', { 
-          product_id: item.id, 
-          quantity: item.quantity 
-        })
-      }
-
-      // Send push notification for new order
-      try {
-        await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: 'طلب جديد! 🛍️',
-            body: `طلب #${order.order_number} من ${form.customer_name} - ${paymentMethod === 'cod' ? 'الدفع عند الاستلام' : 'دفع إلكتروني'}`,
-            url: `/admin/orders/${order.id}`
-          })
-        })
-      } catch (notifError) {
-        console.error('Failed to send push notification:', notifError)
-      }
-
-      // Increment coupon usage
-      if (couponApplied) {
-        await supabase.rpc('increment_coupon_usage', { coupon_code: couponApplied })
-      }
+      const checkoutJson = await checkoutRes.json()
+      if (!checkoutRes.ok) throw new Error(checkoutJson.error || 'فشل في إنشاء الطلب')
+      const order = checkoutJson.order
 
       // If online payment
       if (paymentMethod === 'online') {
