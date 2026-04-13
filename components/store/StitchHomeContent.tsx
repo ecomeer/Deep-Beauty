@@ -24,65 +24,137 @@ export default function StitchHomeContent({ featuredProducts, categories }: Prop
   const { formatPrice } = useCountry()
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface pt-[72px]">
       {/* Announcement Bar */}
       <div className="bg-primary text-white py-2 px-6 text-center text-xs tracking-widest font-label uppercase">
         شحن مجاني للطلبات فوق ١٥ د.ك
       </div>
 
-      {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-        <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+      {/* Hero Section - Improved Design */}
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-surface via-surface-container-low to-surface">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5" />
+        
+        <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center z-10 relative">
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-8 max-w-2xl"
+            className="space-y-8 max-w-2xl order-2 lg:order-1"
           >
-            <h1 className="text-5xl md:text-7xl font-headline leading-tight text-on-surface">
-              علم الجمال <br/>
-              <span className="italic font-normal text-primary">النباتي</span>
+            {/* Badge */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
+            >
+              <SparklesIcon className="w-4 h-4" />
+              منتجات طبيعية 100%
+            </motion.div>
+
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-headline leading-[1.1] text-on-surface">
+              جمالكِ <br/>
+              <span className="text-primary">يستحق الأفضل</span>
             </h1>
-            <p className="text-lg md:text-xl font-body leading-relaxed text-on-surface-variant/80 font-light">
-              حيث تلتقي حكمة الأجداد القديمة بالعلوم الجزيئية الحديثة. نبتكر حلولاً للعناية بالبشرة تحترم توازن الطبيعة وتقدم نتائج ملموسة.
+            
+            <p className="text-lg md:text-xl font-body leading-relaxed text-on-surface-variant/90 max-w-lg">
+              منتجات عناية بالبشرة فاخرة، مصنوعة من مكونات طبيعية مختارة بعناية لإشراقة يومية.
             </p>
-            <div className="flex gap-4">
+
+            <div className="flex flex-wrap gap-4">
               <Link 
                 href="/products"
-                className="bg-gradient-to-r from-primary to-primary-container text-white px-10 py-5 rounded-xl text-lg font-label transition-transform hover:scale-[1.02] active:scale-95 shadow-editorial inline-flex items-center gap-3"
+                className="bg-primary text-white px-8 py-4 rounded-xl text-lg font-medium transition-all hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-1 inline-flex items-center gap-2"
               >
                 <ShoppingBagIcon className="w-5 h-5" />
-                اكتشف المجموعة
+                تسوقي الآن
               </Link>
+              <Link 
+                href="/about"
+                className="bg-surface border-2 border-outline-variant text-on-surface px-8 py-4 rounded-xl text-lg font-medium transition-all hover:bg-surface-container inline-flex items-center gap-2"
+              >
+                تعرفي علينا
+              </Link>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="flex items-center gap-6 pt-4 text-sm text-on-surface-variant">
+              <div className="flex items-center gap-2">
+                <ShieldCheckIcon className="w-5 h-5 text-primary" />
+                <span>ضمان الجودة</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <TruckIcon className="w-5 h-5 text-primary" />
+                <span>شحن سريع</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <StarIcon className="w-5 h-5 text-primary" />
+                <span>+5000 عميلة</span>
+              </div>
             </div>
           </motion.div>
 
+          {/* Hero Image - Improved */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative order-1 lg:order-2"
           >
-            <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-editorial bg-surface-container">
+            {/* Main Image Container */}
+            <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl shadow-primary/10 bg-gradient-to-br from-surface-container to-surface-container-high">
               <Image 
-                src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&q=80"
-                alt="منتجات العناية بالبشرة"
+                src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80"
+                alt="منتجات العناية بالبشرة الفاخرة"
                 fill
                 className="object-cover"
                 priority
               />
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-surface/20 via-transparent to-transparent" />
             </div>
-            <div className="absolute -bottom-8 -left-8 hidden lg:block w-48 h-64 rounded-xl overflow-hidden border-8 border-surface shadow-editorial">
-              <Image 
-                src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80"
-                alt="مكونات طبيعية"
-                fill
-                className="object-cover"
-              />
-            </div>
+
+            {/* Floating Card - Stats */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, type: 'spring' }}
+              className="absolute -bottom-6 -left-6 bg-surface rounded-2xl p-5 shadow-editorial border border-outline-variant/50"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <HeartIcon className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-primary font-headline">+5000</p>
+                  <p className="text-sm text-on-surface-variant">عميلة سعيدة</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Floating Card - Rating */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.8, type: 'spring' }}
+              className="absolute -top-4 -right-4 bg-surface rounded-2xl px-4 py-3 shadow-editorial border border-outline-variant/50"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {[1,2,3,4,5].map((i) => (
+                    <StarIcon key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  ))}
+                </div>
+                <span className="font-bold text-on-surface">4.9</span>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-surface-container-low -z-0 opacity-50" />
+
+        {/* Decorative Elements */}
+        <div className="absolute top-20 left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
       </section>
 
       {/* Features Bar */}
@@ -116,15 +188,20 @@ export default function StitchHomeContent({ featuredProducts, categories }: Prop
         </div>
       </section>
 
-      {/* Categories Section */}
+      {/* Categories Section - Fixed Names */}
       <section className="py-24 bg-surface">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <span className="text-primary font-label text-xs uppercase tracking-widest block mb-2">تسوق حسب الفئة</span>
             <h2 className="text-4xl font-headline text-on-surface">استكشف مجموعاتنا</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {categories.slice(0, 3).map((category, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { id: 'face', name_ar: 'العناية بالوجه', name_en: 'Face Care', image: 'https://images.unsplash.com/photo-1570194065650-d99fb4b38b15?w=600&q=80', count: 12 },
+              { id: 'body', name_ar: 'العناية بالجسم', name_en: 'Body Care', image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&q=80', count: 8 },
+              { id: 'hair', name_ar: 'العناية بالشعر', name_en: 'Hair Care', image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80', count: 6 },
+              { id: 'perfume', name_ar: 'العطور', name_en: 'Perfumes', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80', count: 4 },
+            ].map((category, i) => (
               <motion.div 
                 key={category.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -134,27 +211,22 @@ export default function StitchHomeContent({ featuredProducts, categories }: Prop
               >
                 <Link 
                   href={`/products?category=${encodeURIComponent(category.name_ar)}`}
-                  className="group cursor-pointer relative overflow-hidden rounded-2xl aspect-[3/4] block"
+                  className="group cursor-pointer relative overflow-hidden rounded-2xl aspect-[3/4] block shadow-editorial"
                 >
                   <div className="img-zoom w-full h-full">
-                    {category.image_url ? (
-                      <Image 
-                        src={category.image_url}
-                        alt={category.name_ar}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-surface-container flex items-center justify-center">
-                        <span className="text-4xl">🧴</span>
-                      </div>
-                    )}
+                    <Image 
+                      src={category.image}
+                      alt={category.name_ar}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-on-surface/70 to-transparent" />
-                  <div className="absolute bottom-8 right-8 text-surface">
-                    <h3 className="text-2xl font-headline">{category.name_ar}</h3>
-                    <p className="font-label text-sm uppercase tracking-wider mt-1 opacity-80">
-                      {category.product_count || 0} منتج
+                  <div className="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-on-surface/20 to-transparent" />
+                  <div className="absolute bottom-6 right-6 left-6 text-surface">
+                    <p className="text-xs font-label uppercase tracking-wider opacity-70 mb-1">{category.name_en}</p>
+                    <h3 className="text-xl font-headline">{category.name_ar}</h3>
+                    <p className="font-body text-sm mt-1 opacity-80">
+                      {category.count} منتج
                     </p>
                   </div>
                 </Link>
@@ -180,19 +252,121 @@ export default function StitchHomeContent({ featuredProducts, categories }: Prop
               <ArrowLeftIcon className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.slice(0, 4).map((product, i) => (
+          {featuredProducts.length === 0 ? (
+            <div className="text-center py-16 text-on-surface-variant">
+              <ShoppingBagIcon className="w-16 h-16 mx-auto mb-4 opacity-20" />
+              <p>قريباً — المنتجات تُضاف قريباً</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.slice(0, 4).map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <StitchProductCard product={product} formatPrice={formatPrice} />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Promo Banner */}
+      <section className="py-20 bg-surface">
+        <div className="container mx-auto px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative bg-gradient-to-r from-primary to-primary-container rounded-3xl overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+            <div className="relative p-12 md:p-16 text-center text-white">
+              <span className="inline-block px-4 py-1.5 bg-white/20 rounded-full text-sm font-medium mb-6">
+                عرض محدود
+              </span>
+              <h2 className="text-4xl md:text-5xl font-headline mb-4">خصم ٢٥٪ على أول طلب</h2>
+              <p className="text-lg text-white/80 mb-8 max-w-lg mx-auto">
+                استخدمي كود <span className="font-bold bg-white/20 px-3 py-1 rounded-lg">WELCOME25</span> واستمتعي بتجربة تسوق فاخرة
+              </p>
+              <Link 
+                href="/products"
+                className="inline-flex items-center gap-2 bg-white text-primary px-8 py-4 rounded-xl font-bold hover:bg-white/90 transition-colors"
+              >
+                <ShoppingBagIcon className="w-5 h-5" />
+                تسوقي الآن
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-24 bg-surface-container">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <span className="text-primary font-label text-xs uppercase tracking-widest block mb-2">آراء عملائنا</span>
+            <h2 className="text-4xl font-headline text-on-surface">ما يقولون عنا</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { name: 'سارة', text: 'أفضل منتجات استخدمتها لبشرتي، نتائج مذهلة من أول أسبوع! ✨', rating: 5 },
+              { name: 'نورة', text: 'جودة عالية وتغليف فاخر، أنصح كل صديقة بتجربة ديب بيوتي 💎', rating: 5 },
+              { name: 'فاطمة', text: 'خدمة عملاء ممتازة وتوصيل سريع، سأكون عميلة دائمة 🌟', rating: 5 },
+            ].map((review, i) => (
               <motion.div
-                key={product.id}
+                key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
+                className="bg-surface rounded-2xl p-6 shadow-editorial border border-outline-variant/30"
               >
-                <StitchProductCard product={product} formatPrice={formatPrice} />
+                <div className="flex gap-1 mb-4">
+                  {Array.from({ length: review.rating }).map((_, j) => (
+                    <span key={j} className="text-amber-400">★</span>
+                  ))}
+                </div>
+                <p className="text-on-surface mb-4 leading-relaxed">{review.text}</p>
+                <p className="font-bold text-primary">— {review.name}</p>
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Newsletter */}
+      <section className="py-20 bg-surface">
+        <div className="container mx-auto px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl mx-auto text-center"
+          >
+            <span className="text-4xl mb-4 block">📧</span>
+            <h2 className="text-3xl font-headline text-on-surface mb-4">انضمي لنشرتنا البريدية</h2>
+            <p className="text-on-surface-variant mb-8">
+              احصلي على أحدث العروض والنصائح الخاصة بالعناية بالبشرة مباشرة في بريدك
+            </p>
+            <form className="flex gap-3 max-w-md mx-auto">
+              <input 
+                type="email" 
+                placeholder="بريدك الإلكتروني"
+                className="flex-1 px-5 py-3 rounded-xl bg-surface-container border border-outline-variant/50 focus:border-primary focus:outline-none transition-colors text-on-surface"
+              />
+              <button 
+                type="submit"
+                className="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-container transition-colors whitespace-nowrap"
+              >
+                اشتراك
+              </button>
+            </form>
+          </motion.div>
         </div>
       </section>
     </div>
@@ -201,7 +375,7 @@ export default function StitchHomeContent({ featuredProducts, categories }: Prop
 
 function StitchProductCard({ product, formatPrice }: { product: Product; formatPrice: (price: number) => string }) {
   return (
-    <Link href={`/products/${product.id}`} className="group block">
+    <Link href={`/products/${product.slug}`} className="group block">
       <div className="bg-surface rounded-2xl overflow-hidden shadow-editorial hover:shadow-lg transition-shadow">
         <div className="aspect-square relative overflow-hidden">
           {product.images?.[0] ? (
