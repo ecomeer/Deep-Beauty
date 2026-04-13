@@ -62,17 +62,18 @@ export default function StitchHomeContent({ featuredProducts, categories }: Prop
               منتجات عناية بالبشرة فاخرة، مصنوعة من مكونات طبيعية مختارة بعناية لإشراقة يومية.
             </p>
 
-            <div className="flex flex-wrap gap-4">
-              <Link 
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Link
                 href="/products"
-                className="bg-primary text-white px-8 py-4 rounded-xl text-lg font-medium transition-all hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-1 inline-flex items-center gap-2"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-lg font-medium transition-all text-white"
+                style={{ background: '#6f4627' }}
               >
                 <ShoppingBagIcon className="w-5 h-5" />
                 تسوقي الآن
               </Link>
-              <Link 
+              <Link
                 href="/about"
-                className="bg-surface border-2 border-outline-variant text-on-surface px-8 py-4 rounded-xl text-lg font-medium transition-all hover:bg-surface-container inline-flex items-center gap-2"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-lg font-medium transition-all border-2 border-outline-variant text-on-surface hover:bg-surface-container"
               >
                 تعرفي علينا
               </Link>
@@ -278,24 +279,25 @@ export default function StitchHomeContent({ featuredProducts, categories }: Prop
       {/* Promo Banner */}
       <section className="py-20 bg-surface">
         <div className="container mx-auto px-6">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative bg-gradient-to-r from-primary to-primary-container rounded-3xl overflow-hidden"
+            className="relative rounded-3xl overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #6f4627 0%, #9C6644 100%)' }}
           >
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
-            <div className="relative p-12 md:p-16 text-center text-white">
-              <span className="inline-block px-4 py-1.5 bg-white/20 rounded-full text-sm font-medium mb-6">
+            <div className="relative p-10 md:p-16 text-center" style={{ color: 'white' }}>
+              <span className="inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-6" style={{ background: 'rgba(255,255,255,0.2)' }}>
                 عرض محدود
               </span>
-              <h2 className="text-4xl md:text-5xl font-headline mb-4">خصم ٢٥٪ على أول طلب</h2>
-              <p className="text-lg text-white/80 mb-8 max-w-lg mx-auto">
-                استخدمي كود <span className="font-bold bg-white/20 px-3 py-1 rounded-lg">WELCOME25</span> واستمتعي بتجربة تسوق فاخرة
+              <h2 className="text-4xl md:text-5xl font-headline mb-4" style={{ color: 'white' }}>خصم ٢٥٪ على أول طلب</h2>
+              <p className="text-lg mb-8 max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                استخدمي كود <span className="font-bold px-3 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.2)' }}>WELCOME25</span> واستمتعي بتجربة تسوق فاخرة
               </p>
-              <Link 
+              <Link
                 href="/products"
-                className="inline-flex items-center gap-2 bg-white text-primary px-8 py-4 rounded-xl font-bold hover:bg-white/90 transition-colors"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold transition-colors"
+                style={{ background: 'white', color: '#6f4627' }}
               >
                 <ShoppingBagIcon className="w-5 h-5" />
                 تسوقي الآن
@@ -339,36 +341,6 @@ export default function StitchHomeContent({ featuredProducts, categories }: Prop
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="py-20 bg-surface">
-        <div className="container mx-auto px-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <span className="text-4xl mb-4 block">📧</span>
-            <h2 className="text-3xl font-headline text-on-surface mb-4">انضمي لنشرتنا البريدية</h2>
-            <p className="text-on-surface-variant mb-8">
-              احصلي على أحدث العروض والنصائح الخاصة بالعناية بالبشرة مباشرة في بريدك
-            </p>
-            <form className="flex gap-3 max-w-md mx-auto">
-              <input 
-                type="email" 
-                placeholder="بريدك الإلكتروني"
-                className="flex-1 px-5 py-3 rounded-xl bg-surface-container border border-outline-variant/50 focus:border-primary focus:outline-none transition-colors text-on-surface"
-              />
-              <button 
-                type="submit"
-                className="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-container transition-colors whitespace-nowrap"
-              >
-                اشتراك
-              </button>
-            </form>
-          </motion.div>
-        </div>
-      </section>
     </div>
   )
 }
