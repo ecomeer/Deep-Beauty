@@ -231,29 +231,31 @@ export default function EnhancedCheckoutPage() {
   }
 
   if (items.length === 0) return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4">
+    <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 bg-surface pt-32">
       <motion.div 
         initial={{ scale: 0 }} 
         animate={{ scale: 1 }} 
-        className="text-6xl"
+        className="w-24 h-24 rounded-full bg-surface-container flex items-center justify-center"
       >
-        🛒
+        <span className="text-5xl">🛒</span>
       </motion.div>
-      <h2 className="text-2xl font-bold">السلة فارغة</h2>
-      <p className="text-gray-500">أضفي منتجات إلى سلة التسوق أولاً</p>
-      <Link href="/products" className="btn-primary px-8 py-3">تسوق الآن</Link>
+      <h2 className="text-2xl font-headline text-on-surface">السلة فارغة</h2>
+      <p className="text-on-surface-variant">أضفي منتجات إلى سلة التسوق أولاً</p>
+      <Link href="/products" className="bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-container transition-colors">
+        تسوق الآن
+      </Link>
     </div>
   )
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6" style={{ background: 'var(--off-white)' }}>
+    <div className="min-h-screen py-12 px-4 sm:px-6 bg-surface pt-32">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold mb-3" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+          <h1 className="text-4xl font-headline mb-3 text-on-surface">
             إتمام الطلب
           </h1>
-          <p className="text-gray-500">أكملي بياناتك لإتمام طلبك بسهولة وأمان</p>
+          <p className="text-on-surface-variant">أكملي بياناتك لإتمام طلبك بسهولة وأمان</p>
         </div>
 
         {/* Guest/Login Banner */}
@@ -265,16 +267,16 @@ export default function EnhancedCheckoutPage() {
               exit={{ opacity: 0, y: -20 }}
               className="mb-8"
             >
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="bg-surface-container-low border border-outline-variant rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <UserIcon className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center">
+                    <UserIcon className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900">الدفع كزائر</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="font-bold text-on-surface">الدفع كزائر</h3>
+                    <p className="text-sm text-on-surface-variant">
                       لا حاجة لإنشاء حساب! يمكنك إتمام طلبك مباشرة. 
-                      <span className="text-blue-600 font-medium"> إنشاء الحساب اختياري.</span>
+                      <span className="text-primary font-medium"> إنشاء الحساب اختياري.</span>
                     </p>
                   </div>
                 </div>

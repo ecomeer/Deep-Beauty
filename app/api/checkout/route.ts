@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     // Decrement stock for each item
     await Promise.all(
       items.map((item: { id: string; quantity: number }) =>
-        supabaseAdmin.rpc('decrement_stock', { product_id: item.id, quantity: item.quantity })
+        supabaseAdmin.rpc('decrement_stock', { product_id: item.id, qty: item.quantity })
       )
     )
 

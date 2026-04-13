@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   let response = NextResponse.next({ request: { headers: req.headers } })
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
@@ -84,6 +84,6 @@ export async function proxy(req: NextRequest) {
   return response
 }
 
-export const proxyConfig = {
+export const config = {
   matcher: ['/admin/:path*', '/api/admin/:path*'],
 }

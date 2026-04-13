@@ -104,7 +104,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5EBE0] to-[#E8DED1] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4 py-8 pt-32">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -112,9 +112,9 @@ export default function RegisterPage() {
         className="w-full max-w-md"
       >
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+        <div className="bg-surface rounded-3xl shadow-editorial overflow-hidden border border-outline-variant">
           {/* Header */}
-          <div className="bg-[#9C6644] p-8 text-center text-white">
+          <div className="bg-primary p-6 text-center text-white">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -123,7 +123,7 @@ export default function RegisterPage() {
             >
               <SparklesIcon className="w-8 h-8" />
             </motion.div>
-            <h1 className="text-2xl font-bold mb-2">إنشاء حساب جديد</h1>
+            <h1 className="text-2xl font-headline">إنشاء حساب جديد</h1>
             <p className="text-white/80 text-sm">انضمي إلى عائلة Deep Beauty</p>
           </div>
 

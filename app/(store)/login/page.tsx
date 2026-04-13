@@ -50,7 +50,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5EBE0] to-[#E8DED1] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4 pt-32">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -58,9 +58,9 @@ export default function LoginPage() {
         className="w-full max-w-md"
       >
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+        <div className="bg-surface rounded-3xl shadow-editorial overflow-hidden border border-outline-variant">
           {/* Header */}
-          <div className="bg-[#9C6644] p-8 text-center text-white">
+          <div className="bg-primary p-8 text-center text-white">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -69,15 +69,15 @@ export default function LoginPage() {
             >
               <SparklesIcon className="w-8 h-8" />
             </motion.div>
-            <h1 className="text-2xl font-bold mb-2">تسجيل الدخول</h1>
-            <p className="text-white/80 text-sm">أهلاً بعودتك! سجلي دخولك للمتابعة</p>
+            <h1 className="text-2xl font-headline mb-2">تسجيل الدخول</h1>
+            <p className="text-white/80 text-sm font-body">أهلاً بعودتك! سجلي دخولك للمتابعة</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-8 space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-on-surface-variant mb-2">
                 البريد الإلكتروني
               </label>
               <div className="relative">

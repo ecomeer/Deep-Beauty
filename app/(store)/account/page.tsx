@@ -97,8 +97,8 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-[#9C6644] border-t-transparent animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-surface pt-32">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
       </div>
     )
   }
@@ -106,14 +106,14 @@ export default function AccountPage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-surface pt-32">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-surface border-b border-outline-variant">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">حسابي</h1>
-              <p className="text-gray-500 text-sm mt-1">إدارة حسابك وطلباتك</p>
+              <h1 className="text-2xl font-headline text-on-surface">حسابي</h1>
+              <p className="text-on-surface-variant text-sm mt-1">إدارة حسابك وطلباتك</p>
             </div>
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -136,18 +136,18 @@ export default function AccountPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl p-6 shadow-sm mb-4"
+              className="bg-surface rounded-2xl p-6 shadow-editorial border border-outline-variant/50 mb-4"
             >
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#9C6644] to-[#D4A574] flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white text-2xl font-bold">
                   {user.name?.[0] || <UserIcon className="w-8 h-8" />}
                 </div>
                 <div className="flex-1">
-                  <h2 className="font-bold text-lg">{user.name}</h2>
-                  <p className="text-sm text-gray-500">{user.email}</p>
+                  <h2 className="font-bold text-lg text-on-surface">{user.name}</h2>
+                  <p className="text-sm text-on-surface-variant">{user.email}</p>
                 </div>
                 <Link href="/account/settings">
-                  <PencilIcon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                  <PencilIcon className="w-5 h-5 text-outline hover:text-on-surface transition-colors" />
                 </Link>
               </div>
             </motion.div>
@@ -159,17 +159,17 @@ export default function AccountPage() {
               transition={{ delay: 0.1 }}
               className="grid grid-cols-3 gap-2 mb-4"
             >
-              <div className="bg-white rounded-xl p-3 text-center">
-                <p className="text-2xl font-bold text-[#9C6644]">{stats.totalOrders}</p>
-                <p className="text-xs text-gray-500">طلب</p>
+              <div className="bg-surface rounded-xl p-3 text-center shadow-editorial border border-outline-variant/50">
+                <p className="text-2xl font-bold text-primary">{stats.totalOrders}</p>
+                <p className="text-xs text-on-surface-variant">طلب</p>
               </div>
-              <div className="bg-white rounded-xl p-3 text-center">
+              <div className="bg-surface rounded-xl p-3 text-center shadow-editorial border border-outline-variant/50">
                 <p className="text-2xl font-bold text-green-600">{stats.totalSpent}</p>
-                <p className="text-xs text-gray-500">د.ك</p>
+                <p className="text-xs text-on-surface-variant">د.ك</p>
               </div>
-              <div className="bg-white rounded-xl p-3 text-center">
+              <div className="bg-surface rounded-xl p-3 text-center shadow-editorial border border-outline-variant/50">
                 <p className="text-2xl font-bold text-rose-500">{stats.wishlistCount}</p>
-                <p className="text-xs text-gray-500">مفضلة</p>
+                <p className="text-xs text-on-surface-variant">مفضلة</p>
               </div>
             </motion.div>
 
@@ -178,19 +178,19 @@ export default function AccountPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white rounded-2xl shadow-sm overflow-hidden"
+              className="bg-surface rounded-2xl shadow-editorial border border-outline-variant/50 overflow-hidden"
             >
               {MENU_ITEMS.map((item, i) => (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                  className="flex items-center gap-3 p-4 hover:bg-surface-container transition-colors border-b border-outline-variant/50 last:border-b-0"
                 >
                   <div className={`w-10 h-10 rounded-xl ${item.color} bg-opacity-10 flex items-center justify-center`}>
                     <item.icon className={`w-5 h-5 ${item.color.replace('bg-', 'text-')}`} />
                   </div>
-                  <span className="flex-1 font-medium">{item.label}</span>
-                  <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
+                  <span className="flex-1 font-medium text-on-surface">{item.label}</span>
+                  <ChevronLeftIcon className="w-5 h-5 text-outline" />
                 </Link>
               ))}
             </motion.div>
@@ -203,14 +203,14 @@ export default function AccountPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white rounded-2xl shadow-sm"
+              className="bg-surface rounded-2xl shadow-editorial border border-outline-variant/50"
             >
-              <div className="p-6 border-b flex items-center justify-between">
+              <div className="p-6 border-b border-outline-variant/50 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <CubeIcon className="w-6 h-6 text-[#9C6644]" />
-                  <h3 className="font-bold text-lg">آخر الطلبات</h3>
+                  <CubeIcon className="w-6 h-6 text-primary" />
+                  <h3 className="font-bold text-lg text-on-surface">آخر الطلبات</h3>
                 </div>
-                <Link href="/account/orders" className="text-[#9C6644] text-sm hover:underline flex items-center gap-1">
+                <Link href="/account/orders" className="text-primary text-sm hover:underline flex items-center gap-1">
                   عرض الكل
                   <ChevronLeftIcon className="w-4 h-4" />
                 </Link>
@@ -218,29 +218,29 @@ export default function AccountPage() {
 
               {recentOrders.length === 0 ? (
                 <div className="p-12 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                    <ShoppingBagIcon className="w-8 h-8 text-gray-400" />
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center">
+                    <ShoppingBagIcon className="w-8 h-8 text-outline" />
                   </div>
-                  <p className="text-gray-500 mb-4">لا توجد طلبات بعد</p>
-                  <Link href="/products" className="btn-primary inline-block px-6 py-2">
+                  <p className="text-on-surface-variant mb-4">لا توجد طلبات بعد</p>
+                  <Link href="/products" className="inline-block px-6 py-2 bg-primary text-white rounded-xl hover:bg-primary-container transition-colors">
                     تسوق الآن
                   </Link>
                 </div>
               ) : (
-                <div className="divide-y">
+                <div className="divide-y divide-outline-variant/50">
                   {recentOrders.map((order) => (
-                    <div key={order.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                    <div key={order.id} className="p-6 flex items-center justify-between hover:bg-surface-container transition-colors">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-[#F5EBE0] flex items-center justify-center">
-                          <CubeIcon className="w-6 h-6 text-[#9C6644]" />
+                        <div className="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center">
+                          <CubeIcon className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                          <p className="font-bold">{order.order_number}</p>
-                          <p className="text-sm text-gray-500">{order.item_count} منتجات</p>
+                          <p className="font-bold text-on-surface">{order.order_number}</p>
+                          <p className="text-sm text-on-surface-variant">{order.item_count} منتجات</p>
                         </div>
                       </div>
                       <div className="text-left">
-                        <p className="font-bold">{order.total} د.ك</p>
+                        <p className="font-bold text-on-surface">{order.total} د.ك</p>
                         <span className={`text-xs px-2 py-1 rounded-full ${
                           order.status === 'delivered' ? 'bg-green-100 text-green-700' :
                           order.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
@@ -261,7 +261,7 @@ export default function AccountPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-gradient-to-r from-[#9C6644] to-[#D4A574] rounded-2xl p-6 text-white"
+              className="bg-gradient-to-r from-primary to-primary-container rounded-2xl p-6 text-white"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
@@ -271,7 +271,7 @@ export default function AccountPage() {
                   <h3 className="font-bold text-lg">عروض حصرية لأعضائنا</h3>
                   <p className="text-white/80 text-sm">احصلي على خصم 15% على طلبك القادم</p>
                 </div>
-                <Link href="/products" className="px-4 py-2 bg-white text-[#9C6644] rounded-xl font-bold text-sm hover:bg-white/90 transition-colors">
+                <Link href="/products" className="px-4 py-2 bg-white text-primary rounded-xl font-bold text-sm hover:bg-white/90 transition-colors">
                   تسوقي الآن
                 </Link>
               </div>

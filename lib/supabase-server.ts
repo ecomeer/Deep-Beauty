@@ -1,24 +1,20 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-// Read from process.env directly
-const getSupabaseUrl = () => process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const getSupabaseKey = () => process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-
 export async function createServerSupabaseClient() {
-  const supabaseUrl = getSupabaseUrl()
-  const supabaseKey = getSupabaseKey()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
   const cookieStore = await cookies()
 
-  // Provide placeholder values if env vars are missing (will fail on actual API calls)
-  const url = supabaseUrl || 'https://placeholder.supabase.co'
-  const key = supabaseKey || 'placeholder-key'
-
   return createServerClient(
-    url,
-    key,
+    supabaseUrl,
+    supabaseKey,
     {
+      global: {
+        fetch: (url, options) =>
+          fetch(url, { ...options, signal: AbortSignal.timeout(5000) }),
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll()

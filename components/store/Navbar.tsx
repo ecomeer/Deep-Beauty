@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShoppingBagIcon, Bars3Icon, XMarkIcon, HeartIcon, UserIcon } from '@heroicons/react/24/outline'
+import { ShoppingBagIcon, Bars3Icon, XMarkIcon, HeartIcon, MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline'
 import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
 import EnhancedCartSidebar from './EnhancedCartSidebar'
@@ -10,11 +10,10 @@ import CountrySelector from './CountrySelector'
 import CurrencySelector from './CurrencySelector'
 
 const NAV_LINKS = [
-  { href: '/products', label: 'المنتجات' },
-  { href: '/about', label: 'من نحن' },
-  { href: '/#contact', label: 'تواصل معنا' },
-  { href: '/track', label: 'تتبع الطلب' },
-  { href: '/wishlist', label: 'المفضلة' },
+  { href: '/products', label: 'تسوق الكل' },
+  { href: '/about', label: 'الطقوس' },
+  { href: '/#contact', label: 'العلم' },
+  { href: '/track', label: 'المجلة' },
 ]
 
 export default function Navbar() {
@@ -22,7 +21,6 @@ export default function Navbar() {
   const { totalItems: wishlistCount } = useWishlistContext()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [lang, setLang] = useState<'ar' | 'en'>('ar')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -33,84 +31,79 @@ export default function Navbar() {
   return (
     <>
       <nav className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
-        scrolled ? 'shadow-md' : 'shadow-sm'
-      } bg-white`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        scrolled ? 'glass-nav shadow-sm' : 'bg-surface'
+      }`}>
+        {/* dir="ltr" keeps layout consistent regardless of page dir */}
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between" dir="ltr">
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center flex-shrink-0 text-xl font-bold" style={{ color: 'var(--primary)' }}>
-            Deep Beauty
-          </Link>
+          {/* LEFT: mobile hamburger + desktop icons */}
+          <div className="flex items-center gap-1">
+            {/* Mobile Toggle */}
+            <button
+              type="button"
+              aria-label={mobileOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
+              className="md:hidden p-2 rounded-xl transition-colors hover:bg-surface-container"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen
+                ? <XMarkIcon className="w-6 h-6 text-on-surface" />
+                : <Bars3Icon className="w-6 h-6 text-on-surface" />
+              }
+            </button>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8">
+            {/* Desktop: Search */}
+            <button className="hidden md:flex p-2 rounded-full hover:bg-surface-container transition-colors">
+              <MagnifyingGlassIcon className="w-5 h-5 text-on-surface" />
+            </button>
+            {/* Desktop: Wishlist */}
+            <Link href="/wishlist" className="hidden md:flex relative p-2 rounded-full hover:bg-surface-container transition-colors" aria-label="المفضلة">
+              <HeartIcon className="w-5 h-5 text-on-surface" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center bg-primary text-white">{wishlistCount}</span>
+              )}
+            </Link>
+            {/* Desktop: Account */}
+            <Link href="/account" className="hidden md:flex p-2 rounded-full hover:bg-surface-container transition-colors">
+              <UserIcon className="w-5 h-5 text-on-surface" />
+            </Link>
+            {/* Cart — always visible */}
+            <button
+              type="button"
+              aria-label="فتح سلة التسوق"
+              onClick={() => setIsOpen(true)}
+              className="relative p-2 rounded-full hover:bg-surface-container transition-colors"
+            >
+              <ShoppingBagIcon className="w-5 h-5 text-on-surface" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center bg-primary text-white">{totalItems}</span>
+              )}
+            </button>
+            {/* Desktop: EN/AR */}
+            <div className="hidden md:block bg-surface-container-high px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest cursor-pointer hover:bg-surface-variant transition-colors ms-2">
+              EN/AR
+            </div>
+          </div>
+
+          {/* CENTER: Desktop Nav Links */}
+          <div className="hidden md:flex items-center gap-8 text-sm" dir="rtl">
             {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="navbar-link">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-on-surface font-body hover:text-primary transition-colors"
+              >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            {/* Country Selector */}
-            <CountrySelector />
-            {/* Currency Selector */}
-            <div className="hidden lg:block">
-              <CurrencySelector />
-            </div>
+          {/* RIGHT: Logo */}
+          <Link href="/" className="text-right">
+            <span className="text-2xl font-headline tracking-tighter text-on-surface">
+              Deep Beauty
+            </span>
+          </Link>
 
-            {/* Language Toggle */}
-            <button
-              type="button"
-              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors hover:border-[#9C6644] hover:text-[#9C6644]"
-              style={{ borderColor: 'var(--dark-beige)', color: 'var(--text-dark)' }}
-              aria-label="تغيير اللغة"
-            >
-              {lang === 'ar' ? 'EN' : 'عر'}
-            </button>
-
-            {/* Wishlist */}
-            <Link
-              href="/wishlist"
-              className="relative p-2 rounded-xl transition-all duration-200 hover:bg-[#EEE0D5]"
-              aria-label="المفضلة"
-            >
-              <HeartIcon className="w-6 h-6" style={{ color: 'var(--text-dark)' }} />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center text-white" style={{ background: 'var(--rose-gold)' }}>
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
-
-            {/* Cart */}
-            <button
-              type="button"
-              aria-label="فتح سلة التسوق"
-              onClick={() => setIsOpen(true)}
-              className="relative p-2 rounded-xl transition-all duration-200 hover:bg-[#EEE0D5]"
-            >
-              <ShoppingBagIcon className="w-6 h-6" style={{ color: 'var(--text-dark)' }} />
-              {totalItems > 0 && (
-                <span className="cart-badge">{totalItems}</span>
-              )}
-            </button>
-
-            {/* Mobile Toggle */}
-            <button
-              type="button"
-              aria-label={mobileOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
-              className="md:hidden p-2 rounded-xl transition-colors hover:bg-[#EEE0D5]"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              {mobileOpen
-                ? <XMarkIcon className="w-6 h-6" style={{ color: 'var(--text-dark)' }} />
-                : <Bars3Icon className="w-6 h-6" style={{ color: 'var(--text-dark)' }} />
-              }
-            </button>
-          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -126,21 +119,23 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <div className="border-t border-outline-variant my-2 mx-6" />
             <Link
               href="/wishlist"
               onClick={() => setMobileOpen(false)}
-              className="mobile-nav-link flex items-center gap-2"
+              className="mobile-nav-link flex items-center gap-3"
             >
               <HeartIcon className="w-5 h-5" />
               المفضلة {wishlistCount > 0 && `(${wishlistCount})`}
             </Link>
-            <button
-              type="button"
-              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="mobile-nav-link text-right w-full"
+            <Link
+              href="/account"
+              onClick={() => setMobileOpen(false)}
+              className="mobile-nav-link flex items-center gap-3"
             >
-              {lang === 'ar' ? '🌐 English' : '🌐 العربية'}
-            </button>
+              <UserIcon className="w-5 h-5" />
+              حسابي
+            </Link>
           </div>
         )}
       </nav>

@@ -113,7 +113,8 @@ export default function AdminProducts() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="admin-table">
             <thead>
               <tr>
@@ -176,6 +177,53 @@ export default function AdminProducts() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden p-4 space-y-3">
+          {loading ? (
+            <div className="text-center py-10 opacity-50">جاري التحميل...</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-10 opacity-50">لا توجد منتجات تطابق بحثك</div>
+          ) : (
+            filtered.map(p => (
+              <div key={p.id} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
+                <div className="flex gap-3 mb-3">
+                  <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+                    {p.images?.[0]
+                      ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
+                      : <span className="text-xl">🧴</span>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-sm truncate">{p.name_ar}</div>
+                    <div className="text-xs opacity-50 font-en truncate">{p.name_en}</div>
+                    <span className="badge badge-primary text-xs mt-1">{p.category}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center mb-3">
+                  <span className="font-bold" style={{ color: 'var(--primary)' }}>{toArabicPrice(p.price)}</span>
+                  <span className={`font-bold text-sm ${p.stock_quantity === 0 ? 'text-red-500' : p.stock_quantity < 10 ? 'text-orange-500' : 'text-green-600'}`}>
+                    مخزون: {p.stock_quantity}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleStatus(p.id, p.is_active)}
+                    className={`flex-1 badge ${p.is_active ? 'badge-success' : 'badge-gray'} py-2 text-sm cursor-pointer`}
+                  >
+                    {p.is_active ? 'نشط' : 'معطل'}
+                  </button>
+                  <Link href={`/admin/products/${p.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
+                    <PencilSquareIcon className="w-5 h-5" />
+                  </Link>
+                  <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

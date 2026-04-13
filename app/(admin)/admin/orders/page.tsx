@@ -151,7 +151,8 @@ export default function AdminOrders() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="admin-table">
             <thead>
               <tr>
@@ -208,6 +209,53 @@ export default function AdminOrders() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden p-4 space-y-3">
+          {loading ? (
+            <div className="text-center py-10 opacity-50">جاري التحميل...</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-10 opacity-50">لا توجد طلبات تطابق بحثك</div>
+          ) : (
+            filtered.map(order => (
+              <div key={order.id} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <span className="font-en font-bold text-xs">#{order.order_number}</span>
+                    <p className="font-medium text-sm">{order.customer_name}</p>
+                    <p className="text-xs opacity-60 font-en">{order.customer_phone}</p>
+                  </div>
+                  <span className={`badge ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS] || 'badge-gray'} text-xs`}>
+                    {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS] || order.status}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mb-3">
+                  <span className="font-bold text-sm" style={{ color: 'var(--primary)' }}>{toArabicPrice(order.total)}</span>
+                  <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline" style={{ color: 'var(--primary)' }}>
+                    عرض التفاصيل
+                  </Link>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs opacity-60">الحالة:</span>
+                  <select
+                    value={order.status}
+                    onChange={e => updateStatus(order.id, e.target.value)}
+                    className="flex-1 text-xs border rounded-lg px-2 py-1.5 outline-none bg-white font-medium"
+                    style={{ borderColor: 'var(--dark-beige)' }}
+                    title="تغيير حالة الطلب"
+                  >
+                    <option value="pending">قيد الانتظار</option>
+                    <option value="confirmed">تأكيد</option>
+                    <option value="shipped">تم الشحن</option>
+                    <option value="delivered">مكتمل</option>
+                    <option value="cancelled">ملغي</option>
+                  </select>
+                </div>
+                <p className="text-xs opacity-50 mt-2" dir="ltr">{formatDateTime(order.created_at)}</p>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

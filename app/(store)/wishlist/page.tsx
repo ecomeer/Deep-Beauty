@@ -2,7 +2,7 @@
 
 import { useWishlistContext } from '@/context/WishlistContext'
 import { useCartContext } from '@/context/CartContext'
-import { toArabicPrice } from '@/lib/utils'
+import { useCountry } from '@/context/CountryContext'
 import { HeartIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
 import Link from 'next/link'
@@ -11,11 +11,12 @@ import toast from 'react-hot-toast'
 export default function WishlistPage() {
   const { items, removeItem, clearWishlist, isLoaded } = useWishlistContext()
   const { addItem } = useCartContext()
+  const { formatPrice } = useCountry()
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--off-white)' }}>
-        <div className="animate-spin w-10 h-10 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+      <div className="min-h-screen flex items-center justify-center bg-surface pt-32">
+        <div className="animate-spin w-10 h-10 rounded-full border-4 border-primary border-t-transparent" />
       </div>
     )
   }
@@ -34,12 +35,12 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="min-h-screen py-12" style={{ background: 'var(--off-white)' }}>
+    <div className="min-h-screen py-12 bg-surface pt-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+          <h1 className="text-3xl font-headline text-on-surface">
             المفضلة
-            <span className="text-lg mr-3 opacity-60">({items.length})</span>
+            <span className="text-lg mr-3 text-on-surface-variant">({items.length})</span>
           </h1>
           {items.length > 0 && (
             <button
@@ -53,11 +54,11 @@ export default function WishlistPage() {
         </div>
 
         {items.length === 0 ? (
-          <div className="text-center py-24 rounded-3xl" style={{ background: 'var(--beige)' }}>
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ background: 'var(--off-white)' }}>
-              <HeartSolid className="w-12 h-12 opacity-30" />
+          <div className="text-center py-24 rounded-3xl bg-surface-container-low">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center bg-surface">
+              <HeartSolid className="w-12 h-12 text-outline" />
             </div>
-            <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+            <h2 className="text-2xl font-headline mb-2 text-on-surface">
               قائمة المفضلة فارغة
             </h2>
             <p className="opacity-60 mb-6">ابدئي التسوق وأضفي منتجاتك المفضلة هنا</p>
@@ -87,19 +88,18 @@ export default function WishlistPage() {
                 </div>
                 <div className="p-4">
                   <Link href={`/products/${item.slug}`}>
-                    <h3 className="font-bold mb-1 hover:text-[#9C6644] transition-colors">
+                    <h3 className="font-bold mb-1 text-on-surface hover:text-primary transition-colors">
                       {item.name_ar}
                     </h3>
                   </Link>
-                  <p className="text-sm opacity-50 mb-3">{item.name_en}</p>
+                  <p className="text-sm text-on-surface-variant mb-3">{item.name_en}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold" style={{ color: 'var(--primary)', fontFamily: 'Cormorant Garamond, serif' }}>
-                      {toArabicPrice(item.price)}
+                    <span className="text-xl font-bold text-primary">
+                      {formatPrice(item.price)}
                     </span>
                     <button
                       onClick={() => handleAddToCart(item)}
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
-                      style={{ background: 'var(--primary)' }}
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white bg-primary hover:bg-primary-container transition-colors"
                     >
                       <ShoppingBagIcon className="w-5 h-5" />
                     </button>

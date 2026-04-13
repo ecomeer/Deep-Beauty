@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Noto+Serif+Arabic:wght@400;700&amp;family=Manrope:wght@300;400;600&amp;family=Almarai:wght@300;400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-primary-fixed-variant": "#653d1e",
+                "surface-variant": "#ece0d7",
+                "on-primary-container": "#ffe3d1",
+                "on-surface-variant": "#51443c",
+                "on-secondary-fixed-variant": "#4f4539",
+                "on-error-container": "#93000a",
+                "secondary-container": "#ecddcc",
+                "primary-container": "#8b5e3c",
+                "surface": "#fff8f4",
+                "on-tertiary-fixed": "#1c1c19",
+                "inverse-surface": "#362f29",
+                "surface-container": "#f8ece2",
+                "surface-dim": "#e4d8cf",
+                "error": "#ba1a1a",
+                "on-tertiary-fixed-variant": "#474743",
+                "on-tertiary": "#ffffff",
+                "inverse-primary": "#f4bb92",
+                "primary-fixed": "#ffdcc5",
+                "on-surface": "#201b15",
+                "on-error": "#ffffff",
+                "surface-bright": "#fff8f4",
+                "secondary-fixed-dim": "#d2c4b4",
+                "tertiary": "#51504d",
+                "primary": "#6f4627",
+                "outline-variant": "#d5c3b8",
+                "on-primary": "#ffffff",
+                "background": "#fff8f4",
+                "on-secondary-container": "#6b6153",
+                "error-container": "#ffdad6",
+                "primary-fixed-dim": "#f4bb92",
+                "surface-container-high": "#f2e6dd",
+                "secondary-fixed": "#efe0cf",
+                "surface-container-highest": "#ece0d7",
+                "surface-tint": "#805533",
+                "secondary": "#675d4f",
+                "on-background": "#201b15",
+                "outline": "#83746b",
+                "surface-container-low": "#fef1e8",
+                "on-tertiary-container": "#eae8e3",
+                "on-secondary": "#ffffff",
+                "tertiary-container": "#696864",
+                "surface-container-lowest": "#ffffff",
+                "tertiary-fixed": "#e5e2dd",
+                "inverse-on-surface": "#fbefe5",
+                "on-primary-fixed": "#301400",
+                "on-secondary-fixed": "#221a10",
+                "tertiary-fixed-dim": "#c9c6c2"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Noto Serif", "Noto Serif Arabic"],
+                "body": ["Manrope", "Almarai"],
+                "label": ["Manrope", "Almarai"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Almarai', 'Manrope', sans-serif;
+            background-color: #fff8f4;
+            color: #201b15;
+        }
+        .editorial-shadow {
+            box-shadow: 0 20px 50px -20px rgba(111, 70, 39, 0.08);
+        }
+        .glass-nav {
+            backdrop-filter: blur(24px);
+            background-color: rgba(255, 248, 244, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Announcement Bar -->
+<div class="bg-primary text-on-primary py-2 px-6 text-center text-xs tracking-widest font-label uppercase">
+        شحن مجاني للطلبات فوق ٥٠٠ ريال
+    </div>
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
+<nav class="flex flex-row-reverse justify-between items-center px-6 py-5 w-full">
+<!-- Brand Logo -->
+<div class="text-2xl font-headline tracking-tighter text-stone-900 flex-1 text-right">
+                Aura Skincare
+            </div>
+<!-- Main Navigation Desktop -->
+<div class="hidden md:flex flex-row-reverse items-center gap-10 font-headline tracking-widest text-sm uppercase">
+<a class="text-stone-900 font-bold relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-stone-800 after:rounded-full" href="#">تسوق الكل</a>
+<a class="text-stone-500 font-body hover:text-stone-900 transition-all duration-300" href="#">الطقوس</a>
+<a class="text-stone-500 font-body hover:text-stone-900 transition-all duration-300" href="#">العلم</a>
+<a class="text-stone-500 font-body hover:text-stone-900 transition-all duration-300" href="#">المجلة</a>
+</div>
+<!-- Action Icons & Switcher -->
+<div class="flex items-center gap-6 flex-1">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:scale-95 transition-transform">search</span>
+<span class="material-symbols-outlined cursor-pointer hover:scale-95 transition-transform">favorite</span>
+<span class="material-symbols-outlined cursor-pointer hover:scale-95 transition-transform">person</span>
+<span class="material-symbols-outlined cursor-pointer hover:scale-95 transition-transform">shopping_bag</span>
+</div>
+<div class="bg-surface-container-high px-3 py-1 rounded-full text-[10px] font-bold tracking-widest cursor-pointer hover:bg-surface-variant transition-colors">
+                    EN/AR
+                </div>
+</div>
+</nav>
+</header>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center overflow-hidden">
+<div class="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+<div class="space-y-8 max-w-2xl">
+<h1 class="text-6xl md:text-8xl font-headline leading-tight text-on-surface">
+                        علم الجمال <br/>
+<span class="italic font-normal">النباتي</span>
+</h1>
+<p class="text-xl md:text-2xl font-body leading-relaxed text-on-surface-variant/80 font-light">
+                        حيث تلتقي حكمة الأجداد القديمة بالعلوم الجزيئية الحديثة. نبتكر حلولاً للعناية بالبشرة تحترم توازن الطبيعة وتقدم نتائج ملموسة.
+                    </p>
+<div class="flex gap-4">
+<button class="bg-gradient-to-r from-primary to-primary-container text-on-primary px-10 py-5 rounded-lg text-lg font-label transition-transform hover:scale-[1.02] active:scale-95 editorial-shadow">
+                            اكتشف المجموعة
+                        </button>
+</div>
+</div>
+<div class="relative">
+<div class="aspect-[4/5] rounded-xl overflow-hidden editorial-shadow bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="serene high-end skincare product presentation with glass bottles on neutral stone surface with soft natural window shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHtVsBq3z_GbsuaCrQJQyq1SgBPeteDC_90RaX7M4kxNa35prHblIz2pNWKOSVrWkxFu3ANrTQ7imrSOtCwmFpn6vYVUbxzy2dgWEUY1rSwjxFV-9jSNxafDz5gJOnaKbz9irVY3NVO853KsZD5zexgm3TKeBhv0B9m_VCeYCkB9mXDRF8lF5Vd1u9Yeq3Toq39b0hAKScpnj9whZu3B_-gpf21tHlsD3Kq2Z0fJtxN3pNAfLmuSzqvuAESh87G1GMl_maS6leR8HT"/>
+</div>
+<div class="absolute -bottom-12 -left-12 hidden lg:block w-64 h-80 rounded-xl overflow-hidden border-[12px] border-surface editorial-shadow">
+<img class="w-full h-full object-cover" data-alt="close up of botanical ingredients and botanical oil dropping into a luxury serum bottle in golden light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtYhX5yuIHxLdg61i-6gvpjvNW9NE7NNvmvpU4qmJFrNkyyolMbNrG731sWHg7gZwoxNfjNFBgLQFRHKFhngYrGbt1Gp27Rcy0UrX-IFE14rpt12slV94-fjgbnbZzVH9uBiEq0Pp9-dn3PGm2r-p68J29as6uFaLI92wYS0XViEM5qRqzDgZI2HsAqCUjHVAFss7znZ43eRblsG8JykPp173ljtsaLhemjzRUVdeY01W2WIVt-ImHJgcrQugPbFMpyyb4nEgLwSs9"/>
+</div>
+</div>
+</div>
+<div class="absolute top-0 right-0 w-1/2 h-full bg-surface-container-low -z-0 opacity-50"></div>
+</section>
+<!-- Categories Section -->
+<section class="py-24 bg-surface">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Category 1 -->
+<div class="group cursor-pointer relative overflow-hidden rounded-lg aspect-[3/4]">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="minimalist aesthetic photo of a cream cleanser being applied to smooth clear skin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBxbDdaqtsGTIw2eSgDCUxWLKy606sznU4w-UkCddLFFSYoLaE5cSMk1J3iU4Q4vFQRjm9bQ7IiY1DEErn-46b0c1OhsBECYslJxut6-vzpxwuwuJcslYd1m2p8Ds-ieMSe1FqMTQ_RaD671AMfhe14Hp1WPBt64MJEaS5-YwPq6Yg5BivrOWMs4YfmM0ViUax780WbdH79jzVkkuC4k5MgogIKREZMe1k9ITbvpHLL0jlHKn4mSL0dbl5HlK3vkDSysiAOtE7CDcq"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent"></div>
+<div class="absolute bottom-8 right-8 text-surface">
+<h3 class="text-3xl font-headline">التنظيف</h3>
+<p class="font-label text-sm uppercase tracking-widest mt-2">Cleansing</p>
+</div>
+</div>
+<!-- Category 2 -->
+<div class="group cursor-pointer relative overflow-hidden rounded-lg aspect-[3/4] md:mt-12">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="luxurious hydrating serum being squeezed from a glass dropper with botanical leaves in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2L5misacLiqMIUA3U-D38J9vNE9mJBRZjxI39WUVw76kUuPuptRUxCSaDhu0eWDGEq-UEDkrIJMpYTfRxKWTscuX0PsHm63mTjTZYbUeki4KGZzf0RnIhx-UHQ7Tj6XVeG5mROARQodnPOup-OLTeGflP59CWi4wLX6S4PLa9vsC1_4siDA0uvCv02Jq6cW7IiI2RBFxCfp83KMcNmq8wEbO5_wMfEcVEW_FRm4Y0dcGc_6kzoSNxX4Fbj9uX4ugCrNg2oXePcYNd"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent"></div>
+<div class="absolute bottom-8 right-8 text-surface">
+<h3 class="text-3xl font-headline">الترطيب</h3>
+<p class="font-label text-sm uppercase tracking-widest mt-2">Hydration</p>
+</div>
+</div>
+<!-- Category 3 -->
+<div class="group cursor-pointer relative overflow-hidden rounded-lg aspect-[3/4]">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="aesthetic display of multiple skincare products arranged as a ritual set on a marble tray" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxNDRJttSdslsMi41uzNUnydo4rpi5vV5QvzNHEjPiTLrb2KJ9ZUFUj9mEGZm_p53JHede9P0pbMRVYaQ3JoWrSno5xhL2r9f493inIeqN4X1OgjCpm7FjlSSwKwNur3PMXNmod3klAuXktX7NJboH-10Ile4f7sGwLaS0pqYJBU0aS27jhiPXo-Ub7-IcWlT5nsziZ6i1hrTHsHNrwriPQpN0ga9R77KVTdxt6Mf9EW89ISdmd9g2w1wGGlXuCgR6zIoDeipxIkcZ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent"></div>
+<div class="absolute bottom-8 right-8 text-surface">
+<h3 class="text-3xl font-headline">مجموعات الطقوس</h3>
+<p class="font-label text-sm uppercase tracking-widest mt-2">Ritual Sets</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Best Sellers Grid -->
+<section class="py-24 bg-surface-container-low">
+<div class="container mx-auto px-6">
+<div class="flex justify-between items-end mb-16">
+<div class="space-y-2">
+<span class="text-primary font-label text-xs uppercase tracking-widest">الأكثر مبيعاً</span>
+<h2 class="text-4xl font-headline">منتجاتنا المختارة</h2>
+</div>
+<a class="text-primary border-b border-primary/30 pb-1 font-label text-sm hover:border-primary transition-all" href="#">مشاهدة الكل</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+<!-- Product Card 1 -->
+<div class="group">
+<div class="bg-surface-container-lowest rounded-lg aspect-[4/5] overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="minimalist glass bottle of facial oil on a textured stone surface with direct sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8L1-COoklFinLJVT6T2Qpw1rY_bKdK8ZlkHO_UnE40HLs2KhxUGhI76OSsYzwVas3pEVWDHH8dXvgk1iZxtX9lk2FZq8A94OyAjtrf15kH0GLb0Lrd9dW7kFVLy9_-xN0rxbZ0sy8kj3_et6PZ62jXSyFkgsI7RkovbLFKCPJJo5jJBQongPCdEfyJEoPC4ZrkQWpoC0wAnN_B1PiMxVMpU1ndALC0WMtfWaJ3E4OlJD5kgCa_o3UYwraCY8KCsLOm4vTqpySykVS"/>
+<button class="absolute bottom-4 left-4 right-4 bg-surface/90 backdrop-blur-md py-3 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity font-label">
+                                إضافة للسلة
+                            </button>
+</div>
+<h4 class="font-headline text-lg text-on-surface">إكسير الصحراء الذهبي</h4>
+<p class="text-on-surface-variant text-sm mt-1">زيت وجه مغذٍ بعمق</p>
+<p class="text-primary font-bold mt-2">٣٤٥ ر.س</p>
+</div>
+<!-- Product Card 2 -->
+<div class="group">
+<div class="bg-surface-container-lowest rounded-lg aspect-[4/5] overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="white cosmetic cream jar on light beige background with organic shapes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCozdsFSgZkgbZoi6pGY1DS-_JJMGXshJus2yIyVIq7HJPDa_aGy323X4lt37jrW6gvxHCQV1u7lJdrERI9b-gIMjwH1yLd6ZUWd3TXBZO7r68G_N7zyudsbohJ63_D-YDPgQCcR6IpJQOZUmhVTRSbJjWgqI67c5Ip54m6P8xWfcLXTSZ3n4TL7fg4f3mKxdDC6i6gdoCQY2OI0oQsWuDS7tsoobB-Ov-0_fl7tyR-ZoguwYeIhcQzI65krvDeu4tpF6EOO00ReElm"/>
+<button class="absolute bottom-4 left-4 right-4 bg-surface/90 backdrop-blur-md py-3 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity font-label">
+                                إضافة للسلة
+                            </button>
+</div>
+<h4 class="font-headline text-lg text-on-surface">بلسم الكثبان المرطب</h4>
+<p class="text-on-surface-variant text-sm mt-1">مرطب يومي غني بحمض الهيالورونيك</p>
+<p class="text-primary font-bold mt-2">٢٨٠ ر.س</p>
+</div>
+<!-- Product Card 3 -->
+<div class="group">
+<div class="bg-surface-container-lowest rounded-lg aspect-[4/5] overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="elegant facial toner in a frosted glass bottle with natural sunlight reflections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXTsuCUONNQJFLCKtAJxQHeEcxHfjvIh5rjh2nrzEfa7PnU3MHPXiVAQg3Bper5jwEg-c8pHfQ6ZTN1ns4RvaUf560XsMDlIJZ-XWju8bUZqkRX-etn0WwX2fQlCDjPkkzczTu9rE5nj2SsZ4KWATExh5sH8LZeyGem0wArhZ6yXVQisC1z1nN9m5lVvlJKwYrGqF9IJOImtyvwDVHwbdNhh0nRODLDRhnrU8rmYtEoD7tp3PtmmY7-QQoBpDnqu9_SOvcLnu9ZPob"/>
+<button class="absolute bottom-4 left-4 right-4 bg-surface/90 backdrop-blur-md py-3 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity font-label">
+                                إضافة للسلة
+                            </button>
+</div>
+<h4 class="font-headline text-lg text-on-surface">ماء الورد النقي</h4>
+<p class="text-on-surface-variant text-sm mt-1">تونر منعش ومنظف</p>
+<p class="text-primary font-bold mt-2 shadow-none">١٩٥ ر.س</p>
+</div>
+<!-- Product Card 4 -->
+<div class="group">
+<div class="bg-surface-container-lowest rounded-lg aspect-[4/5] overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="dark glass bottle of facial serum on a dark wooden surface with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxKDK6zvNPxXFu8EWxRpwVwak27zekQ00NmidRaYAsKatUnunOCqhj-BzPL52y5l8r5bFNo3wF5RC3rI52_nnLIIayRVkXG6rWFb8zJEpfiNIJsRkZXkkZyo0ISrYA3M1F86aZKfqA1nFBL_mCVNdquYIyislNpoB3KulfWQALBsdZ__iEx_4e06SEjihr7wLYAfkLLBd3VoJJDmCRekRzVKqXaJ0TJftN_G-cYOe81ZtK1wqTk8CRxfBqR8FGITtYFll65UoFgmu7"/>
+<button class="absolute bottom-4 left-4 right-4 bg-surface/90 backdrop-blur-md py-3 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity font-label">
+                                إضافة للسلة
+                            </button>
+</div>
+<h4 class="font-headline text-lg text-on-surface">مصل الليل المكثف</h4>
+<p class="text-on-surface-variant text-sm mt-1">ترميم ليلي عميق</p>
+<p class="text-primary font-bold mt-2">٤٢٠ ر.س</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Promotional Banner -->
+<section class="py-24 overflow-hidden">
+<div class="container mx-auto px-6">
+<div class="bg-primary text-on-primary rounded-2xl overflow-hidden flex flex-col md:flex-row items-center">
+<div class="p-12 md:p-20 md:w-1/2 space-y-6">
+<span class="font-label text-xs uppercase tracking-[0.2em] opacity-80">إصدار محدود</span>
+<h2 class="text-5xl font-headline leading-tight">طقوس منتصف الليل</h2>
+<p class="text-lg opacity-90 leading-relaxed font-light">
+                            مجموعة حصرية مصممة لتحويل روتينك الليلي إلى تجربة تأملية. تضم ثلاثة منتجات أساسية لإعادة الحيوية لبشرتك أثناء النوم.
+                        </p>
+<button class="bg-surface text-primary px-8 py-4 rounded-lg font-label hover:bg-surface-container transition-colors">تسوق المجموعة الآن</button>
+</div>
+<div class="md:w-1/2 h-[400px] md:h-[600px] w-full">
+<img class="w-full h-full object-cover" data-alt="moody high-end skincare arrangement with dark silk background and soft ambient light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZLIhd9io-ErsIetN_APNM3JUEadn6dSDeeLth6hIL3Xcyd4nUrlObvpD4IfCxbJVpZu-2CS3yv-x6BGexSg8ivWeukgQRLSc4EQljdunflpBMnoAsEO1r3m8tbzP4UZogqE65cqRoOj7ld2GdhwvSg-VAgFN8DFiLaVR62XmAX36l34WwTHSnoJdNM0rOMI3Nlk4F3SgwcGBdDes_PMTqV3COvUQbLb2XbBlMWP_FeajsQ_3BiAc8mvp4FbISd6FivtLRVbypgL9O"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Why Choose Us -->
+<section class="py-24 bg-surface border-y border-surface-variant/30">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
+<div class="space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" data-weight="fill">spa</span>
+<h3 class="text-xl font-headline">مصادر أخلاقية</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">نلتزم بتأمين مكوناتنا من مزارع مستدامة تدعم المجتمعات المحلية وتحترم البيئة.</p>
+</div>
+<div class="space-y-4 border-y md:border-y-0 md:border-x border-surface-variant/30 py-12 md:py-0 md:px-12">
+<span class="material-symbols-outlined text-4xl text-primary" data-weight="fill">science</span>
+<h3 class="text-xl font-headline">دقة علمية</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">يتم اختبار كل تركيبة في مختبراتنا لضمان أعلى مستويات النقاء والفعالية السريرية.</p>
+</div>
+<div class="space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" data-weight="fill">auto_awesome</span>
+<h3 class="text-xl font-headline">نتائج مشرقة</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">بشرة متوهجة وصحية هي وعدنا لك من خلال الاستخدام المستمر لطقوسنا اليومية.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Reviews -->
+<section class="py-24 bg-surface-container-lowest">
+<div class="container mx-auto px-6">
+<h2 class="text-4xl font-headline text-center mb-16 italic">أصوات من مجتمعنا</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Review 1 -->
+<div class="bg-surface p-10 rounded-xl editorial-shadow space-y-4">
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-lg italic leading-relaxed">"أفضل منتج استخدمته على الإطلاق. بشرتي لم تكن بهذه النعومة من قبل. الرائحة طبيعية ومهدئة جداً."</p>
+<div class="pt-4 border-t border-surface-variant/20">
+<p class="font-bold">سارة م.</p>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">عميلة مؤكدة</p>
+</div>
+</div>
+<!-- Review 2 -->
+<div class="bg-surface p-10 rounded-xl editorial-shadow space-y-4 md:-translate-y-8">
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-lg italic leading-relaxed">"إكسير الصحراء الذهبي هو حرفياً سحر في زجاجة. أستخدمه كل ليلة وأستيقظ ببشرة مشرقة."</p>
+<div class="pt-4 border-t border-surface-variant/20">
+<p class="font-bold">ليلى ع.</p>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">عميلة مؤكدة</p>
+</div>
+</div>
+<!-- Review 3 -->
+<div class="bg-surface p-10 rounded-xl editorial-shadow space-y-4">
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-lg italic leading-relaxed">"أحب فلسفة Aura في دمج الطبيعة مع العلم. التغليف رائع وتجربة الاستخدام فاخرة جداً."</p>
+<div class="pt-4 border-t border-surface-variant/20">
+<p class="font-bold">نورة ك.</p>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest">عميلة مؤكدة</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Instagram Grid -->
+<section class="py-24">
+<div class="container mx-auto px-6">
+<div class="text-center mb-12">
+<h2 class="text-2xl font-headline tracking-widest uppercase">@AURASKINCARE</h2>
+<p class="text-on-surface-variant mt-2 font-label">شاركنا طقوسك الخاصة</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+<img class="aspect-square object-cover w-full grayscale hover:grayscale-0 transition duration-500" data-alt="aesthetic close up of water ripples and skincare textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuzM-E7HnSvPU3WTWabX09dJcdVelfMkjAJSLTzTc8HQVeE7nc352P1Mo2cPZjDjtRwG3cs4jMoMoAwPgZWA9inU6pnb2rfacwQwGn65hzbWEALK6CcYaO-YlaY-apWbeovTNKUbjJdliJdZkKGNXpDmiqZ5pNi0RFsACHKMdABYZxs1WKIsJ9wGXhUfAGjzNfqj9nfmm0Kj7ULvrKn-5L-6i1rY0N8aLxIOq6D3-6233VP61m4kU1MZD2G7Lfy_v0NAOmHdKPmTtK"/>
+<img class="aspect-square object-cover w-full grayscale hover:grayscale-0 transition duration-500" data-alt="minimalist bathroom shelf with premium amber glass bottles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATnXQxE7qfjT72EWm1eyZmpgCsEZaj9ElUxkdrw6nWLc9zqjB3bzpxxuBbwFf_hRXwkyH1fc16ObseHu2BtSQBjU5BIefAAmeGmqCBGlfsNsn5Av9g5DFGro_zWc0E6hYooxYHvTR5zVYKvads-O5LlCVFau9DsKvroB6c_R161xtJtHkJIBZpV1or0O0eTywVDuMnMtgB56AvlAVYvGQAI8JhyuTk4VdVbszsDu70PTlKRD_Zy75Yb0jozy3hqwEkZasHcZ2kE4Kf"/>
+<img class="aspect-square object-cover w-full grayscale hover:grayscale-0 transition duration-500" data-alt="soft focus of a woman smiling with clear glowing skin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1FKW1kdrdc9QwU-kEyAZsIgv6seZo0s0c5L1A1GK5nPEiE01FYC9hNOdCzNLL73nUwhk7NsAd-dwK-gLT78my3miEz-XsHc8m2nxurmxAyfxp6ZeJYX63Z8WggcF72Bk8IxrOU5tASbOxKE4VbqWAwe54P0Jl5lxhPmgugr4qO1mlSyybmVyEOIzODJBAZP6Ubi46IJ2qM4CLZykuBGxjrp-TNPFA8oyP0JsROoGRehn_mGhsojDSt-qXh2x4scHFQVSCMx2A7ZvM"/>
+<img class="aspect-square object-cover w-full grayscale hover:grayscale-0 transition duration-500" data-alt="flatlay of white stones and a single glass serum bottle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoda-7LJ-vuVeJCH0Z-SRRYeO3hoGdKRDC8epWfHOBJV4pbN0zqiqLlygA6QrKRyzWwgTGAdUaKzWTSnnTiVbID5QgorhNLF664Frp9fqb1vDnq1SbKJzo0-fOKAMt-H9GpaBdc6VmSZnLnYPopSBXJENVWX_cBCvCgk1y2lrDEa9w-Z-XSRFitNKu-Kh0v8vEO3qIDyjTyvTZpDwoMMV-KQB9yYZM3XbUP8H3FpVESsLkB8bBvhBKPAOjCF0tRQXYuYtPoc_c7nDg"/>
+<img class="aspect-square object-cover w-full grayscale hover:grayscale-0 transition duration-500" data-alt="artistic macro shot of green leaf texture with water droplets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4mbkRNAgrC62uqhrcXDVL4OKVoE9kPWLcwVFAGARWclt_HZ5hMyVVBTedzSO-sKcPYRs7yIK6egy3LSHuFzrwewTRr2LxgxdqwkAsTIjz1e6_qLh9IkCr2DrHr92LHLssRnRSNwJMWdUiL1nSlOOiWLo_uiBoyyOUg21lshVFt9cR2rSqV4FpsbU94x35T9OP7Q_5MjmLjkWmBtL3wLilXJ5UawjlfCPX0YKmHtRclXat8cKPLW17dH2v877L-JFQllSWgRgIDzfO"/>
+<img class="aspect-square object-cover w-full grayscale hover:grayscale-0 transition duration-500" data-alt="skincare products glowing under warm evening sun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCww19hVHAokMC6EL1lXvl9CA1GoDipS88h369_XLOaJZnia_Dl35YfOgd87P-AyMeYA0MIeoEfgWC8H84U8gKQ_OZto76Q1WBVK7xHMF8Iyvzz7w6nglgfUTPZ4ONi3l0Jg6bFF-ig7sMJeoPBcxCEVVtgD0Ud6K4SkqsW_HgG4T9WI7UeSyx_ppZ5DeiSMd1lk4Ut3C_Yz6vGVT3XeT99x6LxJm6EzVB1QqquHpUR5xf4mzkW_9aqEVoqYfw8Bq5dNxA6ztFhK2un"/>
+</div>
+</div>
+</section>
+<!-- Newsletter Section -->
+<section class="py-24 bg-surface-container text-on-surface text-center">
+<div class="max-w-2xl mx-auto px-6 space-y-8">
+<h2 class="text-4xl font-headline">انضم إلى مجتمعنا</h2>
+<p class="text-on-surface-variant font-body">اشترك لتلقي أحدث الأبحاث حول العناية بالبشرة، وإصدارات المنتجات الحصرية، ونصائح الجمال المستدام.</p>
+<form class="flex flex-col md:flex-row gap-4 mt-8">
+<input class="flex-grow bg-surface-container-lowest border-none focus:ring-1 focus:ring-primary rounded-lg px-6 py-4 text-right" placeholder="البريد الإلكتروني" type="email"/>
+<button class="bg-primary text-on-primary px-10 py-4 rounded-lg font-label transition-colors hover:bg-primary-container">اشترك الآن</button>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-stone-100 dark:bg-stone-950 text-stone-800 dark:text-stone-200">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-16 px-12 py-20 text-right">
+<!-- Brand & Info -->
+<div class="space-y-6">
+<div class="font-serif text-xl italic text-stone-900 dark:text-stone-50">AURA SKINCARE</div>
+<p class="text-sm text-stone-600 dark:text-stone-400 font-body leading-relaxed">
+                    نحن نؤمن بالجمال الذي يحترم الروح والجسد والأرض. كل قطرة هي رحلة من الطبيعة إليك.
+                </p>
+<div class="flex flex-row-reverse gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">share</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">favorite</span>
+</div>
+</div>
+<!-- Shop Links -->
+<div class="space-y-6">
+<h4 class="font-headline font-semibold text-stone-900 dark:text-stone-50">التسوق</h4>
+<ul class="space-y-4 text-sm text-stone-600 dark:text-stone-400 font-body">
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">المنظفات</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">المرطبات</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">الأمصال</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">المجموعات</a></li>
+</ul>
+</div>
+<!-- About Links -->
+<div class="space-y-6">
+<h4 class="font-headline font-semibold text-stone-900 dark:text-stone-50">عن أورا</h4>
+<ul class="space-y-4 text-sm text-stone-600 dark:text-stone-400 font-body">
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">قصتنا</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">الاستدامة</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">المصادر</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">الوظائف</a></li>
+</ul>
+</div>
+<!-- Support Links -->
+<div class="space-y-6">
+<h4 class="font-headline font-semibold text-stone-900 dark:text-stone-50">المساعدة</h4>
+<ul class="space-y-4 text-sm text-stone-600 dark:text-stone-400 font-body">
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">الشحن والتوصيل</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">سياسة الاستبدال</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">تواصل معنا</a></li>
+<li><a class="hover:underline decoration-stone-300 underline-offset-8 transition-all" href="#">الأسئلة الشائعة</a></li>
+</ul>
+</div>
+</div>
+<div class="border-t border-stone-200 dark:border-stone-800 px-12 py-8 flex flex-col md:flex-row-reverse justify-between items-center text-xs font-body text-stone-500">
+<div>© 2026 AURA SKINCARE. ETHICALLY SOURCED.</div>
+<div class="flex gap-6 mt-4 md:mt-0">
+<a class="hover:text-stone-900" href="#">Privacy</a>
+<a class="hover:text-stone-900" href="#">Terms</a>
+<a class="hover:text-stone-900" href="#">Sourcing</a>
+</div>
+</div>
+</footer>
+</body></html>

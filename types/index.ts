@@ -26,6 +26,7 @@ export interface Category {
   slug: string
   is_active: boolean
   image_url?: string
+  product_count?: number
 }
 
 export interface Order {
