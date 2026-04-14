@@ -1,15 +1,57 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Tajawal:wght@300;400;500;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Arabic:wght@400;700&family=Manrope:wght@300;400;600&family=Almarai:wght@300;400;700&display=swap');
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════
+   DEEP BEAUTY — Design System Tokens
+   Single source of truth for all colors, spacing
+   and typography used across the entire site.
+═══════════════════════════════════════════════ */
 :root {
-  --primary: #9C6644;
-  --primary-dark: #7a4f32;
+  /* Brand Colors */
+  --primary:       #9C6644;
+  --primary-dark:  #7a4f32;
   --primary-light: #b8845f;
-  --beige: #EEE0D5;
-  --dark-beige: #dcc8b8;
-  --off-white: #faf7f4;
-  --text-dark: #3a2a1e;
-  --white: #ffffff;
+  --primary-hover: #8a5838;
+
+  /* Surfaces */
+  --beige:         #EEE0D5;
+  --dark-beige:    #dcc8b8;
+  --off-white:     #faf7f4;
+  --text-dark:     #3a2a1e;
+  --white:         #ffffff;
+
+  /* Semantic Tokens (used throughout UI) */
+  --surface:               var(--off-white);
+  --surface-container:     #f3ece6;
+  --surface-container-low: #f7f3f0;
+  --on-surface:            var(--text-dark);
+  --on-surface-variant:    #7a6055;
+  --outline-variant:       var(--dark-beige);
+
+  /* Shadows */
+  --shadow-sm:      0 1px 3px rgba(58,42,30,0.08);
+  --shadow-md:      0 4px 16px rgba(58,42,30,0.10);
+  --shadow-lg:      0 10px 40px rgba(58,42,30,0.12);
+  --shadow-xl:      0 20px 60px rgba(58,42,30,0.15);
+  --shadow-primary: 0 8px 24px rgba(156,102,68,0.25);
+
+  /* Border Radius */
+  --radius-sm: 0.5rem;    /* 8px */
+  --radius-md: 0.75rem;   /* 12px */
+  --radius-lg: 1rem;      /* 16px */
+  --radius-xl: 1.5rem;    /* 24px */
+  --radius-2xl: 2rem;     /* 32px */
+
+  /* Transitions */
+  --transition-fast:   all 0.15s ease;
+  --transition-base:   all 0.25s ease;
+  --transition-slow:   all 0.4s ease;
+  --transition-spring: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Spacing */
+  --section-y: 6rem;
+  --container-max: 1280px;
+  --nav-height: 72px;
 }
 
 * {

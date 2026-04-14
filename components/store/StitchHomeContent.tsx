@@ -1,19 +1,28 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Product, Category } from '@/types'
 import { useCountry } from '@/context/CountryContext'
-import { 
+import { useCartContext } from '@/context/CartContext'
+import { useWishlistContext } from '@/context/WishlistContext'
+import {
   ArrowLeftIcon,
   ShoppingBagIcon,
   HeartIcon,
   StarIcon,
   TruckIcon,
   ShieldCheckIcon,
-  SparklesIcon
+  SparklesIcon,
+  CheckBadgeIcon,
+  GiftIcon,
+  CheckIcon,
 } from '@heroicons/react/24/outline'
+import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
+import { PaymentIconsRow } from './PaymentIcons'
+import toast from 'react-hot-toast'
 
 interface Banner {
   id: string
@@ -30,160 +39,399 @@ interface Props {
   announcementText?: string
 }
 
+// ─── Stagger container ──────────────────────────────────────────────────────
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
+
+const stagger = {
+  container: { animate: { transition: { staggerChildren: 0.08 } } },
+  item: {
+    initial: { opacity: 0, y: 24 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+  },
+}
+
+// ─── Fade-in viewport helper ────────────────────────────────────────────────
+const fadeUp = {
+  initial: { opacity: 0, y: 32 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-50px' },
+  transition: { duration: 0.6, ease: EASE },
+}
+
+// ─── Trust features ────────────────────────────────────────────────────────
+const TRUST = [
+  { Icon: TruckIcon,       title: 'شحن سريع',       desc: 'توصيل خلال ٢٤ ساعة' },
+  { Icon: ShieldCheckIcon, title: 'منتجات أصلية',   desc: '١٠٠٪ طبيعية' },
+  { Icon: SparklesIcon,    title: 'جودة عالية',     desc: 'مكونات مختارة' },
+  { Icon: CheckBadgeIcon,  title: 'ضمان رضا',       desc: 'استبدال أو استرجاع' },
+]
+
+// ─── Testimonials ──────────────────────────────────────────────────────────
+const REVIEWS = [
+  { name: 'سارة العنزي',   city: 'الكويت',  text: 'أفضل منتجات استخدمتها لبشرتي، نتائج مذهلة من أول أسبوع! البشرة أصبحت مشرقة وناعمة جداً.', rating: 5 },
+  { name: 'نورة الرشيد',   city: 'الرياض',  text: 'جودة عالية وتغليف فاخر. أنصح كل صديقة بتجربة ديب بيوتي. سأكون عميلة دائمة للأبد.', rating: 5 },
+  { name: 'فاطمة الهاشمي', city: 'دبي',     text: 'خدمة عملاء ممتازة وتوصيل سريع جداً. المنتجات طبيعية وآمنة للبشرة الحساسة كبشرتي.', rating: 5 },
+]
+
+// ─── Product Card (Home) ────────────────────────────────────────────────────
+function HomeProductCard({ product, formatPrice }: { product: Product; formatPrice: (p: number) => string }) {
+  const { addItem } = useCartContext()
+  const { isInWishlist, toggleItem } = useWishlistContext()
+  const [adding, setAdding] = useState(false)
+  const isWishlisted = isInWishlist(product.id)
+  const displayPrice = product.sale_price ?? product.price
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (product.stock_quantity === 0) return
+    setAdding(true)
+    addItem({
+      id: product.id,
+      name_ar: product.name_ar,
+      name_en: product.name_en,
+      price: displayPrice,
+      image: product.images?.[0] || '',
+      quantity: 1,
+      slug: product.slug,
+    })
+    toast.success('تم إضافة المنتج للسلة 🛒', { duration: 2000, position: 'bottom-center' })
+    setTimeout(() => setAdding(false), 1500)
+  }
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleItem({ id: product.id, name_ar: product.name_ar, name_en: product.name_en, price: displayPrice, image: product.images?.[0] || '', slug: product.slug })
+    toast.success(isWishlisted ? 'تم الإزالة من المفضلة' : 'تم الإضافة للمفضلة ❤️', { position: 'bottom-center' })
+  }
+
+  const discount = product.sale_price
+    ? Math.round((1 - product.sale_price / product.price) * 100)
+    : product.compare_price
+    ? Math.round((1 - product.price / product.compare_price) * 100)
+    : 0
+
+  return (
+    <Link href={`/products/${product.slug}`} className="group block h-full">
+      <div className="h-full bg-white rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-[var(--shadow-xl)] hover:-translate-y-1.5 border border-transparent hover:border-[var(--beige)]">
+        {/* Image */}
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--beige)] to-[var(--dark-beige)]">
+          {product.images?.[0] ? (
+            <Image
+              src={product.images[0]}
+              alt={product.name_ar}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-600"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <SparklesIcon className="w-12 h-12 opacity-30 text-[var(--primary)]" />
+            </div>
+          )}
+
+          {/* Badges */}
+          <div className="absolute top-3 right-3 flex flex-col gap-1.5">
+            {discount > 0 && (
+              <span className="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-full shadow">
+                -{discount}٪
+              </span>
+            )}
+            {product.is_featured && !discount && (
+              <span className="px-2.5 py-1 bg-amber-500 text-white text-xs font-bold rounded-full shadow">
+                مميز ✨
+              </span>
+            )}
+          </div>
+
+          {/* Wishlist Button */}
+          <button
+            onClick={handleWishlist}
+            aria-label={isWishlisted ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+            className={`absolute top-3 left-3 w-9 h-9 rounded-full flex items-center justify-center shadow transition-all ${
+              isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/90 text-gray-500 hover:bg-rose-500 hover:text-white'
+            }`}
+          >
+            {isWishlisted ? <HeartSolid className="w-4 h-4" /> : <HeartIcon className="w-4 h-4" />}
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-4">
+          {product.category && (
+            <p className="text-[11px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--primary)' }}>
+              {product.category}
+            </p>
+          )}
+          <h3
+            className="font-bold text-base leading-snug mb-1 line-clamp-2"
+            style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+          >
+            {product.name_ar}
+          </h3>
+          <p className="text-xs text-gray-400 mb-3 line-clamp-1">
+            {product.description_ar || 'منتج طبيعي فاخر'}
+          </p>
+
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
+            <div>
+              <span className="text-lg font-bold" style={{ color: 'var(--primary)' }} dir="ltr">
+                {formatPrice(displayPrice)}
+              </span>
+              {(product.sale_price || product.compare_price) && (
+                <span className="block text-xs text-gray-400 line-through" dir="ltr">
+                  {formatPrice(product.sale_price ? product.price : product.compare_price!)}
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={handleAddToCart}
+              disabled={product.stock_quantity === 0 || adding}
+              aria-label={`إضافة ${product.name_ar} للسلة`}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                product.stock_quantity === 0
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : adding
+                  ? 'bg-green-500 text-white'
+                  : 'text-white hover:opacity-90'
+              }`}
+              style={
+                product.stock_quantity > 0 && !adding
+                  ? { background: 'var(--primary)' }
+                  : {}
+              }
+            >
+              {adding ? <CheckIcon className="w-3.5 h-3.5" /> : <ShoppingBagIcon className="w-3.5 h-3.5" />}
+              {adding ? 'تمت' : 'أضف'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MAIN PAGE COMPONENT
+// ═══════════════════════════════════════════════════════════════════
 export default function StitchHomeContent({ featuredProducts, categories, banners = [], announcementText }: Props) {
   const { formatPrice } = useCountry()
   const heroBanner = banners[0] || null
 
   return (
-    <div className="min-h-screen bg-surface pt-[72px]">
-      {/* Announcement Bar */}
-      <div className="bg-primary text-white py-2 px-6 text-center text-xs tracking-widest font-label uppercase">
-        {announcementText || 'شحن مجاني للطلبات فوق ١٥ د.ك'}
+    <div className="min-h-screen" style={{ background: 'var(--off-white)', paddingTop: 'var(--nav-height)' }}>
+
+      {/* ─────────────────────────────────────────
+          ANNOUNCEMENT BAR
+      ───────────────────────────────────────── */}
+      <div
+        className="py-2 px-4 text-center text-xs tracking-wider font-medium text-white"
+        style={{ background: 'var(--text-dark)' }}
+      >
+        <span>✦</span>
+        <span className="mx-3">{announcementText || '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك · استخدمي كود WELCOME25 للحصول على خصم ٢٥٪'}</span>
+        <span>✦</span>
       </div>
 
-      {/* Hero Section - Improved Design */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-surface via-surface-container-low to-surface">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5" />
-        
-        <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center z-10 relative">
+      {/* ─────────────────────────────────────────
+          HERO SECTION
+      ───────────────────────────────────────── */}
+      <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, var(--off-white) 0%, var(--beige) 60%, var(--dark-beige) 100%)' }} />
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C6644' fill-opacity='1'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}
+        />
+
+        <div className="relative z-10 max-w-[var(--container-max)] mx-auto px-5 md:px-8 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full">
+
+          {/* Text */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-8 max-w-2xl order-2 lg:order-1"
+            variants={stagger.container}
+            initial="initial"
+            animate="animate"
+            className="space-y-7 order-2 lg:order-1"
           >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium"
-            >
-              <SparklesIcon className="w-4 h-4" />
-              منتجات طبيعية 100%
+            {/* Eyebrow */}
+            <motion.div variants={stagger.item}>
+              <span
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border"
+                style={{
+                  color: 'var(--primary)',
+                  background: 'rgba(156,102,68,0.08)',
+                  borderColor: 'rgba(156,102,68,0.2)',
+                }}
+              >
+                <SparklesIcon className="w-3.5 h-3.5" />
+                منتجات طبيعية ١٠٠٪ · صُنع في الكويت
+              </span>
             </motion.div>
 
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-headline leading-[1.1] text-on-surface">
+            {/* Headline */}
+            <motion.h1
+              variants={stagger.item}
+              className="leading-[1.05] font-bold"
+              style={{
+                fontFamily: 'Cormorant Garamond, serif',
+                fontSize: 'clamp(3rem, 6vw, 5.5rem)',
+                color: 'var(--text-dark)',
+              }}
+            >
               {heroBanner?.title_ar ? (
                 <>
-                  {heroBanner.title_ar.split(' ').slice(0, 2).join(' ')}<br/>
-                  <span className="text-primary">{heroBanner.title_ar.split(' ').slice(2).join(' ') || 'يستحق الأفضل'}</span>
+                  {heroBanner.title_ar.split(' ').slice(0, 2).join(' ')}<br />
+                  <em className="not-italic" style={{ color: 'var(--primary)' }}>
+                    {heroBanner.title_ar.split(' ').slice(2).join(' ') || 'يستحق الأفضل'}
+                  </em>
                 </>
               ) : (
-                <>جمالكِ <br/><span className="text-primary">يستحق الأفضل</span></>
+                <>جمالكِ<br /><em className="not-italic" style={{ color: 'var(--primary)' }}>يستحق الأفضل</em></>
               )}
-            </h1>
+            </motion.h1>
 
-            <p className="text-lg md:text-xl font-body leading-relaxed text-on-surface-variant/90 max-w-lg">
-              {heroBanner?.subtitle_ar || 'منتجات عناية بالبشرة فاخرة، مصنوعة من مكونات طبيعية مختارة بعناية لإشراقة يومية.'}
-            </p>
+            {/* Subtext */}
+            <motion.p
+              variants={stagger.item}
+              className="text-base md:text-lg leading-relaxed max-w-md"
+              style={{ color: 'var(--on-surface-variant)' }}
+            >
+              {heroBanner?.subtitle_ar || 'منتجات عناية بالبشرة فاخرة، مصنوعة من مكونات طبيعية مختارة بعناية لإشراقة يومية مستدامة.'}
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* CTAs */}
+            <motion.div variants={stagger.item} className="flex flex-wrap gap-3">
               <Link
                 href={heroBanner?.link_url || '/products'}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-lg font-medium transition-all text-white"
-                style={{ background: '#6f4627' }}
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-bold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+                style={{ background: 'var(--primary)', boxShadow: 'var(--shadow-primary)' }}
               >
                 <ShoppingBagIcon className="w-5 h-5" />
                 تسوقي الآن
               </Link>
               <Link
                 href="/about"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-lg font-medium transition-all border-2 border-outline-variant text-on-surface hover:bg-surface-container"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-bold transition-all border-2 hover:bg-[var(--beige)]"
+                style={{ borderColor: 'var(--dark-beige)', color: 'var(--text-dark)' }}
               >
                 تعرفي علينا
+                <ArrowLeftIcon className="w-4 h-4" />
               </Link>
-            </div>
+            </motion.div>
 
+            {/* Stats */}
+            <motion.div
+              variants={stagger.item}
+              className="flex items-center gap-8 pt-2 border-t"
+              style={{ borderColor: 'var(--dark-beige)' }}
+            >
+              {[
+                { val: '+٥٠٠٠', label: 'عميلة سعيدة' },
+                { val: '١٠٠٪', label: 'مكونات طبيعية' },
+                { val: '٣+', label: 'سنوات خبرة' },
+              ].map(({ val, label }) => (
+                <div key={label}>
+                  <p className="text-2xl font-bold" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--primary)' }}>
+                    {val}
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>{label}</p>
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
 
           {/* Hero Image */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
             className="relative order-1 lg:order-2"
           >
-            {/* Main Image Container */}
-            <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl shadow-primary/10 bg-gradient-to-br from-surface-container to-surface-container-high">
+            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-[var(--shadow-xl)]"
+              style={{ background: 'linear-gradient(160deg, var(--beige), var(--dark-beige))' }}
+            >
               <Image
                 src={heroBanner?.image_url || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80'}
-                alt={heroBanner?.title_ar || 'منتجات العناية بالبشرة الفاخرة'}
+                alt={heroBanner?.title_ar || 'Deep Beauty منتجات عناية بالبشرة'}
                 fill
                 className="object-cover"
                 priority
               />
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-surface/20 via-transparent to-transparent" />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 60%, rgba(58,42,30,0.15))' }} />
             </div>
 
-            {/* Floating Card - Stats */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6, type: 'spring' }}
-              className="absolute -bottom-6 -left-6 bg-surface rounded-2xl p-5 shadow-editorial border border-outline-variant/50"
+            {/* Floating: Rating */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8, type: 'spring', stiffness: 200 }}
+              className="absolute -top-5 -left-5 bg-white rounded-2xl px-4 py-3 shadow-[var(--shadow-lg)] border border-[var(--beige)]"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <HeartIcon className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-primary font-headline">+5000</p>
-                  <p className="text-sm text-on-surface-variant">عميلة سعيدة</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Floating Card - Rating */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8, type: 'spring' }}
-              className="absolute -top-4 -right-4 bg-surface rounded-2xl px-4 py-3 shadow-editorial border border-outline-variant/50"
-            >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <div className="flex">
-                  {[1,2,3,4,5].map((i) => (
+                  {[1,2,3,4,5].map(i => (
                     <StarIcon key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                   ))}
                 </div>
-                <span className="font-bold text-on-surface">4.9</span>
+                <span className="font-bold text-sm text-[var(--text-dark)]">4.9</span>
+              </div>
+              <p className="text-[10px] text-gray-400 mt-0.5">+١٢٠ تقييم حقيقي</p>
+            </motion.div>
+
+            {/* Floating: Customers */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.0, type: 'spring', stiffness: 200 }}
+              className="absolute -bottom-5 -right-5 bg-white rounded-2xl p-4 shadow-[var(--shadow-lg)] border border-[var(--beige)]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: 'var(--beige)' }}>
+                  <HeartIcon className="w-5 h-5 text-[var(--primary)]" />
+                </div>
+                <div>
+                  <p className="text-xl font-bold" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--primary)' }}>+٥٠٠٠</p>
+                  <p className="text-xs text-gray-400">عميلة سعيدة</p>
+                </div>
               </div>
             </motion.div>
           </motion.div>
         </div>
 
-        {/* Decorative Elements */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
+        {/* Decorative blobs */}
+        <div className="absolute top-20 right-10 w-64 h-64 rounded-full opacity-20 blur-3xl pointer-events-none"
+          style={{ background: 'var(--primary)' }} />
+        <div className="absolute bottom-20 left-20 w-48 h-48 rounded-full opacity-10 blur-3xl pointer-events-none"
+          style={{ background: 'var(--primary-dark)' }} />
       </section>
 
-      {/* Features Bar */}
-      <section className="bg-surface-container py-6 border-y border-outline-variant/30">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { icon: TruckIcon, title: 'شحن سريع', desc: 'توصيل خلال ٢٤ ساعة' },
-              { icon: ShieldCheckIcon, title: 'منتجات أصلية', desc: '١٠٠٪ طبيعية' },
-              { icon: SparklesIcon, title: 'جودة عالية', desc: 'مكونات مختارة' },
-              { icon: StarIcon, title: 'ضمان رضا', desc: 'استبدال أو استرجاع' },
-            ].map((feature, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-center gap-3"
+      {/* ─────────────────────────────────────────
+          TRUST BAR
+      ───────────────────────────────────────── */}
+      <section
+        className="border-y"
+        style={{ background: 'white', borderColor: 'var(--beige)' }}
+      >
+        <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8 py-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-8 divide-y md:divide-y-0 md:divide-x rtl:divide-x-reverse divide-[var(--beige)]">
+            {TRUST.map(({ Icon, title, desc }, i) => (
+              <motion.div
+                key={title}
+                {...fadeUp}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="flex items-center gap-3 pt-5 md:pt-0 first:pt-0 md:px-6 first:ps-0 last:pe-0"
               >
-                <div className="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center flex-shrink-0">
-                  <feature.icon className="w-6 h-6 text-primary" />
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'var(--beige)' }}
+                >
+                  <Icon className="w-5 h-5 text-[var(--primary)]" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-on-surface">{feature.title}</h4>
-                  <p className="text-xs text-on-surface-variant">{feature.desc}</p>
+                  <p className="text-sm font-bold text-[var(--text-dark)]">{title}</p>
+                  <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>{desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -191,45 +439,71 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
         </div>
       </section>
 
-      {/* Categories Section */}
-      {categories.length > 0 && (
-        <section className="py-24 bg-surface">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-12">
-              <span className="text-primary font-label text-xs uppercase tracking-widest block mb-2">تسوق حسب الفئة</span>
-              <h2 className="text-4xl font-headline text-on-surface">استكشف مجموعاتنا</h2>
-            </div>
-            <div className="flex flex-wrap justify-center gap-6">
-              {categories.filter(c => c.is_active).map((category, i) => (
+      {/* ─────────────────────────────────────────
+          CATEGORIES SECTION
+      ───────────────────────────────────────── */}
+      {categories.filter(c => c.is_active).length > 0 && (
+        <section className="py-24" style={{ background: 'var(--off-white)' }}>
+          <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8">
+            {/* Header */}
+            <motion.div {...fadeUp} className="text-center mb-12">
+              <span
+                className="text-xs font-bold uppercase tracking-widest block mb-3"
+                style={{ color: 'var(--primary)' }}
+              >
+                تسوقي حسب الفئة
+              </span>
+              <h2
+                className="text-4xl md:text-5xl font-bold"
+                style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+              >
+                استكشفي مجموعاتنا
+              </h2>
+            </motion.div>
+
+            {/* Grid */}
+            <div className="flex flex-wrap justify-center gap-5">
+              {categories.filter(c => c.is_active).slice(0, 4).map((cat, i) => (
                 <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] min-w-[220px] max-w-[320px]"
+                  key={cat.id}
+                  {...fadeUp}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="w-full sm:w-[calc(50%-10px)] lg:w-[calc(25%-15px)] min-w-[220px] max-w-[300px]"
                 >
                   <Link
-                    href={`/products?category=${encodeURIComponent(category.slug)}`}
-                    className="group cursor-pointer relative overflow-hidden rounded-2xl block shadow-editorial bg-surface-container"
+                    href={`/products?category=${encodeURIComponent(cat.slug)}`}
+                    className="group relative block overflow-hidden rounded-2xl shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all duration-500"
                     style={{ aspectRatio: '3/4' }}
+                    aria-label={`تصفح فئة ${cat.name_ar}`}
                   >
                     <div className="absolute inset-0">
-                      {category.image_url ? (
+                      {cat.image_url ? (
                         <Image
-                          src={category.image_url}
-                          alt={category.name_ar}
+                          src={cat.image_url}
+                          alt={cat.name_ar}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-surface-container to-surface-container-high" />
+                        <div
+                          className="w-full h-full"
+                          style={{ background: 'linear-gradient(160deg, var(--beige), var(--dark-beige))' }}
+                        />
                       )}
                     </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    <div className="absolute bottom-0 right-0 left-0 p-5">
-                      <p className="text-xs font-label uppercase tracking-wider text-white/70 mb-1">{category.name_en}</p>
-                      <h3 className="text-xl font-headline text-white leading-tight">{category.name_ar}</h3>
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(30,18,8,0.75) 0%, rgba(30,18,8,0.1) 60%, transparent 100%)' }} />
+                    <div className="absolute bottom-0 inset-x-0 p-5">
+                      {cat.name_en && (
+                        <p className="text-[11px] font-semibold uppercase tracking-widest text-white/60 mb-1">
+                          {cat.name_en}
+                        </p>
+                      )}
+                      <h3
+                        className="text-xl font-bold text-white leading-tight group-hover:text-[var(--primary-light)] transition-colors"
+                        style={{ fontFamily: 'Cormorant Garamond, serif' }}
+                      >
+                        {cat.name_ar}
+                      </h3>
                     </div>
                   </Link>
                 </motion.div>
@@ -239,38 +513,52 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
         </section>
       )}
 
-      {/* Featured Products */}
-      <section className="py-24 bg-surface-container-low">
-        <div className="container mx-auto px-6">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <span className="text-primary font-label text-xs uppercase tracking-widest block mb-2">الأكثر مبيعاً</span>
-              <h2 className="text-4xl font-headline text-on-surface">منتجاتنا المختارة</h2>
-            </div>
-            <Link 
+      {/* ─────────────────────────────────────────
+          FEATURED PRODUCTS
+      ───────────────────────────────────────── */}
+      <section className="py-24" style={{ background: 'white' }}>
+        <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8">
+          {/* Header */}
+          <div className="flex items-end justify-between mb-12 gap-4">
+            <motion.div {...fadeUp}>
+              <span
+                className="text-xs font-bold uppercase tracking-widest block mb-3"
+                style={{ color: 'var(--primary)' }}
+              >
+                الأكثر مبيعاً
+              </span>
+              <h2
+                className="text-4xl md:text-5xl font-bold"
+                style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+              >
+                منتجاتنا المختارة
+              </h2>
+            </motion.div>
+            <Link
               href="/products"
-              className="text-sm font-medium text-primary hover:text-primary-container transition-colors flex items-center gap-1"
+              className="flex-shrink-0 flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-70"
+              style={{ color: 'var(--primary)' }}
             >
               عرض الكل
               <ArrowLeftIcon className="w-4 h-4" />
             </Link>
           </div>
+
           {featuredProducts.length === 0 ? (
-            <div className="text-center py-16 text-on-surface-variant">
-              <ShoppingBagIcon className="w-16 h-16 mx-auto mb-4 opacity-20" />
-              <p>قريباً — المنتجات تُضاف قريباً</p>
+            <div className="text-center py-20 rounded-3xl" style={{ background: 'var(--off-white)' }}>
+              <ShoppingBagIcon className="w-16 h-16 mx-auto mb-4 text-[var(--primary)] opacity-20" />
+              <p className="text-lg font-medium text-[var(--on-surface-variant)]">المنتجات تُضاف قريباً ✨</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.slice(0, 4).map((product, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+              {featuredProducts.slice(0, 8).map((product, i) => (
                 <motion.div
                   key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  {...fadeUp}
+                  transition={{ duration: 0.5, delay: i * 0.07 }}
+                  className="h-full"
                 >
-                  <StitchProductCard product={product} formatPrice={formatPrice} />
+                  <HomeProductCard product={product} formatPrice={formatPrice} />
                 </motion.div>
               ))}
             </div>
@@ -278,28 +566,52 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
         </div>
       </section>
 
-      {/* Promo Banner */}
-      <section className="py-20 bg-surface">
-        <div className="container mx-auto px-6">
+      {/* ─────────────────────────────────────────
+          PROMO BANNER
+      ───────────────────────────────────────── */}
+      <section className="py-20" style={{ background: 'var(--off-white)' }}>
+        <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            {...fadeUp}
             className="relative rounded-3xl overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #6f4627 0%, #9C6644 100%)' }}
+            style={{ background: 'linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%)' }}
           >
-            <div className="relative p-10 md:p-16 text-center" style={{ color: 'white' }}>
-              <span className="inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-6" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                عرض محدود
+            {/* Pattern */}
+            <div className="absolute inset-0 opacity-[0.06]"
+              style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-rule='evenodd'%3E%3Ccircle cx='20' cy='20' r='1.5'/%3E%3C/g%3E%3C/svg%3E\")" }}
+            />
+
+            <div className="relative z-10 px-8 py-14 md:py-16 text-center text-white">
+              <span
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
+                style={{ background: 'rgba(255,255,255,0.15)' }}
+              >
+                <GiftIcon className="w-4 h-4" />
+                عرض لفترة محدودة
               </span>
-              <h2 className="text-4xl md:text-5xl font-headline mb-4" style={{ color: 'white' }}>خصم ٢٥٪ على أول طلب</h2>
-              <p className="text-lg mb-8 max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                استخدمي كود <span className="font-bold px-3 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.2)' }}>WELCOME25</span> واستمتعي بتجربة تسوق فاخرة
+
+              <h2
+                className="text-4xl md:text-5xl font-bold mb-4 text-white"
+                style={{ fontFamily: 'Cormorant Garamond, serif' }}
+              >
+                خصم ٢٥٪ على أول طلب
+              </h2>
+
+              <p className="text-base mb-8 max-w-md mx-auto" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                استخدمي كود{' '}
+                <span
+                  className="font-bold px-3 py-1 rounded-lg mx-1"
+                  style={{ background: 'rgba(255,255,255,0.18)', fontFamily: 'monospace', letterSpacing: '0.05em' }}
+                >
+                  WELCOME25
+                </span>
+                {' '}عند الدفع
               </p>
+
               <Link
                 href="/products"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold transition-colors"
-                style={{ background: 'white', color: '#6f4627' }}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-[var(--primary)] transition-all hover:-translate-y-0.5"
+                style={{ background: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}
               >
                 <ShoppingBagIcon className="w-5 h-5" />
                 تسوقي الآن
@@ -309,89 +621,80 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-24 bg-surface-container">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-primary font-label text-xs uppercase tracking-widest block mb-2">آراء عملائنا</span>
-            <h2 className="text-4xl font-headline text-on-surface">ما يقولون عنا</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { name: 'سارة', text: 'أفضل منتجات استخدمتها لبشرتي، نتائج مذهلة من أول أسبوع! ✨', rating: 5 },
-              { name: 'نورة', text: 'جودة عالية وتغليف فاخر، أنصح كل صديقة بتجربة ديب بيوتي 💎', rating: 5 },
-              { name: 'فاطمة', text: 'خدمة عملاء ممتازة وتوصيل سريع، سأكون عميلة دائمة 🌟', rating: 5 },
-            ].map((review, i) => (
+      {/* ─────────────────────────────────────────
+          TESTIMONIALS
+      ───────────────────────────────────────── */}
+      <section className="py-24" style={{ background: 'var(--text-dark)' }}>
+        <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8">
+          <motion.div {...fadeUp} className="text-center mb-12">
+            <span className="text-xs font-bold uppercase tracking-widest block mb-3 text-[var(--primary-light)]">
+              آراء عملائنا
+            </span>
+            <h2
+              className="text-4xl md:text-5xl font-bold text-white"
+              style={{ fontFamily: 'Cormorant Garamond, serif' }}
+            >
+              ما يقولون عنا
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {REVIEWS.map((review, i) => (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-surface rounded-2xl p-6 shadow-editorial border border-outline-variant/30"
+                key={review.name}
+                {...fadeUp}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="rounded-2xl p-6 transition-colors"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
               >
-                <div className="flex gap-1 mb-4">
+                {/* Stars */}
+                <div className="flex gap-0.5 mb-4">
                   {Array.from({ length: review.rating }).map((_, j) => (
-                    <span key={j} className="text-amber-400">★</span>
+                    <span key={j} className="text-amber-400 text-sm">★</span>
                   ))}
                 </div>
-                <p className="text-on-surface mb-4 leading-relaxed">{review.text}</p>
-                <p className="font-bold text-primary">— {review.name}</p>
+
+                <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                  "{review.text}"
+                </p>
+
+                <div className="flex items-center gap-3 pt-4"
+                  style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
+                    style={{ background: 'var(--primary)' }}
+                  >
+                    {review.name[0]}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-white">{review.name}</p>
+                    <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{review.city}</p>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ─────────────────────────────────────────
+          PAYMENT METHODS STRIP
+      ───────────────────────────────────────── */}
+      <section
+        className="py-6 border-t"
+        style={{ background: 'white', borderColor: 'var(--beige)' }}
+      >
+        <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--on-surface-variant)' }}>
+            طرق الدفع المقبولة
+          </p>
+          <PaymentIconsRow />
+        </div>
+      </section>
     </div>
-  )
-}
-
-function StitchProductCard({ product, formatPrice }: { product: Product; formatPrice: (price: number) => string }) {
-  return (
-    <Link href={`/products/${product.slug}`} className="group block">
-      <div className="bg-surface rounded-2xl overflow-hidden shadow-editorial hover:shadow-lg transition-shadow">
-        <div className="aspect-square relative overflow-hidden">
-          {product.images?.[0] ? (
-            <Image 
-              src={product.images[0]}
-              alt={product.name_ar}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-          ) : (
-            <div className="w-full h-full bg-surface-container flex items-center justify-center">
-              <span className="text-4xl">🧴</span>
-            </div>
-          )}
-          {product.stock_quantity < 10 && product.stock_quantity > 0 && (
-            <span className="absolute top-3 left-3 bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-medium">
-              مخزون قليل
-            </span>
-          )}
-          <button 
-            onClick={(e) => {
-              e.preventDefault()
-              // Add to wishlist logic
-            }}
-            className="absolute top-3 right-3 w-10 h-10 rounded-full bg-surface/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface"
-          >
-            <HeartIcon className="w-5 h-5 text-on-surface-variant" />
-          </button>
-        </div>
-        <div className="p-4">
-          <h3 className="font-bold text-on-surface mb-1 truncate">{product.name_ar}</h3>
-          <p className="text-sm text-on-surface-variant mb-3 line-clamp-2">{product.description_ar}</p>
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-primary text-lg">{formatPrice(product.price)}</span>
-            {product.stock_quantity === 0 ? (
-              <span className="text-xs text-red-500">نفذ المخزون</span>
-            ) : (
-              <span className="text-xs text-green-600">متوفر</span>
-            )}
-          </div>
-        </div>
-      </div>
-    </Link>
   )
 }

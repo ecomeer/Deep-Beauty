@@ -1,13 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { ShoppingBagIcon, Bars3Icon, XMarkIcon, HeartIcon, MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline'
+import { usePathname } from 'next/navigation'
+import {
+  ShoppingBagIcon,
+  Bars3Icon,
+  XMarkIcon,
+  HeartIcon,
+  MagnifyingGlassIcon,
+  UserIcon,
+  ChevronDownIcon,
+} from '@heroicons/react/24/outline'
 import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
 import EnhancedCartSidebar from './EnhancedCartSidebar'
 import CountrySelector from './CountrySelector'
-import CurrencySelector from './CurrencySelector'
 
 const NAV_LINKS = [
   { href: '/products', label: 'المنتجات' },
@@ -20,139 +28,290 @@ export default function Navbar() {
   const { totalItems: wishlistCount } = useWishlistContext()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const pathname = usePathname()
+
+  const handleScroll = useCallback(() => {
+    setScrolled(window.scrollY > 10)
+  }, [])
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [handleScroll])
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false)
+    setSearchOpen(false)
+  }, [pathname])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [mobileOpen])
+
+  const isActive = (href: string) => pathname === href
 
   return (
     <>
-      <nav className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
-        scrolled ? 'glass-nav shadow-sm' : 'bg-surface'
-      }`}>
-        {/* dir="ltr" keeps layout consistent regardless of page dir */}
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between" dir="ltr">
-
-          {/* LEFT: mobile hamburger + desktop icons */}
-          <div className="flex items-center gap-1">
-            {/* Mobile Toggle */}
+      {/* ─── Main Nav ─── */}
+      <nav
+        aria-label="التنقل الرئيسي"
+        className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
+          scrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-[var(--beige)]'
+            : 'bg-[var(--off-white)]'
+        }`}
+        style={{ height: 'var(--nav-height)' }}
+      >
+        <div
+          className="max-w-[var(--container-max)] mx-auto px-5 h-full flex items-center justify-between"
+          dir="ltr"
+        >
+          {/* ── LEFT: Actions ── */}
+          <div className="flex items-center gap-0.5">
+            {/* Hamburger (mobile) */}
             <button
               type="button"
               aria-label={mobileOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
-              className="md:hidden p-2 rounded-xl transition-colors hover:bg-surface-container"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
+              className="md:hidden p-2 rounded-xl transition-colors hover:bg-[var(--beige)] text-[var(--text-dark)]"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               {mobileOpen
-                ? <XMarkIcon className="w-6 h-6 text-on-surface" />
-                : <Bars3Icon className="w-6 h-6 text-on-surface" />
+                ? <XMarkIcon className="w-5 h-5" />
+                : <Bars3Icon className="w-5 h-5" />
               }
             </button>
 
             {/* Desktop: Search */}
-            <button className="hidden md:flex p-2 rounded-full hover:bg-surface-container transition-colors" aria-label="بحث">
-              <MagnifyingGlassIcon className="w-5 h-5 text-on-surface" />
+            <button
+              type="button"
+              aria-label="البحث"
+              aria-expanded={searchOpen}
+              className={`hidden md:flex p-2 rounded-xl transition-colors ${
+                searchOpen
+                  ? 'bg-[var(--beige)] text-[var(--primary)]'
+                  : 'hover:bg-[var(--beige)] text-[var(--text-dark)]'
+              }`}
+              onClick={() => setSearchOpen(!searchOpen)}
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
             </button>
+
             {/* Desktop: Wishlist */}
-            <Link href="/wishlist" className="hidden md:flex relative p-2 rounded-full hover:bg-surface-container transition-colors" aria-label="المفضلة">
-              <HeartIcon className="w-5 h-5 text-on-surface" />
+            <Link
+              href="/wishlist"
+              aria-label={`المفضلة${wishlistCount > 0 ? ` (${wishlistCount})` : ''}`}
+              className="hidden md:flex relative p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
+            >
+              <HeartIcon className="w-5 h-5" />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center bg-primary text-white">{wishlistCount}</span>
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center bg-rose-500 text-white leading-none"
+                >
+                  {wishlistCount > 9 ? '9+' : wishlistCount}
+                </span>
               )}
             </Link>
+
             {/* Desktop: Account */}
-            <Link href="/account" className="hidden md:flex p-2 rounded-full hover:bg-surface-container transition-colors">
-              <UserIcon className="w-5 h-5 text-on-surface" />
+            <Link
+              href="/account"
+              aria-label="حسابي"
+              className="hidden md:flex p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
+            >
+              <UserIcon className="w-5 h-5" />
             </Link>
+
             {/* Cart — always visible */}
             <button
               type="button"
-              aria-label="فتح سلة التسوق"
+              aria-label={`سلة التسوق${totalItems > 0 ? ` (${totalItems} منتجات)` : ''}`}
               onClick={() => setIsOpen(true)}
-              className="relative p-2 rounded-full hover:bg-surface-container transition-colors"
+              className="relative p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
             >
-              <ShoppingBagIcon className="w-5 h-5 text-on-surface" />
+              <ShoppingBagIcon className="w-5 h-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center text-white" style={{ background: 'var(--primary)' }}>
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center text-white leading-none"
+                  style={{ background: 'var(--primary)' }}
+                >
                   {totalItems > 9 ? '9+' : totalItems}
                 </span>
               )}
             </button>
-            {/* Desktop: Country Selector */}
-            <div className="hidden md:block">
-              <CountrySelector />
-            </div>
 
-            {/* Desktop: EN/AR */}
-            <div className="hidden md:block bg-surface-container-high px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest cursor-pointer hover:bg-surface-variant transition-colors ms-2">
-              EN/AR
+            {/* Country Selector */}
+            <div className="hidden md:block ms-1">
+              <CountrySelector />
             </div>
           </div>
 
-          {/* CENTER: Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-8 text-sm" dir="rtl">
+          {/* ── CENTER: Desktop Nav Links ── */}
+          <nav aria-label="روابط الموقع" className="hidden md:flex items-center gap-7 text-sm" dir="rtl">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-on-surface font-body hover:text-primary transition-colors"
+                className={`font-medium transition-colors relative py-1 ${
+                  isActive(link.href)
+                    ? 'text-[var(--primary)]'
+                    : 'text-[var(--text-dark)] hover:text-[var(--primary)]'
+                }`}
               >
                 {link.label}
+                {isActive(link.href) && (
+                  <span
+                    className="absolute -bottom-0.5 inset-x-0 h-0.5 rounded-full"
+                    style={{ background: 'var(--primary)' }}
+                  />
+                )}
               </Link>
             ))}
-          </div>
+          </nav>
 
-          {/* RIGHT: Logo — wrapper clips whitespace, image scaled so logo fills 52px */}
-          <Link href="/" className="flex-shrink-0 flex items-center justify-center overflow-hidden" style={{ width: '140px', height: '52px' }}>
+          {/* ── RIGHT: Logo ── */}
+          <Link
+            href="/"
+            aria-label="الصفحة الرئيسية — Deep Beauty"
+            className="flex-shrink-0 flex items-center justify-center overflow-hidden"
+            style={{ width: '140px', height: '52px' }}
+          >
             <img
               src="/logo.png"
               alt="Deep Beauty"
               style={{ width: '104px', height: '104px', objectFit: 'contain', flexShrink: 0 }}
             />
           </Link>
-
         </div>
 
-        {/* Mobile Menu */}
-        {mobileOpen && (
-          <div className="mobile-menu">
+        {/* ── Search Bar (slides down) ── */}
+        {searchOpen && (
+          <div className="hidden md:block border-t border-[var(--beige)] bg-white px-5 py-3">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (searchQuery.trim()) {
+                  window.location.href = `/products?search=${encodeURIComponent(searchQuery.trim())}`
+                }
+              }}
+              className="max-w-lg mx-auto relative"
+            >
+              <MagnifyingGlassIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--primary)]" />
+              <input
+                type="search"
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ابحثي عن منتج..."
+                className="w-full pr-11 pl-4 py-2.5 rounded-xl text-sm outline-none border border-[var(--beige)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 transition-all bg-[var(--off-white)]"
+              />
+            </form>
+          </div>
+        )}
+      </nav>
+
+      {/* ─── Mobile Menu Overlay ─── */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 md:hidden backdrop-blur-sm"
+          aria-hidden="true"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* ─── Mobile Menu Drawer ─── */}
+      <aside
+        id="mobile-menu"
+        aria-label="القائمة المتنقلة"
+        className={`fixed top-[var(--nav-height)] inset-x-0 z-40 md:hidden transition-transform duration-300 ${
+          mobileOpen ? 'translate-y-0' : '-translate-y-full pointer-events-none'
+        }`}
+      >
+        <div className="bg-white shadow-xl border-b border-[var(--beige)] pb-4">
+          {/* Search */}
+          <div className="px-5 pt-4 pb-3 border-b border-[var(--beige)]">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (searchQuery.trim()) {
+                  window.location.href = `/products?search=${encodeURIComponent(searchQuery.trim())}`
+                }
+              }}
+              className="relative"
+            >
+              <MagnifyingGlassIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ابحثي عن منتج..."
+                className="w-full pr-11 pl-4 py-2.5 rounded-xl text-sm outline-none border border-[var(--beige)] focus:border-[var(--primary)] bg-[var(--off-white)] transition-all"
+              />
+            </form>
+          </div>
+
+          {/* Nav Links */}
+          <nav className="px-4 pt-3">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="mobile-nav-link"
+                className={`flex items-center justify-between px-4 py-3 rounded-xl mb-1 text-sm font-medium transition-all ${
+                  isActive(link.href)
+                    ? 'bg-[var(--beige)] text-[var(--primary)]'
+                    : 'text-[var(--text-dark)] hover:bg-[var(--off-white)]'
+                }`}
               >
                 {link.label}
+                <ChevronDownIcon className="w-4 h-4 -rotate-90 opacity-40" />
               </Link>
             ))}
-            <div className="border-t border-outline-variant my-2 mx-6" />
+          </nav>
+
+          <div className="mx-5 my-2 h-px bg-[var(--beige)]" />
+
+          <div className="px-4">
             <Link
               href="/wishlist"
-              onClick={() => setMobileOpen(false)}
-              className="mobile-nav-link flex items-center gap-3"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--text-dark)] hover:bg-[var(--off-white)] transition-all"
             >
-              <HeartIcon className="w-5 h-5" />
-              المفضلة {wishlistCount > 0 && `(${wishlistCount})`}
+              <HeartIcon className="w-5 h-5 text-[var(--primary)]" />
+              المفضلة
+              {wishlistCount > 0 && (
+                <span className="ms-auto bg-rose-100 text-rose-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
             <Link
               href="/account"
-              onClick={() => setMobileOpen(false)}
-              className="mobile-nav-link flex items-center gap-3"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--text-dark)] hover:bg-[var(--off-white)] transition-all"
             >
-              <UserIcon className="w-5 h-5" />
+              <UserIcon className="w-5 h-5 text-[var(--primary)]" />
               حسابي
             </Link>
-            <div className="border-t border-outline-variant my-2 mx-6" />
-            {/* Country Selector in mobile menu */}
-            <div className="px-6 py-2">
-              <p className="text-xs text-on-surface-variant mb-2 opacity-60">الدولة / العملة</p>
-              <CountrySelector />
-            </div>
           </div>
-        )}
-      </nav>
+
+          <div className="mx-5 my-2 h-px bg-[var(--beige)]" />
+
+          <div className="px-5 pb-2">
+            <p className="text-[10px] text-[var(--on-surface-variant)] uppercase tracking-wider font-semibold mb-2">الدولة / العملة</p>
+            <CountrySelector />
+          </div>
+        </div>
+      </aside>
 
       <EnhancedCartSidebar />
     </>
