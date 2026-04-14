@@ -115,7 +115,7 @@ export default function RegisterPage() {
         {/* Card */}
         <div className="bg-surface rounded-3xl shadow-editorial overflow-hidden border border-outline-variant">
           {/* Header */}
-          <div className="bg-primary p-6 text-center text-white">
+          <div className="p-6 text-center text-white" style={{ background: 'linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%)' }}>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
