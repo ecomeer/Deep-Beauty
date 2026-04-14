@@ -74,7 +74,9 @@ export default function Navbar() {
             >
               <ShoppingBagIcon className="w-5 h-5 text-on-surface" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center bg-primary text-white">{totalItems}</span>
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center text-white" style={{ background: 'var(--primary)' }}>
+                  {totalItems > 9 ? '9+' : totalItems}
+                </span>
               )}
             </button>
             {/* Desktop: Country Selector */}

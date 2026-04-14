@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { CheckCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import { PaymentIconsRow } from './PaymentIcons'
 
 export default function StitchFooter() {
   const [email, setEmail] = useState('')
@@ -107,11 +108,7 @@ export default function StitchFooter() {
         <div className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-3 text-xs" style={{ color: '#9a7a6a' }}>
             <p>جميع الحقوق محفوظة © 2024 Deep Beauty</p>
-            <div className="flex items-center gap-3">
-              <span className="font-bold tracking-wider text-sm" style={{ color: '#1a1f71' }}>VISA</span>
-              <span className="font-bold text-sm" style={{ color: '#eb001b' }}>MC</span>
-              <span className="font-bold text-sm" style={{ color: '#00a651' }}>K-net</span>
-            </div>
+            <PaymentIconsRow />
           </div>
         </div>
       </div>
