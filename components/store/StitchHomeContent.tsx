@@ -17,7 +17,6 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
   CheckBadgeIcon,
-  GiftIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
@@ -226,14 +225,16 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
       {/* ─────────────────────────────────────────
           ANNOUNCEMENT BAR
       ───────────────────────────────────────── */}
-      <div
-        className="py-2 px-4 text-center text-xs tracking-wider font-medium text-white"
-        style={{ background: 'var(--text-dark)' }}
-      >
-        <span>✦</span>
-        <span className="mx-3">{announcementText || '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك · استخدمي كود WELCOME25 للحصول على خصم ٢٥٪'}</span>
-        <span>✦</span>
-      </div>
+      {announcementText && (
+        <div
+          className="py-2 px-4 text-center text-xs tracking-wider font-medium text-white"
+          style={{ background: 'var(--text-dark)' }}
+        >
+          <span>✦</span>
+          <span className="mx-3">{announcementText}</span>
+          <span>✦</span>
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────
           HERO SECTION
@@ -566,60 +567,6 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────
-          PROMO BANNER
-      ───────────────────────────────────────── */}
-      <section className="py-20" style={{ background: 'var(--off-white)' }}>
-        <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8">
-          <motion.div
-            {...fadeUp}
-            className="relative rounded-3xl overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%)' }}
-          >
-            {/* Pattern */}
-            <div className="absolute inset-0 opacity-[0.06]"
-              style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-rule='evenodd'%3E%3Ccircle cx='20' cy='20' r='1.5'/%3E%3C/g%3E%3C/svg%3E\")" }}
-            />
-
-            <div className="relative z-10 px-8 py-14 md:py-16 text-center text-white">
-              <span
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
-                style={{ background: 'rgba(255,255,255,0.15)' }}
-              >
-                <GiftIcon className="w-4 h-4" />
-                عرض لفترة محدودة
-              </span>
-
-              <h2
-                className="text-4xl md:text-5xl font-bold mb-4 text-white"
-                style={{ fontFamily: 'Cormorant Garamond, serif' }}
-              >
-                خصم ٢٥٪ على أول طلب
-              </h2>
-
-              <p className="text-base mb-8 max-w-md mx-auto" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                استخدمي كود{' '}
-                <span
-                  className="font-bold px-3 py-1 rounded-lg mx-1"
-                  style={{ background: 'rgba(255,255,255,0.18)', fontFamily: 'monospace', letterSpacing: '0.05em' }}
-                >
-                  WELCOME25
-                </span>
-                {' '}عند الدفع
-              </p>
-
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-[var(--primary)] transition-all hover:-translate-y-0.5"
-                style={{ background: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}
-              >
-                <ShoppingBagIcon className="w-5 h-5" />
-                تسوقي الآن
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
       {/* ─────────────────────────────────────────
           TESTIMONIALS

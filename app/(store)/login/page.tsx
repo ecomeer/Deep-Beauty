@@ -51,31 +51,34 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-4 pt-32">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: 'var(--off-white)', paddingTop: 'calc(var(--nav-height) + 1.5rem)', paddingBottom: '2rem' }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-sm"
       >
         {/* Card */}
-        <div className="bg-surface rounded-3xl shadow-editorial overflow-hidden border border-outline-variant">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden" style={{ border: '1px solid var(--beige)' }}>
           {/* Header */}
-          <div className="bg-primary p-8 text-center text-white">
+          <div className="p-6 text-center" style={{ background: 'linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%)' }}>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring' }}
-              className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center"
+              className="w-12 h-12 mx-auto mb-3 rounded-full bg-white/20 flex items-center justify-center"
             >
-              <SparklesIcon className="w-8 h-8" />
+              <SparklesIcon className="w-6 h-6 text-white" />
             </motion.div>
-            <h1 className="text-2xl font-headline mb-2">تسجيل الدخول</h1>
-            <p className="text-white/80 text-sm font-body">أهلاً بعودتك! سجلي دخولك للمتابعة</p>
+            <h1 className="text-xl font-bold text-white mb-1">تسجيل الدخول</h1>
+            <p className="text-white/80 text-xs">أهلاً بعودتك! سجلي دخولك للمتابعة</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-8 space-y-5">
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-on-surface-variant mb-2">

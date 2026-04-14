@@ -190,14 +190,14 @@ export default function EnhancedProductDetail() {
             ...(product.category ? [{ href: `/products?category=${encodeURIComponent(product.category)}`, label: product.category }] : []),
           ].map(({ href, label }, i) => (
             <li key={href} className="flex items-center gap-2">
-              {i > 0 && <ArrowRightIcon className="w-3 h-3 rotate-180 opacity-40" aria-hidden="true" />}
+              {i > 0 && <ArrowRightIcon className="w-3 h-3 rotate-180 opacity-60" aria-hidden="true" />}
               <Link href={href} className="hover:text-[var(--primary)] transition-colors">
                 {label}
               </Link>
             </li>
           ))}
           <li className="flex items-center gap-2">
-            <ArrowRightIcon className="w-3 h-3 rotate-180 opacity-40" aria-hidden="true" />
+            <ArrowRightIcon className="w-3 h-3 rotate-180 opacity-60" aria-hidden="true" />
             <span className="text-[var(--text-dark)] font-medium truncate max-w-[200px]">
               {product.name_ar}
             </span>
@@ -363,7 +363,7 @@ export default function EnhancedProductDetail() {
                 {formatPrice(displayPrice)}
               </span>
               {originalPrice && (
-                <span className="text-xl text-gray-400 line-through" dir="ltr">
+                <span className="text-xl text-gray-500 line-through" dir="ltr">
                   {formatPrice(originalPrice)}
                 </span>
               )}
@@ -464,7 +464,7 @@ export default function EnhancedProductDetail() {
                 whileTap={{ scale: 0.98 }}
                 className={`flex-1 py-4 rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all ${
                   product.stock_quantity === 0
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                     : addingToCart
                     ? 'bg-green-500 text-white'
                     : 'text-white'
