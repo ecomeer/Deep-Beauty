@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 471" role="img" aria-label="K-Net">
+  <title>K-Net</title>
+  <defs>
+    <linearGradient id="knetBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1B5FA8"/>
+      <stop offset="100%" style="stop-color:#003087"/>
+    </linearGradient>
+  </defs>
+  <rect width="750" height="471" rx="40" fill="url(#knetBg)"/>
+  <!-- K letter large -->
+  <text x="120" y="360" font-family="Arial,sans-serif" font-size="330" font-weight="900" fill="#F5C400">K</text>
+  <!-- net text -->
+  <text x="390" y="340" font-family="Arial,sans-serif" font-size="180" font-weight="700" fill="#fff">net</text>
+  <!-- Arabic text top -->
+  <text x="60" y="100" font-family="Arial,sans-serif" font-size="60" fill="#fff" opacity="0.9">كي - نت</text>
+</svg>
