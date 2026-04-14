@@ -7,6 +7,7 @@ export interface Product {
   description_en?: string
   price: number
   compare_price?: number
+  sale_price?: number | null
   images: string[]
   category?: string
   stock_quantity: number
