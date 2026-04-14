@@ -183,7 +183,7 @@ export default function ProductCard({ product, salePercentage }: Props) {
                 {formatPrice(displayPrice)}
               </p>
               {comparePrice && comparePrice > displayPrice && (
-                <p className="text-xs text-gray-400 line-through" dir="ltr">
+                <p className="text-xs text-gray-500 line-through" dir="ltr">
                   {formatPrice(comparePrice)}
                 </p>
               )}
