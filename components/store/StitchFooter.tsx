@@ -96,7 +96,7 @@ export default function StitchFooter() {
               <img
                 src="/logo.png"
                 alt="Deep Beauty"
-                style={{ height: '52px', objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.9 }}
+                style={{ height: '80px', objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.9 }}
               />
             </div>
             <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.6)' }}>
