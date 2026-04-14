@@ -5,6 +5,7 @@ import { useCartContext } from '@/context/CartContext'
 import { useCountry } from '@/context/CountryContext'
 import { HeartIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
+import Image from 'next/image'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 
@@ -75,7 +76,7 @@ export default function WishlistPage() {
               >
                 <div className="relative aspect-square" style={{ background: 'var(--beige)' }}>
                   {item.image ? (
-                    <img src={item.image} alt={item.name_ar} className="w-full h-full object-cover" />
+                    <Image src={item.image} alt={item.name_ar} fill className="object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-6xl">🧴</div>
                   )}

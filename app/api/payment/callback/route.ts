@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     try {
       const { data: order } = await supabaseAdmin
         .from('orders')
-        .select('order_number, customer_name, total_amount')
+        .select('order_number, customer_name, total')
         .eq('id', result.orderId)
         .single()
 
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: 'طلب جديد مدفوع! 💳',
-            body: `طلب #${order.order_number} من ${order.customer_name} - المبلغ: ${order.total_amount} د.ك`,
+            body: `طلب #${order.order_number} من ${order.customer_name} - المبلغ: ${order.total} د.ك`,
             url: `/admin/orders/${result.orderId}`
           })
         })

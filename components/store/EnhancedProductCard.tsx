@@ -34,9 +34,9 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
   const [isHovered, setIsHovered] = useState(false)
   const isWishlisted = isInWishlist(product.id)
 
-  const displayPrice = salePercentage
-    ? product.price * (1 - salePercentage / 100)
-    : product.price
+  // sale_price from API (flash sale) takes priority over salePercentage prop
+  const displayPrice = product.sale_price
+    ?? (salePercentage ? product.price * (1 - salePercentage / 100) : product.price)
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -76,9 +76,11 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
     toast.success(isWishlisted ? 'تم إزالة من المفضلة' : 'تم إضافة للمفضلة ❤️')
   }
 
-  const discountPercentage = salePercentage || (product.compare_price 
-    ? Math.round((1 - product.price / product.compare_price) * 100)
-    : 0)
+  const discountPercentage = product.sale_price
+    ? Math.round((1 - product.sale_price / product.price) * 100)
+    : salePercentage || (product.compare_price
+      ? Math.round((1 - product.price / product.compare_price) * 100)
+      : 0)
 
   return (
     <>
@@ -208,14 +210,18 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
               {/* Price & Add to Cart */}
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
                 <div className="flex flex-col">
-                  <span className="text-lg font-bold text-[#9C6644]" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                  <span className="text-lg font-bold text-[#9C6644]" dir="ltr">
                     {formatPrice(displayPrice)}
                   </span>
-                  {(product.compare_price || salePercentage) && product.compare_price && (
-                    <span className="text-xs text-gray-400 line-through">
+                  {product.sale_price ? (
+                    <span className="text-xs text-gray-400 line-through" dir="ltr">
+                      {formatPrice(product.price)}
+                    </span>
+                  ) : product.compare_price ? (
+                    <span className="text-xs text-gray-400 line-through" dir="ltr">
                       {formatPrice(product.compare_price)}
                     </span>
-                  )}
+                  ) : null}
                 </div>
                 
                 {/* Desktop Add to Cart */}

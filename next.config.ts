@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   compress: true,
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400,
@@ -14,6 +18,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
       },
     ],
   },

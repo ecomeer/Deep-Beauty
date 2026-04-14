@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       item_count: order.order_items?.length || 0,
       items: order.order_items?.map((item: any) => ({
         name: item.product_name_ar,
-        image: item.product_image,
+        image: null,
         quantity: item.quantity,
         price: item.unit_price
       }))

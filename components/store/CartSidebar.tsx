@@ -83,7 +83,7 @@ export default function CartSidebar() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-dark)' }}>{item.name_ar}</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }}>{formatPrice(item.price)}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }} dir="ltr">{formatPrice(item.price)}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -109,7 +109,7 @@ export default function CartSidebar() {
                   >
                     <TrashIcon className="w-4 h-4" />
                   </button>
-                  <p className="text-sm font-bold" style={{ color: 'var(--text-dark)' }}>
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-dark)' }} dir="ltr">
                     {formatPrice(item.price * item.quantity)}
                   </p>
                 </div>
@@ -129,17 +129,17 @@ export default function CartSidebar() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span style={{ color: '#7a6055' }}>المجموع الجزئي</span>
-                <span className="font-semibold">{formatPrice(subtotal)}</span>
+                <span className="font-semibold" dir="ltr">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span style={{ color: '#7a6055' }}>الشحن</span>
-                <span className={shipping === 0 ? 'text-green-600 font-semibold' : 'font-semibold'}>
+                <span className={shipping === 0 ? 'text-green-600 font-semibold' : 'font-semibold'} dir="ltr">
                   {shipping === 0 ? 'مجاني 🎉' : formatPrice(shipping)}
                 </span>
               </div>
               <div className="flex justify-between text-base font-bold pt-2 border-t" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>
                 <span>الإجمالي</span>
-                <span style={{ color: 'var(--primary)' }}>{formatPrice(total)}</span>
+                <span style={{ color: 'var(--primary)' }} dir="ltr">{formatPrice(total)}</span>
               </div>
             </div>
             <Link

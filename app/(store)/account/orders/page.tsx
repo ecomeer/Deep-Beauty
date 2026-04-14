@@ -21,7 +21,7 @@ interface Order {
   id: string
   order_number: string
   total: number
-  status: 'pending' | 'confirmed' | 'preparing' | 'shipped' | 'delivered' | 'cancelled'
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
   created_at: string
   item_count: number
   items: Array<{
@@ -35,7 +35,7 @@ interface Order {
 const STATUS_CONFIG = {
   pending: { label: 'قيد الانتظار', color: 'bg-amber-100 text-amber-700', icon: ClockIcon },
   confirmed: { label: 'تم التأكيد', color: 'bg-blue-100 text-blue-700', icon: CheckCircleIcon },
-  preparing: { label: 'جاري التحضير', color: 'bg-purple-100 text-purple-700', icon: CubeIcon },
+  processing: { label: 'جاري التحضير', color: 'bg-purple-100 text-purple-700', icon: CubeIcon },
   shipped: { label: 'تم الشحن', color: 'bg-indigo-100 text-indigo-700', icon: TruckIcon },
   delivered: { label: 'تم التوصيل', color: 'bg-green-100 text-green-700', icon: CheckCircleIcon },
   cancelled: { label: 'تم الإلغاء', color: 'bg-red-100 text-red-700', icon: XCircleIcon }
@@ -72,7 +72,7 @@ export default function OrdersPage() {
   }
 
   const filteredOrders = orders.filter(order => {
-    if (filter === 'active') return ['pending', 'confirmed', 'preparing', 'shipped'].includes(order.status)
+    if (filter === 'active') return ['pending', 'confirmed', 'processing', 'shipped'].includes(order.status)
     if (filter === 'completed') return order.status === 'delivered'
     if (filter === 'cancelled') return order.status === 'cancelled'
     return true

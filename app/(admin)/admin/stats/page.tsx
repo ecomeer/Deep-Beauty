@@ -13,7 +13,7 @@ interface Stats {
     product_id: string
     products: { name_ar: string; images: string[] }
     quantity: number
-    price: number
+    unit_price: number
   }>
   dailySales: Array<{
     created_at: string
@@ -31,6 +31,7 @@ interface Stats {
     pending: number
     approved: number
     averageRating: number
+    ratingDistribution: Array<{ star: number; count: number }>
   }
   period: string
 }
@@ -163,7 +164,7 @@ export default function StatsPage() {
                     <p className="font-medium text-sm truncate">{item.products?.name_ar}</p>
                     <p className="text-xs text-gray-500">{item.quantity} مباع</p>
                   </div>
-                  <p className="font-bold text-sm">{toArabicPrice(Number(item.price) * item.quantity)}</p>
+                  <p className="font-bold text-sm">{toArabicPrice(Number(item.unit_price) * item.quantity)}</p>
                 </div>
               ))}
             </div>
@@ -227,19 +228,19 @@ export default function StatsPage() {
           <div className="mt-6">
             <p className="text-sm font-medium mb-3">توزيع التقييمات</p>
             <div className="space-y-2">
-              {[5, 4, 3, 2, 1].map((rating) => (
-                <div key={rating} className="flex items-center gap-2">
-                  <span className="text-sm w-8">{rating} ⭐</span>
-                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-yellow-400 rounded-full"
-                      style={{
-                        width: `${stats?.reviewsStats?.total ? (stats.reviewsStats.approved / stats.reviewsStats.total) * 100 : 0}%`
-                      }}
-                    />
+              {[5, 4, 3, 2, 1].map((star) => {
+                const item = stats?.reviewsStats?.ratingDistribution?.find(r => r.star === star)
+                const pct = stats?.reviewsStats?.total ? ((item?.count || 0) / stats.reviewsStats.total) * 100 : 0
+                return (
+                  <div key={star} className="flex items-center gap-2">
+                    <span className="text-sm w-8">{star} ⭐</span>
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="text-xs text-gray-400 w-6 text-left">{item?.count || 0}</span>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>

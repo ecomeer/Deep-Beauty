@@ -8,8 +8,9 @@ export const supabaseAdmin = createClient(
   {
     auth: { autoRefreshToken: false, persistSession: false },
     global: {
+      // 30s timeout — storage uploads can be large
       fetch: (url, options) =>
-        fetch(url, { ...options, signal: AbortSignal.timeout(8000) }),
+        fetch(url, { ...options, signal: AbortSignal.timeout(30000) }),
     },
   }
 )

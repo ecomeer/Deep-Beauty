@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
+import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,7 +41,13 @@ export async function GET(request: Request) {
       products = fallback.data || []
     }
 
-    return NextResponse.json({ products })
+    const flashDiscount = await getActiveFlashDiscount()
+    const withSalePrice = products.map(p => ({
+      ...p,
+      sale_price: applyDiscount(p.price, flashDiscount),
+    }))
+
+    return NextResponse.json({ products: withSalePrice })
   } catch (error) {
     console.error('Bestsellers API error:', error)
     return NextResponse.json(

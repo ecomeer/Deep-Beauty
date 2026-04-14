@@ -223,7 +223,7 @@ export default function EnhancedCartSidebar() {
                               {item.name_ar}
                             </p>
                           </Link>
-                          <p className="text-sm text-[#9C6644] font-medium mt-1">
+                          <p className="text-sm text-[#9C6644] font-medium mt-1" dir="ltr">
                             {formatPrice(item.price)}
                           </p>
                           
@@ -258,7 +258,7 @@ export default function EnhancedCartSidebar() {
                           >
                             <TrashIcon className="w-4 h-4" />
                           </motion.button>
-                          <p className="text-sm font-bold text-gray-900">
+                          <p className="text-sm font-bold text-gray-900" dir="ltr">
                             {formatPrice(item.price * item.quantity)}
                           </p>
                         </div>
@@ -314,20 +314,20 @@ export default function EnhancedCartSidebar() {
                 <div className="space-y-3 mb-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">المجموع الجزئي</span>
-                    <span className="font-semibold">{formatPrice(subtotal)}</span>
+                    <span className="font-semibold" dir="ltr">{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500 flex items-center gap-1">
                       <TruckIcon className="w-4 h-4" />
                       الشحن
                     </span>
-                    <span className={shipping === 0 ? 'text-green-600 font-semibold' : 'font-semibold'}>
+                    <span className={shipping === 0 ? 'text-green-600 font-semibold' : 'font-semibold'} dir="ltr">
                       {shipping === 0 ? 'مجاني 🎉' : formatPrice(shipping)}
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold pt-3 border-t border-gray-100">
                     <span>الإجمالي</span>
-                    <span className="text-[#9C6644]">{formatPrice(total)}</span>
+                    <span className="text-[#9C6644]" dir="ltr">{formatPrice(total)}</span>
                   </div>
                 </div>
 

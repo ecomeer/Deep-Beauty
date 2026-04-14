@@ -6,7 +6,7 @@ import Link from 'next/link'
 import {
   ShoppingBagIcon, CurrencyDollarIcon, InboxStackIcon, TagIcon,
   ExclamationCircleIcon, ExclamationTriangleIcon, StarIcon,
-  ChartBarIcon, UsersIcon
+  ChartBarIcon, UsersIcon, ArrowTrendingUpIcon, ClockIcon,
 } from '@heroicons/react/24/outline'
 
 interface DayData { label: string; count: number; revenue: number }
@@ -49,7 +49,6 @@ export default function AdminDashboard() {
       .then((json: DashboardData) => {
         setData(json)
 
-        // Build 7-day chart from raw order data
         const days: DayData[] = []
         for (let i = 6; i >= 0; i--) {
           const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
@@ -82,81 +81,61 @@ export default function AdminDashboard() {
 
   const { stats, recentOrders, lowStock } = data
 
+  const today = new Date().toLocaleDateString('ar-KW', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+
   const statCards = [
-    { title: 'إجمالي الطلبات', value: stats.totalOrders, icon: InboxStackIcon, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { title: 'طلبات اليوم', value: stats.todayOrders, icon: TagIcon, color: 'text-orange-500', bg: 'bg-orange-50' },
-    { title: 'إجمالي المبيعات', value: toArabicPrice(stats.totalSales), icon: CurrencyDollarIcon, color: 'text-green-500', bg: 'bg-green-50' },
-    { title: 'المنتجات النشطة', value: stats.activeProducts, icon: ShoppingBagIcon, color: 'text-purple-500', bg: 'bg-purple-50' },
-    { title: 'قيد الانتظار', value: stats.pendingOrders, icon: ExclamationCircleIcon, color: 'text-red-500', bg: 'bg-red-50' },
+    { title: 'إجمالي الطلبات', value: stats.totalOrders, icon: InboxStackIcon, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+    { title: 'طلبات اليوم', value: stats.todayOrders, icon: TagIcon, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
+    { title: 'إجمالي المبيعات', value: toArabicPrice(stats.totalSales), icon: CurrencyDollarIcon, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
+    { title: 'المنتجات النشطة', value: stats.activeProducts, icon: ShoppingBagIcon, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
+    { title: 'قيد الانتظار', value: stats.pendingOrders, icon: ExclamationCircleIcon, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100', href: '/admin/orders?status=pending' },
+  ]
+
+  const quickLinks = [
+    { href: '/admin/orders', icon: InboxStackIcon, bg: 'bg-blue-100', color: 'text-blue-600', label: 'الطلبات', sub: 'إدارة طلبات العملاء' },
+    { href: '/admin/products', icon: ShoppingBagIcon, bg: 'bg-purple-100', color: 'text-purple-600', label: 'المنتجات', sub: 'إضافة وتعديل المنتجات' },
+    { href: '/admin/customers', icon: UsersIcon, bg: 'bg-green-100', color: 'text-green-600', label: 'العملاء', sub: 'قائمة العملاء والمشتريات' },
+    { href: '/admin/reviews', icon: StarIcon, bg: 'bg-yellow-100', color: 'text-yellow-600', label: 'التقييمات', sub: 'إدارة تقييمات العملاء' },
+    { href: '/admin/coupons', icon: TagIcon, bg: 'bg-pink-100', color: 'text-pink-600', label: 'الكوبونات', sub: 'إنشاء وإدارة العروض' },
+    { href: '/admin/stats', icon: ChartBarIcon, bg: 'bg-indigo-100', color: 'text-indigo-600', label: 'إحصائيات متقدمة', sub: 'تحليل المبيعات والأداء' },
   ]
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>نظرة عامة</h1>
-        <p className="text-sm opacity-60">مرحباً بك في لوحة تحكم ديب بيوتي</p>
+    <div className="space-y-6">
+
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>نظرة عامة</h1>
+          <p className="text-sm opacity-50 mt-0.5">{today}</p>
+        </div>
+        {stats.pendingOrders > 0 && (
+          <Link
+            href="/admin/orders?status=pending"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-bold shadow hover:bg-red-600 transition-colors self-start sm:self-auto"
+          >
+            <ClockIcon className="w-4 h-4" />
+            {stats.pendingOrders} طلب بانتظار المعالجة
+          </Link>
+        )}
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {statCards.map((s, i) => (
-          <div key={i} className="stats-card flex items-center gap-3">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${s.bg}`}>
-              <s.icon className={`w-6 h-6 ${s.color}`} />
-            </div>
-            <div>
-              <p className="text-xs opacity-60 mb-0.5">{s.title}</p>
-              <h3 className="text-xl font-bold" style={{ color: 'var(--text-dark)' }}>{s.value}</h3>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Link href="/admin/reviews" className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center flex-shrink-0">
-            <StarIcon className="w-6 h-6 text-yellow-600" />
-          </div>
-          <div>
-            <p className="font-bold text-gray-800">التقييمات</p>
-            <p className="text-sm text-gray-500">إدارة تقييمات العملاء</p>
-          </div>
-        </Link>
-        <Link href="/admin/stats" className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-            <ChartBarIcon className="w-6 h-6 text-blue-600" />
-          </div>
-          <div>
-            <p className="font-bold text-gray-800">إحصائيات متقدمة</p>
-            <p className="text-sm text-gray-500">تحليل المبيعات والعملاء</p>
-          </div>
-        </Link>
-        <Link href="/admin/customers" className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-            <UsersIcon className="w-6 h-6 text-green-600" />
-          </div>
-          <div>
-            <p className="font-bold text-gray-800">العملاء</p>
-            <p className="text-sm text-gray-500">قائمة العملاء والمشتريات</p>
-          </div>
-        </Link>
-      </div>
-
-      {/* Low Stock Alert */}
+      {/* ── Low Stock Alert ── */}
       {lowStock.length > 0 && (
-        <div className="rounded-2xl p-4 mb-8 border-2 border-orange-200 bg-orange-50">
+        <div className="rounded-2xl p-4 border-2 border-orange-200 bg-orange-50">
           <div className="flex items-center gap-2 mb-3">
             <ExclamationTriangleIcon className="w-5 h-5 text-orange-600" />
-            <p className="text-sm font-bold text-orange-700">تنبيه: منتجات تحتاج تجديد المخزون</p>
+            <p className="text-sm font-bold text-orange-700">
+              تنبيه: {lowStock.length} منتج {lowStock.length === 1 ? 'يحتاج' : 'يحتاجون'} تجديد المخزون
+            </p>
           </div>
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {lowStock.map((p: any) => (
               <Link key={p.id} href={`/admin/products/${p.id}`}
                 className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 shadow-sm hover:shadow-md transition-shadow">
-                <span className="text-sm font-medium">{p.name_ar}</span>
-                <span className={`badge ${p.stock_quantity === 0 ? 'badge-danger' : 'badge-warning'}`}>
-                  {p.stock_quantity === 0 ? 'نفذ المخزون' : `${p.stock_quantity} متبقي`}
+                <span className="text-sm font-medium truncate">{p.name_ar}</span>
+                <span className={`badge flex-shrink-0 ml-2 ${p.stock_quantity === 0 ? 'badge-danger' : 'badge-warning'}`}>
+                  {p.stock_quantity === 0 ? 'نفذ' : `${p.stock_quantity} متبقي`}
                 </span>
               </Link>
             ))}
@@ -164,33 +143,80 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-2xl shadow-sm border p-6" style={{ borderColor: 'var(--beige)' }}>
-          <p className="text-sm font-bold mb-1" style={{ color: 'var(--text-dark)' }}>الطلبات — آخر ٧ أيام</p>
-          <p className="text-2xl font-bold" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--primary)' }}>
-            {chartDays.reduce((s, d) => s + d.count, 0)}
-          </p>
-          <BarChart days={chartDays} valueKey="count" />
+      {/* ── Stats Grid ── */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {statCards.map((s, i) => {
+          const inner = (
+            <div key={i} className={`stats-card flex items-center gap-3 border ${s.border} hover:shadow-md transition-shadow`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${s.bg}`}>
+                <s.icon className={`w-6 h-6 ${s.color}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs opacity-60 mb-0.5 truncate">{s.title}</p>
+                <h3 className="text-xl font-bold" style={{ color: 'var(--text-dark)' }}>{s.value}</h3>
+              </div>
+            </div>
+          )
+          return s.href ? <Link href={s.href} key={i}>{inner}</Link> : inner
+        })}
+      </div>
+
+      {/* ── Charts + Quick Links ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Charts — 2/3 width */}
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl shadow-sm border p-5" style={{ borderColor: 'var(--beige)' }}>
+            <div className="flex items-center gap-2 mb-1">
+              <ArrowTrendingUpIcon className="w-4 h-4 opacity-40" />
+              <p className="text-sm font-bold" style={{ color: 'var(--text-dark)' }}>الطلبات — آخر ٧ أيام</p>
+            </div>
+            <p className="text-2xl font-bold" dir="ltr" style={{ color: 'var(--primary)' }}>
+              {chartDays.reduce((s, d) => s + d.count, 0)}
+            </p>
+            <BarChart days={chartDays} valueKey="count" />
+          </div>
+          <div className="bg-white rounded-2xl shadow-sm border p-5" style={{ borderColor: 'var(--beige)' }}>
+            <div className="flex items-center gap-2 mb-1">
+              <CurrencyDollarIcon className="w-4 h-4 opacity-40" />
+              <p className="text-sm font-bold" style={{ color: 'var(--text-dark)' }}>الإيرادات — آخر ٧ أيام</p>
+            </div>
+            <p className="text-2xl font-bold" dir="ltr" style={{ color: 'var(--primary)' }}>
+              {toArabicPrice(chartDays.reduce((s, d) => s + d.revenue, 0))}
+            </p>
+            <BarChart days={chartDays} valueKey="revenue" />
+          </div>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border p-6" style={{ borderColor: 'var(--beige)' }}>
-          <p className="text-sm font-bold mb-1" style={{ color: 'var(--text-dark)' }}>الإيرادات — آخر ٧ أيام</p>
-          <p className="text-2xl font-bold" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--primary)' }}>
-            {toArabicPrice(chartDays.reduce((s, d) => s + d.revenue, 0))}
-          </p>
-          <BarChart days={chartDays} valueKey="revenue" />
+
+        {/* Quick Links — 1/3 width */}
+        <div className="bg-white rounded-2xl shadow-sm border p-5" style={{ borderColor: 'var(--beige)' }}>
+          <p className="text-sm font-bold mb-4" style={{ color: 'var(--text-dark)' }}>روابط سريعة</p>
+          <div className="space-y-2">
+            {quickLinks.map((link) => (
+              <Link key={link.href} href={link.href}
+                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${link.bg}`}>
+                  <link.icon className={`w-4 h-4 ${link.color}`} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-gray-800 group-hover:text-gray-900">{link.label}</p>
+                  <p className="text-xs text-gray-400 truncate">{link.sub}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Recent Orders */}
+      {/* ── Recent Orders ── */}
       <div className="bg-white rounded-2xl shadow-sm border overflow-hidden" style={{ borderColor: 'var(--beige)' }}>
-        <div className="p-6 border-b flex justify-between items-center" style={{ borderColor: 'var(--beige)' }}>
-          <h2 className="text-lg font-bold" style={{ color: 'var(--text-dark)' }}>أحدث الطلبات</h2>
+        <div className="p-5 border-b flex justify-between items-center" style={{ borderColor: 'var(--beige)' }}>
+          <h2 className="text-base font-bold" style={{ color: 'var(--text-dark)' }}>أحدث الطلبات</h2>
           <Link href="/admin/orders" className="text-sm font-medium hover:underline" style={{ color: 'var(--primary)' }}>
             عرض الكل
           </Link>
         </div>
-        
+
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="admin-table w-full">
@@ -259,6 +285,7 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
     </div>
   )
 }

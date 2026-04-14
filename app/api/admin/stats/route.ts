@@ -13,16 +13,26 @@ export async function GET(request: NextRequest) {
     const days = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 365
     const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
     
-    // Get top selling products
-    const { data: topProducts, error: topProductsError } = await supabase
+    // Get order IDs for the period first (order_items has no created_at)
+    const { data: periodOrders } = await supabase
+      .from('orders')
+      .select('id')
+      .gte('created_at', startDate.toISOString())
+      .eq('status', 'delivered')
+
+    const orderIds = (periodOrders || []).map(o => o.id)
+    const safeIds = orderIds.length ? orderIds : ['00000000-0000-0000-0000-000000000000']
+
+    // Get top selling products via those order IDs
+    const { data: topProducts } = await supabase
       .from('order_items')
       .select(`
         product_id,
         products:product_id (name_ar, images),
         quantity,
-        price
+        unit_price
       `)
-      .gte('created_at', startDate.toISOString())
+      .in('order_id', safeIds)
       .order('quantity', { ascending: false })
       .limit(10)
     
@@ -72,16 +82,21 @@ export async function GET(request: NextRequest) {
     const avgRating = reviews.length > 0
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : 0
-    
+    const ratingDistribution = [5, 4, 3, 2, 1].map(star => ({
+      star,
+      count: reviews.filter(r => r.rating === star).length,
+    }))
+
     return NextResponse.json({
       topProducts: topProducts || [],
       dailySales: dailySales || [],
       topCustomers: topCustomersList,
       reviewsStats: {
-        total: reviewsStats?.length || 0,
+        total: reviews.length,
         pending: pendingReviews,
         approved: approvedReviews,
-        averageRating: Number(avgRating.toFixed(1))
+        averageRating: Number(avgRating.toFixed(1)),
+        ratingDistribution,
       },
       period
     })

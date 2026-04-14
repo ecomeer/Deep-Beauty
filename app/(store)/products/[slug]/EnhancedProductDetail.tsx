@@ -5,8 +5,8 @@ import { useParams, notFound } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { Product } from '@/types'
-import { toArabicPrice } from '@/lib/utils'
 import { useCartContext } from '@/context/CartContext'
+import { useCountry } from '@/context/CountryContext'
 import { 
   MinusIcon, 
   PlusIcon, 
@@ -37,6 +37,7 @@ export default function EnhancedProductDetail() {
   const params = useParams()
   const slug = params?.slug as string
   const { addItem } = useCartContext()
+  const { formatPrice } = useCountry()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
@@ -74,7 +75,7 @@ export default function EnhancedProductDetail() {
       id: product.id,
       name_ar: product.name_ar,
       name_en: product.name_en,
-      price: product.price,
+      price: product.sale_price ?? product.price,
       image: product.images?.[0] || '',
       quantity,
       slug: product.slug,
@@ -120,7 +121,7 @@ export default function EnhancedProductDetail() {
   const images = product.images?.length > 0 ? product.images : ['']
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[#FAFAFA] pt-[72px]">
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <nav className="flex items-center gap-2 text-sm text-gray-500">
@@ -257,14 +258,18 @@ export default function EnhancedProductDetail() {
 
             {/* Price */}
             <div className="flex items-baseline gap-4">
-              <span className="text-4xl md:text-5xl font-bold text-[#9C6644]" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
-                {toArabicPrice(product.price)}
+              <span className="text-4xl md:text-5xl font-bold text-[#9C6644]" dir="ltr">
+                {formatPrice(product.sale_price ?? product.price)}
               </span>
-              {product.compare_price && (
-                <span className="text-2xl line-through text-gray-400">
-                  {toArabicPrice(product.compare_price)}
+              {product.sale_price ? (
+                <span className="text-2xl line-through text-gray-400" dir="ltr">
+                  {formatPrice(product.price)}
                 </span>
-              )}
+              ) : product.compare_price ? (
+                <span className="text-2xl line-through text-gray-400" dir="ltr">
+                  {formatPrice(product.compare_price)}
+                </span>
+              ) : null}
             </div>
 
             {/* Trust Features */}

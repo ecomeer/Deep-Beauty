@@ -5,8 +5,6 @@ import toast from 'react-hot-toast'
 
 interface Settings {
   store_name: string
-  shipping_cost: string
-  free_shipping_above: string
   whatsapp_number: string
   instagram_url: string
   tiktok_url: string
@@ -16,8 +14,6 @@ interface Settings {
 
 const DEFAULTS: Settings = {
   store_name: 'Deep Beauty',
-  shipping_cost: '1.500',
-  free_shipping_above: '20.000',
   whatsapp_number: '96522289182',
   instagram_url: 'https://instagram.com/deepbeautykw',
   tiktok_url: '',
@@ -100,15 +96,8 @@ export default function AdminSettings() {
             <input name="announcement_text" value={settings.announcement_text} onChange={handleChange} className="input-field" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold mb-1.5">رسوم التوصيل (د.ك)</label>
-              <input name="shipping_cost" value={settings.shipping_cost} onChange={handleChange} className="input-field" dir="ltr" placeholder="1.500" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold mb-1.5">شحن مجاني فوق (د.ك)</label>
-              <input name="free_shipping_above" value={settings.free_shipping_above} onChange={handleChange} className="input-field" dir="ltr" placeholder="20.000" />
-            </div>
+          <div className="rounded-xl p-3 bg-amber-50 border border-amber-200 text-xs text-amber-700">
+            ⚠️ إعدادات الشحن تُدار من صفحة <a href="/admin/shipping" className="font-bold underline">الشحن</a> — التعديل هنا لا يؤثر على حساب تكلفة التوصيل عند الـ Checkout.
           </div>
         </div>
 

@@ -10,10 +10,9 @@ import CountrySelector from './CountrySelector'
 import CurrencySelector from './CurrencySelector'
 
 const NAV_LINKS = [
-  { href: '/products', label: 'تسوق الكل' },
-  { href: '/about', label: 'الطقوس' },
-  { href: '/#contact', label: 'العلم' },
-  { href: '/track', label: 'المجلة' },
+  { href: '/products', label: 'المنتجات' },
+  { href: '/about', label: 'من نحن' },
+  { href: '/track', label: 'تتبع الطلب' },
 ]
 
 export default function Navbar() {
@@ -78,6 +77,11 @@ export default function Navbar() {
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center bg-primary text-white">{totalItems}</span>
               )}
             </button>
+            {/* Desktop: Country Selector */}
+            <div className="hidden md:block">
+              <CountrySelector />
+            </div>
+
             {/* Desktop: EN/AR */}
             <div className="hidden md:block bg-surface-container-high px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest cursor-pointer hover:bg-surface-variant transition-colors ms-2">
               EN/AR
@@ -97,11 +101,13 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* RIGHT: Logo */}
-          <Link href="/" className="text-right">
-            <span className="text-2xl font-headline tracking-tighter text-on-surface">
-              Deep Beauty
-            </span>
+          {/* RIGHT: Logo — wrapper clips whitespace, image scaled so logo fills 52px */}
+          <Link href="/" className="flex-shrink-0 flex items-center justify-center overflow-hidden" style={{ width: '140px', height: '52px' }}>
+            <img
+              src="/logo.png"
+              alt="Deep Beauty"
+              style={{ width: '104px', height: '104px', objectFit: 'contain', flexShrink: 0 }}
+            />
           </Link>
 
         </div>
@@ -136,6 +142,12 @@ export default function Navbar() {
               <UserIcon className="w-5 h-5" />
               حسابي
             </Link>
+            <div className="border-t border-outline-variant my-2 mx-6" />
+            {/* Country Selector in mobile menu */}
+            <div className="px-6 py-2">
+              <p className="text-xs text-on-surface-variant mb-2 opacity-60">الدولة / العملة</p>
+              <CountrySelector />
+            </div>
           </div>
         )}
       </nav>

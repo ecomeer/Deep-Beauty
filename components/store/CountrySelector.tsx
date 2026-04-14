@@ -33,7 +33,11 @@ export default function CountrySelector() {
         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
         aria-label="اختيار الدولة"
       >
-        <span className="text-2xl">{countryConfig.flag}</span>
+        <img
+          src={`https://flagcdn.com/w40/${countryConfig.code.toLowerCase()}.png`}
+          alt={countryConfig.name_ar}
+          className="w-6 h-4 object-cover rounded-sm"
+        />
         <span className="text-sm font-medium hidden sm:block">{countryConfig.name_ar}</span>
         <span className="text-xs text-gray-500 hidden sm:block">({countryConfig.currency})</span>
         <ChevronDownIcon className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -52,7 +56,11 @@ export default function CountrySelector() {
                 selectedCountry === code ? 'bg-[#9C6644]/5' : ''
               }`}
             >
-              <span className="text-2xl">{country.flag}</span>
+              <img
+                src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
+                alt={country.name_ar}
+                className="w-8 h-5 object-cover rounded-sm flex-shrink-0"
+              />
               <div className="flex-1 text-right">
                 <p className={`text-sm font-medium ${selectedCountry === code ? 'text-[#9C6644]' : 'text-gray-800'}`}>
                   {country.name_ar}

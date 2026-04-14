@@ -38,7 +38,11 @@ export default function AdminCategories() {
     formData.append('file', file)
     formData.append('folder', `categories`)
     const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
-    if (!res.ok) { toast.error('فشل رفع الصورة'); return null }
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      toast.error(data.error || 'فشل رفع الصورة')
+      return null
+    }
     const { url } = await res.json()
     return url
   }

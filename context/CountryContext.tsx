@@ -79,10 +79,17 @@ export function CountryProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function useCountry() {
+export function useCountry(): CountryContextType {
   const context = useContext(CountryContext)
   if (context === undefined) {
-    throw new Error('useCountry must be used within a CountryProvider')
+    // Return safe defaults during SSR before provider mounts
+    return {
+      selectedCountry: DEFAULT_COUNTRY,
+      currency: 'KWD',
+      countryConfig: GULF_COUNTRIES[DEFAULT_COUNTRY],
+      setCountry: () => {},
+      formatPrice: (amount: number) => formatPrice(amount, 'KWD'),
+    }
   }
   return context
 }
