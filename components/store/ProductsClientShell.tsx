@@ -10,11 +10,13 @@ const PRIMARY = '#9C6644'
 export default function ProductsClientShell({
   products,
   categories,
+  defaultCategory = '',
 }: {
   products: Product[]
   categories: Category[]
+  defaultCategory?: string
 }) {
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState(defaultCategory)
   const [sortBy, setSortBy] = useState('newest')
   const [search, setSearch] = useState('')
   const [showSearch, setShowSearch] = useState(false)
@@ -145,7 +147,7 @@ export default function ProductsClientShell({
       {/* Grid */}
       {filtered.length === 0 ? (
         <div className="text-center py-24 bg-white rounded-2xl shadow-sm">
-          <div className="text-6xl mb-4">🔍</div>
+          <div className="text-6xl mb-4" aria-hidden="true">🔍</div>
           <p className="text-xl font-bold mb-2 text-gray-800">لا توجد منتجات</p>
           <p className="text-sm text-gray-500">جربي فئة أو بحث مختلف</p>
         </div>

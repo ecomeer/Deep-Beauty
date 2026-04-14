@@ -51,7 +51,7 @@ export default function Navbar() {
             </button>
 
             {/* Desktop: Search */}
-            <button className="hidden md:flex p-2 rounded-full hover:bg-surface-container transition-colors">
+            <button className="hidden md:flex p-2 rounded-full hover:bg-surface-container transition-colors" aria-label="بحث">
               <MagnifyingGlassIcon className="w-5 h-5 text-on-surface" />
             </button>
             {/* Desktop: Wishlist */}

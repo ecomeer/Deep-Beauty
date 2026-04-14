@@ -79,7 +79,9 @@ export default function StitchFooter() {
             </div>
           ) : (
             <form className="flex gap-3 max-w-md mx-auto" onSubmit={handleSubscribe}>
+              <label htmlFor="newsletter-email" className="sr-only">البريد الإلكتروني للاشتراك</label>
               <input
+                id="newsletter-email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}

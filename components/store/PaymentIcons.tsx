@@ -2,7 +2,8 @@
 
 export function KNetIcon({ className = 'h-7' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="K-Net">
+      <title>K-Net</title>
       <rect width="80" height="50" rx="6" fill="#1B5FA8"/>
       <rect x="2" y="2" width="76" height="46" rx="5" fill="#1B5FA8"/>
       {/* K letter */}
@@ -17,7 +18,8 @@ export function KNetIcon({ className = 'h-7' }: { className?: string }) {
 
 export function MastercardIcon({ className = 'h-7' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mastercard">
+      <title>Mastercard</title>
       <rect width="80" height="50" rx="6" fill="white" stroke="#E5E7EB" strokeWidth="1.5"/>
       <circle cx="31" cy="25" r="13" fill="#EB001B"/>
       <circle cx="49" cy="25" r="13" fill="#F79E1B"/>
@@ -28,7 +30,8 @@ export function MastercardIcon({ className = 'h-7' }: { className?: string }) {
 
 export function VisaIcon({ className = 'h-7' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Visa">
+      <title>Visa</title>
       <rect width="80" height="50" rx="6" fill="white" stroke="#E5E7EB" strokeWidth="1.5"/>
       <text x="12" y="33" fontSize="22" fontWeight="900" fill="#1A1F71" fontFamily="Arial Narrow, Arial">VISA</text>
     </svg>
@@ -37,7 +40,8 @@ export function VisaIcon({ className = 'h-7' }: { className?: string }) {
 
 export function ApplePayIcon({ className = 'h-7' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Apple Pay">
+      <title>Apple Pay</title>
       <rect width="80" height="50" rx="6" fill="black"/>
       {/* Apple logo */}
       <path d="M28 18c1.1-1.3 1.8-3.1 1.6-4.9-1.6.1-3.5 1.1-4.6 2.4-1 1.1-1.9 2.9-1.6 4.7 1.7.1 3.5-.9 4.6-2.2z" fill="white"/>
@@ -50,7 +54,8 @@ export function ApplePayIcon({ className = 'h-7' }: { className?: string }) {
 
 export function GooglePayIcon({ className = 'h-7' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Google Pay">
+      <title>Google Pay</title>
       <rect width="80" height="50" rx="6" fill="white" stroke="#E5E7EB" strokeWidth="1.5"/>
       {/* G */}
       <text x="8" y="33" fontSize="20" fontWeight="700" fill="#4285F4" fontFamily="Arial">G</text>
@@ -64,6 +69,17 @@ export function GooglePayIcon({ className = 'h-7' }: { className?: string }) {
   )
 }
 
+export function AmexIcon({ className = 'h-7' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="American Express">
+      <title>American Express</title>
+      <rect width="80" height="50" rx="6" fill="#2557D6"/>
+      <text x="6" y="22" fontSize="9" fontWeight="700" fill="white" fontFamily="Arial">AMERICAN</text>
+      <text x="6" y="34" fontSize="9" fontWeight="700" fill="white" fontFamily="Arial">EXPRESS</text>
+    </svg>
+  )
+}
+
 // Row of all payment icons
 export function PaymentIconsRow({ className = '' }: { className?: string }) {
   return (
@@ -71,6 +87,7 @@ export function PaymentIconsRow({ className = '' }: { className?: string }) {
       <KNetIcon className="h-6" />
       <MastercardIcon className="h-6" />
       <VisaIcon className="h-6" />
+      <AmexIcon className="h-6" />
       <ApplePayIcon className="h-6" />
       <GooglePayIcon className="h-6" />
     </div>

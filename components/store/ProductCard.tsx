@@ -89,7 +89,7 @@ export default function ProductCard({ product, salePercentage }: Props) {
             onClick={handleToggleWishlist}
             className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 flex items-center justify-center transition-all"
             style={{ color: isWishlisted ? 'var(--primary)' : '#aaa' }}
-            aria-label={isWishlisted ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+            aria-label={isWishlisted ? `إزالة ${product.name_ar} من المفضلة` : `إضافة ${product.name_ar} للمفضلة`}
           >
             {isWishlisted ? <HeartSolid className="w-5 h-5" /> : <HeartIcon className="w-5 h-5" />}
           </button>
@@ -108,7 +108,7 @@ export default function ProductCard({ product, salePercentage }: Props) {
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-5xl">🧴</div>
+              <div className="w-full h-full flex items-center justify-center text-5xl" aria-hidden="true">🧴</div>
             )}
 
             {/* Discount badge */}
@@ -134,7 +134,7 @@ export default function ProductCard({ product, salePercentage }: Props) {
             <button
               onClick={handleAddToCart}
               disabled={product.stock_quantity === 0 || adding}
-              aria-label="أضف للسلة"
+              aria-label={product.stock_quantity === 0 ? 'نفذت الكمية' : `إضافة ${product.name_ar} للسلة`}
               className="absolute left-3 bottom-3 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 disabled:cursor-not-allowed hover:scale-110"
               style={{
                 background: product.stock_quantity === 0
@@ -154,8 +154,8 @@ export default function ProductCard({ product, salePercentage }: Props) {
           {/* Content */}
           <div className="px-4 pt-4 pb-4">
             {/* Rating */}
-            <div className="flex items-center gap-1 mb-2">
-              <div className="flex gap-0.5">
+            <div className="flex items-center gap-1 mb-2" aria-label={`تقييم ${rating.toFixed(1)} من 5`}>
+              <div className="flex gap-0.5" aria-hidden="true">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <StarIcon
                     key={star}

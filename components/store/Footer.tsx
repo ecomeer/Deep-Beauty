@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
+import { PaymentIconsRow } from './PaymentIcons'
 
 export default function Footer() {
   const [whatsapp, setWhatsapp] = useState('96522289182')
@@ -110,10 +111,11 @@ export default function Footer() {
             <div>
               <h4 className="font-bold mb-4 text-gray-800 text-lg">المتجر</h4>
               <ul className="space-y-3 text-sm text-gray-500">
-                <li><Link href="/products?category=سيروم" className="hover:text-[#FF6B9D] transition-colors">سيروم</Link></li>
-                <li><Link href="/products?category=عناية بالبشرة" className="hover:text-[#FF6B9D] transition-colors">عناية بالبشرة</Link></li>
-                <li><Link href="/products?category=مقشرات" className="hover:text-[#FF6B9D] transition-colors">مقشرات</Link></li>
-                <li><Link href="/products?category=تونر" className="hover:text-[#FF6B9D] transition-colors">تونر</Link></li>
+                <li><Link href="/products?category=%D8%B3%D9%8A%D8%B1%D9%88%D9%85" className="hover:text-[#FF6B9D] transition-colors">سيروم</Link></li>
+                <li><Link href="/products?category=%D8%B9%D9%86%D8%A7%D9%8A%D8%A9+%D8%A8%D8%A7%D9%84%D8%A8%D8%B4%D8%B1%D8%A9" className="hover:text-[#FF6B9D] transition-colors">عناية بالبشرة</Link></li>
+                <li><Link href="/products?category=%D9%85%D9%82%D8%B4%D8%B1%D8%A7%D8%AA" className="hover:text-[#FF6B9D] transition-colors">مقشرات</Link></li>
+                <li><Link href="/products?category=%D8%AA%D9%88%D9%86%D8%B1" className="hover:text-[#FF6B9D] transition-colors">تونر</Link></li>
+                <li><Link href="/products" className="hover:text-[#FF6B9D] transition-colors">جميع المنتجات</Link></li>
               </ul>
             </div>
 
@@ -137,14 +139,7 @@ export default function Footer() {
           {/* Payment Icons */}
           <div className="flex items-center gap-3">
             <span className="text-xs text-gray-400">طرق الدفع:</span>
-            <div className="flex gap-2">
-              {/* KNet */}
-              <div className="w-10 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-[8px] font-bold">KNet</div>
-              {/* Visa */}
-              <div className="w-10 h-6 bg-gradient-to-r from-blue-800 to-blue-600 rounded flex items-center justify-center text-white text-[8px] font-bold">VISA</div>
-              {/* Mastercard */}
-              <div className="w-10 h-6 bg-gradient-to-r from-red-600 to-orange-500 rounded flex items-center justify-center text-white text-[8px] font-bold">MC</div>
-            </div>
+            <PaymentIconsRow />
           </div>
           {/* Copyright */}
           <span className="text-xs text-gray-400">© 2025 بينكش · جميع الحقوق محفوظة</span>

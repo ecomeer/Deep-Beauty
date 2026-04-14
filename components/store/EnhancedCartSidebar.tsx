@@ -116,6 +116,10 @@ export default function EnhancedCartSidebar() {
             animate="visible"
             exit="exit"
             onClick={() => setIsOpen(false)}
+            onKeyDown={(e) => e.key === 'Enter' && setIsOpen(false)}
+            role="button"
+            tabIndex={0}
+            aria-label="إغلاق السلة"
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
           />
 
@@ -125,6 +129,9 @@ export default function EnhancedCartSidebar() {
             initial="hidden"
             animate="visible"
             exit="exit"
+            role="dialog"
+            aria-modal="true"
+            aria-label="سلة التسوق"
             className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 flex flex-col shadow-2xl"
           >
             {/* Header */}
@@ -144,6 +151,7 @@ export default function EnhancedCartSidebar() {
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(false)}
+                aria-label="إغلاق السلة"
                 className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
               >
                 <XMarkIcon className="w-6 h-6 text-gray-500" />

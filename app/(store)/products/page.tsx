@@ -5,7 +5,12 @@ import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 
 export const revalidate = 120
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category: defaultCategory = '' } = await searchParams
   let products: Product[] = []
   let categories: Category[] = []
 
@@ -44,7 +49,7 @@ export default async function ProductsPage() {
           <h1 className="text-4xl md:text-5xl font-headline text-on-surface mb-4">المتجر</h1>
         </div>
       </div>
-      <ProductsClientShell products={products} categories={categories} />
+      <ProductsClientShell products={products} categories={categories} defaultCategory={defaultCategory} />
     </div>
   )
 }

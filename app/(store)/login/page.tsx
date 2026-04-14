@@ -4,8 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { 
-  EyeIcon, 
+import {
+  EyeIcon,
   EyeSlashIcon,
   EnvelopeIcon,
   LockClosedIcon,
@@ -13,6 +13,7 @@ import {
   SparklesIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { createClientSupabase } from '@/lib/supabase-client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -155,9 +156,21 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Google Login (Placeholder) */}
+            {/* Google Login */}
             <button
               type="button"
+              onClick={async () => {
+                try {
+                  const supabase = createClientSupabase()
+                  const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: { redirectTo: `${window.location.origin}/auth/callback` }
+                  })
+                  if (error) toast.error('حدث خطأ أثناء الدخول بحساب Google')
+                } catch {
+                  toast.error('حدث خطأ أثناء الدخول بحساب Google')
+                }
+              }}
               className="w-full py-3 border-2 border-gray-200 rounded-xl font-medium hover:border-gray-300 transition-colors flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">

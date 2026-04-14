@@ -332,23 +332,25 @@ export default function EnhancedCheckoutPage() {
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
+                    <label htmlFor="field-name" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
                       الاسم الكامل *
                     </label>
-                    <input 
-                      name="customer_name" 
-                      value={form.customer_name} 
-                      onChange={handleChange} 
-                      required 
-                      className="input-field" 
-                      placeholder="الاسم الكامل للتوصيل" 
+                    <input
+                      id="field-name"
+                      name="customer_name"
+                      value={form.customer_name}
+                      onChange={handleChange}
+                      required
+                      className="input-field"
+                      placeholder="الاسم الكامل للتوصيل"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
+                    <label htmlFor="field-phone" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
                       رقم الهاتف *
                     </label>
-                    <input 
+                    <input
+                      id="field-phone"
                       name="customer_phone" 
                       value={form.customer_phone} 
                       onChange={handleChange} 
@@ -360,10 +362,11 @@ export default function EnhancedCheckoutPage() {
                     <p className="text-xs text-gray-500 mt-1">سيتم التواصل معك على هذا الرقم</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
+                    <label htmlFor="field-email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
                       البريد الإلكتروني {createAccount && <span className="text-red-500">*</span>}
                     </label>
-                    <input 
+                    <input
+                      id="field-email"
                       name="customer_email" 
                       type="email" 
                       value={form.customer_email} 
@@ -459,31 +462,31 @@ export default function EnhancedCheckoutPage() {
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5">المنطقة / المحافظة *</label>
+                    <label htmlFor="field-area" className="block text-sm font-medium mb-1.5">المنطقة / المحافظة *</label>
                     {COUNTRY_AREAS[countryConfig.code] ? (
-                      <select name="address_area" value={form.address_area} onChange={handleChange} required className="input-field">
+                      <select id="field-area" name="address_area" value={form.address_area} onChange={handleChange} required className="input-field">
                         <option value="">اختر المنطقة</option>
                         {COUNTRY_AREAS[countryConfig.code].map((a) => <option key={a} value={a}>{a}</option>)}
                       </select>
                     ) : (
-                      <input name="address_area" value={form.address_area} onChange={handleChange} required className="input-field" placeholder="أدخل المنطقة / المدينة" />
+                      <input id="field-area" name="address_area" value={form.address_area} onChange={handleChange} required className="input-field" placeholder="أدخل المنطقة / المدينة" />
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">القطعة *</label>
-                    <input name="address_block" value={form.address_block} onChange={handleChange} required className="input-field" placeholder="رقم القطعة" />
+                    <label htmlFor="field-block" className="block text-sm font-medium mb-1.5">القطعة *</label>
+                    <input id="field-block" name="address_block" value={form.address_block} onChange={handleChange} required className="input-field" placeholder="رقم القطعة" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">الشارع *</label>
-                    <input name="address_street" value={form.address_street} onChange={handleChange} required className="input-field" placeholder="رقم الشارع" />
+                    <label htmlFor="field-street" className="block text-sm font-medium mb-1.5">الشارع *</label>
+                    <input id="field-street" name="address_street" value={form.address_street} onChange={handleChange} required className="input-field" placeholder="رقم الشارع" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">المنزل / البناية *</label>
-                    <input name="address_house" value={form.address_house} onChange={handleChange} required className="input-field" placeholder="رقم المنزل" />
+                    <label htmlFor="field-house" className="block text-sm font-medium mb-1.5">المنزل / البناية *</label>
+                    <input id="field-house" name="address_house" value={form.address_house} onChange={handleChange} required className="input-field" placeholder="رقم المنزل" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">ملاحظات إضافية</label>
-                    <input name="notes" value={form.notes} onChange={handleChange} className="input-field" placeholder="أي تفاصيل إضافية..." />
+                    <label htmlFor="field-notes" className="block text-sm font-medium mb-1.5">ملاحظات إضافية</label>
+                    <input id="field-notes" name="notes" value={form.notes} onChange={handleChange} className="input-field" placeholder="أي تفاصيل إضافية..." />
                   </div>
                 </div>
               </motion.div>
