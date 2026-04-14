@@ -20,7 +20,6 @@ import {
   CheckIcon,
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
-import { PaymentIconsRow } from './PaymentIcons'
 import toast from 'react-hot-toast'
 
 interface Banner {
@@ -631,17 +630,6 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
       {/* ─────────────────────────────────────────
           PAYMENT METHODS STRIP
       ───────────────────────────────────────── */}
-      <section
-        className="py-6 border-t"
-        style={{ background: 'white', borderColor: 'var(--beige)' }}
-      >
-        <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--on-surface-variant)' }}>
-            طرق الدفع المقبولة
-          </p>
-          <PaymentIconsRow />
-        </div>
-      </section>
     </div>
   )
 }

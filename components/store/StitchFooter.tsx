@@ -268,8 +268,6 @@ export default function StitchFooter() {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-4 text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
             <p>© {new Date().getFullYear()} Deep Beauty. جميع الحقوق محفوظة.</p>
-            <span aria-hidden="true">·</span>
-            <p>صُنع بـ ❤️ في الكويت</p>
           </div>
           <PaymentIconsRow />
         </div>
