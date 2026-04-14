@@ -14,9 +14,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { code, discount_type, discount_value, min_order_amount, max_usage, expires_at, is_active } = body
+    const { code, description_ar, type, value, min_order_amount, usage_limit, expires_at, is_active } = body
 
-    if (!code || !discount_type || !discount_value) {
+    if (!code || !type || !value) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -24,14 +24,14 @@ export async function POST(req: NextRequest) {
       .from('coupons')
       .insert([{
         code: code.toUpperCase().trim(),
-        discount_type,
-        discount_value,
+        description_ar: description_ar || null,
+        type,
+        value,
         min_order_amount: min_order_amount || 0,
-        max_usage: max_usage || null,
+        usage_limit: usage_limit || null,
         expires_at: expires_at || null,
         is_active: is_active ?? true,
         usage_count: 0,
-        created_at: new Date().toISOString(),
       }])
       .select()
       .single()

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCartContext } from '@/context/CartContext'
 import { useCountry } from '@/context/CountryContext'
 
-import { toArabicPrice, generateOrderNumber, isKuwaitPhone, KUWAIT_AREAS } from '@/lib/utils'
+import { toArabicPrice, generateOrderNumber, isKuwaitPhone, COUNTRY_AREAS } from '@/lib/utils'
 import { 
   UserIcon, 
   LockClosedIcon, 
@@ -92,6 +92,12 @@ export default function EnhancedCheckoutPage() {
   }
   
   const countryCode = countryConfig.code
+
+  // Reset area when country changes
+  useEffect(() => {
+    setForm(prev => ({ ...prev, address_area: '' }))
+  }, [countryCode])
+
   const shippingCost = SHIPPING_COSTS[countryCode] ?? 2.5
   const freeThreshold = FREE_SHIPPING_THRESHOLDS[countryCode]
   const shipping = freeThreshold && subtotal >= freeThreshold ? 0 : shippingCost
@@ -114,7 +120,7 @@ export default function EnhancedCheckoutPage() {
       if (!res.ok) { toast.error(`❌ ${json.error}`); setCouponLoading(false); return }
       setCouponDiscount(json.discount)
       setCouponApplied(json.code)
-      toast.success(`✅ تم تطبيق كود ${json.code} — خصم ${toArabicPrice(json.discount)}`)
+      toast.success(`✅ تم تطبيق كود ${json.code} — خصم ${formatPrice(json.discount)}`)
     } catch {
       toast.error('❌ حدث خطأ')
     }
@@ -454,10 +460,14 @@ export default function EnhancedCheckoutPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium mb-1.5">المنطقة / المحافظة *</label>
-                    <select name="address_area" value={form.address_area} onChange={handleChange} required className="input-field">
-                      <option value="">اختر المنطقة</option>
-                      {KUWAIT_AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
-                    </select>
+                    {COUNTRY_AREAS[countryConfig.code] ? (
+                      <select name="address_area" value={form.address_area} onChange={handleChange} required className="input-field">
+                        <option value="">اختر المنطقة</option>
+                        {COUNTRY_AREAS[countryConfig.code].map((a) => <option key={a} value={a}>{a}</option>)}
+                      </select>
+                    ) : (
+                      <input name="address_area" value={form.address_area} onChange={handleChange} required className="input-field" placeholder="أدخل المنطقة / المدينة" />
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5">القطعة *</label>
@@ -553,7 +563,7 @@ export default function EnhancedCheckoutPage() {
                   {items.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm">
                       <span className="opacity-70">{item.name_ar} × {item.quantity}</span>
-                      <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
+                      <span className="font-semibold" dir="ltr">{formatPrice(item.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
@@ -596,23 +606,23 @@ export default function EnhancedCheckoutPage() {
                 <div className="space-y-2 text-sm border-t pt-4" style={{ borderColor: 'var(--beige)' }}>
                   <div className="flex justify-between">
                     <span className="opacity-60">المجموع</span>
-                    <span>{formatPrice(subtotal)}</span>
+                    <span dir="ltr">{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="opacity-60">الشحن</span>
-                    <span className={shipping === 0 ? 'text-green-600 font-medium' : ''}>
+                    <span className={shipping === 0 ? 'text-green-600 font-medium' : ''} dir="ltr">
                       {shipping === 0 ? 'مجاني 🎉' : formatPrice(shipping)}
                     </span>
                   </div>
                   {couponDiscount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>خصم الكوبون</span>
-                      <span>- {formatPrice(couponDiscount)}</span>
+                      <span dir="ltr">- {formatPrice(couponDiscount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-lg font-bold pt-2 border-t" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>
                     <span>الإجمالي</span>
-                    <span style={{ color: 'var(--primary)' }}>{formatPrice(Math.max(0, total))}</span>
+                    <span style={{ color: 'var(--primary)' }} dir="ltr">{formatPrice(Math.max(0, total))}</span>
                   </div>
                 </div>
 

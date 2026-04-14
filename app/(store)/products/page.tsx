@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { Product, Category } from '@/types'
 import ProductsClientShell from '@/components/store/ProductsClientShell'
+import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 
 export const revalidate = 120
 
@@ -10,7 +11,7 @@ export default async function ProductsPage() {
 
   try {
     const supabase = await createServerSupabaseClient()
-    const [prodsRes, catsRes] = await Promise.race([
+    const [prodsRes, catsRes, flashDiscount] = await Promise.race([
       Promise.all([
         supabase
           .from('products')
@@ -22,10 +23,14 @@ export default async function ProductsPage() {
           .select('id,name_ar,name_en,slug,is_active,image_url')
           .eq('is_active', true)
           .order('name_ar'),
+        getActiveFlashDiscount(),
       ]),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
     ])
-    products = prodsRes.data || []
+    products = (prodsRes.data || []).map((p) => ({
+      ...p,
+      sale_price: applyDiscount(p.price, flashDiscount as number),
+    }))
     categories = catsRes.data || []
   } catch (e) {
     console.error('Failed to fetch products:', e)
@@ -36,9 +41,7 @@ export default async function ProductsPage() {
       {/* Hero Header */}
       <div className="pt-32 pb-12 px-6 bg-surface-container-low">
         <div className="max-w-7xl mx-auto text-center">
-          <span className="text-primary font-label text-xs uppercase tracking-widest block mb-3">✦ مجموعتنا الكاملة</span>
-          <h1 className="text-4xl md:text-5xl font-headline text-on-surface mb-4">جميع المنتجات</h1>
-          <p className="text-on-surface-variant font-body max-w-md mx-auto">اكتشفي عالم العناية الفاخرة بمكونات طبيعية مختارة بعناية</p>
+          <h1 className="text-4xl md:text-5xl font-headline text-on-surface mb-4">المتجر</h1>
         </div>
       </div>
       <ProductsClientShell products={products} categories={categories} />

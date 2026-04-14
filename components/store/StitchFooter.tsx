@@ -1,132 +1,116 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { 
-  EnvelopeIcon, 
-  PhoneIcon, 
-  MapPinIcon,
-  ArrowLeftIcon 
-} from '@heroicons/react/24/outline'
+import { useState } from 'react'
+import { CheckCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 
 export default function StitchFooter() {
-  const [whatsapp, setWhatsapp] = useState('96522289182')
-  const [instagram, setInstagram] = useState('https://instagram.com/deepbeautykw')
+  const [email, setEmail] = useState('')
+  const [subscribed, setSubscribed] = useState(false)
 
-  useEffect(() => {
-    fetch('/api/settings')
-      .then(r => r.ok ? r.json() : null)
-      .then((json: { settings: { key: string; value: string }[] } | null) => {
-        if (!json?.settings) return
-        for (const row of json.settings) {
-          if (row.key === 'whatsapp_number' && row.value) setWhatsapp(row.value)
-          if (row.key === 'instagram_url' && row.value) setInstagram(row.value)
-        }
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) return
+    try {
+      await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       })
-      .catch(() => {})
-  }, [])
+    } catch {}
+    setSubscribed(true)
+    setEmail('')
+  }
 
   return (
-    <footer className="bg-on-surface text-surface">
-      {/* Newsletter Section */}
-      <div className="border-b border-outline-variant/20">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-2xl font-headline mb-2">اشترك في نشرتنا البريدية</h3>
-              <p className="text-surface-variant text-sm">احصل على أحدث العروض والمنتجات الجديدة مباشرة في بريدك</p>
+    <footer style={{ background: '#f7ede3' }}>
+      {/* Main content */}
+      <div className="max-w-7xl mx-auto px-6 py-14">
+
+        {/* Top row: brand | store links | support links */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-12">
+
+          {/* Brand */}
+          <div>
+            <div className="mb-4 h-12 flex items-center">
+              <img src="/logo.png" alt="Deep Beauty" style={{ height: '48px', objectFit: 'contain' }} />
             </div>
-            <form className="flex gap-3">
-              <input 
-                type="email" 
-                placeholder="بريدك الإلكتروني"
-                className="flex-1 px-4 py-3 rounded-xl bg-surface-container-high text-on-surface placeholder:text-on-surface-variant/50 border-0 outline-none"
+            <p className="text-sm leading-relaxed" style={{ color: '#7a5e4f' }}>
+              ولدت في قلب الكويت بمهمة تقديم أرقى طقوس العناية بالبشرة إلى دول الخليج. نحن نجمع بين الحكمة العربية القديمة والعلوم الحديثة.
+            </p>
+          </div>
+
+          {/* Store links */}
+          <div>
+            <h5 className="font-bold mb-5 text-base" style={{ color: 'var(--text-dark)' }}>المتجر</h5>
+            <ul className="space-y-3 text-sm" style={{ color: '#7a5e4f' }}>
+              <li><Link href="/products?category=سيروم" className="hover:text-[#9C6644] transition-colors">سيروم</Link></li>
+              <li><Link href="/products?category=عناية+بالبشرة" className="hover:text-[#9C6644] transition-colors">عناية بالبشرة</Link></li>
+              <li><Link href="/products?category=مقشرات" className="hover:text-[#9C6644] transition-colors">مقشرات</Link></li>
+              <li><Link href="/products?category=تونر" className="hover:text-[#9C6644] transition-colors">تونر</Link></li>
+            </ul>
+          </div>
+
+          {/* Support links */}
+          <div>
+            <h5 className="font-bold mb-5 text-base" style={{ color: 'var(--text-dark)' }}>الدعم</h5>
+            <ul className="space-y-3 text-sm" style={{ color: '#7a5e4f' }}>
+              <li><Link href="/faq" className="hover:text-[#9C6644] transition-colors">الأسئلة الشائعة</Link></li>
+              <li><Link href="/shipping" className="hover:text-[#9C6644] transition-colors">الشحن والاسترجاع</Link></li>
+              <li><Link href="/privacy" className="hover:text-[#9C6644] transition-colors">سياسة الخصوصية</Link></li>
+              <li><Link href="/terms" className="hover:text-[#9C6644] transition-colors">شروط الخدمة</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Newsletter card */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm">
+          <h3 className="text-xl font-bold mb-2 text-center" style={{ color: 'var(--text-dark)' }}>
+            اشترك في النشرة البريدية
+          </h3>
+          <p className="text-sm text-center mb-6" style={{ color: '#7a5e4f' }}>
+            احصل على أحدث العروض والمنتجات الجديدة مباشرة في بريدك الإلكتروني.
+          </p>
+          {subscribed ? (
+            <div className="flex items-center justify-center gap-2 py-3">
+              <CheckCircleIcon className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--primary)' }} />
+              <span className="text-sm font-medium" style={{ color: 'var(--primary)' }}>تم الاشتراك بنجاح! شكراً لك.</span>
+            </div>
+          ) : (
+            <form className="flex gap-3 max-w-md mx-auto" onSubmit={handleSubscribe}>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="البريد الإلكتروني"
+                required
+                className="flex-1 px-4 py-3 rounded-xl border outline-none text-sm"
+                style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}
+                onFocus={e => (e.currentTarget.style.borderColor = 'var(--primary)')}
+                onBlur={e => (e.currentTarget.style.borderColor = 'var(--beige)')}
               />
-              <button 
+              <button
                 type="submit"
-                className="px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary-container transition-colors flex items-center gap-2"
+                className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-opacity hover:opacity-90"
+                style={{ background: 'var(--primary)' }}
+                aria-label="اشترك"
               >
-                اشترك
-                <ArrowLeftIcon className="w-4 h-4" />
+                <PaperAirplaneIcon className="w-5 h-5 text-white -rotate-45" />
               </button>
             </form>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          {/* Brand */}
-          <div className="md:col-span-1">
-            <h4 className="text-2xl font-headline mb-4">Deep Beauty</h4>
-            <p className="text-sm text-surface-variant leading-relaxed mb-6">
-              علم الجمال النباتي. حلول للعناية بالبشرة تحترم توازن الطبيعة وتقدم نتائج ملموسة.
-            </p>
-            <div className="flex gap-3">
-              <a href={instagram} target="_blank" rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-              </a>
-              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-primary transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-              </a>
-            </div>
-          </div>
-
-          {/* Links */}
-          <div>
-            <h5 className="font-bold mb-4">تسوق</h5>
-            <ul className="space-y-2 text-sm text-surface-variant">
-              <li><Link href="/products" className="hover:text-surface transition-colors">جميع المنتجات</Link></li>
-              <li><Link href="/products?category=العناية%20بالبشرة" className="hover:text-surface transition-colors">العناية بالبشرة</Link></li>
-              <li><Link href="/products?category=الشعر" className="hover:text-surface transition-colors">الشعر</Link></li>
-              <li><Link href="/products?category=الجسم" className="hover:text-surface transition-colors">الجسم</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 className="font-bold mb-4">الدعم</h5>
-            <ul className="space-y-2 text-sm text-surface-variant">
-              <li><Link href="/track" className="hover:text-surface transition-colors">تتبع الطلب</Link></li>
-              <li><Link href="/about" className="hover:text-surface transition-colors">من نحن</Link></li>
-              <li><Link href="/#contact" className="hover:text-surface transition-colors">تواصل معنا</Link></li>
-              <li><Link href="/faq" className="hover:text-surface transition-colors">الأسئلة الشائعة</Link></li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h5 className="font-bold mb-4">تواصل معنا</h5>
-            <ul className="space-y-3 text-sm text-surface-variant">
-              <li className="flex items-center gap-2">
-                <PhoneIcon className="w-4 h-4" />
-                <span dir="ltr">+965 2228 9182</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <EnvelopeIcon className="w-4 h-4" />
-                info@deepbeauty.com
-              </li>
-              <li className="flex items-center gap-2">
-                <MapPinIcon className="w-4 h-4" />
-                الكويت
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t border-outline-variant/20">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-surface-variant">
-            <p>© 2024 Deep Beauty. جميع الحقوق محفوظة.</p>
-            <div className="flex gap-6">
-              <Link href="/privacy" className="hover:text-surface transition-colors">سياسة الخصوصية</Link>
-              <Link href="/terms" className="hover:text-surface transition-colors">الشروط والأحكام</Link>
+      {/* Bottom bar */}
+      <div style={{ borderTop: '1px solid rgba(156,102,68,0.2)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-5">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 text-xs" style={{ color: '#9a7a6a' }}>
+            <p>جميع الحقوق محفوظة © 2024 Deep Beauty</p>
+            <div className="flex items-center gap-3">
+              <span className="font-bold tracking-wider text-sm" style={{ color: '#1a1f71' }}>VISA</span>
+              <span className="font-bold text-sm" style={{ color: '#eb001b' }}>MC</span>
+              <span className="font-bold text-sm" style={{ color: '#00a651' }}>K-net</span>
             </div>
           </div>
         </div>
