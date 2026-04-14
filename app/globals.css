@@ -157,6 +157,10 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(156, 102, 68, 0.1);
 }
+.input-field:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
 .input-field::placeholder { color: #9a8880; }
 
 /* ==============================
