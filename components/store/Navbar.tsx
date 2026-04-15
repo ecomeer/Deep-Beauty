@@ -81,95 +81,27 @@ export default function Navbar() {
           boxShadow: scrolled ? '0 4px 16px rgba(58,42,30,0.12)' : '0 1px 6px rgba(58,42,30,0.06)',
         }}
       >
-        <div
-          className="max-w-[var(--container-max)] mx-auto px-5 h-full flex items-center justify-between"
-          dir="ltr"
-        >
-          {/* ── LEFT: Actions ── */}
-          <div className="flex items-center gap-0.5">
-            {/* Hamburger (mobile) */}
-            <button
-              type="button"
-              aria-label={mobileOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
-              aria-expanded={mobileOpen}
-              aria-controls="mobile-menu"
-              className="md:hidden p-2 rounded-xl transition-colors hover:bg-[var(--beige)] text-[var(--text-dark)]"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              {mobileOpen
-                ? <XMarkIcon className="w-5 h-5" />
-                : <Bars3Icon className="w-5 h-5" />
-              }
-            </button>
+        {/* ── RTL-aware inner container — NO dir override ── */}
+        <div className="max-w-[var(--container-max)] mx-auto px-5 h-full flex items-center justify-between">
 
-            {/* Desktop: Search */}
-            <button
-              type="button"
-              aria-label="البحث"
-              aria-expanded={searchOpen}
-              className={`hidden md:flex p-2 rounded-xl transition-colors ${
-                searchOpen
-                  ? 'bg-[var(--beige)] text-[var(--primary)]'
-                  : 'hover:bg-[var(--beige)] text-[var(--text-dark)]'
-              }`}
-              onClick={() => setSearchOpen(!searchOpen)}
-            >
-              <MagnifyingGlassIcon className="w-5 h-5" />
-            </button>
-
-            {/* Desktop: Wishlist */}
-            <Link
-              href="/wishlist"
-              aria-label={`المفضلة${wishlistCount > 0 ? ` (${wishlistCount})` : ''}`}
-              className="hidden md:flex relative p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
-            >
-              <HeartIcon className="w-5 h-5" />
-              {wishlistCount > 0 && (
-                <span
-                  aria-hidden="true"
-                  className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center bg-rose-500 text-white leading-none"
-                >
-                  {wishlistCount > 9 ? '9+' : wishlistCount}
-                </span>
-              )}
-            </Link>
-
-            {/* Desktop: Account */}
-            <Link
-              href="/account"
-              aria-label="حسابي"
-              className="hidden md:flex p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
-            >
-              <UserIcon className="w-5 h-5" />
-            </Link>
-
-            {/* Cart — always visible */}
-            <button
-              type="button"
-              aria-label={`سلة التسوق${totalItems > 0 ? ` (${totalItems} منتجات)` : ''}`}
-              onClick={() => setIsOpen(true)}
-              className="relative p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
-            >
-              <ShoppingBagIcon className="w-5 h-5" />
-              {totalItems > 0 && (
-                <span
-                  aria-hidden="true"
-                  className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center text-white leading-none"
-                  style={{ background: 'var(--primary)' }}
-                >
-                  {totalItems > 9 ? '9+' : totalItems}
-                </span>
-              )}
-            </button>
-
-            {/* Country Selector */}
-            <div className="hidden md:block ms-1">
-              <CountrySelector />
-            </div>
-          </div>
+          {/* ── RIGHT (RTL start): Logo ── */}
+          <Link
+            href="/"
+            aria-label="الصفحة الرئيسية — Deep Beauty"
+            className="flex-shrink-0 flex items-center justify-center"
+          >
+            <Image
+              src="/logo.png"
+              alt="Deep Beauty"
+              width={56}
+              height={56}
+              priority
+              style={{ objectFit: 'contain', display: 'block' }}
+            />
+          </Link>
 
           {/* ── CENTER: Desktop Nav Links ── */}
-          <nav aria-label="روابط الموقع" className="hidden md:flex items-center gap-7 text-sm" dir="rtl">
+          <nav aria-label="روابط الموقع" className="hidden md:flex items-center gap-7 text-sm">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -191,24 +123,91 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* ── RIGHT: Logo ── */}
-          <Link
-            href="/"
-            aria-label="الصفحة الرئيسية — Deep Beauty"
-            className="flex-shrink-0 flex items-center justify-center"
-          >
-            <Image
-              src="/logo.png"
-              alt="Deep Beauty"
-              width={56}
-              height={56}
-              priority
-              style={{ objectFit: 'contain', display: 'block' }}
-            />
-          </Link>
+          {/* ── LEFT (RTL end): Actions ── */}
+          <div className="flex items-center gap-0.5">
+            {/* Country Selector (desktop) */}
+            <div className="hidden md:block me-1">
+              <CountrySelector />
+            </div>
+
+            {/* Desktop: Account */}
+            <Link
+              href="/account"
+              aria-label="حسابي"
+              className="hidden md:flex p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
+            >
+              <UserIcon className="w-5 h-5" />
+            </Link>
+
+            {/* Desktop: Wishlist */}
+            <Link
+              href="/wishlist"
+              aria-label={`المفضلة${wishlistCount > 0 ? ` (${wishlistCount})` : ''}`}
+              className="hidden md:flex relative p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
+            >
+              <HeartIcon className="w-5 h-5" />
+              {wishlistCount > 0 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-0.5 -left-0.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center bg-rose-500 text-white leading-none"
+                >
+                  {wishlistCount > 9 ? '9+' : wishlistCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Desktop: Search */}
+            <button
+              type="button"
+              aria-label="البحث"
+              aria-expanded={searchOpen}
+              className={`hidden md:flex p-2 rounded-xl transition-colors ${
+                searchOpen
+                  ? 'bg-[var(--beige)] text-[var(--primary)]'
+                  : 'hover:bg-[var(--beige)] text-[var(--text-dark)]'
+              }`}
+              onClick={() => setSearchOpen(!searchOpen)}
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
+            </button>
+
+            {/* Cart — always visible */}
+            <button
+              type="button"
+              aria-label={`سلة التسوق${totalItems > 0 ? ` (${totalItems} منتجات)` : ''}`}
+              onClick={() => setIsOpen(true)}
+              className="relative p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
+            >
+              <ShoppingBagIcon className="w-5 h-5" />
+              {totalItems > 0 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center text-white leading-none"
+                  style={{ background: 'var(--primary)' }}
+                >
+                  {totalItems > 9 ? '9+' : totalItems}
+                </span>
+              )}
+            </button>
+
+            {/* Hamburger (mobile only) */}
+            <button
+              type="button"
+              aria-label={mobileOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
+              className="md:hidden p-2 rounded-xl transition-colors hover:bg-[var(--beige)] text-[var(--text-dark)]"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen
+                ? <XMarkIcon className="w-5 h-5" />
+                : <Bars3Icon className="w-5 h-5" />
+              }
+            </button>
+          </div>
         </div>
 
-        {/* ── Search Bar (slides down) ── */}
+        {/* ── Search Bar (slides down, desktop only) ── */}
         {searchOpen && (
           <div className="hidden md:block border-t border-[var(--beige)] bg-white px-5 py-3">
             <form
@@ -247,9 +246,11 @@ export default function Navbar() {
       <aside
         id="mobile-menu"
         aria-label="القائمة المتنقلة"
-        className={`fixed top-[var(--nav-height)] inset-x-0 z-40 md:hidden transition-transform duration-300 ${
+        aria-hidden={!mobileOpen}
+        className={`fixed top-[var(--nav-height)] inset-x-0 z-40 md:hidden transition-transform duration-300 ease-in-out ${
           mobileOpen ? 'translate-y-0' : '-translate-y-full pointer-events-none'
         }`}
+        style={{ visibility: mobileOpen ? 'visible' : 'hidden' }}
       >
         <div className="bg-white shadow-xl border-b border-[var(--beige)] pb-4">
           {/* Search */}
@@ -287,7 +288,7 @@ export default function Navbar() {
                 }`}
               >
                 {link.label}
-                <ChevronDownIcon className="w-4 h-4 -rotate-90 opacity-40" />
+                <ChevronDownIcon className="w-4 h-4 rotate-90 opacity-40" />
               </Link>
             ))}
           </nav>

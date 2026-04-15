@@ -22,7 +22,7 @@ function FlashSaleBanner({ sale }: { sale: FlashSale }) {
   const pad = (n: number) => String(n).padStart(2, '0')
   return (
     <div className="flash-sale-bar">
-      <span className="flash-tag">⚡ عرض محدود</span>
+      <span className="flash-tag">عرض محدود</span>
       <span className="flash-title">{sale.name_ar} — خصم {sale.discount_percentage}%</span>
       <div className="flash-timer">
         {[{ v: pad(h), l: 'س' }, { v: pad(m), l: 'د' }, { v: pad(s), l: 'ث' }].map((u, i) => (
@@ -35,10 +35,10 @@ function FlashSaleBanner({ sale }: { sale: FlashSale }) {
 }
 
 const FEATURES = [
-  { icon: '🌿', title: 'طبيعي ١٠٠٪', desc: 'مكونات نقية خالية من الكيماويات الضارة' },
-  { icon: '🔬', title: 'مُختبر سريرياً', desc: 'آمن لجميع أنواع البشرة ومثبت علمياً' },
-  { icon: '🇰🇼', title: 'صُنع في الكويت', desc: 'بأيدٍ كويتية محلية بعناية واحتراف' },
-  { icon: '♻️', title: 'صديق للبيئة', desc: 'تغليف مستدام ومسؤول بيئياً' },
+  { icon: '✦', title: 'طبيعي ١٠٠٪', desc: 'مكونات نقية خالية من الكيماويات الضارة' },
+  { icon: '◈', title: 'مُختبر سريرياً', desc: 'آمن لجميع أنواع البشرة ومثبت علمياً' },
+  { icon: '◆', title: 'صُنع في الكويت', desc: 'بأيدٍ كويتية محلية بعناية واحتراف' },
+  { icon: '◇', title: 'صديق للبيئة', desc: 'تغليف مستدام ومسؤول بيئياً' },
 ]
 
 const REVIEWS = [
@@ -256,7 +256,7 @@ export default function HomeContent({ featuredProducts, activeFlashSale }: {
               <p className="ref-newsletter__sub">عروض حصرية ومنتجات جديدة مباشرة في بريدك الإلكتروني.</p>
             </div>
             {subscribed ? (
-              <div className="ref-newsletter__ok">✅ شكراً! ستصلك عروضنا قريباً.</div>
+              <div className="ref-newsletter__ok">شكراً! ستصلك عروضنا قريباً.</div>
             ) : (
               <form className="ref-newsletter__form" onSubmit={async (e) => {
                 e.preventDefault()

@@ -158,7 +158,7 @@ export default function ProductForm() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5">الفئة</label>
-              <select name="category" value={form.category} onChange={handleChange} className="input-field" title="اختر فئة المنتج">
+              <select name="category" value={form.category ?? ''} onChange={handleChange} className="input-field" title="اختر فئة المنتج">
                 <option value="">اختر الفئة</option>
                 {categories.map(c => <option key={c.id} value={c.name_ar}>{c.name_ar}</option>)}
               </select>

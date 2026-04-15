@@ -142,6 +142,33 @@ h1, h2, h3, h4, h5, h6 {
   transition: opacity 0.3s;
 }
 
+.product-card__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--beige);
+  color: var(--primary);
+  opacity: 0.4;
+}
+
+.cart-item__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--beige);
+  color: var(--primary);
+  opacity: 0.4;
+}
+
+.product-image__placeholder-icon {
+  color: var(--primary);
+  opacity: 0.35;
+}
+
 /* ==============================
    INPUTS
 ============================== */
@@ -290,6 +317,7 @@ h1, h2, h3, h4, h5, h6 {
   inset: 0;
   background: rgba(0,0,0,0.4);
   z-index: 50;
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 .cart-drawer {
@@ -519,7 +547,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .hp-hero__stats {
   display: flex; gap: 0; background: rgba(255,255,255,0.88);
-  backdrop-filter: blur(12px); border-top: 1px solid var(--beige);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid var(--beige);
   margin-top: auto;
 }
 .hp-stat {
