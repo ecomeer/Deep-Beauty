@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-6" style={{ background: 'var(--off-white)' }}>
       <div className="text-center">
-        <p className="text-8xl font-bold mb-4" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--primary)' }}>
+        <p className="text-8xl font-bold mb-4" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--primary)' }}>
           404
         </p>
         <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--text-dark)' }}>

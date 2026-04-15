@@ -78,7 +78,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
   return (
     <div className="mt-12 pt-12 border-t" style={{ borderColor: 'var(--beige)' }}>
-      <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+      <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
         تقييمات العملاء
       </h2>
 

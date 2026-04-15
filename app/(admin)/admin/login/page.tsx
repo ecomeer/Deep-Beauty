@@ -32,7 +32,7 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center -m-6" style={{ background: 'var(--beige)' }}>
       <div className="bg-white rounded-3xl p-10 w-full max-w-md shadow-xl text-center">
         <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-white font-bold font-en text-2xl mb-4" style={{ background: 'var(--primary)' }}>BD</div>
-        <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>Deep Beauty Admin</h1>
+        <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>Deep Beauty Admin</h1>
         <p className="text-sm opacity-60 mb-8">قم بتسجيل الدخول للوصول إلى لوحة التحكم</p>
 
         <form onSubmit={handleLogin} className="space-y-4 text-right">

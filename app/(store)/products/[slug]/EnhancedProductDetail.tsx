@@ -287,7 +287,7 @@ export default function EnhancedProductDetail() {
                       style={{ background: 'linear-gradient(135deg, var(--beige), var(--dark-beige))' }}
                     >
                       {img && (
-                        <Image src={img} alt="" fill className="object-cover" />
+                        <Image src={img} alt="" fill sizes="80px" className="object-cover" />
                       )}
                     </div>
                   </motion.button>
@@ -331,7 +331,7 @@ export default function EnhancedProductDetail() {
             <div>
               <h1
                 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-1"
-                style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+                style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
               >
                 {product.name_ar}
               </h1>
@@ -357,7 +357,7 @@ export default function EnhancedProductDetail() {
             <div className="flex items-baseline gap-3">
               <span
                 className="text-4xl md:text-5xl font-bold"
-                style={{ color: 'var(--primary)', fontFamily: 'Cormorant Garamond, serif' }}
+                style={{ color: 'var(--primary)', fontFamily: 'var(--font-cormorant), serif' }}
                 dir="ltr"
               >
                 {formatPrice(displayPrice)}
@@ -652,7 +652,7 @@ export default function EnhancedProductDetail() {
                 </p>
                 <h2
                   className="text-3xl font-bold"
-                  style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+                  style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
                 >
                   منتجات مشابهة
                 </h2>

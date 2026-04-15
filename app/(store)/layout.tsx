@@ -12,7 +12,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         <CountryProvider>
           <Toaster position="top-center" toastOptions={{
             style: {
-              fontFamily: 'Almarai, Tajawal, sans-serif',
+              fontFamily: 'var(--font-almarai), var(--font-tajawal), sans-serif',
               direction: 'rtl',
               borderRadius: '12px',
             }

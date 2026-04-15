@@ -62,7 +62,7 @@ function OrderSuccessContent() {
             <div className="absolute -top-1 -right-1 text-2xl animate-bounce">🎉</div>
           </div>
 
-          <h1 className="text-4xl font-bold mb-3" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+          <h1 className="text-4xl font-bold mb-3" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
             تم استلام طلبك بنجاح!
           </h1>
           <p className="opacity-70 leading-7" style={{ color: 'var(--text-dark)' }}>
@@ -120,7 +120,7 @@ function OrderSuccessContent() {
           </div>
         ) : order && order.order_items?.length > 0 && (
           <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
-            <h2 className="text-lg font-bold mb-4" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+            <h2 className="text-lg font-bold mb-4" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
               تفاصيل الطلب
             </h2>
             <div className="space-y-3 mb-4">
