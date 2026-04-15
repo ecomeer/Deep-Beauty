@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import { CheckCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 import { PaymentIconsRow } from './PaymentIcons'
@@ -93,10 +94,12 @@ export default function StitchFooter() {
           {/* ── Brand Column ── */}
           <div className="md:col-span-4">
             <div className="mb-5">
-              <img
+              <Image
                 src="/logo.png"
                 alt="Deep Beauty"
-                style={{ height: '80px', objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.9 }}
+                width={80}
+                height={80}
+                style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.9 }}
               />
             </div>
             <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.6)' }}>

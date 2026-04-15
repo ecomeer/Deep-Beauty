@@ -76,7 +76,7 @@ export default function WishlistPage() {
               >
                 <div className="relative aspect-square" style={{ background: 'var(--beige)' }}>
                   {item.image ? (
-                    <Image src={item.image} alt={item.name_ar} fill className="object-cover" />
+                    <Image src={item.image} alt={item.name_ar} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-6xl">🧴</div>
                   )}

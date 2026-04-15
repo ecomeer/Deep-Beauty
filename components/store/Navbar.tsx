@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   ShoppingBagIcon,
@@ -32,13 +33,21 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('')
   const pathname = usePathname()
 
+  const rafId = useRef<number | null>(null)
   const handleScroll = useCallback(() => {
-    setScrolled(window.scrollY > 10)
+    if (rafId.current !== null) return
+    rafId.current = requestAnimationFrame(() => {
+      setScrolled(window.scrollY > 10)
+      rafId.current = null
+    })
   }, [])
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafId.current !== null) cancelAnimationFrame(rafId.current)
+    }
   }, [handleScroll])
 
   // Close mobile menu on route change
@@ -188,10 +197,13 @@ export default function Navbar() {
             aria-label="الصفحة الرئيسية — Deep Beauty"
             className="flex-shrink-0 flex items-center justify-center"
           >
-            <img
+            <Image
               src="/logo.png"
               alt="Deep Beauty"
-              style={{ height: '56px', width: '56px', objectFit: 'contain', display: 'block' }}
+              width={56}
+              height={56}
+              priority
+              style={{ objectFit: 'contain', display: 'block' }}
             />
           </Link>
         </div>

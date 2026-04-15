@@ -283,7 +283,7 @@ function CategoriesSection({ categories }: { categories: Category[] }) {
       <div className="max-w-7xl mx-auto px-4">
         <motion.div variants={fadeInUp} className="text-center mb-12">
           <span className="text-[#9C6644] text-sm font-medium">تصفحي حسب الفئة</span>
-          <h2 className="text-3xl font-bold mt-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+          <h2 className="text-3xl font-bold mt-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
             تصفح حسب الفئة / استكشف مجموعتنا
           </h2>
         </motion.div>
@@ -357,7 +357,7 @@ function FeaturesSection() {
           className="text-center mb-16"
         >
           <span className="text-[#9C6644] text-sm font-medium">لماذا نحن مختلفون</span>
-          <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+          <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
             وعدنا لبشرتك
           </h2>
         </motion.div>
@@ -421,7 +421,7 @@ function NewsletterSection() {
           viewport={{ once: true }}
         >
           <span className="text-white/70 text-sm">ابقي على تواصل</span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2 mb-4" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
             اشتركي في نشرتنا البريدية
           </h2>
           <p className="text-white/70 mb-8 max-w-lg mx-auto">
@@ -480,7 +480,7 @@ function ExploreProductsSection({ products }: { products: Product[] }) {
       <div className="max-w-7xl mx-auto px-4">
         <motion.div variants={fadeInUp} className="text-center mb-10">
           <span className="text-[#9C6644] text-sm font-medium">تعرفي على منتجاتنا</span>
-          <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+          <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
             استكشفي منتجاتنا
           </h2>
         </motion.div>
@@ -524,7 +524,7 @@ function FeaturedProductsSection({ products }: { products: Product[] }) {
         <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
             <span className="text-[#9C6644] text-sm font-medium">مختارة بعناية</span>
-            <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+            <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
               منتجات مميزة
             </h2>
           </div>
@@ -566,7 +566,7 @@ function BestsellersSectionV2({ products }: { products: Product[] }) {
         <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
             <span className="text-[#9C6644] text-sm font-medium">الأكثر مبيعاً</span>
-            <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+            <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
               منتجات مختارة خصيصاً لك
             </h2>
           </div>
@@ -608,7 +608,7 @@ function MostRequestedSection({ products }: { products: Product[] }) {
         <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
             <span className="text-[#9C6644] text-sm font-medium">الطلبات اليومية</span>
-            <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+            <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
               المنتجات الأكثر طلباً
             </h2>
           </div>
@@ -747,7 +747,7 @@ function TestimonialsCarousel() {
           className="text-center mb-12"
         >
           <span className="text-[#9C6644] text-sm font-medium">آراء عملائنا</span>
-          <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+          <h2 className="text-3xl sm:text-4xl font-bold mt-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
             تقييمات العملاء
           </h2>
         </motion.div>

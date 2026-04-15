@@ -164,7 +164,7 @@ function HomeProductCard({ product, formatPrice }: { product: Product; formatPri
           )}
           <h3
             className="font-bold text-base leading-snug mb-1 line-clamp-2"
-            style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+            style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
           >
             {product.name_ar}
           </h3>
@@ -274,7 +274,7 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
               variants={stagger.item}
               className="leading-[1.05] font-bold"
               style={{
-                fontFamily: 'Cormorant Garamond, serif',
+                fontFamily: 'var(--font-cormorant), serif',
                 fontSize: 'clamp(3rem, 6vw, 5.5rem)',
                 color: 'var(--text-dark)',
               }}
@@ -332,7 +332,7 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
                 { val: '٣+', label: 'سنوات خبرة' },
               ].map(({ val, label }) => (
                 <div key={label}>
-                  <p className="text-2xl font-bold" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--primary)' }}>
+                  <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--primary)' }}>
                     {val}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>{label}</p>
@@ -392,7 +392,7 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
                   <HeartIcon className="w-5 h-5 text-[var(--primary)]" />
                 </div>
                 <div>
-                  <p className="text-xl font-bold" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--primary)' }}>+٥٠٠٠</p>
+                  <p className="text-xl font-bold" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--primary)' }}>+٥٠٠٠</p>
                   <p className="text-xs text-gray-400">عميلة سعيدة</p>
                 </div>
               </div>
@@ -455,7 +455,7 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
               </span>
               <h2
                 className="text-4xl md:text-5xl font-bold"
-                style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+                style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
               >
                 استكشفي مجموعاتنا
               </h2>
@@ -500,7 +500,7 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
                       )}
                       <h3
                         className="text-xl font-bold text-white leading-tight group-hover:text-[var(--primary-light)] transition-colors"
-                        style={{ fontFamily: 'Cormorant Garamond, serif' }}
+                        style={{ fontFamily: 'var(--font-cormorant), serif' }}
                       >
                         {cat.name_ar}
                       </h3>
@@ -529,7 +529,7 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
               </span>
               <h2
                 className="text-4xl md:text-5xl font-bold"
-                style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+                style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
               >
                 منتجاتنا المختارة
               </h2>
@@ -578,7 +578,7 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
             </span>
             <h2
               className="text-4xl md:text-5xl font-bold text-white"
-              style={{ fontFamily: 'Cormorant Garamond, serif' }}
+              style={{ fontFamily: 'var(--font-cormorant), serif' }}
             >
               ما يقولون عنا
             </h2>

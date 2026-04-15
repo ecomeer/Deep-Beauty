@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Tajawal:wght@300;400;500;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Arabic:wght@400;700&family=Manrope:wght@300;400;600&family=Almarai:wght@300;400;700&display=swap');
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════
@@ -64,18 +63,18 @@ html {
 }
 
 body {
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-tajawal), sans-serif;
   background-color: var(--off-white);
   color: var(--text-dark);
   overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
 }
 
 .font-en {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
 }
 
 /* ==============================
@@ -151,7 +150,7 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--dark-beige);
   background: white;
   color: var(--text-dark);
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-tajawal), sans-serif;
 }
 .input-field:focus {
   border-color: var(--primary);
@@ -179,14 +178,14 @@ h1, h2, h3, h4, h5, h6 {
    SECTION STYLES
 ============================== */
 .section-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 600;
   color: var(--text-dark);
   text-align: center;
 }
 .section-subtitle {
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-tajawal), sans-serif;
   color: #7a6055;
   text-align: center;
   font-size: 1rem;
@@ -377,7 +376,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar-logo {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -431,7 +430,7 @@ h1, h2, h3, h4, h5, h6 {
    FOOTER
 ============================== */
 .footer-logo {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -462,7 +461,7 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.88rem;
   background: var(--primary); color: white; transition: all 0.2s;
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-tajawal), sans-serif;
 }
 .hp-btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(156,102,68,0.3); }
 
@@ -510,7 +509,7 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 2rem;
 }
 .hp-hero__h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(3.2rem, 7vw, 6rem); font-weight: 600; line-height: 1.0;
   color: var(--text-dark); margin: 0;
 }
@@ -530,7 +529,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .hp-stat:last-child { border-left: none; }
 .hp-stat strong {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 1.6rem; font-weight: 700; color: var(--primary); line-height: 1;
 }
 .hp-stat span { font-size: 0.68rem; color: #7a6055; font-weight: 500; }
@@ -578,7 +577,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .hp-section__title-wrap { display: flex; flex-direction: column; }
 .hp-section__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 600;
   color: var(--text-dark); margin: 0;
 }
@@ -612,7 +611,7 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center; padding: 1.5rem;
 }
 .hp-editorial__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 600;
   color: white; margin: 0; line-height: 1.1;
 }
@@ -631,7 +630,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex; flex-direction: column; align-items: center;
 }
 .hp-about__badge strong {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 2rem; font-weight: 700; color: var(--primary); line-height: 1;
 }
 .hp-about__badge span { font-size: 0.7rem; color: #7a6055; margin-top: 3px; }
@@ -641,7 +640,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (max-width: 1023px) { .hp-about__text { padding: 3rem 1.5rem; } }
 .hp-about__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2.2rem, 4vw, 3.2rem); font-weight: 600;
   color: var(--text-dark); margin: 0;
 }
@@ -688,7 +687,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex; flex-direction: column; gap: 0.4rem; align-items: center;
 }
 .hp-reviews__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2rem, 4vw, 3rem); font-weight: 600; color: white; margin: 0;
 }
 .hp-reviews__grid {
@@ -725,7 +724,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (max-width: 768px) { .hp-newsletter__inner { grid-template-columns: 1fr; gap: 2rem; } }
 .hp-newsletter__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 600;
   color: var(--text-dark); margin: 0 0 0.5rem;
 }
@@ -767,7 +766,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .ref-hero__text { display: flex; flex-direction: column; gap: 1.25rem; }
 .ref-hero__h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(3rem, 6vw, 5rem); font-weight: 600;
   line-height: 1.05; color: var(--text-dark); margin: 0;
 }
@@ -787,7 +786,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .ref-stat { display: flex; flex-direction: column; gap: 0.2rem; }
 .ref-stat strong {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 1.5rem; font-weight: 700; color: var(--primary); line-height: 1;
 }
 .ref-stat span { font-size: 0.68rem; color: #7a6055; }
@@ -810,7 +809,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .ref-hero__badge-label { font-size: 0.62rem; opacity: 0.55; margin-bottom: 2px; }
 .ref-hero__badge-price {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 1.4rem; font-weight: 700; color: var(--primary); line-height: 1;
 }
 
@@ -824,7 +823,7 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column; align-items: center; text-align: center; gap: 0.4rem;
 }
 .ref-section-h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 600;
   color: var(--text-dark); margin: 0;
 }
@@ -863,7 +862,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 1023px) { .ref-about { grid-template-columns: 1fr; gap: 3rem; } }
 .ref-about__text { display: flex; flex-direction: column; gap: 1.25rem; }
 .ref-about__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2rem, 4vw, 3rem); font-weight: 600;
   color: var(--text-dark); margin: 0;
 }
@@ -937,7 +936,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (max-width: 768px) { .ref-newsletter__inner { grid-template-columns: 1fr; gap: 2rem; } }
 .ref-newsletter__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 600;
   color: var(--text-dark); margin: 0 0 0.5rem;
 }
@@ -1004,7 +1003,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--beige); color: var(--primary); width: fit-content;
 }
 .home-hero__h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(3rem, 6vw, 5.5rem);
   font-weight: 600; line-height: 1.05;
   color: var(--text-dark); margin: 0;
@@ -1033,7 +1032,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .home-stat { display: flex; flex-direction: column; }
 .home-stat strong {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 1.5rem; font-weight: 700; color: var(--primary);
 }
 .home-stat span { font-size: 0.7rem; opacity: 0.55; margin-top: 2px; }
@@ -1110,7 +1109,7 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column; align-items: center; text-align: center; gap: 0.5rem;
 }
 .home-section__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2rem, 4vw, 3rem); font-weight: 600;
   color: var(--text-dark); margin: 0;
 }
@@ -1148,7 +1147,7 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(40,25,15,0.55);
 }
 .home-lifestyle__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 600;
   color: white; margin: 0; line-height: 1.1;
 }
@@ -1173,7 +1172,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex; flex-direction: column;
 }
 .home-about__stat-card strong {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 2rem; font-weight: 700; color: var(--primary);
 }
 .home-about__stat-card span { font-size: 0.75rem; opacity: 0.6; margin-top: 2px; }
@@ -1183,7 +1182,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (max-width: 1023px) { .home-about__text { padding: 3rem 1.5rem; } }
 .home-about__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 600;
   color: var(--text-dark); margin: 0; line-height: 1.1;
 }
@@ -1222,7 +1221,7 @@ h1, h2, h3, h4, h5, h6 {
 .home-reviews { padding: 6rem 1.5rem; background: var(--text-dark); }
 .home-reviews__header { text-align: center; margin-bottom: 3rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: center; }
 .home-reviews__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(2rem, 4vw, 3rem); font-weight: 600; color: white; margin: 0;
 }
 .home-reviews__grid {
@@ -1262,7 +1261,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 768px) { .home-newsletter__inner { grid-template-columns: 1fr; gap: 2rem; } }
 .home-newsletter__text { display: flex; flex-direction: column; gap: 0.6rem; }
 .home-newsletter__h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 600;
   color: var(--text-dark); margin: 0;
 }

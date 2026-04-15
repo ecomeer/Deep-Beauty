@@ -46,7 +46,7 @@ export default function CartSidebar() {
         <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--beige)' }}>
           <div className="flex items-center gap-2">
             <ShoppingBagIcon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
-            <h2 className="text-lg font-bold" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+            <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
               سلة التسوق
             </h2>
             {items.length > 0 && (

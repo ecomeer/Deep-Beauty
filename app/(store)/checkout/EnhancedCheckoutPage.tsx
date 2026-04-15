@@ -327,7 +327,7 @@ export default function EnhancedCheckoutPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
                   المعلومات الشخصية
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -457,7 +457,7 @@ export default function EnhancedCheckoutPage() {
                 transition={{ delay: 0.1 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
                   عنوان التوصيل
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -498,7 +498,7 @@ export default function EnhancedCheckoutPage() {
                 transition={{ delay: 0.2 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
                   طريقة الدفع
                 </h2>
                 <div className="space-y-3">
@@ -582,7 +582,7 @@ export default function EnhancedCheckoutPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
                   ملخص الطلب
                 </h2>
                 

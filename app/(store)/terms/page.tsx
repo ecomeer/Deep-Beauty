@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-20">
-      <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}>
+      <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
         الشروط والأحكام
       </h1>
       <p className="text-sm opacity-50 mb-10">آخر تحديث: أبريل 2025</p>

@@ -9,7 +9,7 @@ export default function ShippingPage() {
     <main className="max-w-3xl mx-auto px-6 py-20">
       <h1
         className="text-4xl font-bold mb-2"
-        style={{ fontFamily: 'Cormorant Garamond, serif', color: 'var(--text-dark)' }}
+        style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
       >
         الشحن والاسترجاع
       </h1>

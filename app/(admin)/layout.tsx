@@ -15,7 +15,7 @@ export default function AdminLayout({
     <div className="flex min-h-screen bg-[#faf7f4]" dir="rtl">
       <Toaster position="top-center" toastOptions={{
         style: {
-          fontFamily: 'Tajawal, sans-serif',
+          fontFamily: 'var(--font-tajawal), sans-serif',
           direction: 'rtl',
           borderRadius: '12px',
         }
