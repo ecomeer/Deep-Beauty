@@ -15,22 +15,17 @@ function PaymentLogo({ src, alt, className = 'h-8' }: LogoProps) {
 }
 
 export function MastercardIcon({ className }: { className?: string }) {
-  return <PaymentLogo src="/payment/mastercard.svg" alt="Mastercard" className={className ?? 'h-8'} />
+  return <PaymentLogo src="/payments/mastercard.svg" alt="Mastercard" className={className ?? 'h-8'} />
 }
 
 export function VisaIcon({ className }: { className?: string }) {
-  return <PaymentLogo src="/payment/visa.svg" alt="Visa" className={className ?? 'h-8'} />
-}
-
-export function AmexIcon({ className }: { className?: string }) {
-  return <PaymentLogo src="/payment/amex.svg" alt="American Express" className={className ?? 'h-8'} />
+  return <PaymentLogo src="/payments/visa.svg" alt="Visa" className={className ?? 'h-8'} />
 }
 
 export function KNetIcon({ className }: { className?: string }) {
-  return <PaymentLogo src="/payment/knet.svg" alt="K-Net" className={className ?? 'h-8'} />
+  return <PaymentLogo src="/payments/knet.svg" alt="K-Net" className={className ?? 'h-8'} />
 }
 
-// kept for any import that references these
 export function ApplePayIcon({ className }: { className?: string }) {
   return <PaymentLogo src="/payments/apple-pay.svg" alt="Apple Pay" className={className ?? 'h-8'} />
 }
@@ -44,7 +39,7 @@ export function PaymentIconsRow({ className = '' }: { className?: string }) {
     >
       <MastercardIcon />
       <VisaIcon />
-      <AmexIcon />
+      <ApplePayIcon />
       <KNetIcon />
     </div>
   )

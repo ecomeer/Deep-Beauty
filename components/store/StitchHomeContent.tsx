@@ -584,41 +584,52 @@ export default function StitchHomeContent({ featuredProducts, categories, banner
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Mobile: horizontal scroll — Desktop: 3-col grid */}
+          <div className="flex md:grid md:grid-cols-3 gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none pb-4 md:pb-0 -mx-5 px-5 md:mx-0 md:px-0">
             {REVIEWS.map((review, i) => (
               <motion.div
                 key={review.name}
                 {...fadeUp}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="rounded-2xl p-6 transition-colors"
+                className="rounded-2xl p-6 transition-colors snap-start flex-shrink-0 w-[82vw] md:w-auto"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.12)',
                 }}
               >
+                {/* Quote mark */}
+                <div
+                  className="text-5xl font-serif leading-none mb-2 select-none"
+                  style={{ color: 'var(--primary)', lineHeight: 1 }}
+                  aria-hidden="true"
+                >
+                  "
+                </div>
+
                 {/* Stars */}
-                <div className="flex gap-0.5 mb-4">
+                <div className="flex gap-1 mb-3">
                   {Array.from({ length: review.rating }).map((_, j) => (
-                    <span key={j} className="text-amber-400 text-sm">★</span>
+                    <span key={j} className="text-amber-400 text-lg">★</span>
                   ))}
                 </div>
 
-                <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(255,255,255,0.75)' }}>
-                  "{review.text}"
+                <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(255,255,255,0.82)' }}>
+                  {review.text}
                 </p>
 
-                <div className="flex items-center gap-3 pt-4"
-                  style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
+                <div
+                  className="flex items-center gap-3 pt-4"
+                  style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}
                 >
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
+                    className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-white text-base flex-shrink-0"
                     style={{ background: 'var(--primary)' }}
                   >
                     {review.name[0]}
                   </div>
                   <div>
                     <p className="font-bold text-sm text-white">{review.name}</p>
-                    <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{review.city}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>{review.city}</p>
                   </div>
                 </div>
               </motion.div>
