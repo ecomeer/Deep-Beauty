@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
 import { PaymentIconsRow } from './PaymentIcons'
@@ -60,8 +59,7 @@ export default function Footer() {
               </div>
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white transition-all hover:opacity-90"
-                style={{ background: '#FF6B9D' }}
+                className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white transition-all hover:opacity-90 bg-[#FF6B9D]"
               >
                 <PaperAirplaneIcon className="w-5 h-5" />
                 <span className="sm:hidden">اشتراك</span>
@@ -76,7 +74,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <h2 className="text-3xl font-bold mb-4" style={{ color: '#FF6B9D' }}>بينكش</h2>
+            <h2 className="text-3xl font-bold mb-4 text-[#FF6B9D]">بينكش</h2>
             <p className="text-sm leading-7 text-gray-500 mb-6">
               ولدت بينكش في قلب الكويت بمهمة تقديم أرقى طقوس العناية بالبشرة إلى دول الخليج. نحن نجمع بين الحكمة والتقنية...
             </p>

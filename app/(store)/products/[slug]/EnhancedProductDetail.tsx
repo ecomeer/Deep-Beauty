@@ -23,9 +23,9 @@ import {
   MagnifyingGlassPlusIcon,
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolid, StarIcon } from '@heroicons/react/24/solid'
-import EnhancedProductCard from '@/components/store/EnhancedProductCard'
+import RelatedProductsSection from '@/components/store/RelatedProductsSection'
 import ProductReviews from '@/components/store/ProductReviews'
-import { PaymentIconsRow } from '@/components/store/PaymentIcons'
+
 import toast from 'react-hot-toast'
 
 // ─── Trust Features ────────────────────────────────────────────────────────
@@ -518,17 +518,6 @@ export default function EnhancedProductDetail() {
                 <ShareIcon className="w-6 h-6 text-[var(--on-surface-variant)]" />
               </motion.button>
             </div>
-
-            {/* Payment Methods */}
-            <div
-              className="pt-4 border-t"
-              style={{ borderColor: 'var(--beige)' }}
-            >
-              <p className="text-[11px] text-[var(--on-surface-variant)] uppercase tracking-wider font-semibold mb-2">
-                طرق الدفع المقبولة
-              </p>
-              <PaymentIconsRow />
-            </div>
           </motion.div>
         </div>
 
@@ -639,39 +628,7 @@ export default function EnhancedProductDetail() {
 
         {/* ─── Related Products ─── */}
         {related.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-16"
-          >
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <p className="text-xs uppercase tracking-widest font-semibold mb-1" style={{ color: 'var(--primary)' }}>
-                  قد يعجبك أيضاً
-                </p>
-                <h2
-                  className="text-3xl font-bold"
-                  style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
-                >
-                  منتجات مشابهة
-                </h2>
-              </div>
-              <Link
-                href="/products"
-                className="text-sm font-medium hover:underline"
-                style={{ color: 'var(--primary)' }}
-              >
-                عرض الكل
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-              {related.slice(0, 4).map((p, i) => (
-                <EnhancedProductCard key={p.id} product={p} index={i} />
-              ))}
-            </div>
-          </motion.section>
+          <RelatedProductsSection related={related} currentCategory={product.category} />
         )}
       </div>
     </div>

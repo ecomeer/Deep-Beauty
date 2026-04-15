@@ -543,30 +543,15 @@ export default function EnhancedCheckoutPage() {
                       <div className="font-bold text-sm mb-2" style={{ color: 'var(--text-dark)' }}>
                         الدفع الإلكتروني
                       </div>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {/* KNet */}
-                        <svg viewBox="0 0 60 36" className="h-6 rounded" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="60" height="36" rx="4" fill="#1B5FA8"/>
-                          <text x="7" y="25" fontSize="18" fontWeight="900" fill="#F5C400" fontFamily="Arial">K</text>
-                          <text x="24" y="25" fontSize="11" fontWeight="700" fill="white" fontFamily="Arial">net</text>
-                        </svg>
-                        {/* Visa */}
-                        <svg viewBox="0 0 60 36" className="h-6 rounded" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="60" height="36" rx="4" fill="white" stroke="#E5E7EB" strokeWidth="1"/>
-                          <text x="6" y="25" fontSize="16" fontWeight="900" fill="#1A1F71" fontFamily="Arial Narrow,Arial">VISA</text>
-                        </svg>
-                        {/* Mastercard */}
-                        <svg viewBox="0 0 60 36" className="h-6 rounded" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="60" height="36" rx="4" fill="white" stroke="#E5E7EB" strokeWidth="1"/>
-                          <circle cx="23" cy="18" r="10" fill="#EB001B"/>
-                          <circle cx="37" cy="18" r="10" fill="#F79E1B"/>
-                          <path d="M30 10a10 10 0 0 1 0 16 10 10 0 0 1 0-16z" fill="#FF5F00"/>
-                        </svg>
-                        {/* Apple Pay */}
-                        <svg viewBox="0 0 60 36" className="h-6 rounded" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="60" height="36" rx="4" fill="black"/>
-                          <text x="8" y="24" fontSize="12" fontWeight="600" fill="white" fontFamily="Arial"> Pay</text>
-                        </svg>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/payments/knet.svg"       alt="K-Net"      className="h-8 w-auto rounded shadow-sm object-contain" />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/payments/visa.svg"       alt="Visa"       className="h-8 w-auto rounded shadow-sm object-contain" />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/payments/mastercard.svg" alt="Mastercard" className="h-8 w-auto rounded shadow-sm object-contain" />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/payments/apple-pay.svg"  alt="Apple Pay"  className="h-8 w-auto rounded shadow-sm object-contain" />
                       </div>
                       <div className="text-xs opacity-60 mt-1">دفع إلكتروني آمن ومشفر</div>
                     </div>

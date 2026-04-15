@@ -57,9 +57,9 @@ export default async function HomePage() {
           .from('settings')
           .select('value')
           .eq('key', 'announcement_text')
-          .single(),
+          .maybeSingle(),
       ]),
-      5000
+      12000
     )
 
     featuredProducts = productsRes.data || []

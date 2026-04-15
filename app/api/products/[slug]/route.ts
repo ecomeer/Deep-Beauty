@@ -8,9 +8,9 @@ export async function GET(
 ) {
   const { slug } = await params
 
-  const [productRes, relatedRes, flashDiscount] = await Promise.all([
+  const [productRes, allProductsRes, flashDiscount] = await Promise.all([
     supabaseAdmin.from('products').select('*').eq('slug', slug).eq('is_active', true).single(),
-    supabaseAdmin.from('products').select('*').eq('is_active', true).limit(4),
+    supabaseAdmin.from('products').select('*').eq('is_active', true).limit(20),
     getActiveFlashDiscount(),
   ])
 
@@ -18,9 +18,13 @@ export async function GET(
     return NextResponse.json({ error: 'Product not found' }, { status: 404 })
 
   const product = productRes.data
-  const related = (relatedRes.data || [])
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4)
+  const allOthers = (allProductsRes.data || []).filter((p) => p.id !== product.id)
+
+  // Prefer same category, then fill with others
+  const sameCategory = allOthers.filter((p) => p.category === product.category)
+  const otherCategory = allOthers.filter((p) => p.category !== product.category)
+  const related = [...sameCategory, ...otherCategory]
+    .slice(0, 6)
     .map((p) => ({ ...p, sale_price: applyDiscount(p.price, flashDiscount) }))
 
   return NextResponse.json({

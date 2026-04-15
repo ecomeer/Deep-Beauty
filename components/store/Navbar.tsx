@@ -73,13 +73,9 @@ export default function Navbar() {
       {/* ─── Main Nav ─── */}
       <nav
         aria-label="التنقل الرئيسي"
-        className="fixed top-0 inset-x-0 z-40 transition-all duration-300"
-        style={{
-          height: 'var(--nav-height)',
-          background: 'var(--off-white)',
-          borderBottom: '2px solid var(--dark-beige)',
-          boxShadow: scrolled ? '0 4px 16px rgba(58,42,30,0.12)' : '0 1px 6px rgba(58,42,30,0.06)',
-        }}
+        className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 h-[var(--nav-height)] bg-[var(--off-white)] border-b-2 border-[var(--dark-beige)] ${
+          scrolled ? 'shadow-[0_4px_16px_rgba(58,42,30,0.12)]' : 'shadow-[0_1px_6px_rgba(58,42,30,0.06)]'
+        }`}
       >
         {/* ── RTL-aware inner container — NO dir override ── */}
         <div className="max-w-[var(--container-max)] mx-auto px-5 h-full flex items-center justify-between">
@@ -96,7 +92,7 @@ export default function Navbar() {
               width={56}
               height={56}
               priority
-              style={{ objectFit: 'contain', display: 'block' }}
+              className="object-contain block"
             />
           </Link>
 
@@ -114,10 +110,7 @@ export default function Navbar() {
               >
                 {link.label}
                 {isActive(link.href) && (
-                  <span
-                    className="absolute -bottom-0.5 inset-x-0 h-0.5 rounded-full"
-                    style={{ background: 'var(--primary)' }}
-                  />
+                  <span className="absolute -bottom-0.5 inset-x-0 h-0.5 rounded-full bg-[var(--primary)]" />
                 )}
               </Link>
             ))}
@@ -160,7 +153,7 @@ export default function Navbar() {
             <button
               type="button"
               aria-label="البحث"
-              aria-expanded={searchOpen}
+              aria-expanded={searchOpen ? 'true' : 'false'}
               className={`hidden md:flex p-2 rounded-xl transition-colors ${
                 searchOpen
                   ? 'bg-[var(--beige)] text-[var(--primary)]'
@@ -182,8 +175,7 @@ export default function Navbar() {
               {totalItems > 0 && (
                 <span
                   aria-hidden="true"
-                  className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center text-white leading-none"
-                  style={{ background: 'var(--primary)' }}
+                  className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center text-white leading-none bg-[var(--primary)]"
                 >
                   {totalItems > 9 ? '9+' : totalItems}
                 </span>
@@ -246,11 +238,10 @@ export default function Navbar() {
       <aside
         id="mobile-menu"
         aria-label="القائمة المتنقلة"
-        aria-hidden={!mobileOpen}
+        aria-hidden={mobileOpen ? 'false' : 'true'}
         className={`fixed top-[var(--nav-height)] inset-x-0 z-40 md:hidden transition-transform duration-300 ease-in-out ${
-          mobileOpen ? 'translate-y-0' : '-translate-y-full pointer-events-none'
+          mobileOpen ? 'translate-y-0 visible' : '-translate-y-full pointer-events-none invisible'
         }`}
-        style={{ visibility: mobileOpen ? 'visible' : 'hidden' }}
       >
         <div className="bg-white shadow-xl border-b border-[var(--beige)] pb-4">
           {/* Search */}

@@ -106,6 +106,7 @@ export default function ProductCard({ product, salePercentage }: Props) {
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
+                unoptimized={product.images[0].startsWith('http')}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-5xl" aria-hidden="true">🧴</div>
