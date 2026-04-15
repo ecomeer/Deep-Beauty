@@ -64,12 +64,13 @@ export default function Navbar() {
       {/* ─── Main Nav ─── */}
       <nav
         aria-label="التنقل الرئيسي"
-        className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
-          scrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-[var(--beige)]'
-            : 'bg-[var(--off-white)]'
-        }`}
-        style={{ height: 'var(--nav-height)' }}
+        className="fixed top-0 inset-x-0 z-40 transition-all duration-300"
+        style={{
+          height: 'var(--nav-height)',
+          background: 'var(--off-white)',
+          borderBottom: '2px solid var(--dark-beige)',
+          boxShadow: scrolled ? '0 4px 16px rgba(58,42,30,0.12)' : '0 1px 6px rgba(58,42,30,0.06)',
+        }}
       >
         <div
           className="max-w-[var(--container-max)] mx-auto px-5 h-full flex items-center justify-between"
@@ -185,13 +186,12 @@ export default function Navbar() {
           <Link
             href="/"
             aria-label="الصفحة الرئيسية — Deep Beauty"
-            className="flex-shrink-0 flex items-center justify-center overflow-hidden"
-            style={{ width: '140px', height: '52px' }}
+            className="flex-shrink-0 flex items-center justify-center"
           >
             <img
               src="/logo.png"
               alt="Deep Beauty"
-              style={{ width: '104px', height: '104px', objectFit: 'contain', flexShrink: 0 }}
+              style={{ height: '56px', width: '56px', objectFit: 'contain', display: 'block' }}
             />
           </Link>
         </div>
