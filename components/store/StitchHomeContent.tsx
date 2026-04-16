@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -233,9 +233,29 @@ export default function StitchHomeContent({
 }: Props) {
   const { formatPrice } = useCountry()
   const [heroIndex, setHeroIndex] = useState(0)
+  const touchStartX = useRef<number>(0)
 
   const heroSlides = banners.length > 0 ? banners : [null]
-  const currentSlide = heroSlides[heroIndex]
+
+  // Auto-advance every 4s
+  useEffect(() => {
+    if (heroSlides.length <= 1) return
+    const timer = setTimeout(() => {
+      setHeroIndex(i => (i + 1) % heroSlides.length)
+    }, 4000)
+    return () => clearTimeout(timer)
+  }, [heroIndex, heroSlides.length])
+
+  const goNext = () => setHeroIndex(i => (i + 1) % heroSlides.length)
+  const goPrev = () => setHeroIndex(i => (i - 1 + heroSlides.length) % heroSlides.length)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const delta = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(delta) > 50) delta > 0 ? goNext() : goPrev()
+  }
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--off-white)', paddingTop: 'var(--nav-height)' }}>
@@ -255,86 +275,53 @@ export default function StitchHomeContent({
       )}
 
       {/* ═══════════════════════════════════════
-          2. HERO SLIDER  (aspect 4:5)
+          2. HERO — SILENT SLIDER (pure image)
       ═══════════════════════════════════════ */}
       <section className="px-4 pt-4 pb-2">
         <div
           className="relative w-full rounded-[2rem] overflow-hidden"
           style={{ aspectRatio: '4/5' }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
-          {/* Background image / gradient */}
-          {(currentSlide as Banner | null)?.image_url ? (
-            <Image
-              src={(currentSlide as Banner).image_url}
-              alt={(currentSlide as Banner).title_ar}
-              fill
-              className="object-cover"
-              priority
-            />
-          ) : (
+          {/* Slides */}
+          {heroSlides.map((slide, i) => (
             <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(160deg, var(--beige) 0%, var(--dark-beige) 100%)' }}
-            />
-          )}
-
-          {/* Dark overlay */}
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(to top, rgba(30,18,8,0.70) 0%, rgba(30,18,8,0.15) 55%, transparent 100%)' }}
-          />
-
-          {/* Content */}
-          <div className="absolute inset-0 flex flex-col justify-end px-7 pb-14 text-right">
-            <motion.div
-              key={heroIndex}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: EASE }}
+              key={i}
+              className="absolute inset-0 transition-opacity duration-500"
+              style={{ opacity: i === heroIndex ? 1 : 0, pointerEvents: i === heroIndex ? 'auto' : 'none' }}
             >
-              <span
-                className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-3"
-                style={{ background: 'rgba(156,102,68,0.75)', color: 'white' }}
-              >
-                منتجات طبيعية ١٠٠٪
-              </span>
-              <h1
-                className="text-3xl font-bold text-white leading-snug mb-2"
-                style={{ fontFamily: 'var(--font-cormorant), serif' }}
-              >
-                {(currentSlide as Banner | null)?.title_ar || (
-                  <>جمالكِ يبدأ<br />من الأصل</>
-                )}
-              </h1>
-              <p className="text-sm text-white/75 mb-6 leading-relaxed">
-                {(currentSlide as Banner | null)?.subtitle_ar ||
-                  'منتجات عناية فاخرة مصنوعة من مكونات طبيعية مختارة'}
-              </p>
-              <Link
-                href={(currentSlide as Banner | null)?.link_url || '/products'}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white transition-all hover:opacity-90"
-                style={{ background: 'var(--primary)' }}
-              >
-                <ShoppingBagIcon className="w-4 h-4" />
-                تسوقي الآن
-              </Link>
-            </motion.div>
-          </div>
+              {(slide as Banner | null)?.image_url ? (
+                <Image
+                  src={(slide as Banner).image_url}
+                  alt={(slide as Banner).title_ar}
+                  fill
+                  className="object-cover"
+                  priority={i === 0}
+                />
+              ) : (
+                /* Fallback gradient — no text */
+                <div
+                  className="w-full h-full"
+                  style={{ background: 'linear-gradient(160deg, var(--beige) 0%, var(--dark-beige) 100%)' }}
+                />
+              )}
+            </div>
+          ))}
 
-          {/* Pagination dots */}
+          {/* Pagination dots — bottom center only */}
           {heroSlides.length > 1 && (
-            <div className="absolute bottom-5 inset-x-0 flex justify-center gap-2">
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
               {heroSlides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setHeroIndex(i)}
                   aria-label={`شريحة ${i + 1}`}
-                  className="transition-all rounded-full"
-                  style={{
-                    width: i === heroIndex ? '24px' : '8px',
-                    height: '8px',
-                    background: i === heroIndex ? 'white' : 'rgba(255,255,255,0.45)',
-                  }}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === heroIndex
+                      ? 'w-2 h-2 bg-white shadow-md'
+                      : 'w-2 h-2 bg-white/40'
+                  }`}
                 />
               ))}
             </div>
@@ -484,56 +471,60 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
-          6. MIDDLE BANNER
+          6. MIDDLE BANNER — SPLIT CARD
       ═══════════════════════════════════════ */}
-      {banners[1] ? (
-        <section className="px-4 py-4">
-          <Link href={banners[1].link_url || '/products'} className="block">
-            <div className="relative w-full rounded-[2rem] overflow-hidden" style={{ aspectRatio: '21/9' }}>
-              <Image
-                src={banners[1].image_url}
-                alt={banners[1].title_ar}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0" style={{ background: 'rgba(30,18,8,0.35)' }} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span
-                  className="text-lg font-bold text-white"
-                  style={{ fontFamily: 'var(--font-cormorant), serif' }}
-                >
-                  {banners[1].title_ar}
-                </span>
-              </div>
-            </div>
-          </Link>
-        </section>
-      ) : (
-        /* Decorative fallback banner */
-        <section className="px-4 py-4">
+      <section className="px-4 py-4">
+        <Link href={banners[1]?.link_url || '/products'} className="block">
           <div
-            className="relative w-full rounded-[2rem] overflow-hidden flex items-center justify-between px-8"
-            style={{ aspectRatio: '21/9', background: 'linear-gradient(135deg, var(--text-dark) 0%, #5c3d28 100%)' }}
+            className="w-full rounded-[2rem] overflow-hidden grid grid-cols-2"
+            style={{ minHeight: '160px', background: 'var(--text-dark)' }}
           >
-            <div className="text-right">
-              <p className="text-xs font-bold uppercase tracking-widest text-[var(--primary-light)] mb-1">عرض محدود</p>
+            {/* RIGHT col (RTL first): Text */}
+            <div className="p-5 text-right flex flex-col justify-center gap-2">
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest"
+                style={{ color: 'var(--primary-light)' }}
+              >
+                {banners[1] ? banners[1].title_ar.split(' ').slice(0, 2).join(' ') : 'عرض محدود'}
+              </span>
               <p
                 className="text-xl font-bold text-white leading-tight"
                 style={{ fontFamily: 'var(--font-cormorant), serif' }}
               >
-                خصم ٢٠٪<br />على السيروم
+                {banners[1]
+                  ? banners[1].title_ar.split(' ').slice(2).join(' ') || banners[1].title_ar
+                  : <>خصم ٢٠٪<br />على السيروم</>
+                }
               </p>
+              <span
+                className="inline-flex self-end items-center px-4 py-2 rounded-full text-xs font-bold text-white mt-1"
+                style={{ background: 'var(--primary)' }}
+              >
+                تسوقي الآن
+              </span>
             </div>
-            <Link
-              href="/products"
-              className="px-4 py-2 rounded-full text-xs font-bold text-white flex-shrink-0"
-              style={{ background: 'var(--primary)' }}
-            >
-              تسوقي
-            </Link>
+
+            {/* LEFT col: Image */}
+            <div className="relative overflow-hidden rounded-l-[2rem]" style={{ minHeight: '160px' }}>
+              {banners[1]?.image_url ? (
+                <Image
+                  src={banners[1].image_url}
+                  alt={banners[1].title_ar}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(160deg, var(--beige), var(--dark-beige))' }}
+                >
+                  <SparklesIcon className="w-10 h-10 opacity-30 text-[var(--primary)]" />
+                </div>
+              )}
+            </div>
           </div>
-        </section>
-      )}
+        </Link>
+      </section>
 
       {/* ═══════════════════════════════════════
           7. MORE PRODUCTS (rows 4-8)
