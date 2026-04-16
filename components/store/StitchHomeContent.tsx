@@ -280,7 +280,7 @@ export default function StitchHomeContent({
       <section className="px-4 pt-4 pb-2">
         <div
           className="relative w-full rounded-[2rem] overflow-hidden"
-          style={{ aspectRatio: '4/5' }}
+          style={{ aspectRatio: '16/9' }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
