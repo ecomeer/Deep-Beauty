@@ -66,9 +66,11 @@ const REVIEWS = [
 function MobileProductCard({
   product,
   formatPrice,
+  darkMode = false,
 }: {
   product: Product
   formatPrice: (p: number) => string
+  darkMode?: boolean
 }) {
   const { addItem } = useCartContext()
   const { isInWishlist, toggleItem } = useWishlistContext()
@@ -176,14 +178,21 @@ function MobileProductCard({
         <div className="text-right px-1">
           <h3
             className="font-bold text-sm leading-snug line-clamp-2 mb-1"
-            style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-tajawal), sans-serif' }}
+            style={{
+              color: darkMode ? 'rgba(255,255,255,0.92)' : 'var(--text-dark)',
+              fontFamily: 'var(--font-tajawal), sans-serif',
+            }}
           >
             {product.name_ar}
           </h3>
 
           {/* Price row */}
           <div className="flex items-baseline gap-2 justify-end mb-3">
-            <span className="text-base font-bold" style={{ color: 'var(--primary)' }} dir="ltr">
+            <span
+              className="text-base font-bold"
+              style={{ color: darkMode ? 'var(--primary-light)' : 'var(--primary)' }}
+              dir="ltr"
+            >
               {formatPrice(displayPrice)}
             </span>
             {comparePrice && comparePrice > displayPrice && (
@@ -235,12 +244,14 @@ export default function StitchHomeContent({
   const [heroIndex, setHeroIndex] = useState(0)
   const touchStartX = useRef<number>(0)
   const [bestsellers, setBestsellers] = useState<Product[]>([])
+  const [bestsellersLoading, setBestsellersLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/products/bestsellers?limit=8')
       .then(r => r.json())
       .then(d => { if (d.products) setBestsellers(d.products) })
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load bestsellers:', err))
+      .finally(() => setBestsellersLoading(false))
   }, [])
 
   const heroSlides = banners.length > 0 ? banners : [null]
@@ -265,6 +276,8 @@ export default function StitchHomeContent({
     if (Math.abs(delta) > 50) delta > 0 ? goNext() : goPrev()
   }
 
+  const activeCategories = categories.filter(c => c.is_active).slice(0, 6)
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--off-white)', paddingTop: 'var(--nav-height)' }}>
 
@@ -273,7 +286,7 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       {announcementText && (
         <div
-          className="py-2.5 px-4 text-center text-xs tracking-wide font-medium text-white"
+          className="py-2 px-4 text-center text-xs tracking-wide font-medium text-white"
           style={{ background: 'var(--text-dark)' }}
         >
           <span aria-hidden="true">✦</span>
@@ -285,7 +298,7 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           2. HERO — SILENT SLIDER (pure image)
       ═══════════════════════════════════════ */}
-      <section className="px-4 pt-4 pb-2">
+      <section className="px-4 pt-4 pb-3">
         <div
           className="relative w-full rounded-[2rem] overflow-hidden"
           style={{ aspectRatio: '16/9' }}
@@ -317,19 +330,26 @@ export default function StitchHomeContent({
             </div>
           ))}
 
-          {/* Pagination dots — bottom center only */}
+          {/* Gradient veil — bottom */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-16 pointer-events-none z-[1]"
+            style={{ background: 'linear-gradient(to top, rgba(58,42,30,0.18), transparent)' }}
+          />
+
+          {/* Pagination dots — pill for active */}
           {heroSlides.length > 1 && (
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10 items-center">
               {heroSlides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setHeroIndex(i)}
                   aria-label={`شريحة ${i + 1}`}
-                  className={`rounded-full transition-all duration-300 ${
+                  className="transition-all duration-300 bg-white rounded-full"
+                  style={
                     i === heroIndex
-                      ? 'w-2 h-2 bg-white shadow-md'
-                      : 'w-2 h-2 bg-white/40'
-                  }`}
+                      ? { width: 20, height: 8, opacity: 1 }
+                      : { width: 8, height: 8, opacity: 0.4 }
+                  }
                 />
               ))}
             </div>
@@ -338,49 +358,29 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
-          3. TRUST / FEATURE BAR
+          3. CATEGORY NAVIGATION (HORIZONTAL SCROLL)
       ═══════════════════════════════════════ */}
-      <section className="px-4 py-4">
-        <div className="grid grid-cols-2 gap-3">
-          {TRUST.map(({ Icon, title, desc }, i) => (
-            <motion.div
-              key={title}
-              {...fadeUp}
-              transition={{ duration: 0.45, delay: i * 0.07 }}
-              className="flex items-center gap-3 px-4 py-4 rounded-[2rem]"
-              style={{ background: 'white', boxShadow: 'var(--shadow-sm)' }}
-            >
-              <div
-                className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'var(--beige)' }}
-              >
-                <Icon className="w-5 h-5 text-[var(--primary)]" />
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-bold" style={{ color: 'var(--text-dark)' }}>{title}</p>
-                <p className="text-[11px]" style={{ color: 'var(--on-surface-variant)' }}>{desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════
-          4. CATEGORY NAVIGATION (CIRCULAR)
-      ═══════════════════════════════════════ */}
-      {categories.filter(c => c.is_active).length > 0 && (
+      {activeCategories.length > 0 && (
         <section className="py-6">
-          {/* Section heading */}
+          {/* Eyebrow + heading */}
           <div className="px-6 mb-5 flex items-center justify-between">
-            <h2
-              className="text-xl font-bold text-right"
-              style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-cormorant), serif' }}
-            >
-              استكشلي مجموعاتنا
-            </h2>
+            <div className="text-right">
+              <span
+                className="text-[10px] font-bold uppercase tracking-[0.14em] block mb-1"
+                style={{ color: 'var(--primary)' }}
+              >
+                تسوقي حسب الفئة
+              </span>
+              <h2
+                className="text-xl font-bold"
+                style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-cormorant), serif' }}
+              >
+                استكشفي مجموعاتنا
+              </h2>
+            </div>
             <Link
               href="/products"
-              className="flex items-center gap-1 text-xs font-semibold"
+              className="flex items-center gap-1 text-xs font-semibold flex-shrink-0"
               style={{ color: 'var(--primary)' }}
             >
               الكل
@@ -388,21 +388,27 @@ export default function StitchHomeContent({
             </Link>
           </div>
 
-          <div className="grid grid-cols-4 gap-4 px-6">
-            {categories.filter(c => c.is_active).slice(0, 4).map((cat, i) => (
+          {/* Horizontal scroll */}
+          <div
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            {activeCategories.map((cat, i) => (
               <motion.div
                 key={cat.id}
                 {...fadeUp}
                 transition={{ duration: 0.45, delay: i * 0.08 }}
+                className="flex-shrink-0 snap-start"
+                style={{ width: '28vw', maxWidth: 110 }}
               >
                 <Link
                   href={`/products?category=${encodeURIComponent(cat.slug)}`}
                   className="flex flex-col items-center gap-2 group"
                   aria-label={`تصفح فئة ${cat.name_ar}`}
                 >
-                  {/* Circular image */}
+                  {/* Circular image with hover ring */}
                   <div
-                    className="w-full aspect-square rounded-full overflow-hidden"
+                    className="w-full aspect-square rounded-full overflow-hidden ring-2 ring-transparent group-hover:ring-[var(--primary)] transition-all duration-300"
                     style={{ background: 'var(--beige)' }}
                   >
                     {cat.image_url ? (
@@ -434,20 +440,37 @@ export default function StitchHomeContent({
       )}
 
       {/* ═══════════════════════════════════════
-          5. FEATURED PRODUCTS GRID
+          4. FEATURED PRODUCTS SLIDER
       ═══════════════════════════════════════ */}
-      <section className="py-6">
-        {/* Section heading */}
-        <div className="px-6 mb-5 flex items-center justify-between">
-          <h2
-            className="text-xl font-bold text-right"
-            style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-cormorant), serif' }}
-          >
-            منتجاتنا المختارة
-          </h2>
+      <section className="py-8">
+        {/* Accent line */}
+        <div
+          className="mx-6 mb-5 h-px"
+          style={{ background: 'linear-gradient(to left, var(--primary), transparent)' }}
+        />
+
+        {/* Eyebrow + heading */}
+        <div className="px-6 mb-6 flex items-center justify-between">
+          <div className="text-right">
+            <span
+              className="text-[10px] font-bold uppercase tracking-[0.14em] block mb-1"
+              style={{ color: 'var(--primary)' }}
+            >
+              مختار بعناية
+            </span>
+            <h2
+              className="text-2xl font-bold"
+              style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-cormorant), serif' }}
+            >
+              منتجاتنا المختارة
+            </h2>
+            <p className="text-[12px] mt-0.5" style={{ color: 'var(--on-surface-variant)' }}>
+              أفضل ما لدينا من عناية بالبشرة
+            </p>
+          </div>
           <Link
             href="/products"
-            className="flex items-center gap-1 text-xs font-semibold"
+            className="flex items-center gap-1 text-xs font-semibold flex-shrink-0"
             style={{ color: 'var(--primary)' }}
           >
             عرض الكل
@@ -464,31 +487,39 @@ export default function StitchHomeContent({
             <p className="text-sm" style={{ color: 'var(--on-surface-variant)' }}>المنتجات تُضاف قريباً ✨</p>
           </div>
         ) : (
-          <div
-            className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-2"
-            style={{ scrollbarWidth: 'none' }}
-          >
-            {featuredProducts.slice(0, 8).map((product, i) => (
-              <div
-                key={product.id}
-                className="flex-shrink-0 snap-start"
-                style={{ width: '44vw', maxWidth: '200px' }}
-              >
-                <MobileProductCard product={product} formatPrice={formatPrice} />
-              </div>
-            ))}
+          /* Slider with right-side edge fade */
+          <div className="relative">
+            <div
+              className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-2"
+              style={{ scrollbarWidth: 'none' }}
+            >
+              {featuredProducts.slice(0, 8).map((product) => (
+                <div
+                  key={product.id}
+                  className="flex-shrink-0 snap-start"
+                  style={{ width: '44vw', maxWidth: '200px' }}
+                >
+                  <MobileProductCard product={product} formatPrice={formatPrice} />
+                </div>
+              ))}
+            </div>
+            {/* Edge fade — left side (RTL end) */}
+            <div
+              className="absolute inset-y-0 left-0 w-12 pointer-events-none"
+              style={{ background: 'linear-gradient(to left, var(--off-white), transparent)' }}
+            />
           </div>
         )}
       </section>
 
       {/* ═══════════════════════════════════════
-          6. MIDDLE BANNER — SPLIT CARD
+          5. MIDDLE BANNER — SPLIT CARD
       ═══════════════════════════════════════ */}
-      <section className="px-4 py-4">
+      <section className="px-4 py-6">
         <Link href={banners[1]?.link_url || '/products'} className="block">
           <div
             className="w-full rounded-[2rem] overflow-hidden grid grid-cols-2"
-            style={{ minHeight: '160px', background: 'var(--text-dark)' }}
+            style={{ minHeight: '180px', background: 'var(--text-dark)' }}
           >
             {/* RIGHT col (RTL first): Text */}
             <div className="p-5 text-right flex flex-col justify-center gap-2">
@@ -498,6 +529,8 @@ export default function StitchHomeContent({
               >
                 {banners[1] ? banners[1].title_ar.split(' ').slice(0, 2).join(' ') : 'عرض محدود'}
               </span>
+              {/* Thin accent line */}
+              <div className="w-8 h-px self-end" style={{ background: 'var(--primary)' }} />
               <p
                 className="text-xl font-bold text-white leading-tight"
                 style={{ fontFamily: 'var(--font-cormorant), serif' }}
@@ -508,15 +541,15 @@ export default function StitchHomeContent({
                 }
               </p>
               <span
-                className="inline-flex self-end items-center px-4 py-2 rounded-full text-xs font-bold text-white mt-1"
+                className="inline-flex self-end items-center gap-1 px-4 py-2 rounded-full text-xs font-bold text-white mt-1"
                 style={{ background: 'var(--primary)' }}
               >
-                تسوقي الآن
+                تسوقي الآن ←
               </span>
             </div>
 
             {/* LEFT col: Image */}
-            <div className="relative overflow-hidden rounded-l-[2rem]" style={{ minHeight: '160px' }}>
+            <div className="relative overflow-hidden rounded-l-[2rem]" style={{ minHeight: '180px' }}>
               {banners[1]?.image_url ? (
                 <Image
                   src={banners[1].image_url}
@@ -538,49 +571,111 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
-          7. BESTSELLERS SLIDER
+          6. BESTSELLERS SLIDER — DARK BACKGROUND
       ═══════════════════════════════════════ */}
-      {bestsellers.length > 0 && (
-        <section className="py-6">
-          <div className="px-6 mb-5 flex items-center justify-between">
-            <h2
-              className="text-xl font-bold text-right"
-              style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-cormorant), serif' }}
-            >
-              الأكثر مبيعاً
-            </h2>
+      {(bestsellersLoading || bestsellers.length > 0) && (
+        <section className="py-8" style={{ background: 'var(--text-dark)' }}>
+          {/* Eyebrow + heading */}
+          <div className="px-6 mb-6 flex items-center justify-between">
+            <div className="text-right">
+              <span
+                className="text-[10px] font-bold uppercase tracking-[0.14em] block mb-1"
+                style={{ color: 'var(--primary-light)' }}
+              >
+                الأعلى مبيعاً
+              </span>
+              <h2
+                className="text-2xl font-bold text-white"
+                style={{ fontFamily: 'var(--font-cormorant), serif' }}
+              >
+                الأكثر مبيعاً
+              </h2>
+            </div>
             <Link
               href="/products"
-              className="flex items-center gap-1 text-xs font-semibold"
-              style={{ color: 'var(--primary)' }}
+              className="flex items-center gap-1 text-xs font-semibold flex-shrink-0"
+              style={{ color: 'var(--primary-light)' }}
             >
               عرض الكل
               <ArrowLeftIcon className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div
-            className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-2"
-            style={{ scrollbarWidth: 'none' }}
-          >
-            {bestsellers.map((product) => (
-              <div
-                key={product.id}
-                className="flex-shrink-0 snap-start"
-                style={{ width: '44vw', maxWidth: '200px' }}
-              >
-                <MobileProductCard product={product} formatPrice={formatPrice} />
-              </div>
-            ))}
+
+          {/* Slider with edge fade */}
+          <div className="relative">
+            <div
+              className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-2"
+              style={{ scrollbarWidth: 'none' }}
+            >
+              {bestsellersLoading
+                ? Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex-shrink-0 snap-start animate-pulse"
+                      style={{ width: '44vw', maxWidth: '200px' }}
+                    >
+                      <div className="rounded-2xl aspect-[3/4] mb-3" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                      <div className="h-3 rounded w-3/4 mb-2" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                      <div className="h-3 rounded w-1/2" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    </div>
+                  ))
+                : bestsellers.map((product) => (
+                    <div
+                      key={product.id}
+                      className="flex-shrink-0 snap-start"
+                      style={{ width: '44vw', maxWidth: '200px' }}
+                    >
+                      <MobileProductCard product={product} formatPrice={formatPrice} darkMode />
+                    </div>
+                  ))}
+            </div>
+            {/* Edge fade matching dark bg */}
+            <div
+              className="absolute inset-y-0 left-0 w-12 pointer-events-none"
+              style={{ background: 'linear-gradient(to left, var(--text-dark), transparent)' }}
+            />
           </div>
         </section>
       )}
 
       {/* ═══════════════════════════════════════
+          7. TRUST BAR — HORIZONTAL SCROLL STRIP
+      ═══════════════════════════════════════ */}
+      <section className="py-6" style={{ background: 'white' }}>
+        {/* Subtle top divider */}
+        <div className="h-px mx-6 mb-5" style={{ background: 'var(--beige)' }} />
+
+        <div
+          className="flex gap-4 overflow-x-auto px-6"
+          style={{ scrollbarWidth: 'none' }}
+        >
+          {TRUST.map(({ Icon, title, desc }, i) => (
+            <motion.div
+              key={title}
+              {...fadeUp}
+              transition={{ duration: 0.45, delay: i * 0.07 }}
+              className="flex-shrink-0 flex flex-col items-center text-center gap-2"
+              style={{ width: '36vw', maxWidth: 150 }}
+            >
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                style={{ background: 'var(--beige)' }}
+              >
+                <Icon className="w-6 h-6 text-[var(--primary)]" />
+              </div>
+              <p className="text-xs font-bold" style={{ color: 'var(--text-dark)' }}>{title}</p>
+              <p className="text-[11px]" style={{ color: 'var(--on-surface-variant)' }}>{desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
           8. TESTIMONIALS
       ═══════════════════════════════════════ */}
-      <section className="py-8 mt-4" style={{ background: 'var(--text-dark)' }}>
-        <div className="px-6 mb-6 text-right">
-          <span className="text-xs font-bold uppercase tracking-widest text-[var(--primary-light)] block mb-2">
+      <section className="py-10" style={{ background: 'var(--text-dark)' }}>
+        <div className="px-6 mb-8 text-right">
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--primary-light)] block mb-2">
             آراء عملائنا
           </span>
           <h2
@@ -589,11 +684,15 @@ export default function StitchHomeContent({
           >
             ما يقولون عنا
           </h2>
+          {/* Decorative line */}
+          <div className="w-10 h-px mt-3 mr-auto" style={{ background: 'var(--primary)' }} />
         </div>
 
         {/* Horizontal scroll on mobile */}
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-4 scrollbar-none"
-          style={{ scrollbarWidth: 'none' }}>
+        <div
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-6"
+          style={{ scrollbarWidth: 'none' }}
+        >
           {REVIEWS.map((review, i) => (
             <motion.div
               key={review.name}
@@ -602,7 +701,7 @@ export default function StitchHomeContent({
               className="flex-shrink-0 w-[78vw] snap-start rounded-[2rem] p-5"
               style={{
                 background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.10)',
+                border: '1px solid rgba(255,255,255,0.15)',
               }}
             >
               {/* Stars */}
@@ -618,7 +717,7 @@ export default function StitchHomeContent({
 
               <div
                 className="flex items-center gap-3 pt-3 flex-row-reverse"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}
+                style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}
               >
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
