@@ -234,6 +234,14 @@ export default function StitchHomeContent({
   const { formatPrice } = useCountry()
   const [heroIndex, setHeroIndex] = useState(0)
   const touchStartX = useRef<number>(0)
+  const [bestsellers, setBestsellers] = useState<Product[]>([])
+
+  useEffect(() => {
+    fetch('/api/products/bestsellers?limit=8')
+      .then(r => r.json())
+      .then(d => { if (d.products) setBestsellers(d.products) })
+      .catch(() => {})
+  }, [])
 
   const heroSlides = banners.length > 0 ? banners : [null]
 
@@ -456,15 +464,18 @@ export default function StitchHomeContent({
             <p className="text-sm" style={{ color: 'var(--on-surface-variant)' }}>المنتجات تُضاف قريباً ✨</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 px-6">
-            {featuredProducts.slice(0, 6).map((product, i) => (
-              <motion.div
+          <div
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-2"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            {featuredProducts.slice(0, 8).map((product, i) => (
+              <div
                 key={product.id}
-                {...fadeUp}
-                transition={{ duration: 0.45, delay: i * 0.07 }}
+                className="flex-shrink-0 snap-start"
+                style={{ width: '44vw', maxWidth: '200px' }}
               >
                 <MobileProductCard product={product} formatPrice={formatPrice} />
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
@@ -527,27 +538,38 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
-          7. MORE PRODUCTS (rows 4-8)
+          7. BESTSELLERS SLIDER
       ═══════════════════════════════════════ */}
-      {featuredProducts.length > 6 && (
-        <section className="py-4">
-          <div className="px-6 mb-5">
+      {bestsellers.length > 0 && (
+        <section className="py-6">
+          <div className="px-6 mb-5 flex items-center justify-between">
             <h2
               className="text-xl font-bold text-right"
               style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-cormorant), serif' }}
             >
-              مزيد من المنتجات
+              الأكثر مبيعاً
             </h2>
+            <Link
+              href="/products"
+              className="flex items-center gap-1 text-xs font-semibold"
+              style={{ color: 'var(--primary)' }}
+            >
+              عرض الكل
+              <ArrowLeftIcon className="w-3.5 h-3.5" />
+            </Link>
           </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 px-6">
-            {featuredProducts.slice(6, 8).map((product, i) => (
-              <motion.div
+          <div
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-2"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            {bestsellers.map((product) => (
+              <div
                 key={product.id}
-                {...fadeUp}
-                transition={{ duration: 0.45, delay: i * 0.07 }}
+                className="flex-shrink-0 snap-start"
+                style={{ width: '44vw', maxWidth: '200px' }}
               >
                 <MobileProductCard product={product} formatPrice={formatPrice} />
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
