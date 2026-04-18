@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
 // GET - Fetch all shipping zones
 export async function GET(request: NextRequest) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const supabase = supabaseAdmin
     
@@ -22,6 +25,8 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new shipping zone
 export async function POST(request: NextRequest) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const body = await request.json()
     const supabase = supabaseAdmin
@@ -53,6 +58,8 @@ export async function POST(request: NextRequest) {
 
 // PATCH - Update shipping zone
 export async function PATCH(request: NextRequest) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const body = await request.json()
     const supabase = supabaseAdmin
@@ -77,6 +84,8 @@ export async function PATCH(request: NextRequest) {
 
 // DELETE - Delete shipping zone
 export async function DELETE(request: NextRequest) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

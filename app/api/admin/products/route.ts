@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { data, error } = await supabaseAdmin.from('products').select('*').order('created_at', { ascending: false })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ products: data || [] })
 }
 
 export async function POST(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const body = await req.json()
 
   const { data, error } = await supabaseAdmin

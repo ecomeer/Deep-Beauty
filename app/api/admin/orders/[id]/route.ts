@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { id } = await params
   const [orderRes, itemsRes, trackingRes] = await Promise.all([
     supabaseAdmin.from('orders').select('*').eq('id', id).single(),
@@ -13,6 +16,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { id } = await params
   const body = await req.json()
 

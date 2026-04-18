@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { data, error } = await supabaseAdmin
     .from('marketing_campaigns')
     .select('*')
@@ -12,6 +15,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   try {
     const body = await req.json()
     const { title, description, type, target_audience, content, scheduled_at, is_active } = body

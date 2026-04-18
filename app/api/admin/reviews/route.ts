@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
 export async function GET(request: NextRequest) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'all' // all, pending, approved
@@ -34,6 +37,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const body = await request.json()
     const { id, isApproved } = body
@@ -61,6 +66,8 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

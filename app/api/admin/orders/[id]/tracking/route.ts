@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
 // GET - Get tracking history for an order
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const { id } = await params
     const supabase = supabaseAdmin
@@ -30,6 +33,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const { id } = await params
     const body = await request.json()
@@ -75,6 +80,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const { id } = await params
     const body = await request.json()
@@ -110,6 +117,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const { id } = await params
     const { searchParams } = new URL(request.url)

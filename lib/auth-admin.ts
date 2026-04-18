@@ -1,32 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 /**
- * Middleware to require admin authentication for API routes.
- * Returns null if the user is an admin, or a NextResponse error otherwise.
+ * Verifies the request comes from an authenticated admin via session cookie.
+ * Returns null if admin, or a NextResponse error otherwise.
+ * Usage: const err = await requireAdmin(req); if (err) return err
  */
 export async function requireAdmin(req: NextRequest): Promise<NextResponse | null> {
   try {
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Missing or invalid authorization header' },
-        { status: 401 }
-      )
-    }
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return req.cookies.getAll() },
+          setAll() { /* read-only in API routes */ },
+        },
+      }
+    )
 
-    const token = authHeader.replace('Bearer ', '')
-
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
+    const { data: { user }, error } = await supabase.auth.getUser()
 
     if (error || !user) {
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user has admin role in profiles table
     const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
@@ -34,17 +33,11 @@ export async function requireAdmin(req: NextRequest): Promise<NextResponse | nul
       .single()
 
     if (!profile || profile.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 })
     }
 
-    return null // User is authenticated admin
+    return null
   } catch {
-    return NextResponse.json(
-      { error: 'Authentication failed' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Authentication failed' }, { status: 500 })
   }
 }

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
 export async function GET(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '50')
@@ -31,6 +34,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   try {
     const body = await req.json()
     const { email, name } = body

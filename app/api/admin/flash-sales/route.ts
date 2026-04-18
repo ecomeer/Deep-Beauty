@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { data, error } = await supabaseAdmin
     .from('flash_sales')
     .select('*')
@@ -12,6 +15,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   try {
     const body = await req.json()
     const { name_ar, discount_percentage, starts_at, ends_at, apply_to, is_active } = body
@@ -34,6 +39,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   try {
     const body = await req.json()
     const { id, ...updates } = body
@@ -53,6 +60,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 })

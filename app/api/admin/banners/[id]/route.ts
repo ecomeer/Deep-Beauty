@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { id } = await params
   const body = await req.json()
 
@@ -23,7 +26,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json({ data })
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   const { id } = await params
   const { error } = await supabaseAdmin.from('banners').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })

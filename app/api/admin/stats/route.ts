@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
 export async function GET(request: NextRequest) {
+  const _authErr = await requireAdmin(request)
+  if (_authErr) return _authErr
   try {
     const { searchParams } = new URL(request.url)
     const period = searchParams.get('period') || '7d' // 7d, 30d, 90d, 1y

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/auth-admin'
 
 export async function POST(req: NextRequest) {
+  const _authErr = await requireAdmin(req)
+  if (_authErr) return _authErr
   try {
     const subscription = await req.json()
     if (!subscription?.endpoint) {

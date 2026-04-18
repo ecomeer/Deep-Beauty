@@ -74,22 +74,36 @@ export default function AdminOrderDetail() {
     }
   }
 
-  const notifyCustomer = async () => {
+  const STATUS_MESSAGES: Record<string, string> = {
+    confirmed: 'تم تأكيد طلبك',
+    shipped: 'تم شحن طلبك وهو في الطريق إليك',
+    delivered: 'تم توصيل طلبك بنجاح، شكراً لتسوقك معنا! 💚',
+    cancelled: 'تم إلغاء طلبك. للاستفسار تواصل معنا.',
+  }
+
+  const notifyCustomer = async (statusOrMessage?: string) => {
+    const message = statusOrMessage
+      ? `مرحباً ${order.customer_name}، ${STATUS_MESSAGES[statusOrMessage] || statusOrMessage} — طلب رقم ${order.order_number} 🛍️`
+      : `تحديث طلب ${order.order_number}: ${trackingForm.status_label_ar} - ${trackingForm.description_ar || ''}`
+
     const res = await fetch(`/api/admin/orders/${order.id}/notify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'whatsapp',
-        message: `تحديث طلب ${order.order_number}: ${trackingForm.status_label_ar} - ${trackingForm.description_ar || ''}`,
-        status: trackingForm.status
-      }),
+      body: JSON.stringify({ type: 'whatsapp', message, status: statusOrMessage || trackingForm.status }),
     })
     if (res.ok) {
-      toast.success('تم إرسال الإشعار للعميل')
+      const data = await res.json()
+      if (data.whatsappUrl) {
+        window.open(data.whatsappUrl, '_blank')
+        toast.success('تم فتح WhatsApp لإرسال الإشعار للعميل')
+      } else {
+        toast.success('تم إرسال الإشعار')
+      }
     }
   }
 
   const updateStatus = async (newStatus: string) => {
+    if (!order) return
     const res = await fetch(`/api/admin/orders/${order.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -100,6 +114,8 @@ export default function AdminOrderDetail() {
     } else {
       toast.success('تم تحديث الطلب بنجاح')
       setOrder({ ...order, status: newStatus })
+      // Notify customer via WhatsApp automatically
+      notifyCustomer(newStatus)
     }
   }
 
