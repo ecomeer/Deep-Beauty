@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClientSupabase } from '@/lib/supabase-client'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
@@ -15,17 +15,24 @@ export default function AdminLogin() {
     e.preventDefault()
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      const supabase = createClientSupabase()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
-      toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
-    } else {
-      router.push('/admin/dashboard')
+      if (error) {
+        toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+        setLoading(false)
+        return
+      }
+
+      toast.success('تم تسجيل الدخول')
+      router.refresh()
+      // Hard navigation to ensure middleware re-evaluates with fresh cookies
+      window.location.href = '/admin/dashboard'
+    } catch {
+      toast.error('حدث خطأ أثناء تسجيل الدخول')
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

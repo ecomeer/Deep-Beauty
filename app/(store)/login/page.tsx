@@ -36,11 +36,20 @@ export default function LoginPage() {
       })
 
       if (error) {
-        toast.error('بيانات الدخول غير صحيحة')
+        const msg = error.message?.toLowerCase() ?? ''
+        if (msg.includes('email not confirmed')) {
+          toast.error('يرجى تأكيد بريدك الإلكتروني أولاً')
+        } else if (msg.includes('invalid login')) {
+          toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+        } else {
+          toast.error(error.message || 'بيانات الدخول غير صحيحة')
+        }
       } else {
         toast.success('تم تسجيل الدخول بنجاح! 🎉')
-        router.push('/account')
         router.refresh()
+        // Hard navigation so server components/middleware pick up fresh session cookie
+        window.location.href = '/account'
+        return
       }
     } catch {
       toast.error('حدث خطأ أثناء تسجيل الدخول')
