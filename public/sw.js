@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deep-beauty-v3'
+const CACHE_NAME = 'deep-beauty-v5'
 
 self.addEventListener('install', () => {
   self.skipWaiting()
