@@ -1,9 +1,30 @@
+import type { Metadata } from 'next'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { Product, Category } from '@/types'
 import ProductsClientShell from '@/components/store/ProductsClientShell'
 import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 
 export const revalidate = 120
+
+export const metadata: Metadata = {
+  title: 'منتجات العناية بالبشرة | متجر ديب بيوتي الكويت',
+  description: 'تسوقي أفضل منتجات العناية بالبشرة في الكويت — سيروم فيتامين C، كريم ترطيب، واقي شمس SPF، ومنتجات كورية أصلية. توصيل سريع لكل الكويت.',
+  keywords: 'منتجات عناية بالبشرة الكويت, سيروم فيتامين C الكويت, كريم ترطيب بشرة الكويت, واقي شمس SPF الكويت, منتجات كورية بشرة الكويت, تسوق عناية بشرة أونلاين الكويت',
+  alternates: { canonical: 'https://www.deepbeautykw.com/products' },
+  openGraph: {
+    title: 'منتجات العناية بالبشرة | Deep Beauty الكويت',
+    description: 'تسوقي أفضل منتجات العناية بالبشرة في الكويت — سيروم، كريم، واقي شمس، ومنتجات كورية أصلية.',
+    url: 'https://www.deepbeautykw.com/products',
+    type: 'website',
+    locale: 'ar_KW',
+    siteName: 'Deep Beauty',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'منتجات العناية بالبشرة | Deep Beauty',
+    description: 'تسوقي أفضل منتجات العناية بالبشرة في الكويت',
+  },
+}
 
 export default async function ProductsPage({
   searchParams,

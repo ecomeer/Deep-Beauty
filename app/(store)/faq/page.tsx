@@ -1,7 +1,9 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'الأسئلة الشائعة | Deep Beauty',
+  title: 'الأسئلة الشائعة | متجر ديب بيوتي الكويت',
+  description: 'إجابات على أكثر الأسئلة شيوعاً حول الشحن والدفع وإرجاع منتجات العناية بالبشرة في الكويت.',
+  alternates: { canonical: 'https://www.deepbeautykw.com/faq' },
 }
 
 const faqs = [

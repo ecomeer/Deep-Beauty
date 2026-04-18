@@ -10,8 +10,18 @@ import {
 } from '@heroicons/react/24/outline'
 
 export const metadata: Metadata = {
-  title: 'من نحن | Deep Beauty',
-  description: 'تعرفي على قصة ديب بيوتي — منتجات عناية فاخرة بالبشرة مصنوعة في الكويت من أجود المكونات الطبيعية.',
+  title: 'من نحن | متجر ديب بيوتي للعناية بالبشرة الكويت',
+  description: 'تعرفي على قصة ديب بيوتي — منتجات عناية فاخرة بالبشرة مصنوعة في الكويت من أجود المكونات الطبيعية 100%. جودة عالمية وخبرة +3 سنوات.',
+  keywords: 'ديب بيوتي, من نحن, متجر عناية بالبشرة الكويت, منتجات طبيعية الكويت',
+  alternates: { canonical: 'https://www.deepbeautykw.com/about' },
+  openGraph: {
+    title: 'من نحن | Deep Beauty الكويت',
+    description: 'قصة ديب بيوتي — منتجات عناية فاخرة بالبشرة من الكويت.',
+    url: 'https://www.deepbeautykw.com/about',
+    type: 'website',
+    locale: 'ar_KW',
+    siteName: 'Deep Beauty',
+  },
 }
 
 const STATS = [
