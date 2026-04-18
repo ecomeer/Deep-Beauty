@@ -1,66 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createServerClient } from '@supabase/ssr'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { name, email, phone, password } = body
+    const { name, email, phone, password } = await request.json()
 
     if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: 'Name, email and password are required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'الاسم والبريد وكلمة المرور مطلوبة' }, { status: 400 })
     }
 
-    const supabase = await createServerSupabaseClient()
+    const cookiesToSet: Array<{ name: string; value: string; options: Record<string, unknown> }> = []
 
-    // Create auth user
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll: () => request.cookies.getAll(),
+          setAll: (cookies) => { cookiesToSet.push(...cookies) },
+        },
+      }
+    )
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          name,
-          phone
-        }
-      }
+      options: { data: { name, phone } },
     })
 
     if (authError) {
-      return NextResponse.json(
-        { error: authError.message },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: authError.message }, { status: 400 })
     }
 
-    // Create profile in users table
     if (authData.user) {
       const { error: profileError } = await supabase
         .from('users')
-        .insert({
-          id: authData.user.id,
-          name,
-          email,
-          phone,
-          role: 'customer',
-          is_active: true
-        })
+        .insert({ id: authData.user.id, name, email, phone, role: 'customer', is_active: true })
 
       if (profileError) {
         console.error('Profile creation error:', profileError)
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       user: authData.user,
-      message: 'Registration successful. Please check your email to confirm your account.'
+      message: 'تم التسجيل بنجاح',
     }, { status: 201 })
-  } catch (error: any) {
-    console.error('Registration error:', error)
-    return NextResponse.json(
-      { error: 'An error occurred during registration' },
-      { status: 500 }
-    )
+
+    cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]))
+    return response
+  } catch {
+    return NextResponse.json({ error: 'حدث خطأ أثناء إنشاء الحساب' }, { status: 500 })
   }
 }
