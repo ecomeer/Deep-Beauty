@@ -1411,3 +1411,36 @@ html {
   position: relative;
   z-index: 2;
 }
+
+/* ==============================
+   ACCESSIBILITY — Focus Styles
+============================== */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ==============================
+   SKELETON LOADING
+============================== */
+.skeleton {
+  background: linear-gradient(90deg, var(--beige) 25%, var(--dark-beige) 50%, var(--beige) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ==============================
+   TYPOGRAPHY — Font Utilities
+============================== */
+.font-latin {
+  font-family: var(--font-cormorant), serif;
+}

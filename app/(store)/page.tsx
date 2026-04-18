@@ -70,12 +70,64 @@ export default async function HomePage() {
     console.error('Failed to fetch home data:', e)
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': 'https://www.deepbeautykw.com/#organization',
+        name: 'Deep Beauty',
+        url: 'https://www.deepbeautykw.com',
+        logo: 'https://www.deepbeautykw.com/icon-192.png',
+        description: 'متجر عناية فاخرة بالبشرة — منتجات طبيعية 100% من الكويت',
+        address: { '@type': 'PostalAddress', addressCountry: 'KW' },
+        sameAs: [
+          'https://instagram.com/deepbeautykw',
+          'https://tiktok.com/@deepbeautykw',
+          'https://snapchat.com/add/deepbeautykw',
+        ],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.deepbeautykw.com/#website',
+        url: 'https://www.deepbeautykw.com',
+        name: 'Deep Beauty | ديب بيوتي',
+        inLanguage: 'ar',
+        publisher: { '@id': 'https://www.deepbeautykw.com/#organization' },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://www.deepbeautykw.com/products?q={search_term_string}',
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'Store',
+        '@id': 'https://www.deepbeautykw.com/#store',
+        name: 'Deep Beauty',
+        url: 'https://www.deepbeautykw.com',
+        image: 'https://www.deepbeautykw.com/og-image.jpg',
+        description: 'متجر عناية فاخرة بالبشرة — منتجات طبيعية 100% مصنوعة في الكويت',
+        priceRange: '$$',
+        currenciesAccepted: 'KWD',
+        paymentAccepted: 'Credit Card, Debit Card, Apple Pay, K-Net',
+        address: { '@type': 'PostalAddress', addressCountry: 'KW', addressRegion: 'Kuwait' },
+        parentOrganization: { '@id': 'https://www.deepbeautykw.com/#organization' },
+      },
+    ],
+  }
+
   return (
-    <StitchHomeContent
-      featuredProducts={featuredProducts}
-      categories={categories}
-      banners={banners}
-      announcementText={announcementText}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <StitchHomeContent
+        featuredProducts={featuredProducts}
+        categories={categories}
+        banners={banners}
+        announcementText={announcementText}
+      />
+    </>
   )
 }

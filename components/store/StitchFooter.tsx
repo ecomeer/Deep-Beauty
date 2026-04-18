@@ -57,10 +57,10 @@ const SUPPORT_LINKS = [
 ]
 
 const SOCIAL = [
-  { href: 'https://instagram.com', label: 'انستغرام', Icon: IconInstagram },
-  { href: 'https://snapchat.com', label: 'سناب شات', Icon: IconSnapchat },
-  { href: 'https://wa.me', label: 'واتساب', Icon: IconWhatsApp },
-  { href: 'https://tiktok.com', label: 'تيك توك', Icon: IconTikTok },
+  { href: 'https://instagram.com/deepbeautykw', label: 'انستغرام', Icon: IconInstagram },
+  { href: 'https://snapchat.com/add/deepbeautykw', label: 'سناب شات', Icon: IconSnapchat },
+  { href: 'https://wa.me/96500000000', label: 'واتساب', Icon: IconWhatsApp },
+  { href: 'https://tiktok.com/@deepbeautykw', label: 'تيك توك', Icon: IconTikTok },
 ]
 
 export default function StitchFooter() {
@@ -142,9 +142,9 @@ export default function StitchFooter() {
 
           {/* ── Store Links ── */}
           <div className="md:col-span-2">
-            <h5 className="text-xs uppercase tracking-widest font-bold mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            <p className="text-xs uppercase tracking-widest font-bold mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>
               المتجر
-            </h5>
+            </p>
             <ul className="space-y-3">
               {STORE_LINKS.map(({ href, label }) => (
                 <li key={href}>
@@ -164,9 +164,9 @@ export default function StitchFooter() {
 
           {/* ── Support Links ── */}
           <div className="md:col-span-2">
-            <h5 className="text-xs uppercase tracking-widest font-bold mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            <p className="text-xs uppercase tracking-widest font-bold mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>
               الدعم
-            </h5>
+            </p>
             <ul className="space-y-3">
               {SUPPORT_LINKS.map(({ href, label }) => (
                 <li key={href}>
@@ -186,9 +186,9 @@ export default function StitchFooter() {
 
           {/* ── Newsletter ── */}
           <div className="md:col-span-4">
-            <h5 className="text-xs uppercase tracking-widest font-bold mb-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            <p className="text-xs uppercase tracking-widest font-bold mb-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
               النشرة البريدية
-            </h5>
+            </p>
             <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.55)' }}>
               احصلي على أحدث العروض والمنتجات الجديدة مباشرة في بريدك.
             </p>

@@ -25,14 +25,32 @@ const almarai = Almarai({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.deepbeautykw.com'),
   title: 'Deep Beauty | ديب بيوتي — جمالك يبدأ من الأعماق',
   description: 'متجر ديب بيوتي — عناية فاخرة بالبشرة مصنوعة في الكويت. منتجات طبيعية 100% للبشرة الصحية المشرقة.',
-  keywords: 'ديب بيوتي, عناية بالبشرة, الكويت, منتجات طبيعية, سيروم, مرطب, زيت وجه',
+  keywords: 'ديب بيوتي, عناية بالبشرة, الكويت, منتجات طبيعية, سيروم, مرطب, زيت وجه, كريم ترطيب بشرة الكويت, واقي شمس SPF الكويت',
+  alternates: { canonical: 'https://www.deepbeautykw.com' },
   openGraph: {
-    title: 'Deep Beauty | ديب بيوتي',
-    description: 'عناية فاخرة بالبشرة مصنوعة في الكويت',
+    title: 'Deep Beauty | ديب بيوتي — جمالك يبدأ من الأعماق',
+    description: 'عناية فاخرة بالبشرة مصنوعة في الكويت. منتجات طبيعية 100% للبشرة الصحية المشرقة.',
+    url: 'https://www.deepbeautykw.com',
+    siteName: 'Deep Beauty',
     locale: 'ar_KW',
     type: 'website',
+    images: [
+      {
+        url: 'https://www.deepbeautykw.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Deep Beauty — عناية فاخرة بالبشرة من الكويت',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Deep Beauty | ديب بيوتي',
+    description: 'عناية فاخرة بالبشرة مصنوعة في الكويت',
+    images: ['https://www.deepbeautykw.com/og-image.jpg'],
   },
 }
 

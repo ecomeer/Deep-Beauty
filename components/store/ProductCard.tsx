@@ -96,8 +96,8 @@ export default function ProductCard({ product, salePercentage }: Props) {
 
           {/* Image */}
           <div
-            className="relative overflow-hidden"
-            style={{ aspectRatio: '1/1', background: 'var(--beige)' }}
+            className="relative overflow-hidden aspect-[3/4]"
+            style={{ background: 'var(--beige)' }}
           >
             {product.images?.[0] ? (
               <Image
@@ -172,7 +172,7 @@ export default function ProductCard({ product, salePercentage }: Props) {
             </div>
 
             <h3
-              className="font-bold text-sm mb-2 leading-snug line-clamp-2"
+              className="font-bold text-sm mb-2 leading-snug line-clamp-2 min-h-[2.75rem]"
               style={{ color: 'var(--text-dark)' }}
             >
               {product.name_ar}

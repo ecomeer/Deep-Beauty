@@ -140,12 +140,12 @@ function MobileProductCard({
           {/* Badge — top right */}
           <div className="absolute top-3 right-3 flex flex-col gap-1.5">
             {discount > 0 && (
-              <span className="px-2.5 py-1 bg-red-500 text-white text-[11px] font-bold rounded-full shadow-sm">
+              <span className="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-full shadow-sm">
                 -{discount}٪
               </span>
             )}
             {product.is_featured && !discount && (
-              <span className="px-2.5 py-1 bg-amber-500 text-white text-[11px] font-bold rounded-full shadow-sm">
+              <span className="px-2.5 py-1 bg-amber-500 text-white text-xs font-bold rounded-full shadow-sm">
                 مميز ✨
               </span>
             )}
@@ -281,6 +281,9 @@ export default function StitchHomeContent({
   return (
     <div className="min-h-screen" style={{ background: 'var(--off-white)', paddingTop: 'var(--nav-height)' }}>
 
+      {/* Visually hidden H1 for SEO */}
+      <h1 className="sr-only">ديب بيوتي | متجر عناية فاخرة بالبشرة — منتجات طبيعية ١٠٠٪ من الكويت</h1>
+
       {/* ═══════════════════════════════════════
           1. ANNOUNCEMENT BAR
       ═══════════════════════════════════════ */}
@@ -296,12 +299,11 @@ export default function StitchHomeContent({
       )}
 
       {/* ═══════════════════════════════════════
-          2. HERO — SILENT SLIDER (pure image)
+          2. HERO — SLIDER WITH TEXT OVERLAY
       ═══════════════════════════════════════ */}
       <section className="px-4 pt-4 pb-3">
         <div
-          className="relative w-full rounded-[2rem] overflow-hidden"
-          style={{ aspectRatio: '16/9' }}
+          className="relative w-full rounded-[2rem] overflow-hidden aspect-[3/4] sm:aspect-[16/9]"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -321,24 +323,46 @@ export default function StitchHomeContent({
                   priority={i === 0}
                 />
               ) : (
-                /* Fallback gradient — no text */
                 <div
                   className="w-full h-full"
-                  style={{ background: 'linear-gradient(160deg, var(--beige) 0%, var(--dark-beige) 100%)' }}
+                  style={{ background: 'linear-gradient(160deg, var(--beige) 0%, var(--dark-beige) 60%, var(--primary) 100%)' }}
                 />
               )}
             </div>
           ))}
 
-          {/* Gradient veil — bottom */}
+          {/* Gradient veil — bottom two-thirds for text readability */}
           <div
-            className="absolute inset-x-0 bottom-0 h-16 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to top, rgba(58,42,30,0.18), transparent)' }}
+            className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none z-[1]"
+            style={{ background: 'linear-gradient(to top, rgba(30,18,10,0.80) 0%, rgba(30,18,10,0.35) 50%, transparent 100%)' }}
           />
 
-          {/* Pagination dots — pill for active */}
+          {/* Text overlay */}
+          <div className="absolute bottom-10 right-5 left-5 z-[2] text-right">
+            <h2
+              className="text-2xl sm:text-3xl font-bold text-white leading-tight mb-1.5"
+              style={{ fontFamily: 'var(--font-cormorant), serif', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}
+            >
+              {(heroSlides[heroIndex] as Banner | null)?.title_ar || 'جمالك يبدأ من الأعماق'}
+            </h2>
+            <p
+              className="text-xs text-white/80 mb-4"
+              style={{ textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}
+            >
+              {(heroSlides[heroIndex] as Banner | null)?.subtitle_ar || 'منتجات عناية طبيعية ١٠٠٪ من قلب الكويت'}
+            </p>
+            <Link
+              href={(heroSlides[heroIndex] as Banner | null)?.link_url || '/products'}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold text-white shadow-lg transition-all hover:opacity-90 active:scale-95"
+              style={{ background: 'var(--primary)' }}
+            >
+              تسوقي الآن ←
+            </Link>
+          </div>
+
+          {/* Pagination dots */}
           {heroSlides.length > 1 && (
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10 items-center">
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-[3] items-center">
               {heroSlides.map((_, i) => (
                 <button
                   key={i}
@@ -366,7 +390,7 @@ export default function StitchHomeContent({
           <div className="px-6 mb-5 flex items-center justify-between">
             <div className="text-right">
               <span
-                className="text-[10px] font-bold uppercase tracking-[0.14em] block mb-1"
+                className="text-xs font-bold uppercase tracking-[0.14em] block mb-1"
                 style={{ color: 'var(--primary)' }}
               >
                 تسوقي حسب الفئة
@@ -427,7 +451,7 @@ export default function StitchHomeContent({
                   </div>
                   {/* Label */}
                   <span
-                    className="text-[11px] font-semibold text-center leading-tight line-clamp-2"
+                    className="text-xs font-semibold text-center leading-tight line-clamp-2"
                     style={{ color: 'var(--text-dark)' }}
                   >
                     {cat.name_ar}
@@ -453,7 +477,7 @@ export default function StitchHomeContent({
         <div className="px-6 mb-6 flex items-center justify-between">
           <div className="text-right">
             <span
-              className="text-[10px] font-bold uppercase tracking-[0.14em] block mb-1"
+              className="text-xs font-bold uppercase tracking-[0.14em] block mb-1"
               style={{ color: 'var(--primary)' }}
             >
               مختار بعناية
@@ -524,7 +548,7 @@ export default function StitchHomeContent({
             {/* RIGHT col (RTL first): Text */}
             <div className="p-5 text-right flex flex-col justify-center gap-2">
               <span
-                className="text-[10px] font-bold uppercase tracking-widest"
+                className="text-xs font-bold uppercase tracking-widest"
                 style={{ color: 'var(--primary-light)' }}
               >
                 {banners[1] ? banners[1].title_ar.split(' ').slice(0, 2).join(' ') : 'عرض محدود'}
@@ -579,7 +603,7 @@ export default function StitchHomeContent({
           <div className="px-6 mb-6 flex items-center justify-between">
             <div className="text-right">
               <span
-                className="text-[10px] font-bold uppercase tracking-[0.14em] block mb-1"
+                className="text-xs font-bold uppercase tracking-[0.14em] block mb-1"
                 style={{ color: 'var(--primary-light)' }}
               >
                 الأعلى مبيعاً
@@ -645,17 +669,13 @@ export default function StitchHomeContent({
         {/* Subtle top divider */}
         <div className="h-px mx-6 mb-5" style={{ background: 'var(--beige)' }} />
 
-        <div
-          className="flex gap-4 overflow-x-auto px-6"
-          style={{ scrollbarWidth: 'none' }}
-        >
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6">
           {TRUST.map(({ Icon, title, desc }, i) => (
             <motion.div
               key={title}
               {...fadeUp}
               transition={{ duration: 0.45, delay: i * 0.07 }}
-              className="flex-shrink-0 flex flex-col items-center text-center gap-2"
-              style={{ width: '36vw', maxWidth: 150 }}
+              className="flex flex-col items-center text-center gap-2"
             >
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center"
@@ -664,7 +684,7 @@ export default function StitchHomeContent({
                 <Icon className="w-6 h-6 text-[var(--primary)]" />
               </div>
               <p className="text-xs font-bold" style={{ color: 'var(--text-dark)' }}>{title}</p>
-              <p className="text-[11px]" style={{ color: 'var(--on-surface-variant)' }}>{desc}</p>
+              <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>{desc}</p>
             </motion.div>
           ))}
         </div>
@@ -675,7 +695,7 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="py-10" style={{ background: 'var(--text-dark)' }}>
         <div className="px-6 mb-8 text-right">
-          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--primary-light)] block mb-2">
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary-light)] block mb-2">
             آراء عملائنا
           </span>
           <h2
@@ -727,7 +747,7 @@ export default function StitchHomeContent({
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-sm text-white">{review.name}</p>
-                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{review.city}</p>
+                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{review.city}</p>
                 </div>
               </div>
             </motion.div>
