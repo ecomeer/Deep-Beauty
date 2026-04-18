@@ -48,27 +48,29 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          password: form.password
-        })
+      const supabase = createClientSupabase()
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: { data: { name: form.name, phone: form.phone } },
       })
 
-      const data = await res.json()
-
-      if (res.ok) {
-        setStep('success')
-        setTimeout(() => {
-          router.push('/login')
-        }, 3000)
-      } else {
-        toast.error(data.error || 'حدث خطأ أثناء التسجيل')
+      if (authError) {
+        toast.error(authError.message || 'حدث خطأ أثناء التسجيل')
+        return
       }
+
+      // Create profile in users table
+      if (authData.user) {
+        await fetch('/api/auth/register-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: form.name, phone: form.phone }),
+        })
+      }
+
+      setStep('success')
+      setTimeout(() => { router.push('/login') }, 3000)
     } catch {
       toast.error('حدث خطأ أثناء التسجيل')
     } finally {

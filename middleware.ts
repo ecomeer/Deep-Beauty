@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
     const { data: profile } = await adminClient
-      .from('profiles')
+      .from('users')
       .select('role')
       .eq('id', user.id)
       .single()

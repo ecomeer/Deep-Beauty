@@ -29,19 +29,18 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+      const supabase = createClientSupabase()
+      const { error } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
       })
 
-      const data = await res.json()
-
-      if (res.ok) {
+      if (error) {
+        toast.error('بيانات الدخول غير صحيحة')
+      } else {
         toast.success('تم تسجيل الدخول بنجاح! 🎉')
         router.push('/account')
-      } else {
-        toast.error(data.error || 'بيانات الدخول غير صحيحة')
+        router.refresh()
       }
     } catch {
       toast.error('حدث خطأ أثناء تسجيل الدخول')
