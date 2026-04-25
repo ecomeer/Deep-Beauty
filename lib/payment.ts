@@ -16,6 +16,33 @@ export interface PaymentInitiateResponse {
 const MYFATOORAH_API_URL = process.env.MYFATOORAH_API_URL || 'https://api.myfatoorah.com/v2'
 const MYFATOORAH_TOKEN = process.env.MYFATOORAH_TOKEN
 
+function toNonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
+function extractOrderId(invoice: Record<string, unknown>): string | undefined {
+  const direct =
+    toNonEmptyString(invoice.CustomerReference) ??
+    toNonEmptyString(invoice.customerReference) ??
+    toNonEmptyString(invoice.CustomerReferenceNo)
+
+  if (direct) return direct
+
+  const userDefined =
+    toNonEmptyString(invoice.UserDefinedField) ??
+    toNonEmptyString(invoice.userDefinedField)
+
+  if (!userDefined) return undefined
+
+  if (userDefined.startsWith('orderId:')) {
+    return toNonEmptyString(userDefined.slice('orderId:'.length))
+  }
+
+  return userDefined
+}
+
 export async function initiatePayment(
   data: PaymentInitiateRequest
 ): Promise<PaymentInitiateResponse> {
@@ -37,6 +64,8 @@ export async function initiatePayment(
       CustomerName: data.customerName,
       CustomerMobile: data.customerPhone,
       CustomerEmail: data.customerEmail || '',
+      CustomerReference: data.orderId,
+      UserDefinedField: `orderId:${data.orderId}`,
       CallBackUrl: callbackUrl,
       ErrorUrl: errorUrl,
       Language: 'AR',
@@ -92,13 +121,14 @@ export async function verifyPayment(paymentId: string): Promise<{
     return { success: false }
   }
 
-  const invoice = result.Data
+  const invoice = result.Data as Record<string, unknown>
   const success = invoice.InvoiceStatus === 'Paid'
+  const orderId = extractOrderId(invoice)
 
   return {
     success,
-    orderId: invoice.CustomerReference,
-    amount: invoice.InvoiceValue,
-    paymentMethod: invoice.PaymentMethod,
+    orderId,
+    amount: typeof invoice.InvoiceValue === 'number' ? invoice.InvoiceValue : undefined,
+    paymentMethod: toNonEmptyString(invoice.PaymentMethod),
   }
 }

@@ -270,7 +270,6 @@ export default function EnhancedProductDetail() {
                 {images.map((img, i) => (
                   <motion.button
                     key={i}
-                    role="listitem"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { setSelectedImage(i); setIsZoomed(false) }}

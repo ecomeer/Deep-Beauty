@@ -13,12 +13,14 @@ export async function GET(request: Request) {
     
     // Get products with highest sales count or order count
     // First try to get from products table if there's a sales_count column
-    let { data: products, error } = await supabase
+    const { data: primaryProducts, error } = await supabase
       .from('products')
       .select('*')
       .eq('is_active', true)
       .order('sales_count', { ascending: false })
       .limit(limit)
+
+    let products = primaryProducts
 
     // If that fails or returns empty, fall back to featured products
     if (error || !products || products.length === 0) {

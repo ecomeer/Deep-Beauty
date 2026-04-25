@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyPayment } from '@/lib/payment'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { sendAdminPushNotification } from '@/lib/push-notifications'
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,14 +40,10 @@ export async function GET(request: NextRequest) {
         .single()
 
       if (order) {
-        await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: 'طلب جديد مدفوع! 💳',
-            body: `طلب #${order.order_number} من ${order.customer_name} - المبلغ: ${order.total} د.ك`,
-            url: `/admin/orders/${result.orderId}`
-          })
+        await sendAdminPushNotification({
+          title: 'طلب جديد مدفوع! 💳',
+          body: `طلب #${order.order_number} من ${order.customer_name} - المبلغ: ${order.total} د.ك`,
+          url: `/admin/orders/${result.orderId}`,
         })
       }
     } catch (notifError) {

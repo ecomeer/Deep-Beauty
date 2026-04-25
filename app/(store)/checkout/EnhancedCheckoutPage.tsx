@@ -544,13 +544,9 @@ export default function EnhancedCheckoutPage() {
                         الدفع الإلكتروني
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/payments/knet.svg"       alt="K-Net"      className="h-8 w-auto rounded shadow-sm object-contain" />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/payments/visa.svg"       alt="Visa"       className="h-8 w-auto rounded shadow-sm object-contain" />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/payments/mastercard.svg" alt="Mastercard" className="h-8 w-auto rounded shadow-sm object-contain" />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/payments/apple-pay.svg"  alt="Apple Pay"  className="h-8 w-auto rounded shadow-sm object-contain" />
                       </div>
                       <div className="text-xs opacity-60 mt-1">دفع إلكتروني آمن ومشفر</div>
