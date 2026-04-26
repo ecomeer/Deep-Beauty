@@ -31,15 +31,11 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin')
   const isLoginPage = pathname === '/admin/login'
 
-  // Role is on the JWT's app_metadata — no DB round-trip needed
+  // Deterministic check from JWT — no DB roundtrip, no flakiness, no loop.
   const isAdmin = user?.app_metadata?.role === 'admin'
 
   if (isAdminRoute && !isLoginPage) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/admin/login', request.url))
-    }
-    if (!isAdmin) {
-      // Non-admin: send to login. Don't touch cookies (Supabase SSR owns them).
+    if (!user || !isAdmin) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
     }
   }
