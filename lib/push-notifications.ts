@@ -49,6 +49,31 @@ export async function sendAdminPushNotification({
     })
   )
 
+  const staleEndpoints: string[] = []
+  results.forEach((result, i) => {
+    if (
+      result.status === 'rejected' &&
+      typeof result.reason === 'object' &&
+      result.reason !== null &&
+      'statusCode' in result.reason &&
+      (result.reason.statusCode === 410 || result.reason.statusCode === 404)
+    ) {
+      try {
+        const parsed = JSON.parse(subscriptions[i].subscription)
+        if (parsed?.endpoint) staleEndpoints.push(parsed.endpoint)
+      } catch {
+        // ignore parse errors
+      }
+    }
+  })
+
+  if (staleEndpoints.length > 0) {
+    await supabaseAdmin
+      .from('push_subscriptions')
+      .delete()
+      .in('endpoint', staleEndpoints)
+  }
+
   return {
     sent: results.filter((result) => result.status === 'fulfilled').length,
     total: subscriptions.length,
