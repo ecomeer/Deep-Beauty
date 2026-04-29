@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -31,7 +31,6 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin')
   const isLoginPage = pathname === '/admin/login'
 
-  // Deterministic check from JWT — no DB roundtrip, no flakiness, no loop.
   const isAdmin = user?.app_metadata?.role === 'admin'
 
   if (isAdminRoute && !isLoginPage) {

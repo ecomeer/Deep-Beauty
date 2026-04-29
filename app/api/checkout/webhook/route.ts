@@ -3,18 +3,21 @@ import { verifyPayment } from '@/lib/payment'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { sendAdminPushNotification } from '@/lib/push-notifications'
 
-export async function GET(request: NextRequest) {
+// MyFatoorah IPN webhook — called server-to-server when payment status changes.
+// MyFatoorah sends POST with { PaymentId: string } in the body.
+export async function POST(request: NextRequest) {
   try {
-    const paymentId = request.nextUrl.searchParams.get('paymentId')
+    const body = await request.json().catch(() => null)
+    const paymentId = body?.PaymentId ?? body?.paymentId
 
-    if (!paymentId) {
-      return NextResponse.redirect(new URL('/payment-failed?reason=missing_id', request.url))
+    if (!paymentId || typeof paymentId !== 'string') {
+      return NextResponse.json({ error: 'Missing PaymentId' }, { status: 400 })
     }
 
     const result = await verifyPayment(paymentId)
 
     if (!result.success || !result.orderId) {
-      return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
+      return NextResponse.json({ received: true, updated: false })
     }
 
     const { error } = await supabaseAdmin
@@ -25,13 +28,13 @@ export async function GET(request: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq('id', result.orderId)
+      .eq('payment_status', 'unpaid')
 
     if (error) {
-      console.error('Failed to update order:', error)
-      return NextResponse.redirect(new URL('/payment-failed?reason=database_error', request.url))
+      console.error('Webhook: failed to update order', error)
+      return NextResponse.json({ error: 'Database update failed' }, { status: 500 })
     }
 
-    // Send push notification for new order
     try {
       const { data: order } = await supabaseAdmin
         .from('orders')
@@ -46,13 +49,14 @@ export async function GET(request: NextRequest) {
           url: `/admin/orders/${result.orderId}`,
         })
       }
-    } catch (notifError) {
-      console.error('Failed to send push notification:', notifError)
+    } catch {
+      // Non-critical
     }
 
-    return NextResponse.redirect(new URL(`/order-success?id=${result.orderId}&paid=true`, request.url))
-  } catch (error) {
-    console.error('Payment callback error:', error)
-    return NextResponse.redirect(new URL('/payment-failed?reason=error', request.url))
+    return NextResponse.json({ received: true, updated: true })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Webhook processing error'
+    console.error('Webhook error:', message)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

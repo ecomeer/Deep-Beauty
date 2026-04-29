@@ -273,7 +273,13 @@ export default function StitchHomeContent({
   }
   const handleTouchEnd = (e: React.TouchEvent) => {
     const delta = touchStartX.current - e.changedTouches[0].clientX
-    if (Math.abs(delta) > 50) delta > 0 ? goNext() : goPrev()
+    if (Math.abs(delta) > 50) {
+      if (delta > 0) {
+        goNext()
+      } else {
+        goPrev()
+      }
+    }
   }
 
   const activeCategories = categories.filter(c => c.is_active).slice(0, 6)

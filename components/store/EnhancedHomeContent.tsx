@@ -799,7 +799,7 @@ function TestimonialsCarousel() {
                         <StarIcon key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
                       ))}
                     </div>
-                    <p className="text-gray-700 mb-6 leading-relaxed text-lg">"{review.text}"</p>
+                    <p className="text-gray-700 mb-6 leading-relaxed text-lg">&quot;{review.text}&quot;</p>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#9C6644] to-[#D4A574] flex items-center justify-center text-white font-bold text-lg">
                         {review.image}

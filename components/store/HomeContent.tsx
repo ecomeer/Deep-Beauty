@@ -232,7 +232,7 @@ export default function HomeContent({ featuredProducts, activeFlashSale }: {
             {REVIEWS.map((rv, i) => (
               <div key={i} className="ref-review">
                 <div className="ref-review__stars">★★★★★</div>
-                <p className="ref-review__text">"{rv.text}"</p>
+                <p className="ref-review__text">&quot;{rv.text}&quot;</p>
                 <div className="ref-review__author">
                   <div className="ref-review__av">{rv.name[0]}</div>
                   <div>
