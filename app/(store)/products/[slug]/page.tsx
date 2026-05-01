@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import EnhancedProductDetail from './EnhancedProductDetail'
 
 type Props = { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const supabase = await createServerSupabaseClient()
+  const supabase = supabaseAdmin
   const { data } = await supabase
     .from('products')
     .select('name_ar, description_ar, images')
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
-  const supabase = await createServerSupabaseClient()
+  const supabase = supabaseAdmin
   const { data } = await supabase
     .from('products')
     .select('name_ar, description_ar, images, price, sale_price, stock_quantity')

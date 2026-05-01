@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 const BASE_URL = 'https://www.deepbeautykw.com'
 
@@ -24,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let dynamicRoutes: MetadataRoute.Sitemap = []
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     const [{ data: products }, { data: categories }] = await Promise.all([
       supabase.from('products').select('slug, updated_at').eq('is_active', true),
       supabase.from('categories').select('slug, updated_at').eq('is_active', true),

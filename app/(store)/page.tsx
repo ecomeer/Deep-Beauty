@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import StitchHomeContent from '@/components/store/StitchHomeContent'
 import { Product, Category } from '@/types'
 
@@ -31,7 +31,7 @@ export default async function HomePage() {
   let announcementText = '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك'
 
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
 
     const [productsRes, categoriesRes, bannersRes, settingRes] = await withTimeout(
       Promise.all([

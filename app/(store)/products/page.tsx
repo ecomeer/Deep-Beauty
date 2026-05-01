@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { Product, Category } from '@/types'
 import ProductsClientShell from '@/components/store/ProductsClientShell'
 import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
@@ -36,7 +36,7 @@ export default async function ProductsPage({
   let categories: Category[] = []
 
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     const [prodsRes, catsRes, flashDiscount] = await Promise.race([
       Promise.all([
         supabase
