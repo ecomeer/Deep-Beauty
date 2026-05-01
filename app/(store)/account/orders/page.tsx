@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { 
+import {
   ChevronLeftIcon,
   TruckIcon,
   CheckCircleIcon,
@@ -13,7 +13,8 @@ import {
   ArrowPathIcon,
   EyeIcon,
   ShoppingBagIcon,
-  CubeIcon
+  CubeIcon,
+  NoSymbolIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -224,6 +225,26 @@ export default function OrdersPage() {
                         >
                           تتبع الطلب
                         </Link>
+                        {order.status === 'pending' && (
+                          <button
+                            onClick={async () => {
+                              if (!confirm('هل أنت متأكدة من إلغاء هذا الطلب؟')) return
+                              const r = await fetch(`/api/account/orders/${order.id}/cancel`, { method: 'POST' })
+                              const d = await r.json()
+                              if (r.ok) {
+                                toast.success('تم إلغاء الطلب')
+                                setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'cancelled' } : o))
+                                setSelectedOrder(null)
+                              } else {
+                                toast.error(d.error || 'تعذر الإلغاء')
+                              }
+                            }}
+                            className="flex items-center gap-1.5 px-4 py-3 border-2 border-red-200 text-red-500 rounded-xl font-bold hover:bg-red-50 transition-colors text-sm"
+                          >
+                            <NoSymbolIcon className="w-4 h-4" />
+                            إلغاء الطلب
+                          </button>
+                        )}
                         {order.status === 'delivered' && (
                           <button className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold hover:border-[#9C6644] hover:text-[#9C6644] transition-colors">
                             إعادة الطلب
