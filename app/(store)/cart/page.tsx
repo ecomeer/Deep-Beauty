@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useCartContext } from '@/context/CartContext'
 import { useCountry } from '@/context/CountryContext'
 import { TrashIcon, PlusIcon, MinusIcon, ShoppingBagIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
@@ -8,10 +9,27 @@ import Image from 'next/image'
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal } = useCartContext()
-  const { formatPrice } = useCountry()
-  const SHIPPING_COST = 1.5
-  const FREE_SHIPPING = 20
-  const shipping = subtotal >= FREE_SHIPPING ? 0 : SHIPPING_COST
+  const { formatPrice, countryConfig } = useCountry()
+  const [shippingCost, setShippingCost] = useState(0)
+  const [freeThreshold, setFreeThreshold] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/shipping/calculate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ countryCode: countryConfig.code, subtotalKWD: subtotal }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setShippingCost(data.cost ?? 0)
+          setFreeThreshold(data.freeThresholdKWD ?? null)
+        }
+      })
+      .catch(() => {})
+  }, [countryConfig.code, subtotal])
+
+  const shipping = freeThreshold !== null && subtotal >= freeThreshold ? 0 : shippingCost
   const total = subtotal + shipping
 
   if (items.length === 0) return (
@@ -86,28 +104,29 @@ export default function CartPage() {
                   {shipping === 0 ? 'مجاني 🎉' : formatPrice(shipping)}
                 </span>
               </div>
-              {/* Free shipping progress bar */}
-              <div>
-                <div className="flex justify-between text-xs mb-1.5 text-primary">
-                  {subtotal >= FREE_SHIPPING ? (
-                    <span className="font-bold">🎉 حصلتِ على شحن مجاني!</span>
-                  ) : (
-                    <>
-                      <span>أضيفي {formatPrice(FREE_SHIPPING - subtotal)} للشحن المجاني</span>
-                      <span>{Math.round((subtotal / FREE_SHIPPING) * 100)}%</span>
-                    </>
-                  )}
+              {freeThreshold !== null && (
+                <div>
+                  <div className="flex justify-between text-xs mb-1.5 text-primary">
+                    {subtotal >= freeThreshold ? (
+                      <span className="font-bold">🎉 حصلتِ على شحن مجاني!</span>
+                    ) : (
+                      <>
+                        <span>أضيفي {formatPrice(freeThreshold - subtotal)} للشحن المجاني</span>
+                        <span>{Math.round((subtotal / freeThreshold) * 100)}%</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="w-full h-2 rounded-full overflow-hidden bg-surface-container">
+                    <div
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.min((subtotal / freeThreshold) * 100, 100)}%`,
+                        background: subtotal >= freeThreshold ? '#22c55e' : '#6f4627',
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full h-2 rounded-full overflow-hidden bg-surface-container">
-                  <div
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.min((subtotal / FREE_SHIPPING) * 100, 100)}%`,
-                      background: subtotal >= FREE_SHIPPING ? '#22c55e' : '#6f4627',
-                    }}
-                  />
-                </div>
-              </div>
+              )}
               <div className="pt-3 border-t border-outline-variant flex justify-between text-base font-bold text-on-surface">
                 <span>الإجمالي</span>
                 <span className="text-primary">{formatPrice(total)}</span>

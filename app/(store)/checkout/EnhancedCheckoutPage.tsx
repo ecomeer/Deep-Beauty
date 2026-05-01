@@ -58,6 +58,29 @@ export default function EnhancedCheckoutPage() {
   const [accountPassword, setAccountPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  // Shipping from admin zones
+  const [shippingCost, setShippingCost] = useState(0)
+  const [freeThreshold, setFreeThreshold] = useState<number | null>(null)
+  const [shippingLoading, setShippingLoading] = useState(true)
+
+  useEffect(() => {
+    setShippingLoading(true)
+    fetch('/api/shipping/calculate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ countryCode: countryConfig.code, subtotalKWD: subtotal }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setShippingCost(data.cost ?? 0)
+          setFreeThreshold(data.freeThresholdKWD ?? null)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setShippingLoading(false))
+  }, [countryConfig.code, subtotal])
+
   // Check if user is logged in
   useEffect(() => {
     checkAuth()
@@ -83,14 +106,6 @@ export default function EnhancedCheckoutPage() {
     }
   }
 
-  // Shipping costs based on country
-  const SHIPPING_COSTS: Record<string, number> = {
-    'KW': 0, 'SA': 2.5, 'AE': 2.5, 'QA': 3, 'BH': 2.5, 'OM': 3.5
-  }
-  const FREE_SHIPPING_THRESHOLDS: Record<string, number | null> = {
-    'KW': null, 'SA': 50, 'AE': 50, 'QA': 50, 'BH': 50, 'OM': 60
-  }
-  
   const countryCode = countryConfig.code
 
   // Reset area when country changes
@@ -98,9 +113,7 @@ export default function EnhancedCheckoutPage() {
     setForm(prev => ({ ...prev, address_area: '' }))
   }, [countryCode])
 
-  const shippingCost = SHIPPING_COSTS[countryCode] ?? 2.5
-  const freeThreshold = FREE_SHIPPING_THRESHOLDS[countryCode]
-  const shipping = freeThreshold && subtotal >= freeThreshold ? 0 : shippingCost
+  const shipping = freeThreshold !== null && subtotal >= freeThreshold ? 0 : shippingCost
   const total = subtotal + shipping - couponDiscount
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

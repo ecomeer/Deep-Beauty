@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 
-// Public endpoint — order UUID is unguessable (128-bit), used by order-success page
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
+
+  const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   const { data, error } = await supabaseAdmin
     .from('orders')
@@ -33,6 +36,18 @@ export async function GET(
 
   if (error || !data) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+  }
+
+  // Logged-in users can only see their own orders
+  if (user) {
+    const { data: orderOwner } = await supabaseAdmin
+      .from('orders')
+      .select('user_id')
+      .eq('id', id)
+      .single()
+    if (orderOwner?.user_id && orderOwner.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
   }
 
   return NextResponse.json({ order: data })
