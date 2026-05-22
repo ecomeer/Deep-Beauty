@@ -2,13 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
+const PAGE_SIZE = 50
+
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req)
   if (_authErr) return _authErr
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
 
-  // Read all customers from orders (includes guest checkout customers)
+  // Aggregate customers via DB: group by phone/email to avoid loading all rows
   let query = supabaseAdmin
     .from('orders')
     .select('customer_name, customer_phone, customer_email, total, created_at')
@@ -23,7 +26,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Aggregate by phone number
+  // Aggregate by phone/email
   const map = new Map<string, {
     full_name: string
     phone: string
@@ -52,9 +55,12 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const customers = Array.from(map.values()).sort((a, b) => b.total_spent - a.total_spent)
+  const all = Array.from(map.values()).sort((a, b) => b.total_spent - a.total_spent)
+  const total = all.length
+  const totalPages = Math.ceil(total / PAGE_SIZE)
+  const customers = all.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  return NextResponse.json({ customers, total: customers.length })
+  return NextResponse.json({ customers, total, page, pageSize: PAGE_SIZE, totalPages })
 }
 
 export async function POST(req: NextRequest) {

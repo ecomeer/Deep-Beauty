@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Product, Category } from '@/types'
 import { toArabicPrice } from '@/lib/utils'
 import Link from 'next/link'
-import Image from 'next/image'
 import { MagnifyingGlassIcon, PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -15,79 +14,72 @@ export default function AdminProducts() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [stockFilter, setStockFilter] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  const fetchProducts = useCallback(async () => {
-    try {
-      const res = await fetch('/api/admin/products')
-      if (!res.ok) throw new Error(`${res.status}`)
-      const { products: data } = await res.json()
-      setProducts(data || [])
-    } catch {
-      toast.error('فشل تحميل المنتجات')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  const fetchCategories = useCallback(async () => {
-    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
-    setCategories(data || [])
+  useEffect(() => {
+    fetchCategories()
   }, [])
 
   useEffect(() => {
-    Promise.all([fetchProducts(), fetchCategories()])
-  }, [fetchProducts, fetchCategories])
+    fetchProducts()
+  }, [page, categoryFilter])
 
-  const handleDelete = async (id: string, name: string) => {
-    // Use toast-based confirmation instead of blocking confirm()
-    toast((t) => (
-      <div className="text-sm text-right">
-        <p className="font-bold mb-2">حذف "{name}"؟</p>
-        <div className="flex gap-2 justify-end">
-          <button
-            onClick={() => { toast.dismiss(t.id); doDelete(id) }}
-            className="px-3 py-1 rounded-lg bg-red-500 text-white text-xs font-bold"
-          >نعم، احذف</button>
-          <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1 rounded-lg bg-gray-100 text-xs font-bold">إلغاء</button>
-        </div>
-      </div>
-    ), { duration: 8000 })
+  async function fetchProducts() {
+    setLoading(true)
+    const params = new URLSearchParams({ page: String(page) })
+    if (search) params.set('search', search)
+    if (categoryFilter !== 'all') params.set('category', categoryFilter)
+    const res = await fetch(`/api/admin/products?${params}`)
+    const data = await res.json()
+    setProducts(data.products || [])
+    setTotalPages(data.totalPages ?? 1)
+    setTotal(data.total ?? 0)
+    setLoading(false)
   }
 
-  const doDelete = async (id: string) => {
-    // Optimistic remove
-    setProducts(prev => prev.filter(p => p.id !== id))
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    setPage(1)
+    fetchProducts()
+  }
+
+  async function fetchCategories() {
+    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
+    setCategories(data || [])
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return
     const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' })
-    if (!res.ok) { toast.error('حدث خطأ أثناء الحذف'); fetchProducts() }
-    else toast.success('تم حذف المنتج ✓')
+    if (!res.ok) toast.error('حدث خطأ أثناء الحذف')
+    else { toast.success('تم حذف المنتج بنجاح'); fetchProducts() }
   }
 
   const toggleStatus = async (id: string, currentStatus: boolean) => {
-    // Optimistic toggle
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, is_active: !currentStatus } : p))
     const res = await fetch(`/api/admin/products/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_active: !currentStatus }),
     })
-    if (!res.ok) { toast.error('حدث خطأ'); fetchProducts() } // rollback
+    if (!res.ok) toast.error('حدث خطأ')
+    else fetchProducts()
   }
 
-  const filtered = products
-    .filter(p => categoryFilter === 'all' ? true : p.category === categoryFilter)
-    .filter(p => {
-      if (stockFilter === 'out') return p.stock_quantity === 0
-      if (stockFilter === 'low') return p.stock_quantity > 0 && p.stock_quantity < 10
-      return true
-    })
-    .filter(p => p.name_ar.includes(search) || p.name_en.toLowerCase().includes(search.toLowerCase()))
+  // Stock filter is client-side on current page
+  const filtered = products.filter(p => {
+    if (stockFilter === 'out') return p.stock_quantity === 0
+    if (stockFilter === 'low') return p.stock_quantity > 0 && p.stock_quantity < 10
+    return true
+  })
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>إدارة المنتجات</h1>
-          <p className="text-sm opacity-60">عرض وإضافة وتعديل المنتجات ({filtered.length})</p>
+          <p className="text-sm opacity-60">عرض وإضافة وتعديل المنتجات ({total})</p>
         </div>
         <Link href="/admin/products/new" className="btn-primary py-2 px-4 shadow-md flex items-center gap-2">
           <PlusIcon className="w-5 h-5" /> إضافة منتج
@@ -98,16 +90,19 @@ export default function AdminProducts() {
         {/* Filters Bar */}
         <div className="p-4 border-b space-y-3" style={{ borderColor: 'var(--beige)' }}>
           {/* Search */}
-          <div className="relative w-full max-w-sm">
-            <MagnifyingGlassIcon className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="ابحث عن منتج..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="input-field py-2 pr-10"
-            />
-          </div>
+          <form onSubmit={handleSearch} className="flex gap-2 w-full max-w-sm">
+            <div className="relative flex-1">
+              <MagnifyingGlassIcon className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="ابحث عن منتج..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="input-field py-2 pr-10 w-full"
+              />
+            </div>
+            <button type="submit" className="btn-primary py-2 px-3 text-sm">بحث</button>
+          </form>
 
           {/* Filter Chips */}
           <div className="flex flex-wrap gap-2 items-center">
@@ -115,14 +110,14 @@ export default function AdminProducts() {
             <div className="flex gap-1.5 flex-wrap">
               <button
                 type="button"
-                onClick={() => setCategoryFilter('all')}
+                onClick={() => { setCategoryFilter('all'); setPage(1) }}
                 className={`badge ${categoryFilter === 'all' ? 'badge-primary' : 'badge-gray'} cursor-pointer`}
               >الكل</button>
               {categories.map(cat => (
                 <button
                   key={cat.id}
                   type="button"
-                  onClick={() => setCategoryFilter(cat.name_ar)}
+                  onClick={() => { setCategoryFilter(cat.name_ar); setPage(1) }}
                   className={`badge ${categoryFilter === cat.name_ar ? 'badge-primary' : 'badge-gray'} cursor-pointer`}
                 >{cat.name_ar}</button>
               ))}
@@ -162,9 +157,9 @@ export default function AdminProducts() {
                 filtered.map(p => (
                   <tr key={p.id}>
                     <td>
-                      <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center relative">
+                      <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
                         {p.images?.[0]
-                          ? <Image src={p.images[0]} alt={p.name_ar} fill sizes="48px" className="object-cover" />
+                          ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
                           : <span className="text-lg">🧴</span>}
                       </div>
                     </td>
@@ -193,7 +188,7 @@ export default function AdminProducts() {
                         <Link href={`/admin/products/${p.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
                           <PencilSquareIcon className="w-5 h-5" />
                         </Link>
-                        <button type="button" onClick={() => handleDelete(p.id, p.name_ar)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                        <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
                           <TrashIcon className="w-5 h-5" />
                         </button>
                       </div>
@@ -208,17 +203,7 @@ export default function AdminProducts() {
         {/* Mobile Cards */}
         <div className="md:hidden p-4 space-y-3">
           {loading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
-                <div className="flex gap-3 mb-3">
-                  <div className="skeleton w-16 h-16 rounded-lg" />
-                  <div className="flex-1 space-y-2">
-                    <div className="skeleton h-4 rounded w-3/4" />
-                    <div className="skeleton h-3 rounded w-1/2" />
-                  </div>
-                </div>
-              </div>
-            ))
+            <div className="text-center py-10 opacity-50">جاري التحميل...</div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-10 opacity-50">لا توجد منتجات تطابق بحثك</div>
           ) : (
@@ -253,7 +238,7 @@ export default function AdminProducts() {
                   <Link href={`/admin/products/${p.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
                     <PencilSquareIcon className="w-5 h-5" />
                   </Link>
-                  <button type="button" onClick={() => handleDelete(p.id, p.name_ar)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                  <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
                     <TrashIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -262,6 +247,26 @@ export default function AdminProducts() {
           )}
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            type="button"
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >السابق</button>
+          <span className="text-sm opacity-60">صفحة {page} من {totalPages}</span>
+          <button
+            type="button"
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >التالي</button>
+        </div>
+      )}
     </div>
   )
 }

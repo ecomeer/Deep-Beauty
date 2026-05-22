@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -23,24 +23,29 @@ export default function ReviewsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all')
   const [processing, setProcessing] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  const fetchReviews = useCallback(async () => {
+  useEffect(() => {
+    fetchReviews()
+  }, [filter, page])
+
+  async function fetchReviews() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/admin/reviews?status=${filter}`)
+      const res = await fetch(`/api/admin/reviews?status=${filter}&page=${page}`)
       const data = await res.json()
       setReviews(data.reviews || [])
+      setTotalPages(data.totalPages ?? 1)
+      setTotal(data.total ?? 0)
     } catch (error) {
       console.error('Error fetching reviews:', error)
       toast.error('فشل تحميل التقييمات')
     } finally {
       setLoading(false)
     }
-  }, [filter])
-
-  useEffect(() => {
-    fetchReviews()
-  }, [fetchReviews])
+  }
 
   async function handleApprove(id: string, approve: boolean) {
     setProcessing(id)
@@ -87,7 +92,7 @@ export default function ReviewsPage() {
   }
 
   const stats = {
-    total: reviews.length,
+    total,
     pending: reviews.filter(r => !r.is_approved).length,
     approved: reviews.filter(r => r.is_approved).length,
   }
@@ -100,7 +105,7 @@ export default function ReviewsPage() {
           {(['all', 'pending', 'approved'] as const).map((f) => (
             <button
               key={f}
-              onClick={() => setFilter(f)}
+              onClick={() => { setFilter(f); setPage(1) }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === f
                   ? 'bg-[#9C6644] text-white'
@@ -232,6 +237,24 @@ export default function ReviewsPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            className="px-4 py-2 rounded-lg border text-sm disabled:opacity-40"
+            style={{ borderColor: 'var(--beige)' }}
+          >السابق</button>
+          <span className="text-sm opacity-60">صفحة {page} من {totalPages}</span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="px-4 py-2 rounded-lg border text-sm disabled:opacity-40"
+            style={{ borderColor: 'var(--beige)' }}
+          >التالي</button>
         </div>
       )}
     </div>

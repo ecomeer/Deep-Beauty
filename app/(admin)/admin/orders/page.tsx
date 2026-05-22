@@ -6,71 +6,56 @@ import Link from 'next/link'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
-interface Order {
-  id: string
-  order_number: string
-  created_at: string
-  customer_name: string
-  customer_phone: string
-  address_area: string | null
-  total: number
-  status: string
-  payment_method: string
-}
-
 export default function AdminOrders() {
-  const [orders, setOrders] = useState<Order[]>([])
+  const [orders, setOrders] = useState<any[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
+
+  useEffect(() => { fetchOrders() }, [page, statusFilter])
 
   async function fetchOrders() {
-    try {
-      const res = await fetch('/api/admin/orders', { cache: 'no-store' })
-      if (!res.ok) throw new Error(`${res.status}`)
-      const data = await res.json()
-      setOrders(data.orders || [])
-    } catch {
-      toast.error('فشل تحميل الطلبات')
-    } finally {
-      setLoading(false)
-    }
+    setLoading(true)
+    const params = new URLSearchParams({ page: String(page) })
+    if (statusFilter !== 'all') params.set('status', statusFilter)
+    if (search) params.set('search', search)
+    const res = await fetch(`/api/admin/orders?${params}`)
+    const data = await res.json()
+    setOrders(data.orders || [])
+    setTotalPages(data.totalPages ?? 1)
+    setTotal(data.total ?? 0)
+    setLoading(false)
   }
 
-  useEffect(() => { fetchOrders() }, [])
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    setPage(1)
+    fetchOrders()
+  }
 
   const updateStatus = async (id: string, newStatus: string) => {
-    // Optimistic update — change UI immediately, rollback on error
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o))
     const res = await fetch(`/api/admin/orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),
     })
-    if (!res.ok) {
-      toast.error('حدث خطأ أثناء تحديث الحالة')
-      fetchOrders() // rollback by reloading
-    } else {
-      toast.success('تم تحديث الحالة ✓')
-    }
+    if (!res.ok) toast.error('حدث خطأ أثناء تحديث الحالة')
+    else { toast.success('تم تحديث الطلب بنجاح'); fetchOrders() }
   }
 
-  const filtered = orders
-    .filter(o => statusFilter === 'all' ? true : o.status === statusFilter)
-    .filter(o => {
-      if (!dateFrom && !dateTo) return true
-      const d = new Date(o.created_at)
-      if (dateFrom && d < new Date(dateFrom)) return false
-      if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false
-      return true
-    })
-    .filter(o =>
-      o.order_number.toLowerCase().includes(search.toLowerCase()) ||
-      o.customer_name.includes(search) ||
-      o.customer_phone.includes(search)
-    )
+  // Date filter is client-side on current page only
+  const filtered = orders.filter(o => {
+    if (!dateFrom && !dateTo) return true
+    const d = new Date(o.created_at)
+    if (dateFrom && d < new Date(dateFrom)) return false
+    if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false
+    return true
+  })
 
   function exportCSV() {
     const headers = ['رقم الطلب', 'التاريخ', 'العميل', 'الهاتف', 'المنطقة', 'المبلغ', 'الحالة', 'طريقة الدفع']
@@ -108,7 +93,7 @@ export default function AdminOrders() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>إدارة الطلبات</h1>
-          <p className="text-sm opacity-60">تتبع طلبات العملاء وتحديث حالتها ({filtered.length})</p>
+          <p className="text-sm opacity-60">تتبع طلبات العملاء وتحديث حالتها ({total})</p>
         </div>
         <button type="button" onClick={exportCSV} className="btn-outline px-4 py-2 text-sm flex items-center gap-2">
           <ArrowDownTrayIcon className="w-4 h-4" /> تصدير CSV
@@ -133,16 +118,19 @@ export default function AdminOrders() {
 
           {/* Search + Date filters */}
           <div className="flex flex-wrap gap-3 items-center">
-            <div className="relative w-full sm:w-64">
-              <MagnifyingGlassIcon className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="ابحث برقم الطلب، الاسم، أو الهاتف..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="input-field py-2 pr-10 text-sm"
-              />
-            </div>
+            <form onSubmit={handleSearch} className="relative w-full sm:w-64 flex gap-2">
+              <div className="relative flex-1">
+                <MagnifyingGlassIcon className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="ابحث برقم الطلب، الاسم، أو الهاتف..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="input-field py-2 pr-10 text-sm w-full"
+                />
+              </div>
+              <button type="submit" className="btn-primary py-2 px-3 text-sm">بحث</button>
+            </form>
             <div className="flex items-center gap-2">
               <span className="text-xs opacity-60">من</span>
               <input
@@ -192,13 +180,7 @@ export default function AdminOrders() {
             </thead>
             <tbody>
               {loading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={i}>
-                    {Array.from({ length: 8 }).map((_, j) => (
-                      <td key={j}><div className="skeleton h-4 rounded w-full" style={{ animationDelay: `${i*80}ms` }} /></td>
-                    ))}
-                  </tr>
-                ))
+                <tr><td colSpan={8} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="text-center py-10 opacity-50">لا توجد طلبات تطابق بحثك</td></tr>
               ) : (
@@ -288,6 +270,26 @@ export default function AdminOrders() {
           )}
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            type="button"
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >السابق</button>
+          <span className="text-sm opacity-60">صفحة {page} من {totalPages}</span>
+          <button
+            type="button"
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >التالي</button>
+        </div>
+      )}
     </div>
   )
 }
