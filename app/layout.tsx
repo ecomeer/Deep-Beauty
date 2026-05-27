@@ -67,6 +67,14 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        {/* hreflang */}
+        <link rel="alternate" hrefLang="ar-KW" href="https://www.deepbeautykw.com/" />
+        <link rel="alternate" hrefLang="ar" href="https://www.deepbeautykw.com/" />
+        <link rel="alternate" hrefLang="x-default" href="https://www.deepbeautykw.com/" />
+        {/* preconnect */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://flagcdn.com" />
       </head>
       <body suppressHydrationWarning>
         {children}

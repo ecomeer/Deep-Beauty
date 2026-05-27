@@ -354,6 +354,7 @@ export default function EnhancedCheckoutPage() {
                       value={form.customer_name}
                       onChange={handleChange}
                       required
+                      autoComplete="name"
                       className="input-field"
                       placeholder="الاسم الكامل للتوصيل"
                     />
@@ -364,13 +365,18 @@ export default function EnhancedCheckoutPage() {
                     </label>
                     <input
                       id="field-phone"
-                      name="customer_phone" 
-                      value={form.customer_phone} 
-                      onChange={handleChange} 
-                      required 
-                      className="input-field" 
-                      placeholder="XXXXXXXX" 
-                      dir="ltr" 
+                      name="customer_phone"
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]{8}"
+                      maxLength={8}
+                      autoComplete="tel"
+                      value={form.customer_phone}
+                      onChange={handleChange}
+                      required
+                      className="input-field"
+                      placeholder="XXXXXXXX"
+                      dir="ltr"
                     />
                     <p className="text-xs text-gray-500 mt-1">سيتم التواصل معك على هذا الرقم</p>
                   </div>
@@ -380,14 +386,15 @@ export default function EnhancedCheckoutPage() {
                     </label>
                     <input
                       id="field-email"
-                      name="customer_email" 
-                      type="email" 
-                      value={form.customer_email} 
-                      onChange={handleChange} 
+                      name="customer_email"
+                      type="email"
+                      autoComplete="email"
+                      value={form.customer_email}
+                      onChange={handleChange}
                       required={createAccount}
-                      className="input-field" 
-                      placeholder={createAccount ? "مطلوب لإنشاء الحساب" : "اختياري - لتتبع الطلب"} 
-                      dir="ltr" 
+                      className="input-field"
+                      placeholder={createAccount ? "مطلوب لإنشاء الحساب" : "اختياري - لتتبع الطلب"}
+                      dir="ltr"
                     />
                   </div>
                 </div>

@@ -60,7 +60,7 @@ const SUPPORT_LINKS = [
 const SOCIAL = [
   { href: 'https://instagram.com/deepbeautykw', label: 'انستغرام', Icon: IconInstagram },
   { href: 'https://snapchat.com/add/deepbeautykw', label: 'سناب شات', Icon: IconSnapchat },
-  { href: 'https://wa.me/96500000000', label: 'واتساب', Icon: IconWhatsApp },
+  { href: 'https://wa.me/96522289182', label: 'واتساب', Icon: IconWhatsApp },
   { href: 'https://tiktok.com/@deepbeautykw', label: 'تيك توك', Icon: IconTikTok },
 ]
 
