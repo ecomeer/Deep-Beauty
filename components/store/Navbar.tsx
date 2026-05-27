@@ -22,6 +22,7 @@ const NAV_LINKS = [
   { href: '/products', label: 'المنتجات' },
   { href: '/about', label: 'من نحن' },
   { href: '/track', label: 'تتبع الطلب' },
+  { href: '/contact', label: 'تواصلي معنا' },
 ]
 
 export default function Navbar() {
