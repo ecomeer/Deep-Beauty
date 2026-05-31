@@ -18,6 +18,7 @@ import {
   EyeSlashIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { trackInitiateCheckout, trackPurchase } from '@/lib/analytics'
 
 interface FormData {
   customer_name: string
@@ -148,6 +149,7 @@ export default function EnhancedCheckoutPage() {
     if (createAccount && accountPassword.length < 8) { toast.error('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return }
 
     setSubmitting(true)
+    trackInitiateCheckout(Math.max(0, total), items.length)
     try {
       // Create account first if requested
       let userId = null
@@ -234,7 +236,11 @@ export default function EnhancedCheckoutPage() {
       }
 
       clearCart()
-      
+      trackPurchase(
+        order.id,
+        Math.max(0, total),
+        items.map(i => ({ id: i.id, name: i.name_ar, price: i.price, quantity: i.quantity }))
+      )
       // Show success message with account creation info
       if (createAccount) {
         router.push(`/order-success?id=${order.id}&num=${orderNumber}&account=created`)
@@ -354,6 +360,7 @@ export default function EnhancedCheckoutPage() {
                       value={form.customer_name}
                       onChange={handleChange}
                       required
+                      autoComplete="name"
                       className="input-field"
                       placeholder="الاسم الكامل للتوصيل"
                     />
@@ -364,13 +371,18 @@ export default function EnhancedCheckoutPage() {
                     </label>
                     <input
                       id="field-phone"
-                      name="customer_phone" 
-                      value={form.customer_phone} 
-                      onChange={handleChange} 
-                      required 
-                      className="input-field" 
-                      placeholder="XXXXXXXX" 
-                      dir="ltr" 
+                      name="customer_phone"
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]{8}"
+                      maxLength={8}
+                      autoComplete="tel"
+                      value={form.customer_phone}
+                      onChange={handleChange}
+                      required
+                      className="input-field"
+                      placeholder="XXXXXXXX"
+                      dir="ltr"
                     />
                     <p className="text-xs text-gray-500 mt-1">سيتم التواصل معك على هذا الرقم</p>
                   </div>
@@ -380,14 +392,15 @@ export default function EnhancedCheckoutPage() {
                     </label>
                     <input
                       id="field-email"
-                      name="customer_email" 
-                      type="email" 
-                      value={form.customer_email} 
-                      onChange={handleChange} 
+                      name="customer_email"
+                      type="email"
+                      autoComplete="email"
+                      value={form.customer_email}
+                      onChange={handleChange}
                       required={createAccount}
-                      className="input-field" 
-                      placeholder={createAccount ? "مطلوب لإنشاء الحساب" : "اختياري - لتتبع الطلب"} 
-                      dir="ltr" 
+                      className="input-field"
+                      placeholder={createAccount ? "مطلوب لإنشاء الحساب" : "اختياري - لتتبع الطلب"}
+                      dir="ltr"
                     />
                   </div>
                 </div>
