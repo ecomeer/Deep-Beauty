@@ -18,6 +18,7 @@ import {
   EyeSlashIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { trackInitiateCheckout, trackPurchase } from '@/lib/analytics'
 
 interface FormData {
   customer_name: string
@@ -148,6 +149,7 @@ export default function EnhancedCheckoutPage() {
     if (createAccount && accountPassword.length < 8) { toast.error('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return }
 
     setSubmitting(true)
+    trackInitiateCheckout(Math.max(0, total), items.length)
     try {
       // Create account first if requested
       let userId = null
@@ -234,7 +236,11 @@ export default function EnhancedCheckoutPage() {
       }
 
       clearCart()
-      
+      trackPurchase(
+        order.id,
+        Math.max(0, total),
+        items.map(i => ({ id: i.id, name: i.name_ar, price: i.price, quantity: i.quantity }))
+      )
       // Show success message with account creation info
       if (createAccount) {
         router.push(`/order-success?id=${order.id}&num=${orderNumber}&account=created`)

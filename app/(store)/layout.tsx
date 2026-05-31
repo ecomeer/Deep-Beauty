@@ -1,5 +1,6 @@
 import Navbar from '@/components/store/Navbar'
 import StitchFooter from '@/components/store/StitchFooter'
+import Analytics from '@/components/store/Analytics'
 import { CartProvider } from '@/context/CartContext'
 import { WishlistProvider } from '@/context/WishlistContext'
 import { CountryProvider } from '@/context/CountryContext'
@@ -24,6 +25,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
               borderRadius: '12px',
             }
           }} />
+          <Analytics />
           <Navbar />
           <main id="main-content">
             {children}
