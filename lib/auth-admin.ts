@@ -9,27 +9,39 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
  */
 export async function requireAdmin(req: NextRequest): Promise<NextResponse | null> {
   try {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return req.cookies.getAll() },
-          setAll() { /* read-only in API routes */ },
-        },
+    let userId: string | null = null
+
+    // Prefer Authorization header (works immediately after signInWithPassword before cookies propagate)
+    const authHeader = req.headers.get('Authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.slice(7)
+      const { data: { user } } = await supabaseAdmin.auth.getUser(token)
+      if (user) userId = user.id
+    }
+
+    // Fall back to cookie-based session
+    if (!userId) {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() { return req.cookies.getAll() },
+            setAll() { /* read-only in API routes */ },
+          },
+        }
+      )
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error || !user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
-    )
-
-    const { data: { user }, error } = await supabase.auth.getUser()
-
-    if (error || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      userId = user.id
     }
 
     const { data: profile } = await supabaseAdmin
       .from('users')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single()
 
     if (!profile || profile.role !== 'admin') {
