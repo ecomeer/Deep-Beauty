@@ -18,16 +18,19 @@ export default function AdminLogin() {
     try {
       const supabase = createClientSupabase()
 
-      // Step 1: Authenticate
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-      if (authError) {
+      // Step 1: Authenticate and get session token
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      if (authError || !authData.session) {
         toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
         setLoading(false)
         return
       }
 
-      // Step 2: Verify admin role via API
-      const check = await fetch('/api/admin/dashboard', { method: 'GET' })
+      // Step 2: Verify admin role — send token in header so server doesn't rely on cookie timing
+      const check = await fetch('/api/admin/dashboard', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${authData.session.access_token}` },
+      })
       if (check.status === 401 || check.status === 403) {
         // Not admin — sign out immediately
         await supabase.auth.signOut()
