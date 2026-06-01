@@ -1,40 +1,36 @@
 'use client'
 
 import { useState } from 'react'
-import { createClientSupabase } from '@/lib/supabase-client'
-import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const supabase = createClientSupabase()
+      const res = await fetch('/api/auth/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-      // Step 1: Authenticate and get session token
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })
-      if (authError || !authData.session) {
+      if (res.status === 401) {
         toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
         setLoading(false)
         return
       }
-
-      // Step 2: Verify admin role — send token in header so server doesn't rely on cookie timing
-      const check = await fetch('/api/admin/dashboard', {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${authData.session.access_token}` },
-      })
-      if (check.status === 401 || check.status === 403) {
-        // Not admin — sign out immediately
-        await supabase.auth.signOut()
+      if (res.status === 403) {
         toast.error('هذا الحساب لا يملك صلاحية الدخول إلى لوحة التحكم')
+        setLoading(false)
+        return
+      }
+      if (!res.ok) {
+        toast.error('حدث خطأ أثناء تسجيل الدخول')
         setLoading(false)
         return
       }

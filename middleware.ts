@@ -31,12 +31,17 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin')
   const isLoginPage = pathname === '/admin/login'
 
-  if (isAdminRoute && !isLoginPage && !user) {
-    const loginUrl = new URL('/admin/login', request.url)
-    return NextResponse.redirect(loginUrl)
+  // Role is embedded in JWT app_metadata — no DB round-trip needed
+  const isAdmin = user?.app_metadata?.role === 'admin'
+
+  if (isAdminRoute && !isLoginPage) {
+    if (!user || !isAdmin) {
+      const loginUrl = new URL('/admin/login', request.url)
+      return NextResponse.redirect(loginUrl)
+    }
   }
 
-  if (isLoginPage && user) {
+  if (isLoginPage && user && isAdmin) {
     const dashboardUrl = new URL('/admin/dashboard', request.url)
     return NextResponse.redirect(dashboardUrl)
   }
