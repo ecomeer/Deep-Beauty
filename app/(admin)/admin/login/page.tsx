@@ -17,17 +17,26 @@ export default function AdminLogin() {
 
     try {
       const supabase = createClientSupabase()
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-      if (error) {
+      // Step 1: Authenticate
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      if (authError) {
         toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
         setLoading(false)
         return
       }
 
-      toast.success('تم تسجيل الدخول')
-      router.refresh()
-      // Hard navigation to ensure middleware re-evaluates with fresh cookies
+      // Step 2: Verify admin role via API
+      const check = await fetch('/api/admin/dashboard', { method: 'GET' })
+      if (check.status === 401 || check.status === 403) {
+        // Not admin — sign out immediately
+        await supabase.auth.signOut()
+        toast.error('هذا الحساب لا يملك صلاحية الدخول إلى لوحة التحكم')
+        setLoading(false)
+        return
+      }
+
+      toast.success('تم تسجيل الدخول بنجاح')
       window.location.href = '/admin/dashboard'
     } catch {
       toast.error('حدث خطأ أثناء تسجيل الدخول')
@@ -45,28 +54,28 @@ export default function AdminLogin() {
         <form onSubmit={handleLogin} className="space-y-4 text-right">
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>البريد الإلكتروني</label>
-            <input 
-              type="email" 
-              required 
+            <input
+              type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input-field" 
+              className="input-field"
               dir="ltr"
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>كلمة المرور</label>
-            <input 
-              type="password" 
-              required 
+            <input
+              type="password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-field" 
+              className="input-field"
               dir="ltr"
             />
           </div>
           <button type="submit" disabled={loading} className="btn-primary w-full mt-4">
-            {loading ? 'جاري الدخول...' : 'تسجيل الدخول'}
+            {loading ? 'جاري التحقق...' : 'تسجيل الدخول'}
           </button>
         </form>
       </div>
