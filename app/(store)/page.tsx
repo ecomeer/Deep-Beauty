@@ -30,11 +30,13 @@ export default async function HomePage() {
   let categories: Category[] = []
   let banners: Banner[] = []
   let announcementText = '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك'
+  let newArrivals: Product[] = []
+  let limitedStock: Product[] = []
 
   try {
     const supabase = supabaseAdmin
 
-    const [productsRes, categoriesRes, bannersRes, settingRes] = await withTimeout(
+    const [productsRes, categoriesRes, bannersRes, settingRes, newArrivalsRes, limitedStockRes] = await withTimeout(
       Promise.all([
         supabase
           .from('products')
@@ -59,6 +61,20 @@ export default async function HomePage() {
           .select('value')
           .eq('key', 'announcement_text')
           .maybeSingle(),
+        supabase
+          .from('products')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(8),
+        supabase
+          .from('products')
+          .select('*')
+          .eq('is_active', true)
+          .gte('stock_quantity', 1)
+          .lte('stock_quantity', 5)
+          .order('stock_quantity', { ascending: true })
+          .limit(8),
       ]),
       12000
     )
@@ -71,6 +87,14 @@ export default async function HomePage() {
     categories = categoriesRes.data || []
     banners = bannersRes.data || []
     if (settingRes.data?.value) announcementText = settingRes.data.value
+    newArrivals = (newArrivalsRes.data || []).map((p) => ({
+      ...p,
+      sale_price: applyDiscount(p.price, flashDiscount) ?? p.sale_price,
+    }))
+    limitedStock = (limitedStockRes.data || []).map((p) => ({
+      ...p,
+      sale_price: applyDiscount(p.price, flashDiscount) ?? p.sale_price,
+    }))
   } catch (e) {
     console.error('Failed to fetch home data:', e)
   }
@@ -132,6 +156,8 @@ export default async function HomePage() {
         categories={categories}
         banners={banners}
         announcementText={announcementText}
+        newArrivals={newArrivals}
+        limitedStock={limitedStock}
       />
     </>
   )

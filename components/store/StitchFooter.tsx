@@ -41,11 +41,10 @@ function IconTikTok({ className }: { className?: string }) {
 
 // ─── Footer Data ──────────────────────────────────────────────────────────
 const STORE_LINKS = [
-  { href: '/products', label: 'جميع المنتجات' },
-  { href: '/products?category=سيروم', label: 'سيروم' },
-  { href: '/products?category=عناية+بالبشرة', label: 'عناية بالبشرة' },
-  { href: '/products?category=مقشرات', label: 'مقشرات' },
-  { href: '/products?category=تونر', label: 'تونر' },
+  { href: '/collections', label: 'المجموعات' },
+  { href: '/products', label: 'المنتجات الفردية' },
+  { href: '/offers', label: 'العروض' },
+  { href: '/contact', label: 'تواصل معنا' },
 ]
 
 const SUPPORT_LINKS = [
