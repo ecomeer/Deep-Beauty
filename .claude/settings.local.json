@@ -4,7 +4,8 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(netstat -ano)",
       "Bash(git remote:*)",
-      "Bash(vercel --prod)"
+      "Bash(vercel --prod)",
+      "mcp__1728417d-68b3-44c8-9930-630876458544__get_runtime_logs"
     ]
   }
 }
