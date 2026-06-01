@@ -19,10 +19,11 @@ import EnhancedCartSidebar from './EnhancedCartSidebar'
 import CountrySelector from './CountrySelector'
 
 const NAV_LINKS = [
-  { href: '/products', label: 'المنتجات' },
-  { href: '/about', label: 'من نحن' },
-  { href: '/track', label: 'تتبع الطلب' },
-  { href: '/contact', label: 'تواصلي معنا' },
+  { href: '/', label: 'الرئيسية' },
+  { href: '/collections', label: 'المجموعات' },
+  { href: '/products', label: 'المنتجات الفردية' },
+  { href: '/offers', label: 'العروض' },
+  { href: '/contact', label: 'تواصل معنا' },
 ]
 
 export default function Navbar() {
@@ -65,7 +66,7 @@ export default function Navbar() {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
 
-  const isActive = (href: string) => pathname === href
+  const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
 
   return (
     <>

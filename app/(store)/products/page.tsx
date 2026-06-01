@@ -7,7 +7,7 @@ import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 export const revalidate = 120
 
 export const metadata: Metadata = {
-  title: 'منتجات العناية بالبشرة | متجر ديب بيوتي الكويت',
+  title: 'المنتجات الفردية | متجر ديب بيوتي الكويت',
   description: 'تسوقي أفضل منتجات العناية بالبشرة في الكويت — سيروم فيتامين C، كريم ترطيب، واقي شمس SPF، ومنتجات كورية أصلية. توصيل سريع لكل الكويت.',
   keywords: 'منتجات عناية بالبشرة الكويت, سيروم فيتامين C الكويت, كريم ترطيب بشرة الكويت, واقي شمس SPF الكويت, منتجات كورية بشرة الكويت, تسوق عناية بشرة أونلاين الكويت',
   alternates: { canonical: 'https://www.deepbeautykw.com/products' },
@@ -67,7 +67,7 @@ export default async function ProductsPage({
       {/* Hero Header */}
       <div className="pt-32 pb-12 px-6 bg-surface-container-low">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-headline text-on-surface mb-4">المتجر</h1>
+          <h1 className="text-4xl md:text-5xl font-headline text-on-surface mb-4">المنتجات الفردية</h1>
         </div>
       </div>
       <ProductsClientShell products={products} categories={categories} defaultCategory={defaultCategory} />
