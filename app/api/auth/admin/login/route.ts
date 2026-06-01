@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
-import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(request: NextRequest) {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase env vars:', { supabaseUrl: !!supabaseUrl, supabaseAnonKey: !!supabaseAnonKey })
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+    }
+
     const { email, password } = await request.json()
 
     if (!email || !password) {
@@ -13,8 +20,8 @@ export async function POST(request: NextRequest) {
     const cookiesToSet: Array<{ name: string; value: string; options: Record<string, unknown> }> = []
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl,
+      supabaseAnonKey,
       {
         cookies: {
           getAll: () => request.cookies.getAll(),
@@ -29,15 +36,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'بيانات الدخول غير صحيحة' }, { status: 401 })
     }
 
-    // Check admin role in DB (service role bypasses RLS)
-    const { data: profile } = await supabaseAdmin
-      .from('users')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
+    // Role is in app_metadata (set via Supabase admin) — no DB round-trip needed
+    const isAdmin = data.user.app_metadata?.role === 'admin'
 
-    if (!profile || profile.role !== 'admin') {
-      // Sign out the non-admin user
+    if (!isAdmin) {
       await supabase.auth.signOut()
       return NextResponse.json({ error: 'هذا الحساب لا يملك صلاحية الدخول إلى لوحة التحكم' }, { status: 403 })
     }
@@ -48,7 +50,8 @@ export async function POST(request: NextRequest) {
       response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2])
     )
     return response
-  } catch {
+  } catch (err) {
+    console.error('Admin login error:', err)
     return NextResponse.json({ error: 'حدث خطأ أثناء تسجيل الدخول' }, { status: 500 })
   }
 }
