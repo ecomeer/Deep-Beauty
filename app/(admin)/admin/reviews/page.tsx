@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -23,24 +23,29 @@ export default function ReviewsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all')
   const [processing, setProcessing] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  const fetchReviews = useCallback(async () => {
+  useEffect(() => {
+    fetchReviews()
+  }, [filter, page])
+
+  async function fetchReviews() {
     setLoading(true)
     try {
-      const res = await fetch(`/api/admin/reviews?status=${filter}`)
+      const res = await fetch(`/api/admin/reviews?status=${filter}&page=${page}`)
       const data = await res.json()
       setReviews(data.reviews || [])
+      setTotalPages(data.totalPages ?? 1)
+      setTotal(data.total ?? 0)
     } catch (error) {
       console.error('Error fetching reviews:', error)
       toast.error('فشل تحميل التقييمات')
     } finally {
       setLoading(false)
     }
-  }, [filter])
-
-  useEffect(() => {
-    fetchReviews()
-  }, [fetchReviews])
+  }
 
   async function handleApprove(id: string, approve: boolean) {
     setProcessing(id)
@@ -86,11 +91,8 @@ export default function ReviewsPage() {
     }
   }
 
-  const stats = {
-    total: reviews.length,
-    pending: reviews.filter(r => !r.is_approved).length,
-    approved: reviews.filter(r => r.is_approved).length,
-  }
+  const pendingOnPage = reviews.filter(r => !r.is_approved).length
+  const approvedOnPage = reviews.filter(r => r.is_approved).length
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -100,7 +102,7 @@ export default function ReviewsPage() {
           {(['all', 'pending', 'approved'] as const).map((f) => (
             <button
               key={f}
-              onClick={() => setFilter(f)}
+              onClick={() => { setFilter(f); setPage(1) }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === f
                   ? 'bg-[#9C6644] text-white'
@@ -108,9 +110,9 @@ export default function ReviewsPage() {
               }`}
             >
               {f === 'all' ? 'الكل' : f === 'pending' ? 'قيد الانتظار' : 'تمت الموافقة'}
-              {f === 'pending' && stats.pending > 0 && (
+              {f === 'pending' && pendingOnPage > 0 && (
                 <span className="mr-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                  {stats.pending}
+                  {pendingOnPage}
                 </span>
               )}
             </button>
@@ -122,15 +124,15 @@ export default function ReviewsPage() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-sm text-gray-500">إجمالي التقييمات</p>
-          <p className="text-2xl font-bold">{stats.total}</p>
+          <p className="text-2xl font-bold">{total}</p>
         </div>
         <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-sm text-gray-500">في الانتظار</p>
-          <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+          <p className="text-sm text-gray-500">في الانتظار (هذه الصفحة)</p>
+          <p className="text-2xl font-bold text-yellow-600">{pendingOnPage}</p>
         </div>
         <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-sm text-gray-500">تمت الموافقة</p>
-          <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+          <p className="text-sm text-gray-500">تمت الموافقة (هذه الصفحة)</p>
+          <p className="text-2xl font-bold text-green-600">{approvedOnPage}</p>
         </div>
       </div>
 
@@ -232,6 +234,24 @@ export default function ReviewsPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            className="px-4 py-2 rounded-lg border text-sm disabled:opacity-40"
+            style={{ borderColor: 'var(--beige)' }}
+          >السابق</button>
+          <span className="text-sm opacity-60">صفحة {page} من {totalPages}</span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="px-4 py-2 rounded-lg border text-sm disabled:opacity-40"
+            style={{ borderColor: 'var(--beige)' }}
+          >التالي</button>
         </div>
       )}
     </div>

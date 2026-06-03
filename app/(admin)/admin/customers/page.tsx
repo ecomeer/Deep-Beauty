@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { toArabicPrice, formatDateTime } from '@/lib/utils'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
@@ -17,41 +17,52 @@ export default function AdminCustomers() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  const fetchCustomers = useCallback(async () => {
-    const res = await fetch('/api/admin/customers')
+  useEffect(() => { fetchCustomers() }, [page])
+
+  async function fetchCustomers() {
+    setLoading(true)
+    const params = new URLSearchParams({ page: String(page) })
+    if (search) params.set('search', search)
+    const res = await fetch(`/api/admin/customers?${params}`)
     const data = await res.json()
     setCustomers(data.customers || [])
+    setTotalPages(data.totalPages ?? 1)
+    setTotal(data.total ?? 0)
     setLoading(false)
-  }, [])
+  }
 
-  useEffect(() => { fetchCustomers() }, [fetchCustomers])
-
-  const filtered = customers.filter(c =>
-    c.full_name.includes(search) ||
-    (c.phone || '').includes(search) ||
-    (c.email || '').includes(search)
-  )
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    setPage(1)
+    fetchCustomers()
+  }
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>العملاء</h1>
-        <p className="text-sm opacity-60">جميع العملاء بما فيهم الطلبات بدون تسجيل ({customers.length})</p>
+        <p className="text-sm opacity-60">جميع العملاء بما فيهم الطلبات بدون تسجيل ({total})</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border overflow-hidden" style={{ borderColor: 'var(--beige)' }}>
         <div className="p-4 border-b" style={{ borderColor: 'var(--beige)' }}>
-          <div className="relative w-full max-w-sm">
-            <MagnifyingGlassIcon className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="ابحث بالاسم أو الهاتف..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="input-field py-2 pr-10 text-sm"
-            />
-          </div>
+          <form onSubmit={handleSearch} className="flex gap-2 w-full max-w-sm">
+            <div className="relative flex-1">
+              <MagnifyingGlassIcon className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="ابحث بالاسم أو الهاتف..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="input-field py-2 pr-10 text-sm w-full"
+              />
+            </div>
+            <button type="submit" className="btn-primary py-2 px-3 text-sm">بحث</button>
+          </form>
         </div>
 
         <div className="overflow-x-auto">
@@ -70,10 +81,10 @@ export default function AdminCustomers() {
             <tbody>
               {loading ? (
                 <tr><td colSpan={7} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
-              ) : filtered.length === 0 ? (
+              ) : customers.length === 0 ? (
                 <tr><td colSpan={7} className="text-center py-10 opacity-50">لا يوجد عملاء</td></tr>
               ) : (
-                filtered.map((c, i) => (
+                customers.map((c, i) => (
                   <tr key={i}>
                     <td className="font-bold">{c.full_name}</td>
                     <td className="font-en text-sm" dir="ltr">{c.phone || '-'}</td>
@@ -93,6 +104,26 @@ export default function AdminCustomers() {
           </table>
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            type="button"
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >السابق</button>
+          <span className="text-sm opacity-60">صفحة {page} من {totalPages}</span>
+          <button
+            type="button"
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >التالي</button>
+        </div>
+      )}
     </div>
   )
 }

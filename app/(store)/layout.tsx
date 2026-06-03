@@ -10,20 +10,22 @@ import { createClient } from '@supabase/supabase-js'
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   // Fetch active categories for footer links
   let footerCategories: { id: string; name_ar: string; slug: string }[] = []
-  try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } }
-    )
-    const { data } = await supabase
-      .from('categories')
-      .select('id, name_ar, slug')
-      .eq('is_active', true)
-      .order('name_ar')
-      .limit(8)
-    footerCategories = data || []
-  } catch {}
+  const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const sbKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (sbUrl && sbKey) {
+    try {
+      const supabase = createClient(sbUrl, sbKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      })
+      const { data } = await supabase
+        .from('categories')
+        .select('id, name_ar, slug')
+        .eq('is_active', true)
+        .order('name_ar')
+        .limit(8)
+      footerCategories = data || []
+    } catch {}
+  }
 
   return (
     <CartProvider>
