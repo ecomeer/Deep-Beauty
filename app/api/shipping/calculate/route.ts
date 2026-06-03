@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { calculateShipping } from '@/lib/shipping'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { calculateShipping, ShippingZone } from '@/lib/shipping'
 import { GulfCountry } from '@/lib/currency'
 
 export async function POST(request: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const result = calculateShipping(
       countryCode as GulfCountry,
       subtotalKWD,
-      (zones || []) as ShippingZone[]
+      (zones || []) as unknown as ShippingZone[]
     )
 
     return NextResponse.json({

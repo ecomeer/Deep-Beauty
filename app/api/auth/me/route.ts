@@ -31,7 +31,7 @@ export async function GET() {
         email: user.email,
         name: profile?.name || user.user_metadata?.name || user.email,
         phone: profile?.phone || user.user_metadata?.phone,
-        avatar: profile?.avatar
+        avatar: user.user_metadata?.avatar_url || null
       }
     })
   } catch (error: unknown) {

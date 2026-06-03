@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       payment_method,
       user_id,
       items,
+      total,
     } = body
 
     // Validate required fields
@@ -40,6 +41,8 @@ export async function POST(req: NextRequest) {
     if (items.length > 50) return NextResponse.json({ error: 'عدد المنتجات يتجاوز الحد المسموح' }, { status: 400 })
 
     // Build order payload for atomic RPC
+    const { subtotal = 0, coupon_discount = 0 } = body
+
     const orderData: Record<string, unknown> = {
       order_number: orderNumber,
       customer_name,
@@ -51,11 +54,11 @@ export async function POST(req: NextRequest) {
       address_street,
       address_house,
       notes: notes || null,
-      subtotal: calculatedSubtotal,
-      shipping_cost: normalizedShippingCost,
-      total: calculatedTotal,
-      coupon_code: normalizedCoupon,
-      coupon_discount: calculatedCouponDiscount,
+      subtotal,
+      shipping_cost: Number(shipping_cost) || 0,
+      total: Math.max(0, total),
+      coupon_code: coupon_code || null,
+      coupon_discount,
       status: 'pending',
       payment_method,
       payment_status: 'unpaid',
@@ -85,8 +88,8 @@ export async function POST(req: NextRequest) {
     const order = orderJson as Record<string, unknown>
 
     // Increment coupon usage
-    if (normalizedCoupon && calculatedCouponDiscount > 0) {
-      await supabaseAdmin.rpc('increment_coupon_usage', { coupon_code: normalizedCoupon })
+    if (coupon_code && coupon_discount > 0) {
+      await supabaseAdmin.rpc('increment_coupon_usage', { coupon_code })
     }
 
     // Send push notification (fire and forget)

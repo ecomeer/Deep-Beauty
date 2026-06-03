@@ -13,13 +13,7 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: false })
     .limit(500) // hard cap — paginate beyond this
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({
-    products: data || [],
-    total: count ?? 0,
-    page,
-    pageSize: PAGE_SIZE,
-    totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
-  })
+  return NextResponse.json({ products: data || [] })
 }
 
 export async function POST(req: NextRequest) {

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import StitchHomeContent from '@/components/store/StitchHomeContent'
 import { Product, Category } from '@/types'
+import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 
 interface Banner {
   id: string

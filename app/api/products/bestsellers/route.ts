@@ -22,8 +22,6 @@ export async function GET(request: Request) {
       .limit(limit)
     let products = initialProducts
 
-    let products = primaryProducts
-
     // If that fails or returns empty, fall back to featured products
     if (error || !products || products.length === 0) {
       const fallback = await supabase
