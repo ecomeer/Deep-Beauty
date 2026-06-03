@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 /**
  * Verifies the request comes from an authenticated admin via session cookie.

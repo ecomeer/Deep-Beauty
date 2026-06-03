@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -44,7 +46,7 @@ export default function AdminLogin() {
 
       if (!roleResponse.ok) {
         toast.error('الحساب لا يملك صلاحية لوحة الإدارة')
-        await supabase.auth.signOut()
+        await fetch('/api/auth/logout', { method: 'POST' })
         setLoading(false)
         return
       }

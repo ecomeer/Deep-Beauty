@@ -30,8 +30,7 @@ export async function GET() {
         id: user.id,
         email: user.email,
         name: profile?.name || user.user_metadata?.name || user.email,
-        phone: profile?.phone || user.user_metadata?.phone,
-        avatar: profile?.avatar
+        phone: profile?.phone || user.user_metadata?.phone
       }
     })
   } catch (error: unknown) {

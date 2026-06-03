@@ -10,12 +10,8 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const status = searchParams.get('status')
   const search = searchParams.get('search') || ''
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-  const from = (page - 1) * PAGE_SIZE
-  const to = from + PAGE_SIZE - 1
-
-  const page  = Math.max(1, parseInt(searchParams.get('page')  || '1'))
-  const limit = Math.min(200, parseInt(searchParams.get('limit') || '100'))
+  const page  = Math.max(1, parseInt(searchParams.get('page')  || '1', 10))
+  const limit = Math.min(200, parseInt(searchParams.get('limit') || String(PAGE_SIZE)))
   const from  = (page - 1) * limit
   const to    = from + limit - 1
 

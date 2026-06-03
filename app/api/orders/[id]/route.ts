@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
 
 export async function GET(
   req: NextRequest,
@@ -42,9 +41,6 @@ export async function GET(
   if (userError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
 
   const { data, error } = await supabaseAdmin
     .from('orders')
