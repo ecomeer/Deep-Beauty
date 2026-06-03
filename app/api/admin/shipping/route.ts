@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     
     const { data, error } = await supabase
       .from('shipping_zones')
-      .select('id,name,country_code,base_rate,free_threshold,is_active,created_at,updated_at')
+      .select('id,name_ar,name_en,countries,base_rate,free_shipping_threshold,is_active,sort_order,estimated_days_min,estimated_days_max,created_at,updated_at')
       .order('sort_order', { ascending: true })
     
     if (error) throw error
