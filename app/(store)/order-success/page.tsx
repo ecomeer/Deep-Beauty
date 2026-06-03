@@ -1,4 +1,6 @@
-'use client'
+import type { Metadata } from 'next'
+import { Suspense } from 'react'
+import OrderSuccessClient from './OrderSuccessClient'
 
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -193,7 +195,7 @@ export default function OrderSuccessPage() {
         <div className="animate-spin w-10 h-10 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
       </div>
     }>
-      <OrderSuccessContent />
+      <OrderSuccessClient />
     </Suspense>
   )
 }

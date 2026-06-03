@@ -25,11 +25,8 @@ export async function POST(req: NextRequest) {
       address_street,
       address_house,
       notes,
-      subtotal,
       shipping_cost,
-      total,
       coupon_code,
-      coupon_discount,
       payment_method,
       user_id,
       items,
@@ -54,11 +51,11 @@ export async function POST(req: NextRequest) {
       address_street,
       address_house,
       notes: notes || null,
-      subtotal,
-      shipping_cost,
-      total: Math.max(0, total),
-      coupon_code: coupon_code || null,
-      coupon_discount: coupon_discount || 0,
+      subtotal: calculatedSubtotal,
+      shipping_cost: normalizedShippingCost,
+      total: calculatedTotal,
+      coupon_code: normalizedCoupon,
+      coupon_discount: calculatedCouponDiscount,
       status: 'pending',
       payment_method,
       payment_status: 'unpaid',
@@ -88,8 +85,8 @@ export async function POST(req: NextRequest) {
     const order = orderJson as Record<string, unknown>
 
     // Increment coupon usage
-    if (coupon_code) {
-      await supabaseAdmin.rpc('increment_coupon_usage', { coupon_code })
+    if (normalizedCoupon && calculatedCouponDiscount > 0) {
+      await supabaseAdmin.rpc('increment_coupon_usage', { coupon_code: normalizedCoupon })
     }
 
     // Send push notification (fire and forget)

@@ -1,22 +1,10 @@
-'use client'
+import type { Metadata } from 'next'
+import RegisterClient from './RegisterClient'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { 
-  EyeIcon, 
-  EyeSlashIcon,
-  EnvelopeIcon,
-  LockClosedIcon,
-  UserIcon,
-  PhoneIcon,
-  ArrowLeftIcon,
-  SparklesIcon,
-  CheckCircleIcon
-} from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
-import { createClientSupabase } from '@/lib/supabase-client'
+export const metadata: Metadata = {
+  title: 'إنشاء حساب | Deep Beauty',
+  robots: { index: false, follow: false },
+}
 
 export default function RegisterPage() {
   const router = useRouter()

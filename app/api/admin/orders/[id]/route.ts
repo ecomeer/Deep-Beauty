@@ -15,6 +15,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json({ order: orderRes.data, items: itemsRes.data || [], tracking: trackingRes.data || [] })
 }
 
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  pending:    ['confirmed', 'cancelled'],
+  confirmed:  ['processing', 'shipped', 'cancelled'],
+  processing: ['shipped', 'cancelled'],
+  shipped:    ['delivered'],
+  delivered:  [],
+  cancelled:  [],
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _authErr = await requireAdmin(req)
   if (_authErr) return _authErr
@@ -22,7 +31,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await req.json()
 
   const updateFields: Record<string, string> = {}
-  if (body.status !== undefined) updateFields.status = body.status
+
+  if (body.status !== undefined) {
+    const { data: current } = await supabaseAdmin
+      .from('orders')
+      .select('status')
+      .eq('id', id)
+      .single()
+
+    const allowed = VALID_TRANSITIONS[current?.status ?? ''] ?? []
+    if (current && !allowed.includes(body.status)) {
+      return NextResponse.json(
+        { error: `لا يمكن الانتقال من "${current.status}" إلى "${body.status}"` },
+        { status: 400 }
+      )
+    }
+    updateFields.status = body.status
+  }
+
   if (body.payment_status !== undefined) updateFields.payment_status = body.payment_status
 
   const { data, error } = await supabaseAdmin

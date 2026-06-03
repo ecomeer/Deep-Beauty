@@ -1,26 +1,36 @@
 'use client'
 
 import { useState } from 'react'
-import { createClientSupabase } from '@/lib/supabase-client'
-import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const supabase = createClientSupabase()
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const res = await fetch('/api/auth/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-      if (error) {
+      if (res.status === 401) {
         toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+        setLoading(false)
+        return
+      }
+      if (res.status === 403) {
+        toast.error('هذا الحساب لا يملك صلاحية الدخول إلى لوحة التحكم')
+        setLoading(false)
+        return
+      }
+      if (!res.ok) {
+        toast.error('حدث خطأ أثناء تسجيل الدخول')
         setLoading(false)
         return
       }
@@ -62,28 +72,28 @@ export default function AdminLogin() {
         <form onSubmit={handleLogin} className="space-y-4 text-right">
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>البريد الإلكتروني</label>
-            <input 
-              type="email" 
-              required 
+            <input
+              type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input-field" 
+              className="input-field"
               dir="ltr"
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>كلمة المرور</label>
-            <input 
-              type="password" 
-              required 
+            <input
+              type="password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-field" 
+              className="input-field"
               dir="ltr"
             />
           </div>
           <button type="submit" disabled={loading} className="btn-primary w-full mt-4">
-            {loading ? 'جاري الدخول...' : 'تسجيل الدخول'}
+            {loading ? 'جاري التحقق...' : 'تسجيل الدخول'}
           </button>
         </form>
       </div>

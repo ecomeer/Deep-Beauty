@@ -228,12 +228,17 @@ export default function StitchHomeContent({
   const midBannerImg   = midBanner?.image_url   || null
 
   useEffect(() => {
-    fetch('/api/products/bestsellers?limit=8')
+    const featuredIds = new Set(featuredProducts.slice(0, 8).map(p => p.id))
+    fetch('/api/products/bestsellers?limit=12')
       .then(r => r.json())
-      .then(d => { if (d.products) setBestsellers(d.products) })
+      .then(d => {
+        if (d.products) {
+          setBestsellers(d.products.filter((p: Product) => !featuredIds.has(p.id)).slice(0, 8))
+        }
+      })
       .catch((err) => console.error('Failed to load bestsellers:', err))
       .finally(() => setBestsellersLoading(false))
-  }, [])
+  }, [featuredProducts])
 
   const heroSlides = banners.length > 0 ? banners : [null]
 

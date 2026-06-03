@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { Product, Category } from '@/types'
 import ProductsClientShell from '@/components/store/ProductsClientShell'
 import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
@@ -7,7 +7,7 @@ import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 export const revalidate = 600 // revalidate every 10 minutes
 
 export const metadata: Metadata = {
-  title: 'منتجات العناية بالبشرة | متجر ديب بيوتي الكويت',
+  title: 'المنتجات الفردية | متجر ديب بيوتي الكويت',
   description: 'تسوقي أفضل منتجات العناية بالبشرة في الكويت — سيروم فيتامين C، كريم ترطيب، واقي شمس SPF، ومنتجات كورية أصلية. توصيل سريع لكل الكويت.',
   keywords: 'منتجات عناية بالبشرة الكويت, سيروم فيتامين C الكويت, كريم ترطيب بشرة الكويت, واقي شمس SPF الكويت, منتجات كورية بشرة الكويت, تسوق عناية بشرة أونلاين الكويت',
   alternates: { canonical: 'https://www.deepbeautykw.com/products' },
@@ -36,7 +36,7 @@ export default async function ProductsPage({
   let categories: Category[] = []
 
   try {
-    const supabase = await createServerSupabaseClient()
+    const supabase = supabaseAdmin
     const [prodsRes, catsRes, flashDiscount] = await Promise.race([
       Promise.all([
         supabase

@@ -46,6 +46,7 @@ const DEFAULT_STORE_LINKS = [
 
 const SUPPORT_LINKS = [
   { href: '/faq', label: 'الأسئلة الشائعة' },
+  { href: '/contact', label: 'تواصلي معنا' },
   { href: '/shipping', label: 'الشحن والاسترجاع' },
   { href: '/track', label: 'تتبع الطلب' },
   { href: '/privacy', label: 'سياسة الخصوصية' },

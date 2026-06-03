@@ -18,6 +18,7 @@ import {
   EyeSlashIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { trackInitiateCheckout, trackPurchase } from '@/lib/analytics'
 
 interface FormData {
   customer_name: string
@@ -67,6 +68,29 @@ export default function EnhancedCheckoutPage() {
   const [accountPassword, setAccountPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  // Shipping from admin zones
+  const [shippingCost, setShippingCost] = useState(0)
+  const [freeThreshold, setFreeThreshold] = useState<number | null>(null)
+  const [shippingLoading, setShippingLoading] = useState(true)
+
+  useEffect(() => {
+    setShippingLoading(true)
+    fetch('/api/shipping/calculate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ countryCode: countryConfig.code, subtotalKWD: subtotal }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setShippingCost(data.cost ?? 0)
+          setFreeThreshold(data.freeThresholdKWD ?? null)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setShippingLoading(false))
+  }, [countryConfig.code, subtotal])
+
   // Check if user is logged in
   useEffect(() => {
     checkAuth()
@@ -92,14 +116,6 @@ export default function EnhancedCheckoutPage() {
     }
   }
 
-  // Shipping costs based on country
-  const SHIPPING_COSTS: Record<string, number> = {
-    'KW': 0, 'SA': 2.5, 'AE': 2.5, 'QA': 3, 'BH': 2.5, 'OM': 3.5
-  }
-  const FREE_SHIPPING_THRESHOLDS: Record<string, number | null> = {
-    'KW': null, 'SA': 50, 'AE': 50, 'QA': 50, 'BH': 50, 'OM': 60
-  }
-  
   const countryCode = countryConfig.code
 
   // Reset area when country changes
@@ -107,9 +123,7 @@ export default function EnhancedCheckoutPage() {
     setForm(prev => ({ ...prev, address_area: '' }))
   }, [countryCode])
 
-  const shippingCost = SHIPPING_COSTS[countryCode] ?? 2.5
-  const freeThreshold = FREE_SHIPPING_THRESHOLDS[countryCode]
-  const shipping = freeThreshold && subtotal >= freeThreshold ? 0 : shippingCost
+  const shipping = freeThreshold !== null && subtotal >= freeThreshold ? 0 : shippingCost
   const total = subtotal + shipping - couponDiscount
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -144,6 +158,7 @@ export default function EnhancedCheckoutPage() {
     if (createAccount && accountPassword.length < 8) { toast.error('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return }
 
     setSubmitting(true)
+    trackInitiateCheckout(Math.max(0, total), items.length)
     try {
       // Create account first if requested
       let userId = null
@@ -229,7 +244,11 @@ export default function EnhancedCheckoutPage() {
       }
 
       clearCart()
-      
+      trackPurchase(
+        order.id,
+        Math.max(0, total),
+        items.map(i => ({ id: i.id, name: i.name_ar, price: i.price, quantity: i.quantity }))
+      )
       // Show success message with account creation info
       if (createAccount) {
         router.push(`/order-success?id=${order.id}&num=${orderNumber}&account=created`)
@@ -349,6 +368,7 @@ export default function EnhancedCheckoutPage() {
                       value={form.customer_name}
                       onChange={handleChange}
                       required
+                      autoComplete="name"
                       className="input-field"
                       placeholder="الاسم الكامل للتوصيل"
                     />
@@ -359,13 +379,18 @@ export default function EnhancedCheckoutPage() {
                     </label>
                     <input
                       id="field-phone"
-                      name="customer_phone" 
-                      value={form.customer_phone} 
-                      onChange={handleChange} 
-                      required 
-                      className="input-field" 
-                      placeholder="XXXXXXXX" 
-                      dir="ltr" 
+                      name="customer_phone"
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]{8}"
+                      maxLength={8}
+                      autoComplete="tel"
+                      value={form.customer_phone}
+                      onChange={handleChange}
+                      required
+                      className="input-field"
+                      placeholder="XXXXXXXX"
+                      dir="ltr"
                     />
                     <p className="text-xs text-gray-500 mt-1">سيتم التواصل معك على هذا الرقم</p>
                   </div>
@@ -375,14 +400,15 @@ export default function EnhancedCheckoutPage() {
                     </label>
                     <input
                       id="field-email"
-                      name="customer_email" 
-                      type="email" 
-                      value={form.customer_email} 
-                      onChange={handleChange} 
+                      name="customer_email"
+                      type="email"
+                      autoComplete="email"
+                      value={form.customer_email}
+                      onChange={handleChange}
                       required={createAccount}
-                      className="input-field" 
-                      placeholder={createAccount ? "مطلوب لإنشاء الحساب" : "اختياري - لتتبع الطلب"} 
-                      dir="ltr" 
+                      className="input-field"
+                      placeholder={createAccount ? "مطلوب لإنشاء الحساب" : "اختياري - لتتبع الطلب"}
+                      dir="ltr"
                     />
                   </div>
                 </div>

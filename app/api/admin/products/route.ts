@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
+const PAGE_SIZE = 50
+
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req)
   if (_authErr) return _authErr
@@ -11,7 +13,13 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: false })
     .limit(500) // hard cap — paginate beyond this
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ products: data || [] })
+  return NextResponse.json({
+    products: data || [],
+    total: count ?? 0,
+    page,
+    pageSize: PAGE_SIZE,
+    totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
+  })
 }
 
 export async function POST(req: NextRequest) {

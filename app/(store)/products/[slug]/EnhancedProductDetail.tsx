@@ -27,12 +27,12 @@ import RelatedProductsSection from '@/components/store/RelatedProductsSection'
 import ProductReviews from '@/components/store/ProductReviews'
 
 import toast from 'react-hot-toast'
+import { trackViewContent, trackAddToCart } from '@/lib/analytics'
 
 // ─── Trust Features ────────────────────────────────────────────────────────
-const TRUST = [
-  { Icon: TruckIcon,      title: 'شحن مجاني',     desc: 'للطلبات فوق 20 د.ك' },
-  { Icon: ShieldCheckIcon, title: 'ضمان الجودة',   desc: '100٪ طبيعي' },
-  { Icon: SparklesIcon,   title: 'صنع في الكويت',  desc: 'بأيدٍ محلية' },
+const BASE_TRUST = [
+  { Icon: ShieldCheckIcon, title: 'ضمان الجودة',  desc: '100٪ طبيعي' },
+  { Icon: SparklesIcon,   title: 'صنع في الكويت', desc: 'بأيدٍ محلية' },
 ]
 
 // ─── Loading Skeleton ──────────────────────────────────────────────────────
@@ -59,8 +59,12 @@ export default function EnhancedProductDetail() {
   const params = useParams()
   const slug = params?.slug as string
   const { addItem } = useCartContext()
-  const { formatPrice } = useCountry()
+  const { formatPrice, countryConfig } = useCountry()
   const { isInWishlist, toggleItem } = useWishlistContext()
+  const shippingBadge = countryConfig.code === 'KW'
+    ? { Icon: TruckIcon, title: 'شحن مجاني', desc: 'لجميع الطلبات داخل الكويت' }
+    : { Icon: TruckIcon, title: 'شحن سريع', desc: `${countryConfig.name_ar} — ٢–٥ أيام` }
+  const TRUST = [shippingBadge, ...BASE_TRUST]
 
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
@@ -82,6 +86,9 @@ export default function EnhancedProductDetail() {
       const json = await res.json()
       setProduct(json.product)
       setRelated(json.related || [])
+      if (json.product) {
+        trackViewContent({ id: json.product.id, name_ar: json.product.name_ar, price: json.product.sale_price ?? json.product.price })
+      }
     } catch {
       // product not found
     }
@@ -95,15 +102,17 @@ export default function EnhancedProductDetail() {
   const handleAddToCart = () => {
     if (!product || product.stock_quantity === 0) return
     setAddingToCart(true)
+    const cartPrice = product.sale_price ?? product.price
     addItem({
       id: product.id,
       name_ar: product.name_ar,
       name_en: product.name_en,
-      price: product.sale_price ?? product.price,
+      price: cartPrice,
       image: product.images?.[0] || '',
       quantity,
       slug: product.slug,
     })
+    trackAddToCart({ id: product.id, name_ar: product.name_ar, price: cartPrice, quantity })
     toast.success(`تم إضافة ${product.name_ar} للسلة 🛍️`, {
       duration: 2500,
       position: 'bottom-center',

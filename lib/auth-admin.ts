@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
-import { supabaseAdmin } from '@/lib/supabase-admin'
 
 /**
  * Verifies the request comes from an authenticated admin via session cookie.
@@ -12,9 +11,16 @@ export async function requireAdmin(req: NextRequest): Promise<NextResponse | nul
   if (process.env.NEXT_PUBLIC_DEV_BYPASS === 'true') return null
 
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+    }
+
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl,
+      supabaseAnonKey,
       {
         cookies: {
           getAll() { return req.cookies.getAll() },
@@ -45,7 +51,8 @@ export async function requireAdmin(req: NextRequest): Promise<NextResponse | nul
     }
 
     return null
-  } catch {
+  } catch (err) {
+    console.error('requireAdmin error:', err)
     return NextResponse.json({ error: 'Authentication failed' }, { status: 500 })
   }
 }

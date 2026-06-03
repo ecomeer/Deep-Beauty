@@ -99,8 +99,7 @@ export default function AdminFlashSales() {
     fetchSales()
   }
 
-  const now = Date.now()
-  const activeSales = sales.filter(s => s.is_active && new Date(s.ends_at).getTime() > now)
+  const activeSales = sales.filter((s) => s.is_active && new Date(s.ends_at) > new Date())
 
   return (
     <div>

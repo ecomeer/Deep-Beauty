@@ -67,7 +67,11 @@ export default async function HomePage() {
       12000
     )
 
-    featuredProducts = productsRes.data || []
+    const flashDiscount = await getActiveFlashDiscount()
+    featuredProducts = (productsRes.data || []).map((p) => ({
+      ...p,
+      sale_price: applyDiscount(p.price, flashDiscount) ?? p.sale_price,
+    }))
     categories = categoriesRes.data || []
     banners = bannersRes.data || []
     if (settingRes.data?.value) announcementText = settingRes.data.value

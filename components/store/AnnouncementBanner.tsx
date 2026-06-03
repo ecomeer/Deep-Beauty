@@ -5,7 +5,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 
 export default function AnnouncementBanner() {
   const [visible, setVisible] = useState(false)
-  const [text, setText] = useState('شحن مجاني للطلبات فوق ٢٠ د.ك')
+  const [text, setText] = useState('شحن مجاني لجميع الطلبات داخل الكويت 🇰🇼')
 
   useEffect(() => {
     fetch('/api/settings')
