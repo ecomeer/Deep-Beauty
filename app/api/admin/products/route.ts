@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (_authErr) return _authErr
   const { data, error } = await supabaseAdmin
     .from('products')
-    .select('id,name_ar,name_en,slug,category,price,compare_price,sale_price,stock_quantity,images,is_active,is_featured,created_at')
+    .select('id,name_ar,name_en,slug,category,price,compare_price,stock_quantity,images,is_active,is_featured,created_at')
     .order('created_at', { ascending: false })
     .limit(500) // hard cap — paginate beyond this
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

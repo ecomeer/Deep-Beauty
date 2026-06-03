@@ -13,38 +13,27 @@ export async function GET(request: Request) {
     
     // Get products with highest sales count or order count
     // First try to get from products table if there's a sales_count column
-    const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, price, sale_price, images, category, stock_quantity, is_active, is_featured, sales_count, created_at'
-    const { data: initialProducts, error } = await supabase
+    const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at'
+
+    // Try featured products first, ordered by newest
+    const { data: products, error } = await supabase
       .from('products')
       .select(productColumns)
       .eq('is_active', true)
-      .order('sales_count', { ascending: false })
+      .eq('is_featured', true)
+      .order('created_at', { ascending: false })
       .limit(limit)
-    let products = initialProducts
 
-    // If that fails or returns empty, fall back to featured products
-    if (error || !products || products.length === 0) {
-      const fallback = await supabase
-        .from('products')
-        .select(productColumns)
-        .eq('is_active', true)
-        .eq('is_featured', true)
-        .order('created_at', { ascending: false })
-        .limit(limit)
-      
-      if (fallback.error) {
-        console.error('Bestsellers error:', fallback.error)
-        return NextResponse.json(
-          { error: 'فشل في جلب الأكثر مبيعاً' },
-          { status: 500 }
-        )
-      }
-      
-      products = fallback.data || []
+    if (error) {
+      console.error('Bestsellers error:', error)
+      return NextResponse.json(
+        { error: 'فشل في جلب الأكثر مبيعاً' },
+        { status: 500 }
+      )
     }
 
     const flashDiscount = await getActiveFlashDiscount()
-    const withSalePrice = products.map(p => ({
+    const withSalePrice = (products || []).map(p => ({
       ...p,
       sale_price: applyDiscount(p.price, flashDiscount),
     }))
