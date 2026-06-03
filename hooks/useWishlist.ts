@@ -28,14 +28,18 @@ export function useWishlist() {
   const [items, setItems] = useState<WishlistItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const supabase = useRef(createClientSupabase())
+  const supabase = useRef<ReturnType<typeof createClientSupabase> | null>(null)
+  function getSupabase() {
+    if (!supabase.current) supabase.current = createClientSupabase()
+    return supabase.current
+  }
 
   // On mount: check auth, load from server or localStorage
   useEffect(() => {
     let cancelled = false
 
     async function init() {
-      const { data: { user } } = await supabase.current.auth.getUser()
+      const { data: { user } } = await getSupabase().auth.getUser()
       if (cancelled) return
 
       if (user) {
@@ -61,7 +65,7 @@ export function useWishlist() {
 
     init()
 
-    const { data: { subscription } } = supabase.current.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = getSupabase().auth.onAuthStateChange((_event, session) => {
       if (!session) {
         setIsLoggedIn(false)
         setItems(loadFromLS())
