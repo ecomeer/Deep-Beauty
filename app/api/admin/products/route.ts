@@ -2,16 +2,42 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
+const PAGE_SIZE = 20
+
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req)
   if (_authErr) return _authErr
-  const { data, error } = await supabaseAdmin
+
+  const { searchParams } = new URL(req.url)
+  const search = searchParams.get('search')?.trim()
+  const category = searchParams.get('category')
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const from = (page - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+
+  let query = supabaseAdmin
     .from('products')
-    .select('id,name_ar,name_en,slug,category,price,compare_price,stock_quantity,images,is_active,is_featured,created_at')
+    .select('id,name_ar,name_en,slug,category,price,compare_price,stock_quantity,images,is_active,is_featured,created_at', { count: 'exact' })
     .order('created_at', { ascending: false })
-    .limit(500) // hard cap — paginate beyond this
+
+  if (search) {
+    query = query.or(`name_ar.ilike.%${search}%,name_en.ilike.%${search}%`)
+  }
+  if (category) {
+    query = query.eq('category', category)
+  }
+
+  query = query.range(from, to)
+
+  const { data, error, count } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ products: data || [] })
+  return NextResponse.json({
+    products: data || [],
+    total: count ?? 0,
+    page,
+    pageSize: PAGE_SIZE,
+    totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
+  })
 }
 
 export async function POST(req: NextRequest) {

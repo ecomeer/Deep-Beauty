@@ -91,11 +91,8 @@ export default function ReviewsPage() {
     }
   }
 
-  const stats = {
-    total,
-    pending: reviews.filter(r => !r.is_approved).length,
-    approved: reviews.filter(r => r.is_approved).length,
-  }
+  const pendingOnPage = reviews.filter(r => !r.is_approved).length
+  const approvedOnPage = reviews.filter(r => r.is_approved).length
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -113,9 +110,9 @@ export default function ReviewsPage() {
               }`}
             >
               {f === 'all' ? 'الكل' : f === 'pending' ? 'قيد الانتظار' : 'تمت الموافقة'}
-              {f === 'pending' && stats.pending > 0 && (
+              {f === 'pending' && pendingOnPage > 0 && (
                 <span className="mr-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                  {stats.pending}
+                  {pendingOnPage}
                 </span>
               )}
             </button>
@@ -127,15 +124,15 @@ export default function ReviewsPage() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-sm text-gray-500">إجمالي التقييمات</p>
-          <p className="text-2xl font-bold">{stats.total}</p>
+          <p className="text-2xl font-bold">{total}</p>
         </div>
         <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-sm text-gray-500">في الانتظار</p>
-          <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+          <p className="text-sm text-gray-500">في الانتظار (هذه الصفحة)</p>
+          <p className="text-2xl font-bold text-yellow-600">{pendingOnPage}</p>
         </div>
         <div className="bg-white p-4 rounded-xl shadow-sm">
-          <p className="text-sm text-gray-500">تمت الموافقة</p>
-          <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+          <p className="text-sm text-gray-500">تمت الموافقة (هذه الصفحة)</p>
+          <p className="text-2xl font-bold text-green-600">{approvedOnPage}</p>
         </div>
       </div>
 

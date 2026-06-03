@@ -108,7 +108,7 @@ export default function AdminOrders() {
               <button
                 key={btn.value}
                 type="button"
-                onClick={() => setStatusFilter(btn.value)}
+                onClick={() => { setStatusFilter(btn.value); setPage(1) }}
                 className={`badge cursor-pointer ${statusFilter === btn.value ? btn.cls : 'badge-gray'}`}
               >
                 {btn.label}
