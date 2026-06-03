@@ -25,34 +25,24 @@ export async function POST(req: NextRequest) {
       address_street,
       address_house,
       notes,
-      subtotal,
+      subtotal = 0,
       shipping_cost,
       total,
       coupon_code,
-      coupon_discount,
+      coupon_discount = 0,
       payment_method,
       user_id,
       items,
-      total,
     } = body
-
-    // Normalize values
-    const calculatedSubtotal = Number(subtotal) || 0
-    const normalizedShippingCost = Number(shipping_cost) || 0
-    const calculatedTotal = Number(total) || 0
-    const normalizedCoupon: string | null = coupon_code || null
-    const calculatedCouponDiscount = Number(coupon_discount) || 0
 
     // Validate required fields
     if (!customer_name?.trim()) return NextResponse.json({ error: 'الاسم مطلوب' }, { status: 400 })
     if (!customer_phone?.trim()) return NextResponse.json({ error: 'رقم الهاتف مطلوب' }, { status: 400 })
     if (!Array.isArray(items) || items.length === 0) return NextResponse.json({ error: 'السلة فارغة' }, { status: 400 })
-    if (!calculatedTotal || calculatedTotal <= 0) return NextResponse.json({ error: 'مبلغ الطلب غير صحيح' }, { status: 400 })
+    if (!total || total <= 0) return NextResponse.json({ error: 'مبلغ الطلب غير صحيح' }, { status: 400 })
     if (items.length > 50) return NextResponse.json({ error: 'عدد المنتجات يتجاوز الحد المسموح' }, { status: 400 })
 
     // Build order payload for atomic RPC
-    const { subtotal = 0, coupon_discount = 0 } = body
-
     const orderData: Record<string, unknown> = {
       order_number: orderNumber,
       customer_name,
@@ -64,11 +54,11 @@ export async function POST(req: NextRequest) {
       address_street,
       address_house,
       notes: notes || null,
-      subtotal,
+      subtotal: Number(subtotal) || 0,
       shipping_cost: Number(shipping_cost) || 0,
-      total: Math.max(0, total),
+      total: Math.max(0, Number(total)),
       coupon_code: coupon_code || null,
-      coupon_discount,
+      coupon_discount: Number(coupon_discount) || 0,
       status: 'pending',
       payment_method,
       payment_status: 'unpaid',
