@@ -79,3 +79,5 @@ tsconfig.tsbuildinfo
 
 
 Deep-Beauty/
+.vercel
+.env*.local

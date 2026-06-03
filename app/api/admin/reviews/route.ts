@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('reviews')
       .select(`
-        *,
+        id, product_id, user_id, rating, comment, is_approved, created_at,
         products:product_id (name_ar, images)
       `)
       .order('created_at', { ascending: false })
@@ -30,9 +30,12 @@ export async function GET(request: NextRequest) {
     if (error) throw error
     
     return NextResponse.json({ reviews: data || [] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reviews fetch error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Reviews fetch failed' },
+      { status: 500 }
+    )
   }
 }
 
@@ -53,15 +56,18 @@ export async function PATCH(request: NextRequest) {
       .from('reviews')
       .update({ is_approved: isApproved })
       .eq('id', id)
-      .select()
+      .select('id, product_id, user_id, rating, comment, is_approved, created_at')
       .single()
     
     if (error) throw error
     
     return NextResponse.json({ review: data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Review update error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Review update failed' },
+      { status: 500 }
+    )
   }
 }
 
@@ -86,8 +92,11 @@ export async function DELETE(request: NextRequest) {
     if (error) throw error
     
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Review delete error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Review delete failed' },
+      { status: 500 }
+    )
   }
 }

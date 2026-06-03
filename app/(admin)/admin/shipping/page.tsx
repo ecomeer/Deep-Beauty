@@ -331,7 +331,7 @@ function ZoneForm({
 }: {
   zone: ShippingZone | Omit<ShippingZone, 'id'>
   isEdit: boolean
-  onSave: (zone: any, isEdit: boolean) => void
+  onSave: (zone: ShippingZone | Omit<ShippingZone, 'id'>, isEdit: boolean) => void
   onCancel: () => void
   saving: boolean
 }) {

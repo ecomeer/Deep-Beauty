@@ -12,7 +12,10 @@ export async function POST(req: NextRequest) {
   try {
     const form = await req.formData()
     const file = form.get('file') as File | null
-    const folder = (form.get('folder') as string) || 'misc'
+    const rawFolder = (form.get('folder') as string) || 'misc'
+    // Whitelist allowed folders — prevent path traversal
+    const ALLOWED_FOLDERS = ['products', 'banners', 'categories', 'misc']
+    const folder = ALLOWED_FOLDERS.includes(rawFolder) ? rawFolder : 'misc'
 
     if (!file) {
       return NextResponse.json({ error: 'لم يتم إرفاق ملف' }, { status: 400 })

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { TrashIcon, PhotoIcon, ChevronUpIcon, ChevronDownIcon, PlusIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -24,13 +24,13 @@ export default function AdminBanners() {
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => { fetchBanners() }, [])
-
-  async function fetchBanners() {
+  const fetchBanners = useCallback(async () => {
     const res = await fetch('/api/admin/banners'); const { banners: data } = await res.json()
     setBanners(data || [])
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => { fetchBanners() }, [fetchBanners])
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]

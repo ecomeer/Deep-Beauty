@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 
+interface OrderItemRow {
+  product_name_ar: string | null
+  product_name_en: string | null
+  quantity: number
+  unit_price: number
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient()
@@ -65,8 +72,8 @@ export async function GET(request: NextRequest) {
       payment_method: order.payment_method,
       payment_status: order.payment_status,
       created_at: order.created_at,
-      item_count: (order.order_items as any[])?.length ?? 0,
-      items: ((order.order_items as any[]) ?? []).map((item) => ({
+      item_count: (order.order_items as OrderItemRow[] | null)?.length ?? 0,
+      items: ((order.order_items as OrderItemRow[] | null) ?? []).map((item) => ({
         name: item.product_name_ar,
         name_en: item.product_name_en,
         image: null,           // no image stored in order_items; fetch from product if needed

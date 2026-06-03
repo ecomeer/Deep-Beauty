@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (_authErr) return _authErr
   const { data, error } = await supabaseAdmin
     .from('marketing_campaigns')
-    .select('*')
+    .select('id, title, description, type, target_audience, content, scheduled_at, is_active, sent_count, created_at')
     .order('created_at', { ascending: false })
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

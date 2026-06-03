@@ -5,7 +5,11 @@ export const dynamic = 'force-dynamic'
 
 // ─── GET /api/wishlist ─────────────────────────────────────────────
 // Returns the current user's wishlist with product details
-export async function GET(_req: NextRequest) {
+interface WishlistRow {
+  products?: { is_active?: boolean } | null
+}
+
+export async function GET() {
   try {
     const supabase = await createServerSupabaseClient()
 
@@ -34,7 +38,7 @@ export async function GET(_req: NextRequest) {
     }
 
     // Filter out wishlist rows whose product was deleted / deactivated
-    const items = (data || []).filter((row: any) => row.products?.is_active)
+    const items = (data as WishlistRow[] | null || []).filter((row) => row.products?.is_active)
 
     return NextResponse.json({ items })
   } catch (err) {

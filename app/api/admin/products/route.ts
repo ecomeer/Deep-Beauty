@@ -5,7 +5,11 @@ import { requireAdmin } from '@/lib/auth-admin'
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req)
   if (_authErr) return _authErr
-  const { data, error } = await supabaseAdmin.from('products').select('*').order('created_at', { ascending: false })
+  const { data, error } = await supabaseAdmin
+    .from('products')
+    .select('id,name_ar,name_en,slug,category,price,compare_price,sale_price,stock_quantity,images,is_active,is_featured,created_at')
+    .order('created_at', { ascending: false })
+    .limit(500) // hard cap — paginate beyond this
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ products: data || [] })
 }

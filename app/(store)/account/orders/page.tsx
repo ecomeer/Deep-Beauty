@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
@@ -10,7 +11,6 @@ import {
   CheckCircleIcon,
   ClockIcon,
   XCircleIcon,
-  ArrowPathIcon,
   EyeIcon,
   ShoppingBagIcon,
   CubeIcon
@@ -48,11 +48,7 @@ export default function OrdersPage() {
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'cancelled'>('all')
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
-  useEffect(() => {
-    fetchOrders()
-  }, [filter])
-
-  async function fetchOrders() {
+  const fetchOrders = useCallback(async () => {
     try {
       const res = await fetch(`/api/account/orders?filter=${filter}`)
       if (!res.ok) {
@@ -69,7 +65,11 @@ export default function OrdersPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter, router])
+
+  useEffect(() => {
+    fetchOrders()
+  }, [fetchOrders])
 
   const filteredOrders = orders.filter(order => {
     if (filter === 'active') return ['pending', 'confirmed', 'processing', 'shipped'].includes(order.status)
@@ -203,7 +203,14 @@ export default function OrdersPage() {
                           <div key={i} className="flex items-center gap-3 bg-white p-3 rounded-xl">
                             <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
                               {item.image ? (
-                                <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                                <Image
+                                  // FIXED: replaced <img> with Next.js <Image> for optimization.
+                                  src={item.image}
+                                  alt={item.name}
+                                  width={48}
+                                  height={48}
+                                  className="w-full h-full object-cover rounded-lg"
+                                />
                               ) : (
                                 <CubeIcon className="w-6 h-6 text-gray-400" />
                               )}

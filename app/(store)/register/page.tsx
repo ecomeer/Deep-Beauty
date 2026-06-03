@@ -52,7 +52,10 @@ export default function RegisterPage() {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
-        options: { data: { name: form.name, phone: form.phone } },
+        options: { 
+          data: { name: form.name, phone: form.phone },
+          emailRedirectTo: `${window.location.origin}/login`
+        },
       })
 
       if (authError) {
@@ -60,12 +63,17 @@ export default function RegisterPage() {
         return
       }
 
-      // Create profile in users table
+      // Create profile in users table and confirm email
       if (authData.user) {
         await fetch('/api/auth/register-profile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: form.name, phone: form.phone }),
+          body: JSON.stringify({ 
+            name: form.name, 
+            phone: form.phone, 
+            userId: authData.user.id,
+            email: form.email,
+          }),
         })
       }
 
@@ -96,7 +104,7 @@ export default function RegisterPage() {
           </motion.div>
           <h2 className="text-2xl font-bold mb-2">تم إنشاء الحساب بنجاح!</h2>
           <p className="text-gray-500 mb-6">
-            تم إرسال رسالة تأكيد إلى بريدك الإلكتروني. سيتم تحويلك إلى صفحة الدخول...
+            حسابك جاهز الآن! يمكنك تسجيل الدخول فوراً باستخدام بريدك الإلكتروني وكلمة المرور. سيتم تحويلك إلى صفحة الدخول...
           </p>
           <Link href="/login" className="btn-primary inline-block px-8 py-3">
             تسجيل الدخول الآن

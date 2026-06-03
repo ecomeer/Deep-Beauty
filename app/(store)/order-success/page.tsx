@@ -37,18 +37,28 @@ function OrderSuccessContent() {
   const orderNum = params.get('num') || 'DB-XXXXXXXX'
   const accountCreated = params.get('account') === 'created'
   const [order, setOrder] = useState<Order | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(Boolean(orderId))
 
   useEffect(() => {
-    if (!orderId) { setLoading(false); return }
-    fetch(`/api/orders/${orderId}`)
+    if (!orderId) return
+    // FIXED: include order number so guest access is validated server-side.
+    fetch(`/api/orders/${orderId}?num=${encodeURIComponent(orderNum)}`)
       .then(r => r.ok ? r.json() : null)
       .then((json: { order: Order } | null) => {
         if (json?.order) setOrder(json.order)
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [orderId])
+  }, [orderId, orderNum])
+
+  if (!orderId) {
+    return (
+      <div className="bg-white rounded-2xl p-6 mb-6 text-center">
+        {/* FIXED: avoid synchronous setState in effect when order id is missing. */}
+        <p className="text-gray-500">لا يوجد رقم طلب صالح للعرض.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-6 py-12" style={{ background: 'var(--off-white)' }}>

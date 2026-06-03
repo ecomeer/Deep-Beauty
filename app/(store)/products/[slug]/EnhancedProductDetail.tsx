@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
@@ -73,11 +73,8 @@ export default function EnhancedProductDetail() {
 
   const isWishlisted = product ? isInWishlist(product.id) : false
 
-  useEffect(() => {
-    if (slug) fetchProduct()
-  }, [slug])
-
-  async function fetchProduct() {
+  const fetchProduct = useCallback(async () => {
+    if (!slug) return
     setLoading(true)
     try {
       const res = await fetch(`/api/products/${slug}`)
@@ -89,7 +86,11 @@ export default function EnhancedProductDetail() {
       // product not found
     }
     setLoading(false)
-  }
+  }, [slug])
+
+  useEffect(() => {
+    fetchProduct()
+  }, [fetchProduct])
 
   const handleAddToCart = () => {
     if (!product || product.stock_quantity === 0) return
@@ -270,7 +271,6 @@ export default function EnhancedProductDetail() {
                 {images.map((img, i) => (
                   <motion.button
                     key={i}
-                    role="listitem"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { setSelectedImage(i); setIsZoomed(false) }}

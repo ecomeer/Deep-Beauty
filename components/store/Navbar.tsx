@@ -51,11 +51,6 @@ export default function Navbar() {
   }, [handleScroll])
 
   useEffect(() => {
-    setMobileOpen(false)
-    setSearchOpen(false)
-  }, [pathname])
-
-  useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = 'hidden'
     } else {
@@ -86,7 +81,7 @@ export default function Navbar() {
               aria-label={mobileOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
-              className="md:hidden p-2 rounded-xl transition-colors hover:bg-[var(--beige)] text-[var(--text-dark)]"
+              className="md:hidden p-3 rounded-xl transition-colors hover:bg-[var(--beige)] text-[var(--text-dark)]"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               {mobileOpen
@@ -167,12 +162,12 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Search */}
+            {/* Search — min 44×44px touch target */}
             <button
               type="button"
               aria-label="البحث"
               aria-expanded={searchOpen}
-              className={`p-2 rounded-xl transition-colors ${
+              className={`p-3 rounded-xl transition-colors ${
                 searchOpen
                   ? 'bg-[var(--beige)] text-[var(--primary)]'
                   : 'hover:bg-[var(--beige)] text-[var(--text-dark)]'
@@ -182,17 +177,18 @@ export default function Navbar() {
               <MagnifyingGlassIcon className="w-5 h-5" />
             </button>
 
-            {/* Cart */}
+            {/* Cart — min 44×44px touch target */}
             <button
               type="button"
-              aria-label={`سلة التسوق${totalItems > 0 ? ` (${totalItems} منتجات)` : ''}`}
+              aria-label="سلة التسوق"
               onClick={() => setIsOpen(true)}
-              className="relative p-2 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
+              className="relative p-3 rounded-xl hover:bg-[var(--beige)] transition-colors text-[var(--text-dark)]"
             >
               <ShoppingBagIcon className="w-5 h-5" />
               {totalItems > 0 && (
                 <span
                   aria-hidden="true"
+                  suppressHydrationWarning
                   className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center text-white leading-none bg-[var(--primary)]"
                 >
                   {totalItems > 9 ? '9+' : totalItems}

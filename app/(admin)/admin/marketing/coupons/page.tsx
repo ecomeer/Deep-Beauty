@@ -22,16 +22,16 @@ export default function AdminCoupons() {
   const [coupons, setCoupons] = useState<Coupon[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchCoupons()
-  }, [])
-
   const fetchCoupons = async () => {
     const res = await fetch('/api/admin/coupons')
     const data = await res.json()
     setCoupons(Array.isArray(data) ? data : [])
     setLoading(false)
   }
+
+  useEffect(() => {
+    fetchCoupons()
+  }, [])
 
   const toggleActive = async (id: string, current: boolean) => {
     const res = await fetch(`/api/admin/coupons/${id}`, {

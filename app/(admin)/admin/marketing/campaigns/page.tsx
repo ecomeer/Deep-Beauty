@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
-import { PlusIcon, MegaphoneIcon, EnvelopeIcon, DevicePhoneMobileIcon, ShareIcon, BellIcon, PencilSquareIcon, TrashIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, EnvelopeIcon, DevicePhoneMobileIcon, ShareIcon, BellIcon, PencilSquareIcon, TrashIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 
 interface Campaign {
   id: string
@@ -11,7 +11,7 @@ interface Campaign {
   description: string | null
   type: 'email' | 'sms' | 'push' | 'social'
   target_audience: 'all' | 'customers' | 'vip' | 'new'
-  content: any
+  content: Record<string, unknown>
   scheduled_at: string | null
   sent_at: string | null
   is_active: boolean

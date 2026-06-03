@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
     if (coupon_code) {
       const { data: coupon } = await supabaseAdmin
         .from('coupons')
-        .select('*')
+        .select('code,type,value,min_order_amount,max_discount_amount,usage_limit,usage_count,expires_at')
         .eq('code', coupon_code.toUpperCase())
         .eq('is_active', true)
         .maybeSingle()

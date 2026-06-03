@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Send push notification for new order
+    let orderNumber: string | null = null
     try {
       const { data: order } = await supabaseAdmin
         .from('orders')
@@ -39,6 +40,7 @@ export async function GET(request: NextRequest) {
         .single()
 
       if (order) {
+        orderNumber = order.order_number
         await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -53,7 +55,11 @@ export async function GET(request: NextRequest) {
       console.error('Failed to send push notification:', notifError)
     }
 
-    return NextResponse.redirect(new URL(`/order-success?id=${result.orderId}&paid=true`, request.url))
+    // FIXED: include order number in redirect so order details endpoint can verify guest access.
+    const query = orderNumber
+      ? `/order-success?id=${result.orderId}&num=${encodeURIComponent(orderNumber)}&paid=true`
+      : `/order-success?id=${result.orderId}&paid=true`
+    return NextResponse.redirect(new URL(query, request.url))
   } catch (error) {
     console.error('Payment callback error:', error)
     return NextResponse.redirect(new URL('/payment-failed?reason=error', request.url))

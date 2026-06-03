@@ -1,5 +1,3 @@
-const CACHE_NAME = 'deep-beauty-v5'
-
 self.addEventListener('install', () => {
   self.skipWaiting()
 })
@@ -23,7 +21,7 @@ self.addEventListener('push', (event) => {
   }
   try {
     data = { ...data, ...event.data.json() }
-  } catch (_) {}
+  } catch {}
 
   event.waitUntil(
     self.registration.showNotification(data.title, {

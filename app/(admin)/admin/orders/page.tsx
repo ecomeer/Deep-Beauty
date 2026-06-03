@@ -6,31 +6,55 @@ import Link from 'next/link'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
+interface Order {
+  id: string
+  order_number: string
+  created_at: string
+  customer_name: string
+  customer_phone: string
+  address_area: string | null
+  total: number
+  status: string
+  payment_method: string
+}
+
 export default function AdminOrders() {
-  const [orders, setOrders] = useState<any[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
 
-  useEffect(() => { fetchOrders() }, [])
-
   async function fetchOrders() {
-    const res = await fetch('/api/admin/orders')
-    const data = await res.json()
-    setOrders(data.orders || [])
-    setLoading(false)
+    try {
+      const res = await fetch('/api/admin/orders', { cache: 'no-store' })
+      if (!res.ok) throw new Error(`${res.status}`)
+      const data = await res.json()
+      setOrders(data.orders || [])
+    } catch {
+      toast.error('فشل تحميل الطلبات')
+    } finally {
+      setLoading(false)
+    }
   }
 
+  useEffect(() => { fetchOrders() }, [])
+
   const updateStatus = async (id: string, newStatus: string) => {
+    // Optimistic update — change UI immediately, rollback on error
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o))
     const res = await fetch(`/api/admin/orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),
     })
-    if (!res.ok) toast.error('حدث خطأ أثناء تحديث الحالة')
-    else { toast.success('تم تحديث الطلب بنجاح'); fetchOrders() }
+    if (!res.ok) {
+      toast.error('حدث خطأ أثناء تحديث الحالة')
+      fetchOrders() // rollback by reloading
+    } else {
+      toast.success('تم تحديث الحالة ✓')
+    }
   }
 
   const filtered = orders
@@ -168,7 +192,13 @@ export default function AdminOrders() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i}>
+                    {Array.from({ length: 8 }).map((_, j) => (
+                      <td key={j}><div className="skeleton h-4 rounded w-full" style={{ animationDelay: `${i*80}ms` }} /></td>
+                    ))}
+                  </tr>
+                ))
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={8} className="text-center py-10 opacity-50">لا توجد طلبات تطابق بحثك</td></tr>
               ) : (

@@ -6,15 +6,16 @@ import { CartItem } from '@/types'
 const CART_KEY = 'deep_beauty_cart'
 
 export function useCart() {
-  const [items, setItems] = useState<CartItem[]>([])
-  const [isOpen, setIsOpen] = useState(false)
-
-  useEffect(() => {
+  const [items, setItems] = useState<CartItem[]>(() => {
     try {
+      if (typeof window === 'undefined') return []
       const saved = localStorage.getItem(CART_KEY)
-      if (saved) setItems(JSON.parse(saved))
-    } catch {}
-  }, [])
+      return saved ? (JSON.parse(saved) as CartItem[]) : []
+    } catch {
+      return []
+    }
+  })
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     localStorage.setItem(CART_KEY, JSON.stringify(items))

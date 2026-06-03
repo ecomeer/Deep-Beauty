@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -24,11 +24,7 @@ export default function ReviewsPage() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all')
   const [processing, setProcessing] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchReviews()
-  }, [filter])
-
-  async function fetchReviews() {
+  const fetchReviews = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch(`/api/admin/reviews?status=${filter}`)
@@ -40,7 +36,11 @@ export default function ReviewsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    fetchReviews()
+  }, [fetchReviews])
 
   async function handleApprove(id: string, approve: boolean) {
     setProcessing(id)

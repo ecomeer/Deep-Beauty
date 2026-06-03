@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
       supabaseAdmin.from('orders').select('total').eq('payment_status', 'paid'),
       supabaseAdmin.from('products').select('*', { count: 'exact', head: true }).eq('is_active', true),
-      supabaseAdmin.from('orders').select('*').order('created_at', { ascending: false }).limit(8),
+      supabaseAdmin.from('orders').select('id,order_number,customer_name,total,status,payment_method,created_at').order('created_at', { ascending: false }).limit(8),
       supabaseAdmin.from('products').select('id, name_ar, stock_quantity').lt('stock_quantity', 10).eq('is_active', true).order('stock_quantity', { ascending: true }).limit(5),
       supabaseAdmin.from('orders').select('created_at, total').gte('created_at', sevenDaysAgo.toISOString()),
     ])

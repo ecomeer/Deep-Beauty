@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Category } from '@/types'
 import { PlusIcon, TrashIcon, PhotoIcon, PencilSquareIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -21,19 +21,18 @@ export default function AdminCategories() {
 
   // Inline edit state
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editImageUrl, setEditImageUrl] = useState('')
   const [editUploading, setEditUploading] = useState(false)
   const editInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { fetchCategories() }, [])
-
-  async function fetchCategories() {
+  const fetchCategories = useCallback(async () => {
     const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
     setCategories(data || [])
     setLoading(false)
-  }
+  }, [])
 
-  async function uploadImage(file: File, prefix: string): Promise<string | null> {
+  useEffect(() => { fetchCategories() }, [fetchCategories])
+
+  async function uploadImage(file: File): Promise<string | null> {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('folder', `categories`)
@@ -51,7 +50,7 @@ export default function AdminCategories() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const url = await uploadImage(file, slugify(form.name_en || 'category'))
+    const url = await uploadImage(file)
     if (url) { setForm(f => ({ ...f, image_url: url })); toast.success('تم رفع الصورة') }
     setUploading(false)
     e.target.value = ''
@@ -61,9 +60,8 @@ export default function AdminCategories() {
     const file = e.target.files?.[0]
     if (!file) return
     setEditUploading(true)
-    const url = await uploadImage(file, catId)
+    const url = await uploadImage(file)
     if (url) {
-      setEditImageUrl(url)
       const cat = categories.find(c => c.id === catId)
       if (cat) {
         await fetch(`/api/admin/categories/${catId}`, {
@@ -132,10 +130,9 @@ export default function AdminCategories() {
 
   const startEdit = (cat: Category) => {
     setEditingId(cat.id)
-    setEditImageUrl(cat.image_url || '')
   }
 
-  const cancelEdit = () => { setEditingId(null); setEditImageUrl('') }
+  const cancelEdit = () => { setEditingId(null) }
 
   return (
     <div>

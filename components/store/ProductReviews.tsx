@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { StarIcon as StarOutline } from '@heroicons/react/24/outline'
 
@@ -29,11 +29,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
   })
   const [submitted, setSubmitted] = useState(false)
 
-  useEffect(() => {
-    fetchReviews()
-  }, [productId])
-
-  async function fetchReviews() {
+  const fetchReviews = useCallback(async () => {
     try {
       const res = await fetch(`/api/reviews?productId=${productId}`)
       const data = await res.json()
@@ -43,7 +39,11 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [productId])
+
+  useEffect(() => {
+    fetchReviews()
+  }, [fetchReviews])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

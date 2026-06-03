@@ -6,13 +6,15 @@ import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
 
+type CouponType = 'percentage' | 'fixed'
+
 export default function NewCoupon() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
     code: '',
     description_ar: '',
-    type: 'percentage' as 'percentage' | 'fixed',
+    type: 'percentage' as CouponType,
     value: '',
     min_order_amount: '0',
     usage_limit: '',
@@ -94,7 +96,7 @@ export default function NewCoupon() {
               <label className="block text-sm font-medium mb-1.5">نوع الخصم *</label>
               <select
                 value={form.type}
-                onChange={e => setForm({ ...form, type: e.target.value as any })}
+                onChange={e => setForm({ ...form, type: e.target.value as CouponType })}
                 className="input-field"
               >
                 <option value="percentage">نسبة مئوية %</option>

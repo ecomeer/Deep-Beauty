@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (_authErr) return _authErr
   const { data, error } = await supabaseAdmin
     .from('flash_sales')
-    .select('*')
+    .select('id, name_ar, discount_percentage, starts_at, ends_at, apply_to, is_active, created_at')
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

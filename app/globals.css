@@ -6,11 +6,11 @@
    and typography used across the entire site.
 ═══════════════════════════════════════════════ */
 :root {
-  /* Brand Colors */
-  --primary:       #9C6644;
-  --primary-dark:  #7a4f32;
+  /* Brand Colors — primary darkened from #9C6644 → #8B5E3C for WCAG AA contrast */
+  --primary:       #8B5E3C;   /* Contrast on off-white: 5.2:1 ✅ (was 4.47:1 ❌) */
+  --primary-dark:  #6e4a2d;
   --primary-light: #b8845f;
-  --primary-hover: #8a5838;
+  --primary-hover: #7a5033;
 
   /* Surfaces */
   --beige:         #EEE0D5;
@@ -32,7 +32,7 @@
   --shadow-md:      0 4px 16px rgba(58,42,30,0.10);
   --shadow-lg:      0 10px 40px rgba(58,42,30,0.12);
   --shadow-xl:      0 20px 60px rgba(58,42,30,0.15);
-  --shadow-primary: 0 8px 24px rgba(156,102,68,0.25);
+  --shadow-primary: 0 8px 24px rgba(139,94,60,0.25);
 
   /* Border Radius */
   --radius-sm: 0.5rem;    /* 8px */
@@ -63,7 +63,7 @@ html {
 }
 
 body {
-  font-family: var(--font-tajawal), sans-serif;
+  font-family: var(--font-almarai), sans-serif;
   background-color: var(--off-white);
   color: var(--text-dark);
   overflow-x: hidden;
@@ -177,7 +177,7 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--dark-beige);
   background: white;
   color: var(--text-dark);
-  font-family: var(--font-tajawal), sans-serif;
+  font-family: var(--font-almarai), sans-serif;
 }
 .input-field:focus {
   border-color: var(--primary);
@@ -212,7 +212,7 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
 .section-subtitle {
-  font-family: var(--font-tajawal), sans-serif;
+  font-family: var(--font-almarai), sans-serif;
   color: #7a6055;
   text-align: center;
   font-size: 1rem;
@@ -489,7 +489,7 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.88rem;
   background: var(--primary); color: white; transition: all 0.2s;
-  font-family: var(--font-tajawal), sans-serif;
+  font-family: var(--font-almarai), sans-serif;
 }
 .hp-btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(156,102,68,0.3); }
 
@@ -1443,4 +1443,22 @@ html {
 ============================== */
 .font-latin {
   font-family: var(--font-cormorant), serif;
+}
+
+/* ==============================
+   PERFORMANCE — Lightweight animations
+   (replaces framer-motion for card grids)
+============================== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Content-visibility for below-fold sections */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 400px;
 }

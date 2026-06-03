@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
-import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { 
   CheckCircleIcon, 
@@ -11,6 +10,7 @@ import {
   DocumentTextIcon, 
   UserIcon, 
   MapPinIcon,
+  ShoppingBagIcon,
   PlusIcon,
   BellIcon,
   ClockIcon,
@@ -18,12 +18,51 @@ import {
   PaperAirplaneIcon
 } from '@heroicons/react/24/outline'
 
+interface AdminOrder {
+  id: string
+  order_number: string
+  status: string
+  subtotal: number
+  shipping_cost: number
+  coupon_discount: number
+  coupon_code?: string | null
+  total: number
+  customer_name: string
+  customer_phone: string
+  customer_email?: string | null
+  address_area: string
+  address_block: string
+  address_street: string
+  address_house: string
+  notes?: string | null
+  payment_method: string
+  payment_status: string
+}
+
+interface OrderItem {
+  id: string
+  product_name_ar: string
+  product_name_en: string
+  unit_price: number
+  quantity: number
+  total_price: number
+}
+
+interface TrackingEvent {
+  id: string
+  status: string
+  status_label_ar: string
+  description_ar?: string | null
+  location?: string | null
+  created_at: string
+}
+
 export default function AdminOrderDetail() {
   const params = useParams()
   const router = useRouter()
-  const [order, setOrder] = useState<any>(null)
-  const [items, setItems] = useState<any[]>([])
-  const [tracking, setTracking] = useState<any[]>([])
+  const [order, setOrder] = useState<AdminOrder | null>(null)
+  const [items, setItems] = useState<OrderItem[]>([])
+  const [tracking, setTracking] = useState<TrackingEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [showTrackingForm, setShowTrackingForm] = useState(false)
   const [trackingForm, setTrackingForm] = useState({
@@ -34,11 +73,7 @@ export default function AdminOrderDetail() {
     notify_customer: false
   })
 
-  useEffect(() => {
-    fetchOrder()
-  }, [])
-
-  async function fetchOrder() {
+  const fetchOrder = useCallback(async () => {
     const res = await fetch(`/api/admin/orders/${params.id}`)
     if (!res.ok) { setLoading(false); return }
     const { order: oData, items: iData, tracking: tData } = await res.json()
@@ -46,10 +81,15 @@ export default function AdminOrderDetail() {
     setItems(iData || [])
     setTracking(tData || [])
     setLoading(false)
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    fetchOrder()
+  }, [fetchOrder])
 
   const addTracking = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!order) return
     const res = await fetch(`/api/admin/orders/${order.id}/tracking`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -82,6 +122,7 @@ export default function AdminOrderDetail() {
   }
 
   const notifyCustomer = async (statusOrMessage?: string) => {
+    if (!order) return
     const message = statusOrMessage
       ? `مرحباً ${order.customer_name}، ${STATUS_MESSAGES[statusOrMessage] || statusOrMessage} — طلب رقم ${order.order_number} 🛍️`
       : `تحديث طلب ${order.order_number}: ${trackingForm.status_label_ar} - ${trackingForm.description_ar || ''}`
@@ -382,8 +423,4 @@ export default function AdminOrderDetail() {
       </div>
     </div>
   )
-}
-
-function ShoppingBagIcon(props: any) {
-  return <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
 }

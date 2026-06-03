@@ -6,14 +6,17 @@ import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
 
+type CampaignType = 'email' | 'sms' | 'push' | 'social'
+type CampaignAudience = 'all' | 'customers' | 'vip' | 'new'
+
 export default function NewCampaign() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
     title: '',
     description: '',
-    type: 'email' as 'email' | 'sms' | 'push' | 'social',
-    target_audience: 'all' as 'all' | 'customers' | 'vip' | 'new',
+    type: 'email' as CampaignType,
+    target_audience: 'all' as CampaignAudience,
     subject: '',
     body: '',
     scheduled_at: ''
@@ -97,7 +100,7 @@ export default function NewCampaign() {
               <label className="block text-sm font-medium mb-1.5">نوع الحملة *</label>
               <select
                 value={form.type}
-                onChange={e => setForm({...form, type: e.target.value as any})}
+                onChange={e => setForm({...form, type: e.target.value as CampaignType})}
                 className="input-field"
               >
                 <option value="email">📧 بريد إلكتروني</option>
@@ -110,7 +113,7 @@ export default function NewCampaign() {
               <label className="block text-sm font-medium mb-1.5">الجمهور المستهدف *</label>
               <select
                 value={form.target_audience}
-                onChange={e => setForm({...form, target_audience: e.target.value as any})}
+                onChange={e => setForm({...form, target_audience: e.target.value as CampaignAudience})}
                 className="input-field"
               >
                 <option value="all">الجميع</option>

@@ -72,7 +72,7 @@ async function applyMigration() {
     }
 
     // Verify table was created
-    const { data, error: checkError } = await supabase
+    const { error: checkError } = await supabase
       .from('marketing_campaigns')
       .select('id')
       .limit(1)

@@ -13,28 +13,20 @@ interface WishlistItem {
 }
 
 export function useWishlist() {
-  const [items, setItems] = useState<WishlistItem[]>([])
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  // Load from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('deep-beauty-wishlist')
-    if (stored) {
-      try {
-        setItems(JSON.parse(stored))
-      } catch {
-        setItems([])
-      }
+  const [items, setItems] = useState<WishlistItem[]>(() => {
+    try {
+      if (typeof window === 'undefined') return []
+      const stored = localStorage.getItem('deep-beauty-wishlist')
+      return stored ? (JSON.parse(stored) as WishlistItem[]) : []
+    } catch {
+      return []
     }
-    setIsLoaded(true)
-  }, [])
+  })
 
   // Save to localStorage
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('deep-beauty-wishlist', JSON.stringify(items))
-    }
-  }, [items, isLoaded])
+    localStorage.setItem('deep-beauty-wishlist', JSON.stringify(items))
+  }, [items])
 
   const addItem = useCallback((product: {
     id: string
@@ -95,6 +87,6 @@ export function useWishlist() {
     isInWishlist,
     clearWishlist,
     totalItems: items.length,
-    isLoaded
+    isLoaded: true
   }
 }

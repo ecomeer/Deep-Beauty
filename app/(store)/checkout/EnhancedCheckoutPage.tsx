@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCartContext } from '@/context/CartContext'
 import { useCountry } from '@/context/CountryContext'
 
-import { toArabicPrice, generateOrderNumber, isKuwaitPhone, COUNTRY_AREAS } from '@/lib/utils'
+import { generateOrderNumber, isKuwaitPhone, COUNTRY_AREAS } from '@/lib/utils'
 import { 
   UserIcon, 
   LockClosedIcon, 
@@ -30,12 +30,21 @@ interface FormData {
   notes: string
 }
 
+interface AuthMeResponse {
+  user: {
+    id: string
+    email?: string
+    name?: string
+    phone?: string
+  }
+}
+
 export default function EnhancedCheckoutPage() {
   const router = useRouter()
   const { items, subtotal, clearCart } = useCartContext()
   const { formatPrice, countryConfig } = useCountry()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userData, setUserData] = useState<any>(null)
+  const [userData, setUserData] = useState<AuthMeResponse['user'] | null>(null)
   
   // Coupon state
   const [couponCode, setCouponCode] = useState('')
@@ -67,7 +76,7 @@ export default function EnhancedCheckoutPage() {
     try {
       const res = await fetch('/api/auth/me')
       if (res.ok) {
-        const data = await res.json()
+        const data = (await res.json()) as AuthMeResponse
         setIsLoggedIn(true)
         setUserData(data.user)
         // Pre-fill form with user data
@@ -155,8 +164,7 @@ export default function EnhancedCheckoutPage() {
           userId = registerData.user?.id
           toast.success('✅ تم إنشاء حسابك بنجاح!')
         } else {
-          // Account creation failed but continue with order
-          console.log('Account creation failed, continuing as guest')
+          // FIXED: account creation failure should not block checkout.
         }
       }
 
@@ -228,9 +236,9 @@ export default function EnhancedCheckoutPage() {
       } else {
         router.push(`/order-success?id=${order.id}&num=${orderNumber}`)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Checkout error:', err)
-      const errorMessage = err?.message || err?.error_description || err?.error?.message || 'حدث خطأ أثناء إرسال الطلب'
+      const errorMessage = err instanceof Error ? err.message : 'حدث خطأ أثناء إرسال الطلب'
       toast.error(`❌ ${errorMessage}`)
     }
     setSubmitting(false)
@@ -544,13 +552,9 @@ export default function EnhancedCheckoutPage() {
                         الدفع الإلكتروني
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/payments/knet.svg"       alt="K-Net"      className="h-8 w-auto rounded shadow-sm object-contain" />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/payments/visa.svg"       alt="Visa"       className="h-8 w-auto rounded shadow-sm object-contain" />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/payments/mastercard.svg" alt="Mastercard" className="h-8 w-auto rounded shadow-sm object-contain" />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/payments/apple-pay.svg"  alt="Apple Pay"  className="h-8 w-auto rounded shadow-sm object-contain" />
                       </div>
                       <div className="text-xs opacity-60 mt-1">دفع إلكتروني آمن ومشفر</div>

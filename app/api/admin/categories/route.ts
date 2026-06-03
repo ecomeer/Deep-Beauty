@@ -5,7 +5,10 @@ import { requireAdmin } from '@/lib/auth-admin'
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req)
   if (_authErr) return _authErr
-  const { data, error } = await supabaseAdmin.from('categories').select('*').order('name_ar')
+  const { data, error } = await supabaseAdmin
+    .from('categories')
+    .select('id, name_ar, name_en, slug, image_url, is_active, created_at')
+    .order('name_ar')
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ categories: data || [] })
 }

@@ -47,8 +47,10 @@ export default function LoginPage() {
       } else {
         toast.success('تم تسجيل الدخول بنجاح! 🎉')
         router.refresh()
-        // Hard navigation so server components/middleware pick up fresh session cookie
-        window.location.href = '/account'
+        // Use Next.js navigation instead of hard redirect
+        setTimeout(() => {
+          router.push('/account')
+        }, 500)
         return
       }
     } catch {

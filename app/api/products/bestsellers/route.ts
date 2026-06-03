@@ -13,18 +13,20 @@ export async function GET(request: Request) {
     
     // Get products with highest sales count or order count
     // First try to get from products table if there's a sales_count column
-    let { data: products, error } = await supabase
+    const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, price, sale_price, images, category, stock_quantity, is_active, is_featured, sales_count, created_at'
+    const { data: initialProducts, error } = await supabase
       .from('products')
-      .select('*')
+      .select(productColumns)
       .eq('is_active', true)
       .order('sales_count', { ascending: false })
       .limit(limit)
+    let products = initialProducts
 
     // If that fails or returns empty, fall back to featured products
     if (error || !products || products.length === 0) {
       const fallback = await supabase
         .from('products')
-        .select('*')
+        .select(productColumns)
         .eq('is_active', true)
         .eq('is_featured', true)
         .order('created_at', { ascending: false })
@@ -47,7 +49,10 @@ export async function GET(request: Request) {
       sale_price: applyDiscount(p.price, flashDiscount),
     }))
 
-    return NextResponse.json({ products: withSalePrice })
+    return NextResponse.json(
+      { products: withSalePrice },
+      { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300' } }
+    )
   } catch (error) {
     console.error('Bestsellers API error:', error)
     return NextResponse.json(

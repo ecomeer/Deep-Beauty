@@ -64,9 +64,6 @@ async function main() {
     ALTER TABLE public.marketing_campaigns ENABLE ROW LEVEL SECURITY;
   `
 
-  // Use raw SQL via the query endpoint
-  const queryUrl = `${url}/rest/v1/`
-  
   try {
     const response = await fetch(`${url}/rest/v1/rpc/exec_sql`, {
       method: 'POST',

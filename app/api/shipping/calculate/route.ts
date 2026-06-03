@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { calculateShipping, ShippingZone } from '@/lib/shipping'
+import { calculateShipping } from '@/lib/shipping'
 import { GulfCountry } from '@/lib/currency'
 
 export async function POST(request: NextRequest) {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     // Fetch shipping zones from database
     const { data: zones, error } = await supabase
       .from('shipping_zones')
-      .select('*')
+      .select('id,country_code,name,base_rate,free_threshold,is_active')
       .eq('is_active', true)
     
     if (error) throw error
@@ -42,8 +42,11 @@ export async function POST(request: NextRequest) {
         estimated_days_max: result.zone.estimated_days_max
       } : null
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Shipping calculation error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Shipping calculation failed' },
+      { status: 500 }
+    )
   }
 }

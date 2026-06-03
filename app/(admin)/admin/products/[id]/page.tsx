@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { slugify } from '@/lib/utils'
 import { Category } from '@/types'
@@ -23,17 +23,13 @@ export default function ProductForm() {
     images: [] as string[]
   })
 
-  useEffect(() => {
-    fetchCategories()
-    if (isEdit) fetchProduct()
-  }, [isEdit, params])
-
-  async function fetchCategories() {
+  const fetchCategories = useCallback(async () => {
     const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
     setCategories(data || [])
-  }
+  }, [])
 
-  async function fetchProduct() {
+  const fetchProduct = useCallback(async () => {
+    if (!params?.id) return
     const res = await fetch(`/api/admin/products/${params.id}`); const { product: data } = await res.json()
     if (data) {
       setForm({
@@ -54,7 +50,12 @@ export default function ProductForm() {
         images: data.images || []
       })
     }
-  }
+  }, [params?.id])
+
+  useEffect(() => {
+    fetchCategories()
+    if (isEdit) fetchProduct()
+  }, [fetchCategories, fetchProduct, isEdit])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement

@@ -4,7 +4,7 @@ import { Product, Category } from '@/types'
 import ProductsClientShell from '@/components/store/ProductsClientShell'
 import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 
-export const revalidate = 120
+export const revalidate = 600 // revalidate every 10 minutes
 
 export const metadata: Metadata = {
   title: 'منتجات العناية بالبشرة | متجر ديب بيوتي الكويت',
@@ -65,9 +65,10 @@ export default async function ProductsPage({
   return (
     <div className="min-h-screen bg-surface">
       {/* Hero Header */}
-      <div className="pt-32 pb-12 px-6 bg-surface-container-low">
+      <div className="pt-32 pb-10 px-6 bg-surface-container-low">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-headline text-on-surface mb-4">المتجر</h1>
+          <h1 className="text-4xl md:text-5xl font-headline text-on-surface mb-2">المتجر</h1>
+          <p className="text-sm opacity-60">اكتشفي مجموعتنا الكاملة من منتجات العناية بالبشرة</p>
         </div>
       </div>
       <ProductsClientShell products={products} categories={categories} defaultCategory={defaultCategory} />

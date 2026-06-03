@@ -46,14 +46,17 @@ export async function GET(request: NextRequest) {
 
     const { data: tracking } = await supabaseAdmin
       .from('order_tracking')
-      .select('*')
+      .select('id,status,note,location,created_at')
       .eq('order_id', order.id)
       .eq('is_customer_visible', true)
       .order('created_at', { ascending: false })
 
     return NextResponse.json({ order, tracking: tracking || [] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Track order error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Track order failed' },
+      { status: 500 }
+    )
   }
 }

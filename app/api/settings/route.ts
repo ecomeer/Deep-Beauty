@@ -11,5 +11,8 @@ export async function GET() {
     .in('key', PUBLIC_KEYS)
 
   if (error) return NextResponse.json({ settings: [] })
-  return NextResponse.json({ settings: data || [] })
+  return NextResponse.json(
+    { settings: data || [] },
+    { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } }
+  )
 }

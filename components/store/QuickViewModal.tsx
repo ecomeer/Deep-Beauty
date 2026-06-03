@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { Product } from '@/types'
-import { toArabicPrice } from '@/lib/utils'
 import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
 import { useCountry } from '@/context/CountryContext'
@@ -26,7 +25,6 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
 
   useEffect(() => {
     if (isOpen) {
-      setQuantity(1)
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -40,6 +38,11 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
 
   const isWishlisted = isInWishlist(product.id)
 
+  const handleClose = () => {
+    setQuantity(1)
+    onClose()
+  }
+
   const handleAddToCart = () => {
     addItem({
       id: product.id,
@@ -51,7 +54,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
       slug: product.slug,
     })
     toast.success(`تم إضافة ${quantity} من ${product.name_ar} للسلة 🛍️`)
-    onClose()
+    handleClose()
   }
 
   const handleToggleWishlist = () => {
@@ -71,13 +74,13 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Modal */}
       <div className="relative bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors"
         >
           <XMarkIcon className="w-5 h-5" />
@@ -182,7 +185,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
 
             <Link 
               href={`/products/${product.slug}`}
-              onClick={onClose}
+              onClick={handleClose}
               className="text-center text-sm mt-4 opacity-60 hover:opacity-100 transition-opacity"
             >
               عرض تفاصيل أكثر ←

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createServerSupabaseClient()
 
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       totalSpent: totalSpent.toFixed(3),
       wishlistCount: wishlistCount || 0
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Stats API error:', error)
     return NextResponse.json(
       { error: 'An error occurred' },

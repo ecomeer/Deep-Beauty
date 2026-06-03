@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode } from 'react'
 import { 
   GulfCountry, 
   CurrencyCode, 
@@ -24,16 +24,11 @@ const STORAGE_KEY = 'selected_country'
 const DEFAULT_COUNTRY: GulfCountry = 'KW'
 
 export function CountryProvider({ children }: { children: ReactNode }) {
-  const [selectedCountry, setSelectedCountry] = useState<GulfCountry>(DEFAULT_COUNTRY)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
+  const [selectedCountry, setSelectedCountry] = useState<GulfCountry>(() => {
+    if (typeof window === 'undefined') return DEFAULT_COUNTRY
     const stored = localStorage.getItem(STORAGE_KEY) as GulfCountry | null
-    if (stored && GULF_COUNTRIES[stored]) {
-      setSelectedCountry(stored)
-    }
-  }, [])
+    return stored && GULF_COUNTRIES[stored] ? stored : DEFAULT_COUNTRY
+  })
 
   const setCountry = (country: GulfCountry) => {
     setSelectedCountry(country)
@@ -45,23 +40,6 @@ export function CountryProvider({ children }: { children: ReactNode }) {
 
   const formatPriceWithCurrency = (amountKWD: number) => {
     return formatPrice(amountKWD, currency)
-  }
-
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return (
-      <CountryContext.Provider
-        value={{
-          selectedCountry: DEFAULT_COUNTRY,
-          currency: 'KWD',
-          countryConfig: GULF_COUNTRIES[DEFAULT_COUNTRY],
-          setCountry: () => {},
-          formatPrice: (amount: number) => formatPrice(amount, 'KWD')
-        }}
-      >
-        {children}
-      </CountryContext.Provider>
-    )
   }
 
   return (

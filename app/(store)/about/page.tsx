@@ -344,7 +344,7 @@ export default function AboutPage() {
               style={{ background: 'white', border: '1px solid var(--beige)' }}
             >
               <p className="text-xs italic leading-6" style={{ color: '#51443c' }}>
-                "الجمال الحقيقي يبدأ من الداخل، وينعكس على البشرة المُغذّاة جيداً."
+                &ldquo;الجمال الحقيقي يبدأ من الداخل، وينعكس على البشرة المُغذّاة جيداً.&rdquo;
               </p>
               <span
                 className="block mt-3 text-[10px] font-bold uppercase tracking-widest"

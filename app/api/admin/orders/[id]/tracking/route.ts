@@ -15,16 +15,19 @@ export async function GET(
 
     const { data, error } = await supabase
       .from('order_tracking')
-      .select('*')
+      .select('id,order_id,status,note,location,created_at')
       .eq('order_id', id)
       .order('created_at', { ascending: false })
 
     if (error) throw error
 
     return NextResponse.json({ tracking: data || [] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get tracking error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Get tracking failed' },
+      { status: 500 }
+    )
   }
 }
 
@@ -69,9 +72,12 @@ export async function POST(
     }
 
     return NextResponse.json({ tracking: data }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Add tracking error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Add tracking failed' },
+      { status: 500 }
+    )
   }
 }
 
@@ -106,9 +112,12 @@ export async function PATCH(
     if (error) throw error
 
     return NextResponse.json({ tracking: data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update tracking error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Update tracking failed' },
+      { status: 500 }
+    )
   }
 }
 
@@ -142,8 +151,11 @@ export async function DELETE(
     if (error) throw error
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete tracking error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Delete tracking failed' },
+      { status: 500 }
+    )
   }
 }

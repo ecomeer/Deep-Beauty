@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
 import StitchHomeContent from '@/components/store/StitchHomeContent'
 import { Product, Category } from '@/types'
 
@@ -12,7 +12,7 @@ interface Banner {
   sort_order: number
 }
 
-export const revalidate = 60 // revalidate every 60 seconds
+export const revalidate = 300 // revalidate every 5 minutes (was 60s)
 
 // Timeout wrapper to prevent infinite loading
 function withTimeout<T>(promise: Promise<T>, ms = 5000): Promise<T> {
@@ -31,7 +31,12 @@ export default async function HomePage() {
   let announcementText = '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك'
 
   try {
-    const supabase = await createServerSupabaseClient()
+    // FIXED: use cookie-free server client so homepage can statically revalidate without dynamic-cookie warning.
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    )
 
     const [productsRes, categoriesRes, bannersRes, settingRes] = await withTimeout(
       Promise.all([

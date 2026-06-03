@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createServerSupabaseClient()
 
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     // Get user profile from database
     const { data: profile, error: profileError } = await supabase
       .from('users')
-      .select('*')
+      .select('id,email,name,phone,role,is_active,created_at')
       .eq('id', user.id)
       .single()
 
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         avatar: profile?.avatar
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get user error:', error)
     return NextResponse.json(
       { error: 'An error occurred' },

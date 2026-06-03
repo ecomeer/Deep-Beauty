@@ -1,7 +1,7 @@
 'use client'
 
 import { useCountry } from '@/context/CountryContext'
-import { GULF_COUNTRIES, CURRENCY_SYMBOLS } from '@/lib/currency'
+import { GULF_COUNTRIES, GulfCountry } from '@/lib/currency'
 
 export default function CurrencySelector() {
   const { selectedCountry: country, setCountry } = useCountry()
@@ -11,7 +11,7 @@ export default function CurrencySelector() {
       <span className="text-sm opacity-60">الدولة:</span>
       <select
         value={country}
-        onChange={(e) => setCountry(e.target.value as any)}
+        onChange={(e) => setCountry(e.target.value as GulfCountry)}
         className="text-sm font-medium bg-transparent border-none focus:ring-0 cursor-pointer"
         style={{ color: 'var(--text-dark)' }}
       >

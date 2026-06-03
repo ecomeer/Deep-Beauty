@@ -18,7 +18,10 @@ export async function GET() {
       return NextResponse.json({ error: 'فشل في جلب التصنيفات' }, { status: 500 })
     }
 
-    return NextResponse.json({ categories: categories || [] })
+    return NextResponse.json(
+      { categories: categories || [] },
+      { headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600' } }
+    )
   } catch (err) {
     console.error('Categories API exception:', err)
     return NextResponse.json({ error: 'حدث خطأ في الخادم' }, { status: 500 })

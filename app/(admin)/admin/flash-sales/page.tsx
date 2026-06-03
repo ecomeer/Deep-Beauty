@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { formatDateTime } from '@/lib/utils'
-import { PlusIcon, TrashIcon, BoltIcon } from '@heroicons/react/24/outline'
+import { TrashIcon, BoltIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 interface FlashSale {
@@ -47,14 +47,14 @@ export default function AdminFlashSales() {
     apply_to: 'all' as 'all' | 'category' | 'products',
   })
 
-  useEffect(() => { fetchSales() }, [])
-
-  async function fetchSales() {
+  const fetchSales = useCallback(async () => {
     const res = await fetch('/api/admin/flash-sales')
     const data = await res.json()
     setSales(data.sales || [])
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => { fetchSales() }, [fetchSales])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

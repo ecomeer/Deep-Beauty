@@ -40,12 +40,8 @@ function IconTikTok({ className }: { className?: string }) {
 }
 
 // ─── Footer Data ──────────────────────────────────────────────────────────
-const STORE_LINKS = [
+const DEFAULT_STORE_LINKS = [
   { href: '/products', label: 'جميع المنتجات' },
-  { href: '/products?category=سيروم', label: 'سيروم' },
-  { href: '/products?category=عناية+بالبشرة', label: 'عناية بالبشرة' },
-  { href: '/products?category=مقشرات', label: 'مقشرات' },
-  { href: '/products?category=تونر', label: 'تونر' },
 ]
 
 const SUPPORT_LINKS = [
@@ -57,13 +53,19 @@ const SUPPORT_LINKS = [
 ]
 
 const SOCIAL = [
-  { href: 'https://instagram.com/deepbeautykw', label: 'انستغرام', Icon: IconInstagram },
-  { href: 'https://snapchat.com/add/deepbeautykw', label: 'سناب شات', Icon: IconSnapchat },
-  { href: 'https://wa.me/96500000000', label: 'واتساب', Icon: IconWhatsApp },
-  { href: 'https://tiktok.com/@deepbeautykw', label: 'تيك توك', Icon: IconTikTok },
+  { href: 'https://tiktok.com/@deepbeautykw',     label: 'تيك توك',  Icon: IconTikTok },
+  { href: 'https://instagram.com/deepbeautykw',   label: 'انستغرام', Icon: IconInstagram },
+  { href: 'https://snapchat.com/add/deepbeautykw',label: 'سناب شات', Icon: IconSnapchat },
+  { href: 'https://wa.me/96500000000',             label: 'واتساب',   Icon: IconWhatsApp },
 ]
 
-export default function StitchFooter() {
+interface FooterCategory {
+  id: string
+  name_ar: string
+  slug: string
+}
+
+export default function StitchFooter({ categories = [] }: { categories?: FooterCategory[] }) {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -146,16 +148,29 @@ export default function StitchFooter() {
               المتجر
             </p>
             <ul className="space-y-3">
-              {STORE_LINKS.map(({ href, label }) => (
-                <li key={href}>
+              {/* "الكل" link always first */}
+              <li>
+                <Link
+                  href="/products"
+                  className="text-sm transition-colors"
+                  style={{ color: 'rgba(255,255,255,0.6)' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary-light)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                >
+                  جميع المنتجات
+                </Link>
+              </li>
+              {/* Dynamic category links from DB */}
+              {categories.map((cat) => (
+                <li key={cat.id}>
                   <Link
-                    href={href}
+                    href={`/products?category=${encodeURIComponent(cat.name_ar)}`}
                     className="text-sm transition-colors"
                     style={{ color: 'rgba(255,255,255,0.6)' }}
                     onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary-light)')}
                     onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
                   >
-                    {label}
+                    {cat.name_ar}
                   </Link>
                 </li>
               ))}
@@ -248,7 +263,7 @@ export default function StitchFooter() {
 
             {/* Trust Badges */}
             <div className="flex items-center gap-3 mt-5">
-              {['🔒 دفع آمن', '🚚 شحن سريع', '✅ منتجات أصلية'].map((badge) => (
+              {['🔒 دفع آمن', '🚚 شحن سريع', '🌿 منتجات طبيعية'].map((badge) => (
                 <span
                   key={badge}
                   className="text-[10px] font-medium"

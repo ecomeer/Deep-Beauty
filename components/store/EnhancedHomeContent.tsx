@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Product, FlashSale, Category } from '@/types'
-import { toArabicPrice } from '@/lib/utils'
 import { 
   HeartIcon,
   ArrowRightIcon,
@@ -41,7 +40,7 @@ const fadeInUp = {
 }
 
 function useCountdown(endsAt: string) {
-  const calc = () => {
+  const calc = useCallback(() => {
     const diff = Math.max(0, new Date(endsAt).getTime() - Date.now())
     return { 
       h: Math.floor(diff / 3600000), 
@@ -49,12 +48,12 @@ function useCountdown(endsAt: string) {
       s: Math.floor((diff % 60000) / 1000), 
       done: diff === 0 
     }
-  }
+  }, [endsAt])
   const [time, setTime] = useState(calc)
   useEffect(() => { 
     const id = setInterval(() => setTime(calc()), 1000)
     return () => clearInterval(id) 
-  }, [endsAt])
+  }, [calc])
   return time
 }
 
@@ -799,7 +798,7 @@ function TestimonialsCarousel() {
                         <StarIcon key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
                       ))}
                     </div>
-                    <p className="text-gray-700 mb-6 leading-relaxed text-lg">"{review.text}"</p>
+                    <p className="text-gray-700 mb-6 leading-relaxed text-lg">&ldquo;{review.text}&rdquo;</p>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#9C6644] to-[#D4A574] flex items-center justify-center text-white font-bold text-lg">
                         {review.image}

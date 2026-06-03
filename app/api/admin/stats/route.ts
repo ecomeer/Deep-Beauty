@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
+interface StatsCustomer {
+  name: string
+  phone: string
+  totalSpent: number
+  ordersCount: number
+}
+
+interface TopCustomerOrder {
+  customer_name: string
+  customer_phone: string
+  total: number
+}
+
 export async function GET(request: NextRequest) {
   const _authErr = await requireAdmin(request)
   if (_authErr) return _authErr
@@ -40,7 +53,7 @@ export async function GET(request: NextRequest) {
       .limit(10)
     
     // Get sales by day
-    const { data: dailySales, error: dailySalesError } = await supabase
+    const { data: dailySales } = await supabase
       .from('orders')
       .select('created_at, total, status')
       .gte('created_at', startDate.toISOString())
@@ -48,20 +61,20 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: true })
     
     // Get top customers
-    const { data: topCustomers, error: topCustomersError } = await supabase
+    const { data: topCustomers } = await supabase
       .from('orders')
       .select('customer_name, customer_phone, total')
       .gte('created_at', startDate.toISOString())
       .eq('status', 'delivered')
     
     // Get reviews stats
-    const { data: reviewsStats, error: reviewsError } = await supabase
+    const { data: reviewsStats } = await supabase
       .from('reviews')
       .select('is_approved, rating')
       
     // Calculate stats
-    const customersMap = new Map()
-    topCustomers?.forEach(order => {
+    const customersMap = new Map<string, StatsCustomer>()
+    ;(topCustomers as TopCustomerOrder[] | null)?.forEach(order => {
       const key = order.customer_phone
       const existing = customersMap.get(key) || {
         name: order.customer_name,
@@ -103,8 +116,11 @@ export async function GET(request: NextRequest) {
       },
       period
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Stats error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Stats fetch failed' },
+      { status: 500 }
+    )
   }
 }

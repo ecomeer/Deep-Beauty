@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 export const dynamic = 'force-dynamic'
 
 // ─── GET /api/auth/profile ─────────────────────────────────────────
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createServerSupabaseClient()
 
@@ -15,7 +15,7 @@ export async function GET(_req: NextRequest) {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id,full_name,phone,avatar_url,wilaya,city,default_address,created_at,updated_at')
       .eq('id', user.id)
       .maybeSingle()
 

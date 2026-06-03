@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toArabicPrice } from '@/lib/utils'
 import {
   ShoppingBagIcon, UsersIcon, StarIcon,
-  ArrowTrendingUpIcon, CalendarIcon
+  ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -41,11 +41,7 @@ export default function StatsPage() {
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d')
 
-  useEffect(() => {
-    fetchStats()
-  }, [period])
-
-  async function fetchStats() {
+  const fetchStats = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch(`/api/admin/stats?period=${period}`)
@@ -56,7 +52,11 @@ export default function StatsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [period])
+
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
 
   // Calculate totals
   const totalRevenue = stats?.dailySales?.reduce((sum, s) => sum + Number(s.total), 0) || 0

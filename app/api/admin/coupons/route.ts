@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (_authErr) return _authErr
   const { data, error } = await supabaseAdmin
     .from('coupons')
-    .select('*')
+    .select('id, code, description_ar, type, value, min_order_amount, max_discount_amount, usage_limit, usage_count, expires_at, is_active, created_at')
     .order('created_at', { ascending: false })
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

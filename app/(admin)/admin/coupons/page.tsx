@@ -1,12 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { formatDateTime } from '@/lib/utils'
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 export default function AdminCoupons() {
-  const [coupons, setCoupons] = useState<any[]>([])
+  interface Coupon {
+    id: string
+    code: string
+    type: 'percentage' | 'fixed'
+    value: number
+    min_order_amount: number
+    usage_count: number
+    usage_limit: number | null
+    expires_at: string | null
+    is_active: boolean
+  }
+
+  const [coupons, setCoupons] = useState<Coupon[]>([])
   const [loading, setLoading] = useState(true)
 
   const [form, setForm] = useState({
@@ -15,16 +27,16 @@ export default function AdminCoupons() {
   })
   const [adding, setAdding] = useState(false)
 
-  useEffect(() => {
-    fetchCoupons()
-  }, [])
-
-  async function fetchCoupons() {
+  const fetchCoupons = useCallback(async () => {
     const res = await fetch('/api/admin/coupons')
     const data = await res.json()
     setCoupons(data || [])
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchCoupons()
+  }, [fetchCoupons])
 
   const handleDelete = async (id: string) => {
     if (!confirm('هل متأكد من الحذف؟')) return

@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Product, Category } from '@/types'
 import EnhancedProductCard from './EnhancedProductCard'
 import {
   MagnifyingGlassIcon,
-  AdjustmentsHorizontalIcon,
   XMarkIcon,
   FunnelIcon,
 } from '@heroicons/react/24/outline'
@@ -36,10 +35,6 @@ export default function ProductsClientShell({
   const [sortBy, setSortBy] = useState('newest')
   const [search, setSearch] = useState(urlSearch)
   const [filterOpen, setFilterOpen] = useState(false)
-
-  useEffect(() => {
-    if (urlSearch) setSearch(urlSearch)
-  }, [urlSearch])
 
   const filtered = useMemo(() => {
     return products
@@ -216,6 +211,7 @@ export default function ProductsClientShell({
       </div>
 
       {/* ─── Products Grid ─── */}
+      <h2 className="sr-only">نتائج المنتجات</h2>
       <AnimatePresence mode="wait">
         {filtered.length === 0 ? (
           <motion.div

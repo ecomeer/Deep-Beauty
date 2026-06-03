@@ -1,18 +1,18 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Product, FlashSale } from '@/types'
 import ProductCard from '@/components/store/ProductCard'
 
 function useCountdown(endsAt: string) {
-  const calc = () => {
+  const calc = useCallback(() => {
     const diff = Math.max(0, new Date(endsAt).getTime() - Date.now())
     return { h: Math.floor(diff / 3600000), m: Math.floor((diff % 3600000) / 60000), s: Math.floor((diff % 60000) / 1000), done: diff === 0 }
-  }
+  }, [endsAt])
   const [time, setTime] = useState(calc)
-  useEffect(() => { const id = setInterval(() => setTime(calc()), 1000); return () => clearInterval(id) }, [endsAt])
+  useEffect(() => { const id = setInterval(() => setTime(calc()), 1000); return () => clearInterval(id) }, [calc])
   return time
 }
 
@@ -232,7 +232,7 @@ export default function HomeContent({ featuredProducts, activeFlashSale }: {
             {REVIEWS.map((rv, i) => (
               <div key={i} className="ref-review">
                 <div className="ref-review__stars">★★★★★</div>
-                <p className="ref-review__text">"{rv.text}"</p>
+                <p className="ref-review__text">&ldquo;{rv.text}&rdquo;</p>
                 <div className="ref-review__author">
                   <div className="ref-review__av">{rv.name[0]}</div>
                   <div>

@@ -11,15 +11,18 @@ export async function GET(request: NextRequest) {
     
     const { data, error } = await supabase
       .from('shipping_zones')
-      .select('*')
+      .select('id,name,country_code,base_rate,free_threshold,is_active,created_at,updated_at')
       .order('sort_order', { ascending: true })
     
     if (error) throw error
     
     return NextResponse.json({ zones: data || [] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Shipping zones fetch error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Shipping zones fetch failed' },
+      { status: 500 }
+    )
   }
 }
 
@@ -50,9 +53,12 @@ export async function POST(request: NextRequest) {
     if (error) throw error
     
     return NextResponse.json({ zone: data }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Shipping zone create error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Shipping zone create failed' },
+      { status: 500 }
+    )
   }
 }
 
@@ -76,9 +82,12 @@ export async function PATCH(request: NextRequest) {
     if (error) throw error
     
     return NextResponse.json({ zone: data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Shipping zone update error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Shipping zone update failed' },
+      { status: 500 }
+    )
   }
 }
 
@@ -104,8 +113,11 @@ export async function DELETE(request: NextRequest) {
     if (error) throw error
     
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Shipping zone delete error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Shipping zone delete failed' },
+      { status: 500 }
+    )
   }
 }

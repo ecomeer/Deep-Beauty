@@ -3,6 +3,18 @@ import { createBrowserClient } from '@supabase/ssr'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+type BuildTimeSupabaseStub = {
+  from: () => {
+    select: () => { data: null; error: null }
+    insert: () => { data: null; error: null }
+    update: () => { data: null; error: null }
+    delete: () => { data: null; error: null }
+  }
+  auth: {
+    getUser: () => Promise<{ data: { user: null }; error: null }>
+  }
+}
+
 export function createClient() {
   if (!supabaseUrl || !supabaseKey) {
     // Return a mock client for build time
@@ -17,7 +29,7 @@ export function createClient() {
         auth: {
           getUser: () => Promise.resolve({ data: { user: null }, error: null }),
         },
-      } as any
+      } as BuildTimeSupabaseStub
     }
     throw new Error('Supabase URL and Anon Key are required')
   }

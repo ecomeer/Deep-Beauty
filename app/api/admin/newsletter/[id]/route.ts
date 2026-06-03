@@ -45,7 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const _authErr = await requireAdmin(req)
   if (_authErr) return _authErr
   try {
-    const { id } = await params
+    await params
     const { action } = await req.json()
 
     if (action === 'send_campaign') {

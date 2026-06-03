@@ -9,10 +9,16 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get('status')
   const search = searchParams.get('search') || ''
 
+  const page  = Math.max(1, parseInt(searchParams.get('page')  || '1'))
+  const limit = Math.min(200, parseInt(searchParams.get('limit') || '100'))
+  const from  = (page - 1) * limit
+  const to    = from + limit - 1
+
   let query = supabaseAdmin
     .from('orders')
-    .select('*')
+    .select('id,order_number,created_at,customer_name,customer_phone,address_area,total,status,payment_method,payment_status', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .range(from, to)
 
   if (status && status !== 'all') {
     query = query.eq('status', status)
@@ -24,8 +30,8 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  const { data, error } = await query
+  const { data, error, count } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ orders: data || [] })
+  return NextResponse.json({ orders: data || [], total: count ?? 0, page, limit })
 }

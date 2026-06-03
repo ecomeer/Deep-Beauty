@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toArabicPrice, formatDateTime } from '@/lib/utils'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
@@ -18,14 +18,14 @@ export default function AdminCustomers() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
-  useEffect(() => { fetchCustomers() }, [])
-
-  async function fetchCustomers() {
+  const fetchCustomers = useCallback(async () => {
     const res = await fetch('/api/admin/customers')
     const data = await res.json()
     setCustomers(data.customers || [])
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => { fetchCustomers() }, [fetchCustomers])
 
   const filtered = customers.filter(c =>
     c.full_name.includes(search) ||

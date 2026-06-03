@@ -5,25 +5,24 @@ export async function POST(req: NextRequest) {
   const { code, subtotal } = await req.json()
   if (!code) return NextResponse.json({ error: 'كود مطلوب' }, { status: 400 })
 
-  const { data: coupon, error } = await supabaseAdmin
-    .from('coupons')
-    .select('*')
-    .eq('code', code.trim().toUpperCase())
-    .eq('is_active', true)
-    .single()
+  const { data, error } = await supabaseAdmin.rpc('validate_and_use_coupon', {
+    p_code: code.trim().toUpperCase(),
+    p_subtotal: subtotal ?? 0,
+  })
 
-  if (error || !coupon) return NextResponse.json({ error: 'كود غير صحيح' }, { status: 404 })
-  if (coupon.expires_at && new Date(coupon.expires_at) < new Date())
-    return NextResponse.json({ error: 'الكود منتهي الصلاحية' }, { status: 400 })
-  if (coupon.usage_limit && coupon.usage_count >= coupon.usage_limit)
-    return NextResponse.json({ error: 'تجاوز هذا الكود الحد الأقصى للاستخدام' }, { status: 400 })
-  if (subtotal < coupon.min_order_amount)
-    return NextResponse.json({ error: `الحد الأدنى للطلب ${coupon.min_order_amount}` }, { status: 400 })
+  if (error) {
+    const msg = error.message ?? ''
+    if (msg.includes('INVALID_CODE')) return NextResponse.json({ error: 'كود غير صحيح' }, { status: 404 })
+    if (msg.includes('EXPIRED')) return NextResponse.json({ error: 'الكود منتهي الصلاحية' }, { status: 400 })
+    if (msg.includes('LIMIT_REACHED')) return NextResponse.json({ error: 'تجاوز هذا الكود الحد الأقصى للاستخدام' }, { status: 400 })
+    if (msg.includes('MIN_AMOUNT:')) {
+      const min = msg.split('MIN_AMOUNT:')[1]?.trim()
+      return NextResponse.json({ error: `الحد الأدنى للطلب ${min}` }, { status: 400 })
+    }
+    return NextResponse.json({ error: 'كود غير صحيح' }, { status: 400 })
+  }
 
-  let discount = coupon.type === 'percentage'
-    ? (subtotal * coupon.value) / 100
-    : coupon.value
-  if (coupon.max_discount_amount) discount = Math.min(discount, coupon.max_discount_amount)
+  if (!data) return NextResponse.json({ error: 'كود غير صحيح' }, { status: 404 })
 
-  return NextResponse.json({ code: coupon.code, discount, type: coupon.type, value: coupon.value })
+  return NextResponse.json(data as { code: string; discount: number; type: string; value: number })
 }

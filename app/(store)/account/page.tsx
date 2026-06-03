@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -55,9 +55,7 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ totalOrders: 0, totalSpent: 0, wishlistCount: 0 })
 
-  useEffect(() => { fetchUserData() }, [])
-
-  async function fetchUserData() {
+  const fetchUserData = useCallback(async () => {
     try {
       const userRes = await fetch('/api/auth/me')
       if (!userRes.ok) { router.push('/login'); return }
@@ -77,7 +75,9 @@ export default function AccountPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => { fetchUserData() }, [fetchUserData])
 
   const handleLogout = async () => {
     try {

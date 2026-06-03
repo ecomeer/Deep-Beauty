@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
 
 const BASE_URL = 'https://www.deepbeautykw.com'
 
@@ -24,7 +24,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let dynamicRoutes: MetadataRoute.Sitemap = []
   try {
-    const supabase = await createServerSupabaseClient()
+    // FIXED: avoid cookies-based server client in sitemap (static generation safe).
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    )
     const [{ data: products }, { data: categories }] = await Promise.all([
       supabase.from('products').select('slug, updated_at').eq('is_active', true),
       supabase.from('categories').select('slug, updated_at').eq('is_active', true),

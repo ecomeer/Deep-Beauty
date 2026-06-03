@@ -16,8 +16,6 @@ export default function AdminNewsletter() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
-  useEffect(() => { fetchSubscribers() }, [])
-
   async function fetchSubscribers() {
     const res = await fetch('/api/admin/newsletter')
     if (!res.ok) { toast.error('تعذّر تحميل المشتركين'); setLoading(false); return }
@@ -25,6 +23,8 @@ export default function AdminNewsletter() {
     setSubscribers(data.subscribers || [])
     setLoading(false)
   }
+
+  useEffect(() => { fetchSubscribers() }, [])
 
   const handleDelete = async (id: string, email: string) => {
     if (!confirm(`هل أنت متأكد من حذف ${email}؟`)) return
