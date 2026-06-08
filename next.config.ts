@@ -52,15 +52,15 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/api/auth/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
-        ],
-      },
-      {
         source: '/api/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, s-maxage=60, stale-while-revalidate=120' },
+        ],
+      },
+      {
+        source: '/api/auth/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
         ],
       },
       {
