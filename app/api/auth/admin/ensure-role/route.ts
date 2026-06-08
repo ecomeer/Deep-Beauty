@@ -21,16 +21,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 })
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+    }
+
     const normalizedEmail = normalizeEmail(email)
     const allowedAdminEmails = getAllowedAdminEmails()
-    if (!allowedAdminEmails.includes(normalizedEmail)) {
+    if (allowedAdminEmails.length > 0 && !allowedAdminEmails.includes(normalizedEmail)) {
       return NextResponse.json({ error: 'Unauthorized admin email' }, { status: 403 })
     }
 
     const cookiesToSet: Array<{ name: string; value: string; options: Record<string, unknown> }> = []
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl,
+      supabaseAnonKey,
       {
         cookies: {
           getAll: () => request.cookies.getAll(),

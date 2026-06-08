@@ -4,14 +4,16 @@ import { useEffect, useState } from 'react'
 import { BellIcon, BellSlashIcon } from '@heroicons/react/24/outline'
 
 export default function PwaProvider() {
-  const [notifStatus, setNotifStatus] = useState<NotificationPermission | 'unsupported'>(() => {
-    if (typeof window === 'undefined') return 'default'
-    if (!('Notification' in window)) return 'unsupported'
-    return Notification.permission
-  })
+  const [notifStatus, setNotifStatus] = useState<NotificationPermission | 'unsupported'>('default')
   const [swReady, setSwReady] = useState(false)
 
   useEffect(() => {
+    if (!('Notification' in window)) {
+      setNotifStatus('unsupported')
+    } else {
+      setNotifStatus(Notification.permission)
+    }
+
     // Register service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
