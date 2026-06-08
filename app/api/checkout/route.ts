@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
 
     // Build order payload for atomic RPC
     const orderData: Record<string, unknown> = {
+      id: crypto.randomUUID(),
       order_number: orderNumber,
       customer_name,
       customer_phone,
