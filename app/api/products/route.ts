@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('products')
-      .select('id, name_ar, name_en, slug, description_ar, description_en, price, sale_price, images, category, stock_quantity, is_active, is_featured, sales_count, created_at')
+      .select('id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(limit)

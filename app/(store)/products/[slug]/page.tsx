@@ -38,7 +38,7 @@ export default async function ProductPage({ params }: Props) {
   const supabase = supabaseAdmin
   const { data } = await supabase
     .from('products')
-    .select('name_ar, description_ar, images, price, sale_price, stock_quantity')
+    .select('name_ar, description_ar, images, price, compare_price, stock_quantity')
     .eq('slug', slug)
     .single()
 
@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: Props) {
         brand: { '@type': 'Brand', name: 'Deep Beauty' },
         offers: {
           '@type': 'Offer',
-          price: data.sale_price ?? data.price,
+          price: data.compare_price ?? data.price,
           priceCurrency: 'KWD',
           availability:
             (data.stock_quantity ?? 1) > 0
