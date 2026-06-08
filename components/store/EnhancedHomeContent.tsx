@@ -49,10 +49,11 @@ function useCountdown(endsAt: string) {
       done: diff === 0 
     }
   }, [endsAt])
-  const [time, setTime] = useState(calc)
-  useEffect(() => { 
+  const [time, setTime] = useState({ h: 0, m: 0, s: 0, done: false })
+  useEffect(() => {
+    setTime(calc())
     const id = setInterval(() => setTime(calc()), 1000)
-    return () => clearInterval(id) 
+    return () => clearInterval(id)
   }, [calc])
   return time
 }

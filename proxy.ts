@@ -53,15 +53,17 @@ export async function proxy(request: NextRequest) {
     return response
   }
 
-  const isAdmin = user?.app_metadata?.role === 'admin' || user?.user_metadata?.role === 'admin'
-
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Proxy:', { pathname, isAdminRoute, isLoginPage, hasUser: !!user, isAdmin })
-  }
+  const hasAdminMeta = user?.app_metadata?.role === 'admin' || user?.user_metadata?.role === 'admin'
+  const allowedEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
+    .split(',')
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean)
+  const emailInAllowList = user?.email
+    ? allowedEmails.includes(user.email.toLowerCase())
+    : false
+  const isAdmin = hasAdminMeta || emailInAllowList
 
   // ── DEV PREVIEW BYPASS — local machine only, NOT Vercel ─────────
-  // NEXT_PUBLIC_DEV_BYPASS=true must be set manually in .env.local
-  // This variable is intentionally NOT in .env.example so it never ships.
   if (process.env.NEXT_PUBLIC_DEV_BYPASS === 'true' && isAdminRoute) {
     return NextResponse.next({ request })
   }
