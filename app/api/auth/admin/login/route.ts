@@ -36,10 +36,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'بيانات الدخول غير صحيحة' }, { status: 401 })
     }
 
-    // Role is in app_metadata (set via Supabase admin) — no DB round-trip needed
-    const isAdmin = data.user.app_metadata?.role === 'admin'
+    const hasAdminMeta = data.user.app_metadata?.role === 'admin'
+    const allowedEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
+      .split(',')
+      .map(e => e.trim().toLowerCase())
+      .filter(Boolean)
+    const emailInAllowList = allowedEmails.includes(email.trim().toLowerCase())
 
-    if (!isAdmin) {
+    if (!hasAdminMeta && !emailInAllowList) {
       await supabase.auth.signOut()
       return NextResponse.json({ error: 'هذا الحساب لا يملك صلاحية الدخول إلى لوحة التحكم' }, { status: 403 })
     }
