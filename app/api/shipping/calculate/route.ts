@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     const { data: zones, error } = await supabaseAdmin
       .from('shipping_zones')
-      .select('id,country_code,name,base_rate,free_threshold,is_active')
+      .select('id,name_ar,name_en,countries,base_rate,free_shipping_threshold,estimated_days_min,estimated_days_max,is_active')
       .eq('is_active', true)
 
     if (error) throw error
