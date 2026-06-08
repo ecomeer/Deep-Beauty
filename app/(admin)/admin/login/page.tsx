@@ -37,27 +37,9 @@ export default function AdminLogin() {
         return
       }
 
-      // Request server-side admin role sync (service key never exposed to client)
-      const roleResponse = await fetch('/api/auth/admin/ensure-role', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-
-      if (!roleResponse.ok) {
-        toast.error('الحساب لا يملك صلاحية لوحة الإدارة')
-        await fetch('/api/auth/logout', { method: 'POST' })
-        setLoading(false)
-        return
-      }
-
       toast.success('تم تسجيل الدخول')
-
-      // Small delay to ensure role is propagated
-      setTimeout(() => {
-        router.refresh()
-        router.push('/admin/dashboard')
-      }, 500)
+      router.refresh()
+      router.push('/admin/dashboard')
     } catch {
       toast.error('حدث خطأ أثناء تسجيل الدخول')
       setLoading(false)
