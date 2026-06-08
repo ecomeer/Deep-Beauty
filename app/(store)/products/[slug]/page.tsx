@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import EnhancedProductDetail from './EnhancedProductDetail'
 
@@ -40,6 +41,8 @@ export default async function ProductPage({ params }: Props) {
     .select('name_ar, description_ar, images, price, sale_price, stock_quantity')
     .eq('slug', slug)
     .single()
+
+  if (!data) notFound()
 
   const jsonLd = data
     ? {
