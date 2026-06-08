@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const [{ data: products, error }, flashDiscount] = await Promise.all([
       supabase
         .from('products')
-        .select('id, name_ar, name_en, slug, description_ar, description_en, price, sale_price, images, category, stock_quantity, is_active, is_featured, sales_count, created_at')
+        .select('id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at')
         .eq('is_featured', true)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
