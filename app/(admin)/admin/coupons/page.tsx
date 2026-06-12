@@ -84,7 +84,7 @@ export default function AdminCoupons() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>الكوبونات والخصومات</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-dark)]">الكوبونات والخصومات</h1>
         <p className="text-sm opacity-60">إدارة أكواد الخصم الترويجية</p>
       </div>
 

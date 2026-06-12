@@ -58,12 +58,12 @@ export default function AdminCoupons() {
       <div className="flex items-center gap-2 mb-6">
         <Link href="/admin/marketing" className="text-sm opacity-60 hover:opacity-100">التسويق</Link>
         <ArrowRightIcon className="w-4 h-4 opacity-40" />
-        <h1 className="text-xl font-bold" style={{ color: 'var(--text-dark)' }}>كوبونات الخصم</h1>
+        <h1 className="text-xl font-bold text-[var(--text-dark)]">كوبونات الخصم</h1>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border overflow-hidden" style={{ borderColor: 'var(--beige)' }}>
         <div className="p-5 border-b flex justify-between items-center" style={{ borderColor: 'var(--beige)' }}>
-          <h2 className="font-bold" style={{ color: 'var(--text-dark)' }}>الكوبونات ({coupons.length})</h2>
+          <h2 className="font-bold text-[var(--text-dark)]">الكوبونات ({coupons.length})</h2>
           <Link href="/admin/marketing/coupons/new" className="btn-primary px-4 py-2 text-sm flex items-center gap-2">
             <PlusIcon className="w-4 h-4" /> كوبون جديد
           </Link>
@@ -98,7 +98,7 @@ export default function AdminCoupons() {
                 {coupons.map(coupon => (
                   <tr key={coupon.id} className="border-b last:border-0 hover:bg-gray-50" style={{ borderColor: 'var(--beige)' }}>
                     <td className="px-5 py-4">
-                      <div className="font-bold font-mono" style={{ color: 'var(--primary)' }}>{coupon.code}</div>
+                      <div className="font-bold font-mono text-primary">{coupon.code}</div>
                       {coupon.description_ar && <div className="text-xs opacity-50">{coupon.description_ar}</div>}
                     </td>
                     <td className="px-5 py-4">

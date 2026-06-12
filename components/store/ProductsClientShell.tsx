@@ -155,8 +155,7 @@ export default function ProductsClientShell({
 
           {/* Product Count */}
           <span
-            className="ms-auto text-xs font-medium flex-shrink-0"
-            style={{ color: 'var(--on-surface-variant)' }}
+            className="ms-auto text-xs font-medium flex-shrink-0 text-[var(--on-surface-variant)]"
             aria-live="polite"
           >
             {filtered.length} منتج
@@ -231,8 +230,7 @@ export default function ProductsClientShell({
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="px-6 py-2.5 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90"
-                style={{ background: 'var(--primary)' }}
+                className="px-6 py-2.5 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90 bg-primary"
               >
                 مسح الفلاتر
               </button>

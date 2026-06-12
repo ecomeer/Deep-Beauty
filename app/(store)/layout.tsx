@@ -33,8 +33,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         <CountryProvider>
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-bold focus:text-white"
-            style={{ background: 'var(--primary)' }}
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-bold focus:text-white bg-primary"
           >
             تخطي إلى المحتوى الرئيسي
           </a>

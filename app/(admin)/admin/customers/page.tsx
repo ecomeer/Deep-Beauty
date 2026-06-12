@@ -44,7 +44,7 @@ export default function AdminCustomers() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>العملاء</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-dark)]">العملاء</h1>
         <p className="text-sm opacity-60">جميع العملاء بما فيهم الطلبات بدون تسجيل ({total})</p>
       </div>
 
@@ -90,7 +90,7 @@ export default function AdminCustomers() {
                     <td className="font-en text-sm" dir="ltr">{c.phone || '-'}</td>
                     <td className="font-en text-sm">{c.email || '-'}</td>
                     <td className="font-bold text-center">{c.orders_count}</td>
-                    <td className="font-bold" style={{ color: 'var(--primary)' }} dir="ltr">{toArabicPrice(c.total_spent)}</td>
+                    <td className="font-bold text-primary" dir="ltr">{toArabicPrice(c.total_spent)}</td>
                     <td className="text-xs" dir="ltr">{formatDateTime(c.last_order_at)}</td>
                     <td>
                       {c.phone ? (

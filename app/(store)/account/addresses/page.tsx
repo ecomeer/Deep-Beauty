@@ -61,7 +61,7 @@ export default function AccountAddressesPage() {
       toast.success(editing ? 'حُدّث العنوان' : 'أُضيف العنوان')
       setShowForm(false)
       loadAddresses()
-    } catch (e: any) { toast.error(e.message || 'تعذّر حفظ العنوان — حاولي مجدداً') }
+    } catch (e) { toast.error(e instanceof Error && e.message ? e.message : 'تعذّر حفظ العنوان — حاولي مجدداً') }
     setSaving(false)
   }
 

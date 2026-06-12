@@ -135,7 +135,7 @@ export default function ProductForm() {
   return (
     <div className="max-w-4xl mx-auto pb-20">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>
+        <h1 className="text-2xl font-bold text-[var(--text-dark)]">
           {isEdit ? 'تعديل المنتج' : 'إضافة منتج جديد'}
         </h1>
       </div>

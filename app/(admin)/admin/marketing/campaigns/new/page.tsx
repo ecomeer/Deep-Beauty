@@ -64,7 +64,7 @@ export default function NewCampaign() {
       <div className="flex items-center gap-2 mb-6">
         <Link href="/admin/marketing/campaigns" className="text-sm opacity-60 hover:opacity-100">الحملات</Link>
         <ArrowRightIcon className="w-4 h-4 opacity-40" />
-        <h1 className="text-xl font-bold" style={{ color: 'var(--text-dark)' }}>حملة جديدة</h1>
+        <h1 className="text-xl font-bold text-[var(--text-dark)]">حملة جديدة</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border p-6" style={{ borderColor: 'var(--beige)' }}>

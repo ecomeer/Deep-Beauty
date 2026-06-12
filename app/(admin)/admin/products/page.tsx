@@ -78,7 +78,7 @@ export default function AdminProducts() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>إدارة المنتجات</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-dark)]">إدارة المنتجات</h1>
           <p className="text-sm opacity-60">عرض وإضافة وتعديل المنتجات ({total})</p>
         </div>
         <Link href="/admin/products/new" className="btn-primary py-2 px-4 shadow-md flex items-center gap-2">
@@ -168,7 +168,7 @@ export default function AdminProducts() {
                       <div className="text-xs opacity-50 font-en">{p.name_en}</div>
                     </td>
                     <td><span className="badge badge-primary">{p.category}</span></td>
-                    <td className="font-bold" style={{ color: 'var(--primary)' }}>{toArabicPrice(p.price)}</td>
+                    <td className="font-bold text-primary">{toArabicPrice(p.price)}</td>
                     <td>
                       <span className={`font-bold ${p.stock_quantity === 0 ? 'text-red-500' : p.stock_quantity < 10 ? 'text-orange-500' : 'text-green-600'}`}>
                         {p.stock_quantity}
@@ -222,7 +222,7 @@ export default function AdminProducts() {
                   </div>
                 </div>
                 <div className="flex justify-between items-center mb-3">
-                  <span className="font-bold" style={{ color: 'var(--primary)' }}>{toArabicPrice(p.price)}</span>
+                  <span className="font-bold text-primary">{toArabicPrice(p.price)}</span>
                   <span className={`font-bold text-sm ${p.stock_quantity === 0 ? 'text-red-500' : p.stock_quantity < 10 ? 'text-orange-500' : 'text-green-600'}`}>
                     مخزون: {p.stock_quantity}
                   </span>

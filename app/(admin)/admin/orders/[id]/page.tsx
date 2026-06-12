@@ -168,7 +168,7 @@ export default function AdminOrderDetail() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div className="flex items-center gap-4">
           <button onClick={() => router.back()} className="text-sm font-bold opacity-60 hover:opacity-100">← عودة</button>
-          <h1 className="text-2xl font-bold font-en" style={{ color: 'var(--text-dark)' }}>{order.order_number}</h1>
+          <h1 className="text-2xl font-bold font-en text-[var(--text-dark)]">{order.order_number}</h1>
           <span className={`badge ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS] || 'badge-gray'}`}>
             {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS] || order.status}
           </span>
@@ -200,7 +200,7 @@ export default function AdminOrderDetail() {
                     <div>
                       <div className="font-bold">{item.product_name_ar}</div>
                       <div className="text-xs opacity-60 font-en">{item.product_name_en}</div>
-                      <div className="text-sm mt-1" style={{ color: 'var(--primary)' }}>{toArabicPrice(item.unit_price)} × {item.quantity}</div>
+                      <div className="text-sm mt-1 text-primary">{toArabicPrice(item.unit_price)} × {item.quantity}</div>
                     </div>
                     <div className="font-bold">{toArabicPrice(item.total_price)}</div>
                   </div>
@@ -223,7 +223,7 @@ export default function AdminOrderDetail() {
                   <span>- {toArabicPrice(order.coupon_discount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-lg font-bold border-t border-[var(--beige)] pt-3" style={{ color: 'var(--primary)' }}>
+              <div className="flex justify-between text-lg font-bold border-t border-[var(--beige)] pt-3 text-primary">
                 <span>الإجمالي الدفع:</span>
                 <span>{toArabicPrice(order.total)}</span>
               </div>

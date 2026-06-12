@@ -62,6 +62,38 @@ const REVIEWS = [
   { name: 'فاطمة الهاشمي', city: 'دبي',    text: 'بشرتي حساسة جداً وكنت خايفة أجرّب، لكن المكوّنات الطبيعية ريّحتني. خدمة العملاء ممتازة والتوصيل كان فوري.', rating: 5 },
 ]
 
+// ─── Section header (eyebrow + headline + "view all" link) ───────────────
+function SectionHeader({
+  eyebrow,
+  title,
+  linkLabel = 'عرض الكل',
+  href = '/products',
+  dark = false,
+}: {
+  eyebrow: string
+  title: string
+  linkLabel?: string
+  href?: string
+  dark?: boolean
+}) {
+  const accent = dark ? 'text-[var(--primary-light)]' : 'text-primary'
+  return (
+    <div className="px-4 mb-5 flex items-center justify-between">
+      <div className="text-right">
+        <span className={`text-xs font-bold uppercase tracking-[0.14em] block mb-0.5 ${accent}`}>
+          {eyebrow}
+        </span>
+        <h2 className={`text-xl font-bold font-headline ${dark ? 'text-white' : 'text-[var(--text-dark)]'}`}>
+          {title}
+        </h2>
+      </div>
+      <Link href={href} className={`flex items-center gap-1 text-xs font-semibold ${accent}`}>
+        {linkLabel} <ArrowLeftIcon className="w-3 h-3" />
+      </Link>
+    </div>
+  )
+}
+
 // ─── Product Card ──────────────────────────────────────────────────────────
 function MobileProductCard({
   product,
@@ -113,7 +145,7 @@ function MobileProductCard({
         style={{ background: cardBg, border: cardBorder }}
       >
         {/* ── Image ── */}
-        <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--beige)' }}>
+        <div className="relative aspect-square overflow-hidden bg-[var(--beige)]">
           {product.images?.[0] ? (
             <Image
               src={product.images[0]}
@@ -351,8 +383,7 @@ export default function StitchHomeContent({
             <div className="flex items-center gap-2.5">
               <Link
                 href={(heroSlides[heroIndex] as Banner | null)?.link_url || '/products'}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white shadow-lg transition-all active:scale-95"
-                style={{ background: 'var(--primary)' }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white shadow-lg transition-all active:scale-95 bg-primary"
               >
                 تسوّقي الآن
                 <ArrowLeftIcon className="w-3.5 h-3.5" />
@@ -408,13 +439,12 @@ export default function StitchHomeContent({
               className="flex flex-col items-center text-center gap-2"
             >
               <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                style={{ background: 'var(--beige)' }}
+                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[var(--beige)]"
               >
                 <Icon className="w-6 h-6 text-[var(--primary)]" />
               </div>
-              <p className="text-xs font-bold" style={{ color: 'var(--text-dark)' }}>{title}</p>
-              <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>{desc}</p>
+              <p className="text-xs font-bold text-[var(--text-dark)]">{title}</p>
+              <p className="text-xs text-[var(--on-surface-variant)]">{desc}</p>
             </motion.div>
           ))}
         </div>
@@ -425,19 +455,7 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       {activeCategories.length > 0 && (
         <section className="py-8">
-          <div className="px-4 mb-4 flex items-center justify-between">
-            <div className="text-right">
-              <span className="text-xs font-bold uppercase tracking-[0.15em] block mb-0.5" style={{ color: 'var(--primary)' }}>
-                تسوّقي حسب الفئة
-              </span>
-              <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
-                اكتشفي مجموعاتنا
-              </h2>
-            </div>
-            <Link href="/products" className="flex items-center gap-1 text-xs font-semibold" style={{ color: 'var(--primary)' }}>
-              الكل <ArrowLeftIcon className="w-3 h-3" />
-            </Link>
-          </div>
+          <SectionHeader eyebrow="تسوّقي حسب الفئة" title="اكتشفي مجموعاتنا" linkLabel="الكل" />
 
           {/* Horizontal scroll — rectangular cards with image overlay */}
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4" style={{ scrollbarWidth: 'none' }}>
@@ -452,8 +470,7 @@ export default function StitchHomeContent({
                 <Link
                   href={`/products?category=${encodeURIComponent(cat.name_ar)}`}
                   aria-label={`تصفح فئة ${cat.name_ar}`}
-                  className="group block relative rounded-2xl overflow-hidden aspect-[3/4]"
-                  style={{ background: 'var(--beige)' }}
+                  className="group block relative rounded-2xl overflow-hidden aspect-[3/4] bg-[var(--beige)]"
                 >
                   {/* Image */}
                   {cat.image_url && (
@@ -503,27 +520,14 @@ export default function StitchHomeContent({
         />
 
         {/* Eyebrow + heading */}
-        <div className="px-4 mb-5 flex items-center justify-between">
-          <div className="text-right">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] block mb-0.5" style={{ color: 'var(--primary)' }}>
-              ✦ مختار بعناية
-            </span>
-            <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
-              أبرز منتجاتنا
-            </h2>
-          </div>
-          <Link href="/products" className="flex items-center gap-1 text-xs font-semibold" style={{ color: 'var(--primary)' }}>
-            عرض الكل <ArrowLeftIcon className="w-3 h-3" />
-          </Link>
-        </div>
+        <SectionHeader eyebrow="✦ مختار بعناية" title="أبرز منتجاتنا" />
 
         {featuredProducts.length === 0 ? (
           <div
-            className="mx-6 py-16 rounded-[2rem] flex flex-col items-center justify-center gap-3"
-            style={{ background: 'white' }}
+            className="mx-6 py-16 rounded-[2rem] flex flex-col items-center justify-center gap-3 bg-white"
           >
             <ShoppingBagIcon className="w-12 h-12 text-[var(--primary)] opacity-20" />
-            <p className="text-sm" style={{ color: 'var(--on-surface-variant)' }}>المنتجات تُضاف قريباً ✨</p>
+            <p className="text-sm text-[var(--on-surface-variant)]">المنتجات تُضاف قريباً ✨</p>
           </div>
         ) : (
           /* Slider with right-side edge fade */
@@ -573,12 +577,11 @@ export default function StitchHomeContent({
             {/* RIGHT col (RTL first): Text */}
             <div className="p-6 text-right flex flex-col justify-center gap-3">
               <span
-                className="text-xs font-bold uppercase tracking-[0.16em]"
-                style={{ color: 'var(--primary-light)' }}
+                className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--primary-light)]"
               >
                 ✦ عرض حصري
               </span>
-              <div className="w-10 h-0.5 self-end rounded-full" style={{ background: 'var(--primary)' }} />
+              <div className="w-10 h-0.5 self-end rounded-full bg-primary" />
               <p
                 className="text-2xl font-bold text-white leading-snug font-headline"
               >
@@ -588,8 +591,7 @@ export default function StitchHomeContent({
                 {midBannerSub}
               </p>
               <span
-                className="inline-flex self-end items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-white mt-1 transition-all group-hover:opacity-90"
-                style={{ background: 'var(--primary)' }}
+                className="inline-flex self-end items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold text-white mt-1 transition-all group-hover:opacity-90 bg-primary"
               >
                 تسوّقي الآن
                 <ArrowLeftIcon className="w-3.5 h-3.5" />
@@ -620,19 +622,7 @@ export default function StitchHomeContent({
       {(bestsellersLoading || bestsellers.length > 0) && (
         <section className="py-12 bg-[var(--text-dark)]">
           {/* Eyebrow + heading */}
-          <div className="px-4 mb-5 flex items-center justify-between">
-            <div className="text-right">
-              <span className="text-xs font-bold uppercase tracking-[0.14em] block mb-0.5" style={{ color: 'var(--primary-light)' }}>
-                ✦ الأعلى مبيعاً
-              </span>
-              <h2 className="text-xl font-bold text-white font-headline">
-                الأكثر طلباً
-              </h2>
-            </div>
-            <Link href="/products" className="flex items-center gap-1 text-xs font-semibold" style={{ color: 'var(--primary-light)' }}>
-              عرض الكل <ArrowLeftIcon className="w-3 h-3" />
-            </Link>
-          </div>
+          <SectionHeader eyebrow="✦ الأعلى مبيعاً" title="الأكثر طلباً" dark />
 
           {/* Slider with edge fade */}
           <div className="relative">
@@ -673,7 +663,7 @@ export default function StitchHomeContent({
             تقييمات حقيقية من عميلاتنا الكريمات
           </p>
           {/* Decorative line */}
-          <div className="w-10 h-0.5 mt-3 mr-auto rounded-full" style={{ background: 'var(--primary)' }} />
+          <div className="w-10 h-0.5 mt-3 mr-auto rounded-full bg-primary" />
         </div>
 
         {/* Horizontal scroll on mobile */}
@@ -705,8 +695,7 @@ export default function StitchHomeContent({
 
               <div className="flex items-center gap-3 pt-3 flex-row-reverse border-t border-[var(--beige)]">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
-                  style={{ background: 'var(--primary)' }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0 bg-primary"
                 >
                   {review.name[0]}
                 </div>

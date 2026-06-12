@@ -64,16 +64,16 @@ const COLLECTIONS = [
 
 export default function CollectionsPage() {
   return (
-    <div className="min-h-screen" style={{ background: 'var(--off-white)' }}>
+    <div className="min-h-screen bg-[var(--off-white)]">
 
       {/* Hero */}
-      <div className="pt-32 pb-14 px-6 text-center" style={{ background: 'var(--beige)' }}>
+      <div className="pt-32 pb-14 px-6 text-center bg-[var(--beige)]">
         <h1
           className="text-4xl md:text-5xl font-bold mb-3 font-headline text-[var(--text-dark)]"
         >
           المجموعات
         </h1>
-        <p className="text-sm md:text-base opacity-70 max-w-md mx-auto" style={{ color: 'var(--text-dark)' }}>
+        <p className="text-sm md:text-base opacity-70 max-w-md mx-auto text-[var(--text-dark)]">
           باقات متكاملة مصممة لتحقيق أفضل النتائج — اختاري ما يناسبك
         </p>
       </div>
@@ -88,10 +88,9 @@ export default function CollectionsPage() {
               style={{ borderColor: 'var(--dark-beige)' }}
             >
               {/* Card Header */}
-              <div className="px-6 pt-8 pb-6 text-center" style={{ background: 'var(--beige)' }}>
+              <div className="px-6 pt-8 pb-6 text-center bg-[var(--beige)]">
                 <div
-                  className="text-4xl mb-3 w-16 h-16 rounded-full flex items-center justify-center mx-auto"
-                  style={{ background: 'white' }}
+                  className="text-4xl mb-3 w-16 h-16 rounded-full flex items-center justify-center mx-auto bg-white"
                   aria-hidden="true"
                 >
                   {col.emoji}
@@ -101,22 +100,21 @@ export default function CollectionsPage() {
                 >
                   {col.name}
                 </h2>
-                <p className="text-xs opacity-60 leading-relaxed" style={{ color: 'var(--text-dark)' }}>
+                <p className="text-xs opacity-60 leading-relaxed text-[var(--text-dark)]">
                   {col.description}
                 </p>
               </div>
 
               {/* Products List */}
               <div className="px-6 py-5 flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wider opacity-50 mb-3" style={{ color: 'var(--text-dark)' }}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider opacity-50 mb-3 text-[var(--text-dark)]">
                   المنتجات المضمّنة
                 </p>
                 <ul className="space-y-2">
                   {col.products.map((product) => (
-                    <li key={product} className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-dark)' }}>
+                    <li key={product} className="flex items-center gap-2 text-sm text-[var(--text-dark)]">
                       <span
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] flex-shrink-0"
-                        style={{ background: 'var(--primary)' }}
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] flex-shrink-0 bg-primary"
                         aria-hidden="true"
                       >
                         ✓
@@ -143,7 +141,7 @@ export default function CollectionsPage() {
 
         {/* All products CTA */}
         <div className="text-center mt-12">
-          <p className="text-sm opacity-60 mb-4" style={{ color: 'var(--text-dark)' }}>
+          <p className="text-sm opacity-60 mb-4 text-[var(--text-dark)]">
             تبحثين عن منتج بعينه؟
           </p>
           <Link

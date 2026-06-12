@@ -145,8 +145,7 @@ export default function AdminSidebar() {
         <div className="px-4 mb-6 pt-1">
           <Link href="/" target="_blank" className="flex items-center gap-3 group">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
-              style={{ background: 'var(--primary)' }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md bg-primary"
             >
               <span className="text-white font-bold text-sm tracking-widest">BD</span>
             </div>
@@ -234,7 +233,7 @@ export default function AdminSidebar() {
         <div className="flex items-center gap-2">
           <span className="text-white font-bold text-sm tracking-wider">Deep Beauty</span>
           {badges.pendingOrders != null && badges.pendingOrders > 0 && (
-            <span className="min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center text-white" style={{ background: 'var(--primary)' }}>
+            <span className="min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center text-white bg-primary">
               {badges.pendingOrders}
             </span>
           )}
@@ -299,8 +298,7 @@ export default function AdminSidebar() {
             <Bars3Icon className="w-5 h-5" />
             {badges.pendingOrders != null && badges.pendingOrders > 0 && (
               <span
-                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center text-white"
-                style={{ background: 'var(--primary)' }}
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center text-white bg-primary"
               >
                 {badges.pendingOrders > 9 ? '9+' : badges.pendingOrders}
               </span>

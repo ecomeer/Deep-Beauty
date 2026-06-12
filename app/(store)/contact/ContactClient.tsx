@@ -94,10 +94,9 @@ export default function ContactClient() {
                 style={{ background: 'white', border: '1px solid var(--beige)' }}
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: 'var(--beige)' }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--beige)]"
                 >
-                  <Icon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+                  <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <p className="text-xs opacity-50 mb-0.5">{label}</p>
@@ -106,8 +105,7 @@ export default function ContactClient() {
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-semibold transition-colors hover:opacity-70"
-                      style={{ color: 'var(--primary)' }}
+                      className="text-sm font-semibold transition-colors hover:opacity-70 text-primary"
                     >
                       {value}
                     </a>
@@ -120,8 +118,7 @@ export default function ContactClient() {
 
             {/* Social */}
             <div
-              className="p-5 rounded-2xl"
-              style={{ background: 'var(--beige)' }}
+              className="p-5 rounded-2xl bg-[var(--beige)]"
             >
               <p className="text-xs font-semibold uppercase tracking-wider opacity-60 mb-3">
                 تابعينا
@@ -158,10 +155,9 @@ export default function ContactClient() {
           >
             <div className="flex items-center gap-3 mb-7">
               <ChatBubbleLeftEllipsisIcon
-                className="w-6 h-6"
-                style={{ color: 'var(--primary)' }}
+                className="w-6 h-6 text-primary"
               />
-              <h2 className="text-xl font-bold" style={{ color: 'var(--text-dark)' }}>
+              <h2 className="text-xl font-bold text-[var(--text-dark)]">
                 أرسلي رسالة
               </h2>
             </div>
@@ -169,19 +165,17 @@ export default function ContactClient() {
             {status === 'sent' ? (
               <div className="text-center py-16">
                 <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{ background: 'var(--beige)' }}
+                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[var(--beige)]"
                 >
-                  <PaperAirplaneIcon className="w-7 h-7" style={{ color: 'var(--primary)' }} />
+                  <PaperAirplaneIcon className="w-7 h-7 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-dark)' }}>
+                <h3 className="text-lg font-bold mb-2 text-[var(--text-dark)]">
                   تم إرسال رسالتك!
                 </h3>
                 <p className="text-sm opacity-60">سنتواصل معك قريباً إن شاء الله.</p>
                 <button
                   onClick={() => setStatus('idle')}
-                  className="mt-6 text-sm font-semibold underline underline-offset-4 transition-opacity hover:opacity-70"
-                  style={{ color: 'var(--primary)' }}
+                  className="mt-6 text-sm font-semibold underline underline-offset-4 transition-opacity hover:opacity-70 text-primary"
                 >
                   إرسال رسالة أخرى
                 </button>
@@ -191,7 +185,7 @@ export default function ContactClient() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-xs font-semibold mb-2 opacity-60">
-                      الاسم <span style={{ color: 'var(--primary)' }}>*</span>
+                      الاسم <span className="text-primary">*</span>
                     </label>
                     <input
                       type="text"
@@ -211,7 +205,7 @@ export default function ContactClient() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold mb-2 opacity-60">
-                      البريد الإلكتروني <span style={{ color: 'var(--primary)' }}>*</span>
+                      البريد الإلكتروني <span className="text-primary">*</span>
                     </label>
                     <input
                       type="email"
@@ -234,7 +228,7 @@ export default function ContactClient() {
 
                 <div>
                   <label className="block text-xs font-semibold mb-2 opacity-60">
-                    الرسالة <span style={{ color: 'var(--primary)' }}>*</span>
+                    الرسالة <span className="text-primary">*</span>
                   </label>
                   <textarea
                     required

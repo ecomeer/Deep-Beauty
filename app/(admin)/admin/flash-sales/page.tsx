@@ -104,7 +104,7 @@ export default function AdminFlashSales() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>عروض الفلاش ⚡</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-dark)]">عروض الفلاش ⚡</h1>
         <p className="text-sm opacity-60">إدارة العروض المؤقتة مع عداد تنازلي</p>
       </div>
 

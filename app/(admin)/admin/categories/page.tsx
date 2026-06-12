@@ -138,7 +138,7 @@ export default function AdminCategories() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>الفئات</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-dark)]">الفئات</h1>
           <p className="text-sm opacity-60">إدارة تصنيفات المنتجات ({categories.length})</p>
         </div>
         <button type="button" onClick={() => setShowForm(!showForm)} className="btn-primary px-5 py-2.5 text-sm flex items-center gap-2">
@@ -149,7 +149,7 @@ export default function AdminCategories() {
       {/* Add Form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border p-6 mb-8" style={{ borderColor: 'var(--beige)' }}>
-          <h2 className="text-base font-bold mb-5" style={{ color: 'var(--text-dark)' }}>إضافة فئة جديدة</h2>
+          <h2 className="text-base font-bold mb-5 text-[var(--text-dark)]">إضافة فئة جديدة</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
             <div>
               <label className="block text-sm font-medium mb-1.5">الاسم بالعربي *</label>
@@ -240,7 +240,7 @@ export default function AdminCategories() {
                     title="تعديل الصورة"
                     className="absolute top-2 left-2 bg-white/90 rounded-lg p-1.5 shadow hover:bg-white transition-colors"
                   >
-                    <PencilSquareIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                    <PencilSquareIcon className="w-4 h-4 text-primary" />
                   </button>
                 )}
 
@@ -252,7 +252,7 @@ export default function AdminCategories() {
 
               {/* Info */}
               <div className="p-4">
-                <h3 className="font-bold" style={{ color: 'var(--text-dark)' }}>{cat.name_ar}</h3>
+                <h3 className="font-bold text-[var(--text-dark)]">{cat.name_ar}</h3>
                 <p className="text-xs opacity-50 font-en mt-0.5">{cat.name_en}</p>
                 <p className="text-xs opacity-40 font-en mt-0.5" dir="ltr">{cat.slug}</p>
 

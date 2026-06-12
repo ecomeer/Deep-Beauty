@@ -58,10 +58,10 @@ export default function FAQPage() {
             className="rounded-2xl p-6"
             style={{ background: 'white', border: '1px solid var(--beige)' }}
           >
-            <h2 className="font-bold mb-2 text-base" style={{ color: 'var(--primary)' }}>
+            <h2 className="font-bold mb-2 text-base text-primary">
               {faq.q}
             </h2>
-            <p className="text-sm leading-7 opacity-80" style={{ color: 'var(--text-dark)' }}>
+            <p className="text-sm leading-7 opacity-80 text-[var(--text-dark)]">
               {faq.a}
             </p>
           </div>
@@ -69,16 +69,14 @@ export default function FAQPage() {
       </div>
 
       <div
-        className="mt-12 rounded-2xl p-6 text-center"
-        style={{ background: 'var(--beige)' }}
+        className="mt-12 rounded-2xl p-6 text-center bg-[var(--beige)]"
       >
-        <p className="text-sm mb-3" style={{ color: 'var(--text-dark)' }}>
+        <p className="text-sm mb-3 text-[var(--text-dark)]">
           لم تجد إجابة لسؤالك؟
         </p>
         <a
           href="mailto:contact@deepbeautykw.com"
-          className="text-sm font-bold"
-          style={{ color: 'var(--primary)' }}
+          className="text-sm font-bold text-primary"
         >
           تواصل معنا
         </a>

@@ -9,15 +9,15 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   }, [error])
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-6" style={{ background: 'var(--off-white)' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-6 bg-[var(--off-white)]">
       <div className="text-center">
         <p className="text-8xl font-bold mb-4 font-headline text-primary">
           خطأ
         </p>
-        <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--text-dark)' }}>
+        <h1 className="text-2xl font-bold mb-3 text-[var(--text-dark)]">
           حدث خطأ غير متوقع
         </h1>
-        <p className="opacity-60 mb-8 max-w-sm mx-auto leading-7" style={{ color: 'var(--text-dark)' }}>
+        <p className="opacity-60 mb-8 max-w-sm mx-auto leading-7 text-[var(--text-dark)]">
           نعتذر عن هذا الخطأ. يمكنك المحاولة مرة أخرى أو العودة للرئيسية.
         </p>
         <div className="flex gap-3 justify-center flex-wrap">

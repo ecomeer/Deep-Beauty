@@ -160,8 +160,8 @@ export default function AccountPage() {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: item.color + '1A' }}>
                 <item.icon className="w-5 h-5" style={{ color: item.color }} />
               </div>
-              <span className="flex-1 font-medium text-sm" style={{ color: 'var(--text-dark)' }}>{item.label}</span>
-              <ChevronLeftIcon className="w-4 h-4" style={{ color: 'var(--on-surface-variant)' }} />
+              <span className="flex-1 font-medium text-sm text-[var(--text-dark)]">{item.label}</span>
+              <ChevronLeftIcon className="w-4 h-4 text-[var(--on-surface-variant)]" />
             </Link>
           ))}
         </motion.div>
@@ -176,10 +176,10 @@ export default function AccountPage() {
         >
           <div className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: '1px solid var(--beige)' }}>
             <div className="flex items-center gap-2">
-              <CubeIcon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
-              <h3 className="font-bold text-sm" style={{ color: 'var(--text-dark)' }}>آخر الطلبات</h3>
+              <CubeIcon className="w-5 h-5 text-primary" />
+              <h3 className="font-bold text-sm text-[var(--text-dark)]">آخر الطلبات</h3>
             </div>
-            <Link href="/account/orders" className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--primary)' }}>
+            <Link href="/account/orders" className="text-xs font-semibold flex items-center gap-1 text-primary">
               عرض الكل <ChevronLeftIcon className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -187,8 +187,8 @@ export default function AccountPage() {
           {recentOrders.length === 0 ? (
             <div className="py-10 text-center">
               <ShoppingBagIcon className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--dark-beige)' }} />
-              <p className="text-sm mb-4" style={{ color: 'var(--on-surface-variant)' }}>لا توجد طلبات بعد</p>
-              <Link href="/products" className="inline-block px-5 py-2 rounded-xl text-sm font-bold text-white" style={{ background: 'var(--primary)' }}>
+              <p className="text-sm mb-4 text-[var(--on-surface-variant)]">لا توجد طلبات بعد</p>
+              <Link href="/products" className="inline-block px-5 py-2 rounded-xl text-sm font-bold text-white bg-primary">
                 تسوقي الآن
               </Link>
             </div>
@@ -202,15 +202,15 @@ export default function AccountPage() {
                     className="flex items-center gap-3 px-4 py-3.5"
                     style={{ borderBottom: i < recentOrders.length - 1 ? '1px solid var(--beige)' : 'none' }}
                   >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'var(--beige)' }}>
-                      <CubeIcon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-[var(--beige)]">
+                      <CubeIcon className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm" style={{ color: 'var(--text-dark)' }} dir="ltr">{order.order_number}</p>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--on-surface-variant)' }}>{order.item_count} منتجات</p>
+                      <p className="font-bold text-sm text-[var(--text-dark)]" dir="ltr">{order.order_number}</p>
+                      <p className="text-xs mt-0.5 text-[var(--on-surface-variant)]">{order.item_count} منتجات</p>
                     </div>
                     <div className="text-left flex-shrink-0">
-                      <p className="font-bold text-sm mb-1" style={{ color: 'var(--text-dark)' }} dir="ltr">{order.total} د.ك</p>
+                      <p className="font-bold text-sm mb-1 text-[var(--text-dark)]" dir="ltr">{order.total} د.ك</p>
                       <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: st.bg, color: st.color }}>{st.label}</span>
                     </div>
                   </div>

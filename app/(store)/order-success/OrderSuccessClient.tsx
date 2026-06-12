@@ -51,7 +51,7 @@ function OrderSuccessContent() {
   }, [orderId])
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-6 py-12" style={{ background: 'var(--off-white)' }}>
+    <div className="min-h-[80vh] flex items-center justify-center px-6 py-12 bg-[var(--off-white)]">
       <div className="w-full max-w-lg">
         {/* Success Header */}
         <div className="text-center mb-8">
@@ -65,7 +65,7 @@ function OrderSuccessContent() {
           <h1 className="text-4xl font-bold mb-3 font-headline text-[var(--text-dark)]">
             تم استلام طلبك بنجاح!
           </h1>
-          <p className="opacity-70 leading-7" style={{ color: 'var(--text-dark)' }}>
+          <p className="opacity-70 leading-7 text-[var(--text-dark)]">
             شكراً لتسوقك من Deep Beauty. سنتواصل معك قريباً لتأكيد الطلب.
           </p>
         </div>
@@ -98,7 +98,7 @@ function OrderSuccessContent() {
         )}
 
         {/* Order Number */}
-        <div className="rounded-2xl p-5 mb-6 text-center" style={{ background: 'var(--beige)' }}>
+        <div className="rounded-2xl p-5 mb-6 text-center bg-[var(--beige)]">
           <div className="text-sm opacity-60 mb-1">رقم الطلب</div>
           <div className="text-2xl font-bold" style={{ color: 'var(--primary)', direction: 'ltr' }}>{orderNum}</div>
           <div className="text-sm opacity-60 mt-2">⏱️ موعد التسليم المتوقع: ٢-٣ أيام عمل</div>
@@ -150,7 +150,7 @@ function OrderSuccessContent() {
               )}
               <div className="flex justify-between font-bold text-base pt-2 border-t" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>
                 <span>الإجمالي</span>
-                <span style={{ color: 'var(--primary)' }}>{toArabicPrice(order.total)}</span>
+                <span className="text-primary">{toArabicPrice(order.total)}</span>
               </div>
             </div>
           </div>

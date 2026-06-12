@@ -39,7 +39,7 @@ const VALUES = [
 
 export default function AboutPage() {
   return (
-    <div className="pt-24 overflow-x-hidden" style={{ background: '#fff8f4', color: '#201b15' }}>
+    <div className="pt-24 overflow-x-hidden" style={{ background: '#fff8f4', color: 'var(--text-dark)' }}>
 
       {/* ══════════════════════════════
           01 HERO — Editorial Asymmetry
@@ -58,18 +58,16 @@ export default function AboutPage() {
           {/* Text — right side (RTL start) */}
           <div className="md:col-span-7 space-y-7 z-10">
             <span
-              className="text-xs font-bold tracking-[0.25em] uppercase"
-              style={{ color: 'var(--primary)' }}
+              className="text-xs font-bold tracking-[0.25em] uppercase text-primary"
             >
               ✦ قصتنا
             </span>
 
             <h1
-              className="text-6xl md:text-7xl font-headline font-bold leading-tight"
-              style={{ color: '#201b15' }}
+              className="text-6xl md:text-7xl font-headline font-bold leading-tight text-[var(--text-dark)]"
             >
               جمال من<br />
-              <em className="not-italic" style={{ color: 'var(--primary)' }}>عمق الطبيعة</em>
+              <em className="not-italic text-primary">عمق الطبيعة</em>
             </h1>
 
             <p className="text-base md:text-lg leading-8 max-w-lg" style={{ color: '#51443c' }}>
@@ -79,8 +77,7 @@ export default function AboutPage() {
 
             <Link
               href="/products"
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-              style={{ background: 'var(--primary)' }}
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-white transition-all hover:opacity-90 hover:-translate-y-0.5 bg-primary"
             >
               اكتشفي المجموعة
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'scaleX(-1)' }}>
@@ -101,12 +98,11 @@ export default function AboutPage() {
                   className="w-20 h-20 rounded-full border-2 flex items-center justify-center"
                   style={{ borderColor: 'var(--primary)' }}
                 >
-                  <SparklesIcon className="w-9 h-9" style={{ color: 'var(--primary)' }} />
+                  <SparklesIcon className="w-9 h-9 text-primary" />
                 </div>
                 <div>
                   <p
-                    className="text-3xl font-headline font-bold tracking-tight mb-1"
-                    style={{ color: 'var(--primary)' }}
+                    className="text-3xl font-headline font-bold tracking-tight mb-1 text-primary"
                   >
                     Deep Beauty
                   </p>
@@ -138,12 +134,11 @@ export default function AboutPage() {
             {/* Label + heading */}
             <div className="md:w-1/3 md:sticky md:top-32">
               <span
-                className="text-xs font-bold tracking-[0.25em] uppercase block mb-4"
-                style={{ color: 'var(--primary)' }}
+                className="text-xs font-bold tracking-[0.25em] uppercase block mb-4 text-primary"
               >
                 01 — فلسفتنا
               </span>
-              <h2 className="text-4xl font-headline leading-snug" style={{ color: '#201b15' }}>
+              <h2 className="text-4xl font-headline leading-snug text-[var(--text-dark)]">
                 التناغم بين<br />الطبيعة والعلم
               </h2>
             </div>
@@ -165,12 +160,11 @@ export default function AboutPage() {
                 ].map(({ Icon, title, desc }) => (
                   <div key={title} className="space-y-4">
                     <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center"
-                      style={{ background: 'var(--beige)' }}
+                      className="w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--beige)]"
                     >
-                      <Icon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+                      <Icon className="w-5 h-5 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold" style={{ color: '#201b15' }}>{title}</h3>
+                    <h3 className="text-lg font-bold text-[var(--text-dark)]">{title}</h3>
                     <p className="text-sm leading-7" style={{ color: '#51443c' }}>{desc}</p>
                   </div>
                 ))}
@@ -183,8 +177,7 @@ export default function AboutPage() {
               >
                 <div className="text-center space-y-2 px-8">
                   <p
-                    className="text-2xl md:text-3xl font-headline font-bold"
-                    style={{ color: 'var(--primary)' }}
+                    className="text-2xl md:text-3xl font-headline font-bold text-primary"
                   >
                     مكونات طبيعية مختارة بعناية
                   </p>
@@ -203,12 +196,11 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <span
-              className="text-xs font-bold tracking-[0.25em] uppercase block mb-4"
-              style={{ color: 'var(--primary)' }}
+              className="text-xs font-bold tracking-[0.25em] uppercase block mb-4 text-primary"
             >
               02 — النقاء أولاً
             </span>
-            <h2 className="text-4xl md:text-5xl font-headline" style={{ color: '#201b15' }}>
+            <h2 className="text-4xl md:text-5xl font-headline text-[var(--text-dark)]">
               مكونات من رحم الأرض
             </h2>
           </div>
@@ -222,8 +214,7 @@ export default function AboutPage() {
             >
               {/* decorative circle */}
               <div
-                className="absolute -top-16 -right-16 w-64 h-64 rounded-full opacity-20"
-                style={{ background: 'var(--primary)' }}
+                className="absolute -top-16 -right-16 w-64 h-64 rounded-full opacity-20 bg-primary"
               />
               <div className="relative z-10">
                 <h4 className="text-2xl font-headline font-bold text-white mb-1">زيوت عطرية نادرة</h4>
@@ -251,18 +242,17 @@ export default function AboutPage() {
               style={{ background: 'linear-gradient(135deg, #f5ebe0 0%, var(--beige) 100%)' }}
             >
               <div className="text-center space-y-2">
-                <ShieldCheckIcon className="w-10 h-10 mx-auto" style={{ color: 'var(--primary)' }} />
-                <p className="text-xs font-bold tracking-wide uppercase" style={{ color: 'var(--primary)' }}>مُعتمد</p>
+                <ShieldCheckIcon className="w-10 h-10 mx-auto text-primary" />
+                <p className="text-xs font-bold tracking-wide uppercase text-primary">مُعتمد</p>
               </div>
             </div>
 
             {/* Plant extracts — wide */}
             <div
-              className="col-span-2 rounded-2xl flex flex-col sm:flex-row items-center overflow-hidden"
-              style={{ background: 'var(--beige)' }}
+              className="col-span-2 rounded-2xl flex flex-col sm:flex-row items-center overflow-hidden bg-[var(--beige)]"
             >
               <div className="p-7 flex-1">
-                <h4 className="font-bold text-lg mb-2" style={{ color: '#201b15' }}>مستخلصات نباتية</h4>
+                <h4 className="font-bold text-lg mb-2 text-[var(--text-dark)]">مستخلصات نباتية</h4>
                 <p className="text-sm leading-6" style={{ color: '#51443c' }}>
                   نبحث في أرجاء العالم عن أقوى النباتات لننقل طاقتها الكاملة إلى بشرتك.
                 </p>
@@ -271,7 +261,7 @@ export default function AboutPage() {
                 className="flex-shrink-0 w-full sm:w-32 h-24 sm:h-full flex items-center justify-center"
                 style={{ background: 'linear-gradient(135deg, #dcc8b8 0%, #c4a882 100%)' }}
               >
-                <SparklesIcon className="w-10 h-10 opacity-50" style={{ color: 'var(--primary)' }} />
+                <SparklesIcon className="w-10 h-10 opacity-50 text-primary" />
               </div>
             </div>
           </div>
@@ -287,12 +277,11 @@ export default function AboutPage() {
           {/* Text */}
           <div className="md:w-1/2 space-y-7">
             <span
-              className="text-xs font-bold tracking-[0.25em] uppercase"
-              style={{ color: 'var(--primary)' }}
+              className="text-xs font-bold tracking-[0.25em] uppercase text-primary"
             >
               03 — قصتنا
             </span>
-            <h2 className="text-4xl font-headline leading-snug" style={{ color: '#201b15' }}>
+            <h2 className="text-4xl font-headline leading-snug text-[var(--text-dark)]">
               بدأت الرحلة بحلم بسيط
             </h2>
             <div className="space-y-5 text-sm leading-8" style={{ color: '#51443c' }}>
@@ -311,8 +300,7 @@ export default function AboutPage() {
               {STATS.map((s) => (
                 <div key={s.label}>
                   <div
-                    className="text-3xl font-headline font-bold"
-                    style={{ color: 'var(--primary)' }}
+                    className="text-3xl font-headline font-bold text-primary"
                   >
                     {s.val}
                   </div>
@@ -332,7 +320,7 @@ export default function AboutPage() {
               }}
             >
               <div className="text-center space-y-3">
-                <p className="text-4xl font-headline font-bold" style={{ color: 'var(--primary)' }}>DB</p>
+                <p className="text-4xl font-headline font-bold text-primary">DB</p>
                 <div className="w-10 h-px mx-auto" style={{ background: 'var(--primary)', opacity: 0.5 }} />
                 <p className="text-xs tracking-[0.25em] uppercase opacity-60">Made in Kuwait</p>
               </div>
@@ -347,8 +335,7 @@ export default function AboutPage() {
                 &ldquo;الجمال الحقيقي يبدأ من الداخل، وينعكس على البشرة المُغذّاة جيداً.&rdquo;
               </p>
               <span
-                className="block mt-3 text-[10px] font-bold uppercase tracking-widest"
-                style={{ color: 'var(--primary)' }}
+                className="block mt-3 text-[10px] font-bold uppercase tracking-widest text-primary"
               >
                 — فريق ديب بيوتي
               </span>
@@ -364,12 +351,11 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <span
-              className="text-xs font-bold tracking-[0.25em] uppercase block mb-4"
-              style={{ color: 'var(--primary)' }}
+              className="text-xs font-bold tracking-[0.25em] uppercase block mb-4 text-primary"
             >
               04 — مبادئنا
             </span>
-            <h2 className="text-4xl font-headline" style={{ color: '#201b15' }}>ما نؤمن به</h2>
+            <h2 className="text-4xl font-headline text-[var(--text-dark)]">ما نؤمن به</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -380,12 +366,11 @@ export default function AboutPage() {
                 style={{ borderColor: 'var(--beige)' }}
               >
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'var(--beige)' }}
+                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-[var(--beige)]"
                 >
-                  <Icon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+                  <Icon className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-bold text-base" style={{ color: '#201b15' }}>{title}</h3>
+                <h3 className="font-bold text-base text-[var(--text-dark)]">{title}</h3>
                 <p className="text-xs leading-6" style={{ color: '#51443c' }}>{desc}</p>
               </div>
             ))}
@@ -400,14 +385,14 @@ export default function AboutPage() {
         <div className="max-w-xl mx-auto space-y-8">
           {/* Decorative divider */}
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="h-px w-16" style={{ background: 'var(--beige)' }} />
-            <SparklesIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-            <div className="h-px w-16" style={{ background: 'var(--beige)' }} />
+            <div className="h-px w-16 bg-[var(--beige)]" />
+            <SparklesIcon className="w-4 h-4 text-primary" />
+            <div className="h-px w-16 bg-[var(--beige)]" />
           </div>
 
-          <h2 className="text-4xl font-headline leading-snug" style={{ color: '#201b15' }}>
+          <h2 className="text-4xl font-headline leading-snug text-[var(--text-dark)]">
             انضمي إلى مجتمع<br />
-            <em className="not-italic" style={{ color: 'var(--primary)' }}>ديب بيوتي</em> اليوم
+            <em className="not-italic text-primary">ديب بيوتي</em> اليوم
           </h2>
           <p className="text-sm leading-7" style={{ color: '#51443c' }}>
             اكتشفي مجموعتنا الكاملة من منتجات العناية الطبيعية الفاخرة المصنوعة خصيصاً لكِ.
@@ -415,8 +400,7 @@ export default function AboutPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
             <Link
               href="/products"
-              className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-white transition-all hover:opacity-90"
-              style={{ background: 'var(--primary)' }}
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-white transition-all hover:opacity-90 bg-primary"
             >
               اكتشفي المنتجات
             </Link>

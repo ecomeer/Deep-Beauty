@@ -110,7 +110,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
           {/* Content */}
           <div className="p-6 md:p-8 flex flex-col">
             {product.category && (
-              <span className="text-xs font-medium mb-2" style={{ color: 'var(--primary)' }}>
+              <span className="text-xs font-medium mb-2 text-primary">
                 {product.category}
               </span>
             )}
@@ -120,7 +120,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
             </h2>
             <p className="text-sm opacity-60 mb-4">{product.name_en}</p>
 
-            <div className="text-3xl font-bold mb-6" style={{ color: 'var(--primary)' }} dir="ltr">
+            <div className="text-3xl font-bold mb-6 text-primary" dir="ltr">
               {formatPrice(product.price)}
               {product.compare_price && product.compare_price > product.price && (
                 <span className="text-lg line-through mr-3 opacity-40">

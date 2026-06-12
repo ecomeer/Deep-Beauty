@@ -3,7 +3,7 @@
 import { useWishlistContext } from '@/context/WishlistContext'
 import { useCartContext } from '@/context/CartContext'
 import { useCountry } from '@/context/CountryContext'
-import { HeartIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { ShoppingBagIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -74,7 +74,7 @@ export default function WishlistClient() {
                 key={item.id}
                 className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="relative aspect-square" style={{ background: 'var(--beige)' }}>
+                <div className="relative aspect-square bg-[var(--beige)]">
                   {item.image ? (
                     <Image src={item.image} alt={item.name_ar} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
                   ) : (

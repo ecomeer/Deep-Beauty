@@ -106,7 +106,7 @@ function RelatedCard({ product, index, currentCategory }: {
             {/* Badges overlay */}
             <div className="absolute top-2 right-2 flex flex-col gap-1.5">
               {isSameCategory && product.category && (
-                <span className="px-2 py-0.5 text-[10px] font-bold rounded-full text-white" style={{ background: 'var(--primary)' }}>
+                <span className="px-2 py-0.5 text-[10px] font-bold rounded-full text-white bg-primary">
                   {product.category}
                 </span>
               )}
@@ -166,18 +166,18 @@ function RelatedCard({ product, index, currentCategory }: {
             </div>
 
             {/* Name */}
-            <p className="text-sm font-semibold leading-snug line-clamp-2" style={{ color: 'var(--text-dark)' }}>
+            <p className="text-sm font-semibold leading-snug line-clamp-2 text-[var(--text-dark)]">
               {product.name_ar}
             </p>
             {product.name_en && (
-              <p className="text-[10px]" style={{ color: 'var(--on-surface-variant)' }}>
+              <p className="text-[10px] text-[var(--on-surface-variant)]">
                 {product.name_en}
               </p>
             )}
 
             {/* Price */}
             <div className="flex items-baseline gap-2 pt-0.5">
-              <span className="text-base font-bold" style={{ color: 'var(--primary)' }} dir="ltr">
+              <span className="text-base font-bold text-primary" dir="ltr">
                 {formatPrice(displayPrice)}
               </span>
               {originalPrice && (
@@ -218,7 +218,7 @@ export default function RelatedProductsSection({ related, currentCategory }: Pro
       {/* Header */}
       <div className="flex items-end justify-between mb-7">
         <div>
-          <p className="text-xs uppercase tracking-widest font-semibold mb-1.5" style={{ color: 'var(--primary)' }}>
+          <p className="text-xs uppercase tracking-widest font-semibold mb-1.5 text-primary">
             قد يعجبك أيضاً
           </p>
           <h2
@@ -238,7 +238,7 @@ export default function RelatedProductsSection({ related, currentCategory }: Pro
               className="w-9 h-9 rounded-full border flex items-center justify-center transition-all disabled:opacity-30 hover:bg-[var(--beige)]"
               style={{ borderColor: 'var(--dark-beige)' }}
             >
-              <ChevronRightIcon className="w-4 h-4" style={{ color: 'var(--text-dark)' }} />
+              <ChevronRightIcon className="w-4 h-4 text-[var(--text-dark)]" />
             </button>
             <button
               onClick={() => scroll('left')}
@@ -247,7 +247,7 @@ export default function RelatedProductsSection({ related, currentCategory }: Pro
               className="w-9 h-9 rounded-full border flex items-center justify-center transition-all disabled:opacity-30 hover:bg-[var(--beige)]"
               style={{ borderColor: 'var(--dark-beige)' }}
             >
-              <ChevronLeftIcon className="w-4 h-4" style={{ color: 'var(--text-dark)' }} />
+              <ChevronLeftIcon className="w-4 h-4 text-[var(--text-dark)]" />
             </button>
           </div>
 

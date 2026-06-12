@@ -61,7 +61,7 @@ export default function NewCoupon() {
       <div className="flex items-center gap-2 mb-6">
         <Link href="/admin/marketing/coupons" className="text-sm opacity-60 hover:opacity-100">الكوبونات</Link>
         <ArrowRightIcon className="w-4 h-4 opacity-40" />
-        <h1 className="text-xl font-bold" style={{ color: 'var(--text-dark)' }}>كوبون جديد</h1>
+        <h1 className="text-xl font-bold text-[var(--text-dark)]">كوبون جديد</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border p-6" style={{ borderColor: 'var(--beige)' }}>
