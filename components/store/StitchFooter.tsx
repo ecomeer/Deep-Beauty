@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { CheckCircleIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import { CheckCircleIcon, PaperAirplaneIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline'
 import { PaymentIconsRow } from './PaymentIcons'
 
 // ─── Social Icon Components ────────────────────────────────────────────────
@@ -53,7 +53,7 @@ const SOCIAL = [
   { href: 'https://tiktok.com/@deepbeautykw',     label: 'تيك توك',  Icon: IconTikTok },
   { href: 'https://instagram.com/deepbeautykw',   label: 'انستغرام', Icon: IconInstagram },
   { href: 'https://snapchat.com/add/deepbeautykw',label: 'سناب شات', Icon: IconSnapchat },
-  { href: 'https://wa.me/96500000000',             label: 'واتساب',   Icon: IconWhatsApp },
+  { href: 'https://wa.me/96522289182',             label: 'واتساب',   Icon: IconWhatsApp },
 ]
 
 interface FooterCategory {
@@ -110,6 +110,24 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
             <p className="text-sm leading-relaxed mb-6 text-white/60">
               ولدت في قلب الكويت بمهمة تقديم أرقى طقوس العناية بالبشرة. نجمع بين الحكمة العربية القديمة والعلوم الحديثة لمنتجات طبيعية 100٪.
             </p>
+
+            {/* Contact info */}
+            <div className="space-y-2.5 mb-6">
+              <a
+                href="tel:+96522289182"
+                className="flex items-center gap-2.5 text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
+              >
+                <PhoneIcon className="w-4 h-4 flex-shrink-0" />
+                <span dir="ltr">+965 2228 9182</span>
+              </a>
+              <a
+                href="mailto:contact@deepbeautykw.com"
+                className="flex items-center gap-2.5 text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
+              >
+                <EnvelopeIcon className="w-4 h-4 flex-shrink-0" />
+                <span dir="ltr">contact@deepbeautykw.com</span>
+              </a>
+            </div>
 
             {/* Social Links */}
             <div>

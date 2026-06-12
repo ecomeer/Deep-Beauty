@@ -396,7 +396,32 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
-          3. CATEGORY NAVIGATION — RECTANGULAR CARDS
+          3. TRUST BAR — REASSURANCE RIGHT AFTER HERO
+      ═══════════════════════════════════════ */}
+      <section className="py-8 bg-white border-b border-[var(--beige)]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6">
+          {TRUST.map(({ Icon, title, desc }, i) => (
+            <motion.div
+              key={title}
+              {...fadeUp}
+              transition={{ duration: 0.45, delay: i * 0.07 }}
+              className="flex flex-col items-center text-center gap-2"
+            >
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                style={{ background: 'var(--beige)' }}
+              >
+                <Icon className="w-6 h-6 text-[var(--primary)]" />
+              </div>
+              <p className="text-xs font-bold" style={{ color: 'var(--text-dark)' }}>{title}</p>
+              <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>{desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          4. CATEGORY NAVIGATION — RECTANGULAR CARDS
       ═══════════════════════════════════════ */}
       {activeCategories.length > 0 && (
         <section className="py-8">
@@ -468,7 +493,7 @@ export default function StitchHomeContent({
       )}
 
       {/* ═══════════════════════════════════════
-          4. FEATURED PRODUCTS SLIDER
+          5. FEATURED PRODUCTS SLIDER
       ═══════════════════════════════════════ */}
       <section className="py-8">
         {/* Accent line */}
@@ -531,7 +556,7 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
-          5. MIDDLE BANNER — SPLIT CARD
+          6. MIDDLE BANNER — SPLIT CARD
       ═══════════════════════════════════════ */}
       <section className="px-4 py-8">
         <Link href={midBannerLink} className="block group">
@@ -590,7 +615,7 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
-          6. BESTSELLERS SLIDER — DARK BACKGROUND
+          7. BESTSELLERS SLIDER — DARK BACKGROUND
       ═══════════════════════════════════════ */}
       {(bestsellersLoading || bestsellers.length > 0) && (
         <section className="py-12 bg-[var(--text-dark)]">
@@ -632,47 +657,19 @@ export default function StitchHomeContent({
       )}
 
       {/* ═══════════════════════════════════════
-          7. TRUST BAR — HORIZONTAL SCROLL STRIP
-      ═══════════════════════════════════════ */}
-      <section className="py-8 cv-auto bg-white">
-        {/* Subtle top divider */}
-        <div className="h-px mx-6 mb-6" style={{ background: 'var(--beige)' }} />
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6">
-          {TRUST.map(({ Icon, title, desc }, i) => (
-            <motion.div
-              key={title}
-              {...fadeUp}
-              transition={{ duration: 0.45, delay: i * 0.07 }}
-              className="flex flex-col items-center text-center gap-2"
-            >
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                style={{ background: 'var(--beige)' }}
-              >
-                <Icon className="w-6 h-6 text-[var(--primary)]" />
-              </div>
-              <p className="text-xs font-bold" style={{ color: 'var(--text-dark)' }}>{title}</p>
-              <p className="text-xs" style={{ color: 'var(--on-surface-variant)' }}>{desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════
           8. TESTIMONIALS
       ═══════════════════════════════════════ */}
-      <section className="py-12 cv-auto bg-[var(--text-dark)]">
+      <section className="py-12 cv-auto bg-white">
         <div className="px-6 mb-8 text-right">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary-light)] block mb-2">
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ آراء عملائنا
           </span>
           <h2
-            className="text-2xl font-bold text-white font-headline"
+            className="text-2xl font-bold font-headline text-[var(--text-dark)]"
           >
             يحبّون ديب بيوتي
           </h2>
-          <p className="text-xs mt-1.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          <p className="text-xs mt-1.5 text-[var(--on-surface-variant)]">
             تقييمات حقيقية من عميلاتنا الكريمات
           </p>
           {/* Decorative line */}
@@ -689,11 +686,7 @@ export default function StitchHomeContent({
               key={review.name}
               {...fadeUp}
               transition={{ duration: 0.45, delay: i * 0.1 }}
-              className="flex-shrink-0 w-[78vw] snap-start rounded-[2rem] p-5"
-              style={{
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.15)',
-              }}
+              className="flex-shrink-0 w-[78vw] snap-start rounded-[2rem] p-5 bg-[var(--off-white)] border border-[var(--beige)]"
             >
               {/* Stars — with accessible rating label */}
               <div
@@ -706,14 +699,11 @@ export default function StitchHomeContent({
                 ))}
               </div>
 
-              <p className="text-sm leading-relaxed text-right mb-4" style={{ color: 'rgba(255,255,255,0.80)' }}>
+              <p className="text-sm leading-relaxed text-right mb-4 text-[var(--on-surface-variant)]">
                 {review.text}
               </p>
 
-              <div
-                className="flex items-center gap-3 pt-3 flex-row-reverse"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}
-              >
+              <div className="flex items-center gap-3 pt-3 flex-row-reverse border-t border-[var(--beige)]">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0"
                   style={{ background: 'var(--primary)' }}
@@ -721,8 +711,8 @@ export default function StitchHomeContent({
                   {review.name[0]}
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-sm text-white">{review.name}</p>
-                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{review.city}</p>
+                  <p className="font-bold text-sm text-[var(--text-dark)]">{review.name}</p>
+                  <p className="text-xs text-[var(--on-surface-variant)]">{review.city}</p>
                 </div>
               </div>
             </motion.div>
