@@ -132,7 +132,7 @@ function MobileProductCard({
 
           {/* Discount badge */}
           {discount > 0 && (
-            <span className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full shadow">
+            <span className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full shadow">
               -{discount}٪
             </span>
           )}
@@ -151,7 +151,7 @@ function MobileProductCard({
           {/* Out of stock */}
           {outOfStock && (
             <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
-              <span className="bg-white/95 text-gray-600 text-[10px] font-bold px-3 py-1.5 rounded-full">
+              <span className="bg-white/95 text-gray-600 text-xs font-bold px-3 py-1.5 rounded-full">
                 نفذت الكمية
               </span>
             </div>
@@ -161,7 +161,7 @@ function MobileProductCard({
         {/* ── Content ── */}
         <div className="p-3 text-right">
           <h3
-            className="font-bold text-[13px] leading-snug line-clamp-2 mb-2"
+            className="font-bold text-sm leading-snug line-clamp-2 mb-2"
             style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : 'var(--text-dark)' }}
           >
             {product.name_ar}
@@ -188,10 +188,9 @@ function MobileProductCard({
             onClick={handleAddToCart}
             disabled={outOfStock || adding}
             aria-label={outOfStock ? 'نفذت الكمية' : `إضافة ${product.name_ar} للسلة`}
-            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all duration-200 disabled:cursor-not-allowed"
-            style={{
-              background: outOfStock ? '#C8B8AE' : adding ? '#5a9e6f' : 'var(--primary)',
-            }}
+            className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all duration-200 disabled:cursor-not-allowed ${
+              outOfStock ? 'bg-[var(--dark-beige)]' : adding ? 'bg-green-500' : 'bg-primary'
+            }`}
           >
             {adding
               ? <><CheckIcon className="w-3.5 h-3.5" /> تمت الإضافة</>
@@ -337,12 +336,12 @@ export default function StitchHomeContent({
 
           {/* Text overlay */}
           <div className="absolute bottom-10 right-4 left-4 z-[2] text-right">
-            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full" style={{ background: 'rgba(156,102,68,0.9)' }}>
-              <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-white">✦ ديب بيوتي الكويت</span>
+            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full" style={{ background: 'rgba(139,94,60,0.9)' }}>
+              <span className="text-xs font-bold tracking-[0.12em] uppercase text-white">✦ ديب بيوتي الكويت</span>
             </div>
             <h2
-              className="text-[2rem] sm:text-4xl font-bold text-white leading-[1.15] mb-2.5"
-              style={{ fontFamily: 'var(--font-cormorant), serif', textShadow: '0 2px 20px rgba(0,0,0,0.6)' }}
+              className="text-[2rem] sm:text-4xl font-bold text-white leading-[1.15] mb-2.5 font-headline"
+              style={{ textShadow: '0 2px 20px rgba(0,0,0,0.6)' }}
             >
               {(heroSlides[heroIndex] as Banner | null)?.title_ar || 'جمالك يبدأ من الأعماق'}
             </h2>
@@ -400,13 +399,13 @@ export default function StitchHomeContent({
           3. CATEGORY NAVIGATION — RECTANGULAR CARDS
       ═══════════════════════════════════════ */}
       {activeCategories.length > 0 && (
-        <section className="py-6">
+        <section className="py-8">
           <div className="px-4 mb-4 flex items-center justify-between">
             <div className="text-right">
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em] block mb-0.5" style={{ color: 'var(--primary)' }}>
+              <span className="text-xs font-bold uppercase tracking-[0.15em] block mb-0.5" style={{ color: 'var(--primary)' }}>
                 تسوّقي حسب الفئة
               </span>
-              <h2 className="text-xl font-bold" style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-cormorant), serif' }}>
+              <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
                 اكتشفي مجموعاتنا
               </h2>
             </div>
@@ -471,7 +470,7 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           4. FEATURED PRODUCTS SLIDER
       ═══════════════════════════════════════ */}
-      <section className="py-6">
+      <section className="py-8">
         {/* Accent line */}
         <div
           className="mx-4 mb-5 h-px"
@@ -481,10 +480,10 @@ export default function StitchHomeContent({
         {/* Eyebrow + heading */}
         <div className="px-4 mb-5 flex items-center justify-between">
           <div className="text-right">
-            <span className="text-[10px] font-bold uppercase tracking-[0.14em] block mb-0.5" style={{ color: 'var(--primary)' }}>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] block mb-0.5" style={{ color: 'var(--primary)' }}>
               ✦ مختار بعناية
             </span>
-            <h2 className="text-xl font-bold" style={{ color: 'var(--text-dark)', fontFamily: 'var(--font-cormorant), serif' }}>
+            <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
               أبرز منتجاتنا
             </h2>
           </div>
@@ -549,15 +548,14 @@ export default function StitchHomeContent({
             {/* RIGHT col (RTL first): Text */}
             <div className="p-6 text-right flex flex-col justify-center gap-3">
               <span
-                className="text-[0.6rem] font-bold uppercase tracking-[0.16em]"
+                className="text-xs font-bold uppercase tracking-[0.16em]"
                 style={{ color: 'var(--primary-light)' }}
               >
                 ✦ عرض حصري
               </span>
               <div className="w-10 h-0.5 self-end rounded-full" style={{ background: 'var(--primary)' }} />
               <p
-                className="text-2xl font-bold text-white leading-snug"
-                style={{ fontFamily: 'var(--font-cormorant), serif' }}
+                className="text-2xl font-bold text-white leading-snug font-headline"
               >
                 {midBannerTitle}
               </p>
@@ -595,14 +593,14 @@ export default function StitchHomeContent({
           6. BESTSELLERS SLIDER — DARK BACKGROUND
       ═══════════════════════════════════════ */}
       {(bestsellersLoading || bestsellers.length > 0) && (
-        <section className="py-10" style={{ background: 'var(--text-dark)' }}>
+        <section className="py-12 bg-[var(--text-dark)]">
           {/* Eyebrow + heading */}
           <div className="px-4 mb-5 flex items-center justify-between">
             <div className="text-right">
-              <span className="text-[10px] font-bold uppercase tracking-[0.14em] block mb-0.5" style={{ color: 'var(--primary-light)' }}>
+              <span className="text-xs font-bold uppercase tracking-[0.14em] block mb-0.5" style={{ color: 'var(--primary-light)' }}>
                 ✦ الأعلى مبيعاً
               </span>
-              <h2 className="text-xl font-bold text-white" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
+              <h2 className="text-xl font-bold text-white font-headline">
                 الأكثر طلباً
               </h2>
             </div>
@@ -636,7 +634,7 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           7. TRUST BAR — HORIZONTAL SCROLL STRIP
       ═══════════════════════════════════════ */}
-      <section className="py-8 cv-auto" style={{ background: 'white' }}>
+      <section className="py-8 cv-auto bg-white">
         {/* Subtle top divider */}
         <div className="h-px mx-6 mb-6" style={{ background: 'var(--beige)' }} />
 
@@ -664,14 +662,13 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           8. TESTIMONIALS
       ═══════════════════════════════════════ */}
-      <section className="py-12 cv-auto" style={{ background: 'var(--text-dark)' }}>
+      <section className="py-12 cv-auto bg-[var(--text-dark)]">
         <div className="px-6 mb-8 text-right">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary-light)] block mb-2">
             ✦ آراء عملائنا
           </span>
           <h2
-            className="text-2xl font-bold text-white"
-            style={{ fontFamily: 'var(--font-cormorant), serif' }}
+            className="text-2xl font-bold text-white font-headline"
           >
             يحبّون ديب بيوتي
           </h2>
