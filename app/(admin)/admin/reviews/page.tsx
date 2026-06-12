@@ -29,6 +29,7 @@ export default function ReviewsPage() {
 
   useEffect(() => {
     fetchReviews()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, page])
 
   async function fetchReviews() {

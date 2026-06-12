@@ -71,10 +71,8 @@ export default function EnhancedCheckoutPage() {
   // Shipping from admin zones
   const [shippingCost, setShippingCost] = useState(0)
   const [freeThreshold, setFreeThreshold] = useState<number | null>(null)
-  const [shippingLoading, setShippingLoading] = useState(true)
 
   useEffect(() => {
-    setShippingLoading(true)
     fetch('/api/shipping/calculate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -88,7 +86,6 @@ export default function EnhancedCheckoutPage() {
         }
       })
       .catch(() => {})
-      .finally(() => setShippingLoading(false))
   }, [countryConfig.code, subtotal])
 
   // Check if user is logged in

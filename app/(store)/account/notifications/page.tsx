@@ -27,16 +27,16 @@ export default function AccountNotificationsPage() {
   const [notifs, setNotifs] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch('/api/auth/me').then(r => { if (!r.ok) router.push('/login') })
-    loadNotifs()
-  }, [])
-
   async function loadNotifs() {
     const r = await fetch('/api/account/notifications')
     if (r.ok) { const d = await r.json(); setNotifs(d.notifications) }
     setLoading(false)
   }
+
+  useEffect(() => {
+    fetch('/api/auth/me').then(r => { if (!r.ok) router.push('/login') })
+    loadNotifs()
+  }, [router])
 
   async function markAllRead() {
     await fetch('/api/account/notifications', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })

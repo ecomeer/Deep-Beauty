@@ -6,8 +6,20 @@ import Link from 'next/link'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
+interface OrderRow {
+  id: string
+  order_number: string
+  created_at: string
+  customer_name: string
+  customer_phone: string
+  address_area?: string | null
+  total: number
+  status: string
+  payment_method: string
+}
+
 export default function AdminOrders() {
-  const [orders, setOrders] = useState<any[]>([])
+  const [orders, setOrders] = useState<OrderRow[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
@@ -16,8 +28,6 @@ export default function AdminOrders() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
-
-  useEffect(() => { fetchOrders() }, [page, statusFilter])
 
   async function fetchOrders() {
     setLoading(true)
@@ -31,6 +41,9 @@ export default function AdminOrders() {
     setTotal(data.total ?? 0)
     setLoading(false)
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchOrders() }, [page, statusFilter])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()

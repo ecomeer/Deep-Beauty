@@ -18,13 +18,14 @@ export default function AdminProducts() {
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
 
+  async function fetchCategories() {
+    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
+    setCategories(data || [])
+  }
+
   useEffect(() => {
     fetchCategories()
   }, [])
-
-  useEffect(() => {
-    fetchProducts()
-  }, [page, categoryFilter])
 
   async function fetchProducts() {
     setLoading(true)
@@ -39,15 +40,15 @@ export default function AdminProducts() {
     setLoading(false)
   }
 
+  useEffect(() => {
+    fetchProducts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, categoryFilter])
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setPage(1)
     fetchProducts()
-  }
-
-  async function fetchCategories() {
-    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
-    setCategories(data || [])
   }
 
   const handleDelete = async (id: string) => {

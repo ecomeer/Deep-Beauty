@@ -3,7 +3,7 @@
 import { useWishlistContext } from '@/context/WishlistContext'
 import { useCartContext } from '@/context/CartContext'
 import { useCountry } from '@/context/CountryContext'
-import { HeartIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { ShoppingBagIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
 import Image from 'next/image'
 import Link from 'next/link'
