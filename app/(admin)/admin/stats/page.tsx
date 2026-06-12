@@ -145,7 +145,7 @@ export default function StatsPage() {
             المنتجات الأكثر مبيعاً
           </h2>
           {stats?.topProducts?.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">لا توجد بيانات</p>
+            <p className="text-gray-500 text-center py-8">لا بيانات في هذه الفترة — جرّبي نطاقاً زمنياً أوسع</p>
           ) : (
             <div className="space-y-3">
               {stats?.topProducts?.slice(0, 5).map((item, index) => (
@@ -178,7 +178,7 @@ export default function StatsPage() {
             أفضل العملاء
           </h2>
           {stats?.topCustomers?.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">لا توجد بيانات</p>
+            <p className="text-gray-500 text-center py-8">لا بيانات في هذه الفترة — جرّبي نطاقاً زمنياً أوسع</p>
           ) : (
             <div className="space-y-3">
               {stats?.topCustomers?.slice(0, 5).map((customer, index) => (
