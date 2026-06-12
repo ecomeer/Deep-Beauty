@@ -71,24 +71,30 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  const [error, setError] = useState(false)
+
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || loading) return
     setLoading(true)
+    setError(false)
     try {
-      await fetch('/api/newsletter', {
+      const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
-    } catch {}
-    setSubscribed(true)
-    setEmail('')
+      if (!res.ok) throw new Error()
+      setSubscribed(true)
+      setEmail('')
+    } catch {
+      setError(true)
+    }
     setLoading(false)
   }
 
   return (
-    <footer style={{ background: 'var(--text-dark)', color: 'rgba(255,255,255,0.85)' }}>
+    <footer className="bg-[var(--text-dark)] text-white/85">
 
       {/* ─── Main Grid ─── */}
       <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8 pt-16 pb-10">
@@ -102,16 +108,16 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
                 alt="Deep Beauty"
                 width={80}
                 height={80}
-                style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.9 }}
+                className="object-contain opacity-90 brightness-0 invert"
               />
             </div>
-            <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            <p className="text-sm leading-relaxed mb-6 text-white/60">
               ولدت في قلب الكويت بمهمة تقديم أرقى طقوس العناية بالبشرة. نجمع بين الحكمة العربية القديمة والعلوم الحديثة لمنتجات طبيعية 100٪.
             </p>
 
             {/* Social Links */}
             <div>
-              <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <p className="text-xs uppercase tracking-widest font-semibold mb-3 text-white/40">
                 تابعينا
               </p>
               <div className="flex items-center gap-2">
@@ -122,19 +128,7 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                    style={{
-                      background: 'rgba(255,255,255,0.08)',
-                      color: 'rgba(255,255,255,0.65)',
-                    }}
-                    onMouseEnter={e => {
-                      (e.currentTarget as HTMLAnchorElement).style.background = 'var(--primary)'
-                      ;(e.currentTarget as HTMLAnchorElement).style.color = 'white'
-                    }}
-                    onMouseLeave={e => {
-                      (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.08)'
-                      ;(e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.65)'
-                    }}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors bg-white/[0.08] text-white/65 hover:bg-primary hover:text-white focus-visible:bg-primary focus-visible:text-white"
                   >
                     <Icon className="w-4 h-4" />
                   </a>
@@ -145,7 +139,7 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
 
           {/* ── Store Links ── */}
           <div className="md:col-span-2">
-            <p className="text-xs uppercase tracking-widest font-bold mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            <p className="text-xs uppercase tracking-widest font-bold mb-5 text-white/45">
               المتجر
             </p>
             <ul className="space-y-3">
@@ -153,10 +147,7 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
               <li>
                 <Link
                   href="/products"
-                  className="text-sm transition-colors"
-                  style={{ color: 'rgba(255,255,255,0.6)' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary-light)')}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                  className="text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
                 >
                   جميع المنتجات
                 </Link>
@@ -166,10 +157,7 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
                 <li key={cat.id}>
                   <Link
                     href={`/products?category=${encodeURIComponent(cat.name_ar)}`}
-                    className="text-sm transition-colors"
-                    style={{ color: 'rgba(255,255,255,0.6)' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary-light)')}
-                    onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                    className="text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
                   >
                     {cat.name_ar}
                   </Link>
@@ -180,7 +168,7 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
 
           {/* ── Support Links ── */}
           <div className="md:col-span-2">
-            <p className="text-xs uppercase tracking-widest font-bold mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            <p className="text-xs uppercase tracking-widest font-bold mb-5 text-white/45">
               الدعم
             </p>
             <ul className="space-y-3">
@@ -188,10 +176,7 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
                 <li key={href}>
                   <Link
                     href={href}
-                    className="text-sm transition-colors"
-                    style={{ color: 'rgba(255,255,255,0.6)' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--primary-light)')}
-                    onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                    className="text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
                   >
                     {label}
                   </Link>
@@ -202,23 +187,20 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
 
           {/* ── Newsletter ── */}
           <div className="md:col-span-4">
-            <p className="text-xs uppercase tracking-widest font-bold mb-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            <p className="text-xs uppercase tracking-widest font-bold mb-2 text-white/45">
               النشرة البريدية
             </p>
-            <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <p className="text-sm mb-4 text-white/55">
               احصلي على أحدث العروض والمنتجات الجديدة مباشرة في بريدك.
             </p>
 
             {subscribed ? (
-              <div
-                className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium"
-                style={{ background: 'rgba(34,197,94,0.12)', color: '#4ade80' }}
-              >
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-green-500/[0.12] text-green-400">
                 <CheckCircleIcon className="w-5 h-5 flex-shrink-0" />
-                تم الاشتراك بنجاح! شكراً لكِ.
+                اشتركتِ بنجاح — ترقبي عروضنا في بريدك
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex gap-2">
+              <form onSubmit={handleSubscribe} className="flex flex-wrap gap-2">
                 <label htmlFor="footer-newsletter-email" className="sr-only">
                   البريد الإلكتروني للاشتراك
                 </label>
@@ -229,29 +211,13 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
                   onChange={e => setEmail(e.target.value)}
                   placeholder="البريد الإلكتروني"
                   required
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
-                  style={{
-                    background: 'rgba(255,255,255,0.07)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: 'white',
-                  }}
-                  onFocus={e => {
-                    e.currentTarget.style.border = '1px solid var(--primary)'
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                  }}
-                  onBlur={e => {
-                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)'
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.07)'
-                  }}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none transition-all text-white bg-white/[0.07] border border-white/10 focus:border-primary focus:bg-white/10"
                 />
                 <button
                   type="submit"
                   disabled={loading}
                   aria-label="اشتركي في النشرة"
-                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-50"
-                  style={{ background: 'var(--primary)' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--primary-hover)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'var(--primary)')}
+                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-50 bg-primary hover:bg-[var(--primary-hover)]"
                 >
                   {loading ? (
                     <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -259,17 +225,18 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
                     <PaperAirplaneIcon className="w-4 h-4 text-white -rotate-45" />
                   )}
                 </button>
+                {error && (
+                  <p className="w-full text-xs text-red-400" role="alert">
+                    تعذّر الاشتراك — تأكدي من كتابة البريد بشكل صحيح وحاولي مجدداً
+                  </p>
+                )}
               </form>
             )}
 
             {/* Trust Badges */}
             <div className="flex items-center gap-3 mt-5">
               {['🔒 دفع آمن', '🚚 شحن سريع', '🌿 منتجات طبيعية'].map((badge) => (
-                <span
-                  key={badge}
-                  className="text-[10px] font-medium"
-                  style={{ color: 'rgba(255,255,255,0.35)' }}
-                >
+                <span key={badge} className="text-xs font-medium text-white/35">
                   {badge}
                 </span>
               ))}
@@ -278,14 +245,11 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
         </div>
 
         {/* ─── Divider ─── */}
-        <div
-          className="my-10"
-          style={{ height: '1px', background: 'rgba(255,255,255,0.08)' }}
-        />
+        <div className="my-10 h-px bg-white/[0.08]" />
 
         {/* ─── Bottom Bar ─── */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-4 text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+          <div className="flex items-center gap-4 text-xs text-white/35">
             <p>© {new Date().getFullYear()} Deep Beauty. جميع الحقوق محفوظة.</p>
           </div>
           <PaymentIconsRow />

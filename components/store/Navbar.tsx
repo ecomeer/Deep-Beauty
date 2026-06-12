@@ -61,6 +61,11 @@ export default function Navbar() {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
 
+  // Close the mobile drawer after navigating to a new page
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
 
   return (
@@ -312,7 +317,7 @@ export default function Navbar() {
           <div className="mx-5 my-2 h-px bg-[var(--beige)]" />
 
           <div className="px-5 pb-2">
-            <p className="text-[10px] text-[var(--on-surface-variant)] uppercase tracking-wider font-semibold mb-2">الدولة / العملة</p>
+            <p className="text-xs text-[var(--on-surface-variant)] uppercase tracking-wider font-semibold mb-2">الدولة / العملة</p>
             <CountrySelector />
           </div>
         </div>
