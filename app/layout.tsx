@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Cormorant_Garamond, Tajawal, Almarai } from 'next/font/google'
+import { Cormorant_Garamond, Almarai } from 'next/font/google'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -7,13 +7,6 @@ const cormorant = Cormorant_Garamond({
   weight: ['300', '400', '500', '600', '700'],
   style: ['normal', 'italic'],
   variable: '--font-cormorant',
-  display: 'swap',
-})
-
-const tajawal = Tajawal({
-  subsets: ['arabic'],
-  weight: ['300', '400', '500', '700'],
-  variable: '--font-tajawal',
   display: 'swap',
 })
 
@@ -60,10 +53,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl" className={`${cormorant.variable} ${tajawal.variable} ${almarai.variable}`}>
+    <html lang="ar" dir="rtl" className={`${cormorant.variable} ${almarai.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#9C6644" />
+        <meta name="theme-color" content="#8B5E3C" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
