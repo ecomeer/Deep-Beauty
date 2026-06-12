@@ -58,10 +58,10 @@ export default function AccountAddressesPage() {
         body: JSON.stringify(form),
       })
       if (!r.ok) { const d = await r.json(); throw new Error(d.error) }
-      toast.success(editing ? 'تم تحديث العنوان' : 'تم إضافة العنوان')
+      toast.success(editing ? 'حُدّث العنوان' : 'أُضيف العنوان')
       setShowForm(false)
       loadAddresses()
-    } catch (e: any) { toast.error(e.message || 'حدث خطأ') }
+    } catch (e: any) { toast.error(e.message || 'تعذّر حفظ العنوان — حاولي مجدداً') }
     setSaving(false)
   }
 

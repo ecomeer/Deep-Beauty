@@ -92,7 +92,7 @@ function MobileProductCard({
     setAdding(true)
     addItem({ id: product.id, name_ar: product.name_ar, name_en: product.name_en,
       price: displayPrice, image: product.images?.[0] || '', quantity: 1, slug: product.slug })
-    toast.success('تم إضافة المنتج للسلة 🛒', { duration: 2000, position: 'bottom-center' })
+    toast.success('أُضيف للسلة 🛒', { duration: 2000, position: 'bottom-center' })
     setTimeout(() => setAdding(false), 1500)
   }
 
@@ -100,7 +100,7 @@ function MobileProductCard({
     e.preventDefault(); e.stopPropagation()
     toggleItem({ id: product.id, name_ar: product.name_ar, name_en: product.name_en,
       price: displayPrice, image: product.images?.[0] || '', slug: product.slug })
-    toast.success(isWishlisted ? 'تم الإزالة من المفضلة' : 'تم الإضافة للمفضلة ❤️', { position: 'bottom-center' })
+    toast.success(isWishlisted ? 'أُزيل من المفضلة' : 'أُضيف للمفضلة ❤️', { position: 'bottom-center' })
   }
 
   const cardBg    = darkMode ? 'rgba(255,255,255,0.06)' : 'white'

@@ -145,7 +145,7 @@ export default function EnhancedCheckoutPage() {
       setCouponApplied(json.code)
       toast.success(`✅ تم تطبيق كود ${json.code} — خصم ${formatPrice(json.discount)}`)
     } catch {
-      toast.error('❌ حدث خطأ')
+      toast.error('تعذّر التحقق من الكوبون — تأكدي من اتصالك بالإنترنت وحاولي مجدداً')
     }
     setCouponLoading(false)
   }
@@ -257,7 +257,7 @@ export default function EnhancedCheckoutPage() {
       }
     } catch (err: unknown) {
       console.error('Checkout error:', err)
-      const errorMessage = err instanceof Error ? err.message : 'حدث خطأ أثناء إرسال الطلب'
+      const errorMessage = err instanceof Error ? err.message : 'تعذّر إرسال الطلب — تأكدي من اتصالك بالإنترنت وحاولي مجدداً'
       toast.error(`❌ ${errorMessage}`)
     }
     setSubmitting(false)

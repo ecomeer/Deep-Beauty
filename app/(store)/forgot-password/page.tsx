@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
         setSent(true)
       }
     } catch {
-      toast.error('حدث خطأ. حاولي مرة أخرى.')
+      toast.error('تعذّر إرسال الرابط — تأكدي من اتصالك بالإنترنت وحاولي مجدداً')
     } finally {
       setLoading(false)
     }

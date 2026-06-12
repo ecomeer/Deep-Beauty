@@ -58,7 +58,7 @@ function RelatedCard({ product, index, currentCategory }: {
       quantity: 1,
       slug: product.slug,
     })
-    toast.success('تم إضافة المنتج للسلة 🛒', { duration: 2000, position: 'bottom-center' })
+    toast.success('أُضيف للسلة 🛒', { duration: 2000, position: 'bottom-center' })
     setTimeout(() => setAdding(false), 1500)
   }
 
@@ -73,7 +73,7 @@ function RelatedCard({ product, index, currentCategory }: {
       image: product.images?.[0] || '',
       slug: product.slug,
     })
-    toast.success(isWishlisted ? 'تم الإزالة من المفضلة' : 'تم الإضافة للمفضلة ❤️', {
+    toast.success(isWishlisted ? 'أُزيل من المفضلة' : 'أُضيف للمفضلة ❤️', {
       position: 'bottom-center',
     })
   }

@@ -53,7 +53,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
       quantity,
       slug: product.slug,
     })
-    toast.success(`تم إضافة ${quantity} من ${product.name_ar} للسلة 🛍️`)
+    toast.success(`أُضيف ${quantity} × ${product.name_ar} للسلة 🛒`)
     handleClose()
   }
 
@@ -66,7 +66,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
       image: product.images?.[0] || '',
       slug: product.slug,
     })
-    toast.success(isWishlisted ? 'تم إزالة من المفضلة' : 'تم إضافة للمفضلة ❤️')
+    toast.success(isWishlisted ? 'أُزيل من المفضلة' : 'أُضيف للمفضلة ❤️')
   }
 
   return (
