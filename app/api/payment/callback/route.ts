@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyPayment } from '@/lib/payment'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { sendAdminPushNotification } from '@/lib/push-notifications'
 
 export async function GET(request: NextRequest) {
   try {

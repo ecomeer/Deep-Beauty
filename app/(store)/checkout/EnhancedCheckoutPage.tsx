@@ -205,6 +205,7 @@ export default function EnhancedCheckoutPage() {
           total: Math.max(0, total),
           coupon_code: couponApplied || null,
           coupon_discount: couponDiscount,
+          country_code: countryConfig.code,
           payment_method: paymentMethod,
           user_id: userId || null,
           items: items.map(item => ({

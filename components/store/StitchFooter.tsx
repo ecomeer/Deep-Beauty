@@ -40,10 +40,6 @@ function IconTikTok({ className }: { className?: string }) {
 }
 
 // ─── Footer Data ──────────────────────────────────────────────────────────
-const DEFAULT_STORE_LINKS = [
-  { href: '/products', label: 'جميع المنتجات' },
-]
-
 const SUPPORT_LINKS = [
   { href: '/faq', label: 'الأسئلة الشائعة' },
   { href: '/contact', label: 'تواصلي معنا' },
