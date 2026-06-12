@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 
 import {
   HomeIcon,
@@ -89,13 +88,9 @@ function NavLink({
     <Link
       href={href}
       onClick={onClick}
-      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl mx-2 mb-0.5 text-sm font-medium transition-all duration-200"
-      style={{
-        background: isActive ? 'var(--primary)' : 'transparent',
-        color: isActive ? 'white' : 'rgba(255,255,255,0.62)',
-      }}
-      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)' }}
-      onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+      className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl mx-2 mb-0.5 text-sm font-medium transition-all duration-200 ${
+        isActive ? 'bg-primary text-white' : 'text-white/[0.62] hover:bg-white/[0.08]'
+      }`}
     >
       <Icon className="w-4.5 h-4.5 flex-shrink-0 w-[18px] h-[18px]" />
       <span className="flex-1 leading-none">{label}</span>
@@ -141,7 +136,9 @@ export default function AdminSidebar() {
   const SIDEBAR_BG = '#2a1d13'
 
   // ── Sidebar Nav Content ─────────────────────────────────────────────────
-  function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
+  // Rendered via function call (not <Component/>) so React doesn't remount
+  // the subtree on every render of AdminSidebar
+  const renderSidebarContent = (onLinkClick?: () => void) => {
     return (
       <>
         {/* Logo */}
@@ -165,7 +162,7 @@ export default function AdminSidebar() {
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="mb-4">
               <p
-                className="px-5 mb-1.5 text-[9px] font-bold uppercase tracking-[0.16em]"
+                className="px-5 mb-1.5 text-[11px] font-bold uppercase tracking-[0.16em]"
                 style={{ color: 'rgba(255,255,255,0.3)' }}
               >
                 {group.label}
@@ -193,20 +190,14 @@ export default function AdminSidebar() {
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all"
-            style={{ color: 'rgba(255,255,255,0.45)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)' }}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all text-white/45 hover:bg-white/[0.06] hover:text-white/75"
           >
             <ShoppingBagIcon className="w-[18px] h-[18px] flex-shrink-0" />
             <span>عرض المتجر</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all"
-            style={{ color: 'rgba(239,68,68,0.7)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.9)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.7)' }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all text-red-500/70 hover:bg-red-500/10 hover:text-red-500/90"
           >
             <ArrowRightOnRectangleIcon className="w-[18px] h-[18px] flex-shrink-0" />
             <span>تسجيل الخروج</span>
@@ -223,7 +214,7 @@ export default function AdminSidebar() {
         className="hidden md:flex flex-col w-[230px] flex-shrink-0 min-h-screen py-5"
         style={{ background: SIDEBAR_BG }}
       >
-        <SidebarContent />
+        {renderSidebarContent()}
       </aside>
 
       {/* ── Mobile Top Bar ────────────────────────────────────────────── */}
@@ -274,7 +265,7 @@ export default function AdminSidebar() {
             >
               <XMarkIcon className="w-5 h-5" />
             </button>
-            <SidebarContent onLinkClick={() => setDrawerOpen(false)} />
+            {renderSidebarContent(() => setDrawerOpen(false))}
           </div>
         </div>
       )}

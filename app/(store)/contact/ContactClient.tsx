@@ -74,8 +74,7 @@ export default function ContactClient() {
             تواصلي معنا
           </span>
           <h1
-            className="text-4xl md:text-5xl font-bold mb-4"
-            style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+            className="text-4xl md:text-5xl font-bold mb-4 font-headline text-[var(--text-dark)]"
           >
             نحن هنا لمساعدتك
           </h1>

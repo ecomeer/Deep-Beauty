@@ -8,8 +8,7 @@ export default function ShippingPage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-20">
       <h1
-        className="text-4xl font-bold mb-2"
-        style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+        className="text-4xl font-bold mb-2 font-headline text-[var(--text-dark)]"
       >
         الشحن والاسترجاع
       </h1>

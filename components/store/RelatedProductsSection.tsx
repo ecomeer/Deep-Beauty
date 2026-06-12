@@ -222,8 +222,7 @@ export default function RelatedProductsSection({ related, currentCategory }: Pro
             قد يعجبك أيضاً
           </p>
           <h2
-            className="text-3xl md:text-4xl font-bold leading-tight"
-            style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+            className="text-3xl md:text-4xl font-bold leading-tight font-headline text-[var(--text-dark)]"
           >
             منتجات مشابهة
           </h2>

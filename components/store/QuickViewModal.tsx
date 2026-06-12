@@ -115,7 +115,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
               </span>
             )}
             
-            <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
+            <h2 className="text-2xl md:text-3xl font-bold mb-2 font-headline">
               {product.name_ar}
             </h2>
             <p className="text-sm opacity-60 mb-4">{product.name_en}</p>

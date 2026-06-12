@@ -339,8 +339,7 @@ export default function EnhancedProductDetail() {
             {/* Title */}
             <div>
               <h1
-                className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-1"
-                style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+                className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-1 font-headline text-[var(--text-dark)]"
               >
                 {product.name_ar}
               </h1>
@@ -365,8 +364,7 @@ export default function EnhancedProductDetail() {
             {/* Price */}
             <div className="flex items-baseline gap-3">
               <span
-                className="text-4xl md:text-5xl font-bold"
-                style={{ color: 'var(--primary)', fontFamily: 'var(--font-cormorant), serif' }}
+                className="text-4xl md:text-5xl font-bold font-headline text-primary"
                 dir="ltr"
               >
                 {formatPrice(displayPrice)}

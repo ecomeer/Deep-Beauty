@@ -166,8 +166,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
                 <p className="text-xs text-primary font-medium mb-1.5">{product.category}</p>
               )}
               <h3
-                className="font-bold text-base mb-1.5 leading-tight line-clamp-2 min-h-[2.5rem]"
-                style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+                className="font-bold text-base mb-1.5 leading-tight line-clamp-2 min-h-[2.5rem] font-headline text-[var(--text-dark)]"
               >
                 {product.name_ar}
               </h3>

@@ -112,7 +112,7 @@ export default function TrackClient() {
         <div className="w-20 h-20 rounded-full bg-[var(--primary)]/10 flex items-center justify-center mx-auto mb-4">
           <TruckIcon className="w-10 h-10 text-[var(--primary)]" />
         </div>
-        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
+        <h1 className="text-3xl font-bold mb-2 font-headline">
           تتبع طلبك
         </h1>
         <p className="text-gray-500">أدخل رقم الطلب ورقم الهاتف لمتابعة حالة شحنتك</p>

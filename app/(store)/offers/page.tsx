@@ -42,8 +42,7 @@ export default async function OffersPage() {
       {/* Hero */}
       <div className="pt-32 pb-14 px-6 text-center" style={{ background: 'var(--beige)' }}>
         <h1
-          className="text-4xl md:text-5xl font-bold mb-3"
-          style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+          className="text-4xl md:text-5xl font-bold mb-3 font-headline text-[var(--text-dark)]"
         >
           العروض
         </h1>
