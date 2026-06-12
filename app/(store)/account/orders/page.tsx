@@ -82,7 +82,7 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-[#9C6644] border-t-transparent animate-spin" />
+        <div className="w-12 h-12 rounded-full border-4 border-[var(--primary)] border-t-transparent animate-spin" />
       </div>
     )
   }
@@ -118,7 +118,7 @@ export default function OrdersPage() {
               onClick={() => setFilter(f.key as typeof filter)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 filter === f.key
-                  ? 'bg-[#9C6644] text-white'
+                  ? 'bg-[var(--primary)] text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -228,7 +228,7 @@ export default function OrdersPage() {
                       <div className="flex gap-3 mt-6">
                         <Link
                           href={`/track?order=${order.order_number}`}
-                          className="flex-1 py-3 bg-[#9C6644] text-white rounded-xl font-bold text-center hover:bg-[#7A5235] transition-colors"
+                          className="flex-1 py-3 bg-[var(--primary)] text-white rounded-xl font-bold text-center hover:bg-[var(--primary-hover)] transition-colors"
                         >
                           تتبع الطلب
                         </Link>
@@ -253,7 +253,7 @@ export default function OrdersPage() {
                           </button>
                         )}
                         {order.status === 'delivered' && (
-                          <button className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold hover:border-[#9C6644] hover:text-[#9C6644] transition-colors">
+                          <button className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors">
                             إعادة الطلب
                           </button>
                         )}

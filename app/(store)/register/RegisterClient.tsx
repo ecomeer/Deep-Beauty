@@ -149,7 +149,7 @@ export default function RegisterClient() {
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#9C6644] focus:ring-2 focus:ring-[#9C6644]/20 outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
                   placeholder="الاسم الكامل"
                 />
               </div>
@@ -167,7 +167,7 @@ export default function RegisterClient() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#9C6644] focus:ring-2 focus:ring-[#9C6644]/20 outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
                   placeholder="your@email.com"
                   dir="ltr"
                 />
@@ -185,7 +185,7 @@ export default function RegisterClient() {
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#9C6644] focus:ring-2 focus:ring-[#9C6644]/20 outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
                   placeholder="+965 XXXX XXXX"
                   dir="ltr"
                 />
@@ -205,7 +205,7 @@ export default function RegisterClient() {
                   minLength={8}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-gray-200 focus:border-[#9C6644] focus:ring-2 focus:ring-[#9C6644]/20 outline-none transition-all"
+                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
                   placeholder="8 أحرف على الأقل"
                   dir="ltr"
                 />
@@ -231,7 +231,7 @@ export default function RegisterClient() {
                   required
                   value={form.confirmPassword}
                   onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#9C6644] focus:ring-2 focus:ring-[#9C6644]/20 outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
                   placeholder="أعد إدخال كلمة المرور"
                   dir="ltr"
                 />
@@ -245,13 +245,13 @@ export default function RegisterClient() {
                 id="terms"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="mt-1 w-4 h-4 rounded border-gray-300 text-[#9C6644] focus:ring-[#9C6644]"
+                className="mt-1 w-4 h-4 rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
               />
               <label htmlFor="terms" className="text-sm text-gray-600">
                 أوافق على{' '}
-                <Link href="/terms" className="text-[#9C6644] hover:underline">الشروط والأحكام</Link>
+                <Link href="/terms" className="text-[var(--primary)] hover:underline">الشروط والأحكام</Link>
                 {' '}و{' '}
-                <Link href="/privacy" className="text-[#9C6644] hover:underline">سياسة الخصوصية</Link>
+                <Link href="/privacy" className="text-[var(--primary)] hover:underline">سياسة الخصوصية</Link>
               </label>
             </div>
 
@@ -261,7 +261,7 @@ export default function RegisterClient() {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-[#9C6644] text-white rounded-xl font-bold hover:bg-[#7A5235] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-[var(--primary)] text-white rounded-xl font-bold hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -312,7 +312,7 @@ export default function RegisterClient() {
             {/* Login Link */}
             <p className="text-center text-sm text-gray-600">
               لديكِ حساب بالفعل؟{' '}
-              <Link href="/login" className="text-[#9C6644] font-bold hover:underline">
+              <Link href="/login" className="text-[var(--primary)] font-bold hover:underline">
                 سجلي دخولك
               </Link>
             </p>

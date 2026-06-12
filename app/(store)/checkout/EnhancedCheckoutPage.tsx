@@ -427,11 +427,11 @@ export default function EnhancedCheckoutPage() {
                               setAccountPassword('')
                             }
                           }} 
-                          className="w-5 h-5 rounded border-gray-300 text-[#9C6644] focus:ring-[#9C6644] cursor-pointer"
+                          className="w-5 h-5 rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)] cursor-pointer"
                         />
                       </div>
                       <div className="flex-1">
-                        <span className="font-medium text-gray-900 group-hover:text-[#9C6644] transition-colors">
+                        <span className="font-medium text-gray-900 group-hover:text-[var(--primary)] transition-colors">
                           إنشاء حساب (اختياري)
                         </span>
                         <p className="text-sm text-gray-500 mt-1">
@@ -539,7 +539,7 @@ export default function EnhancedCheckoutPage() {
                   <label
                     className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       paymentMethod === 'cod'
-                        ? 'border-[#9C6644] bg-[rgba(156,102,68,0.05)]'
+                        ? 'border-[var(--primary)] bg-[rgba(139,94,60,0.05)]'
                         : 'border-gray-200'
                     }`}
                   >
@@ -549,7 +549,7 @@ export default function EnhancedCheckoutPage() {
                       value="cod"
                       checked={paymentMethod === 'cod'}
                       onChange={() => setPaymentMethod('cod')}
-                      className="accent-[#9C6644]"
+                      className="accent-[var(--primary)]"
                     />
                     <div className="flex-1">
                       <div className="font-bold text-sm mb-1" style={{ color: 'var(--text-dark)' }}>
@@ -561,7 +561,7 @@ export default function EnhancedCheckoutPage() {
                   <label
                     className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       paymentMethod === 'online'
-                        ? 'border-[#9C6644] bg-[rgba(156,102,68,0.05)]'
+                        ? 'border-[var(--primary)] bg-[rgba(139,94,60,0.05)]'
                         : 'border-gray-200'
                     }`}
                   >
@@ -571,7 +571,7 @@ export default function EnhancedCheckoutPage() {
                       value="online"
                       checked={paymentMethod === 'online'}
                       onChange={() => setPaymentMethod('online')}
-                      className="accent-[#9C6644]"
+                      className="accent-[var(--primary)]"
                     />
                     <div className="flex-1">
                       <div className="font-bold text-sm mb-2" style={{ color: 'var(--text-dark)' }}>
@@ -675,11 +675,11 @@ export default function EnhancedCheckoutPage() {
                     type="checkbox" 
                     checked={agreed} 
                     onChange={(e) => setAgreed(e.target.checked)} 
-                    className="mt-0.5 w-5 h-5 accent-[#9C6644] rounded" 
+                    className="mt-0.5 w-5 h-5 accent-[var(--primary)] rounded" 
                   />
                   <span className="text-sm opacity-70" style={{ color: 'var(--text-dark)' }}>
-                    أوافق على <Link href="/terms" className="text-[#9C6644] hover:underline">الشروط والأحكام</Link> و
-                    <Link href="/privacy" className="text-[#9C6644] hover:underline">سياسة الخصوصية</Link>
+                    أوافق على <Link href="/terms" className="text-[var(--primary)] hover:underline">الشروط والأحكام</Link> و
+                    <Link href="/privacy" className="text-[var(--primary)] hover:underline">سياسة الخصوصية</Link>
                   </span>
                 </label>
 

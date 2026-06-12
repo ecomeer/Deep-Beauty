@@ -105,7 +105,7 @@ export default function ReviewsPage() {
               onClick={() => { setFilter(f); setPage(1) }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === f
-                  ? 'bg-[#9C6644] text-white'
+                  ? 'bg-[var(--primary)] text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
@@ -139,7 +139,7 @@ export default function ReviewsPage() {
       {/* Reviews List */}
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin w-8 h-8 rounded-full border-4 border-[#9C6644] border-t-transparent" />
+          <div className="animate-spin w-8 h-8 rounded-full border-4 border-[var(--primary)] border-t-transparent" />
         </div>
       ) : reviews.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl">

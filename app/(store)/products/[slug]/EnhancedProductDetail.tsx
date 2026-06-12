@@ -288,7 +288,7 @@ export default function EnhancedProductDetail() {
                     className={`relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border-2 transition-all`}
                     style={{
                       borderColor: selectedImage === i ? 'var(--primary)' : 'transparent',
-                      boxShadow: selectedImage === i ? '0 0 0 3px rgba(156,102,68,0.2)' : 'none',
+                      boxShadow: selectedImage === i ? '0 0 0 3px rgba(139,94,60,0.2)' : 'none',
                     }}
                   >
                     <div

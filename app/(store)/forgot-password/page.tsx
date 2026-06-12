@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="button"
                   onClick={() => { setSent(false); setEmail('') }}
-                  className="text-sm text-[#9C6644] hover:underline"
+                  className="text-sm text-[var(--primary)] hover:underline"
                 >
                   إعادة الإرسال
                 </button>
@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#9C6644] focus:ring-2 focus:ring-[#9C6644]/20 outline-none transition-all"
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
                       placeholder="your@email.com"
                       dir="ltr"
                     />
@@ -113,7 +113,7 @@ export default function ForgotPasswordPage() {
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 bg-[#9C6644] text-white rounded-xl font-bold hover:bg-[#7A5235] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-[var(--primary)] text-white rounded-xl font-bold hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -127,7 +127,7 @@ export default function ForgotPasswordPage() {
 
                 <p className="text-center text-sm text-gray-600">
                   تذكرتِ كلمة المرور؟{' '}
-                  <Link href="/login" className="text-[#9C6644] font-bold hover:underline">
+                  <Link href="/login" className="text-[var(--primary)] font-bold hover:underline">
                     تسجيل الدخول
                   </Link>
                 </p>

@@ -146,7 +146,7 @@ export default function AdminCoupons() {
               <tbody>
                 {loading ? <tr><td colSpan={7} className="p-4 text-center">جاري التحميل...</td></tr> : coupons.length === 0 ? <tr><td colSpan={7} className="p-4 text-center">لا توجد كوبونات</td></tr> : coupons.map(c => (
                   <tr key={c.id}>
-                    <td className="font-bold text-[#9C6644] font-en">{c.code}</td>
+                    <td className="font-bold text-[var(--primary)] font-en">{c.code}</td>
                     <td>{c.type === 'percentage' ? `${c.value}%` : `${c.value} د.ك`}</td>
                     <td>{c.min_order_amount > 0 ? `${c.min_order_amount} د.ك` : 'لا يوجد'}</td>
                     <td>{c.usage_count} {c.usage_limit && `/ ${c.usage_limit}`}</td>

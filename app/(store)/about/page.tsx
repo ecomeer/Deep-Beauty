@@ -49,7 +49,7 @@ export default function AboutPage() {
         <div
           className="absolute top-0 left-0 w-full h-full pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(156,102,68,0.07) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse 60% 50% at 80% 50%, rgba(139,94,60,0.07) 0%, transparent 70%)',
           }}
         />
 
@@ -122,7 +122,7 @@ export default function AboutPage() {
             {/* Glow */}
             <div
               className="absolute -bottom-12 -left-12 w-56 h-56 rounded-full blur-3xl -z-10"
-              style={{ background: 'rgba(156,102,68,0.12)' }}
+              style={{ background: 'rgba(139,94,60,0.12)' }}
             />
           </div>
         </div>
