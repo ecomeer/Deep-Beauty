@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { ArrowRightIcon, MapPinIcon, PlusIcon, PencilIcon, TrashIcon, StarIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { StarIcon as StarSolid } from '@heroicons/react/24/solid'
 
 interface Address {
   id: string
@@ -32,7 +31,7 @@ export default function AccountAddressesPage() {
   useEffect(() => {
     fetch('/api/auth/me').then(r => { if (!r.ok) router.push('/login') })
     loadAddresses()
-  }, [])
+  }, [router])
 
   async function loadAddresses() {
     const r = await fetch('/api/account/addresses')
@@ -161,10 +160,10 @@ export default function AccountAddressesPage() {
                   <input value={form.area} onChange={e => setForm(f => ({...f, area: e.target.value}))} placeholder="مثال: السالمية" className="w-full border border-outline-variant rounded-xl px-3 py-2 text-sm" />
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  {[['block','القطعة'],['street','الشارع'],['house','المنزل/الشقة']].map(([k,lbl]) => (
+                  {([['block', 'القطعة'], ['street', 'الشارع'], ['house', 'المنزل/الشقة']] as const).map(([k, lbl]) => (
                     <div key={k}>
                       <label className="text-xs text-on-surface-variant mb-1 block">{lbl}</label>
-                      <input value={(form as any)[k]} onChange={e => setForm(f => ({...f, [k]: e.target.value}))} className="w-full border border-outline-variant rounded-xl px-3 py-2 text-sm" />
+                      <input value={form[k]} onChange={e => setForm(f => ({...f, [k]: e.target.value}))} className="w-full border border-outline-variant rounded-xl px-3 py-2 text-sm" />
                     </div>
                   ))}
                 </div>

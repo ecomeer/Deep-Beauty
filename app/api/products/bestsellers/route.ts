@@ -10,19 +10,10 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '4')
     
     const supabase = await createServerSupabaseClient()
-    
-    // Get products with highest sales count or order count
-    // First try to get from products table if there's a sales_count column
-    const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at'
 
-    // Try featured products first, ordered by newest
-    const { data: products, error } = await supabase
-      .from('products')
-      .select(productColumns)
-      .eq('is_active', true)
-      .eq('is_featured', true)
-      .order('created_at', { ascending: false })
-      .limit(limit)
+    // Real bestsellers ranking based on order_items, falling back to
+    // is_featured products when there's no order history yet.
+    const { data: products, error } = await supabase.rpc('get_bestseller_products', { p_limit: limit })
 
     if (error) {
       console.error('Bestsellers error:', error)
@@ -33,7 +24,7 @@ export async function GET(request: Request) {
     }
 
     const flashDiscount = await getActiveFlashDiscount()
-    const withSalePrice = (products || []).map(p => ({
+    const withSalePrice = (products || []).map((p: Record<string, unknown> & { price: number }) => ({
       ...p,
       sale_price: applyDiscount(p.price, flashDiscount),
     }))
