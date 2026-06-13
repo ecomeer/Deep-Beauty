@@ -11,8 +11,8 @@
   --color-on-surface-variant: var(--on-surface-variant);
   --color-primary: var(--primary);
   --color-primary-container: var(--primary);
-  --color-primary-fixed: #ffdcc5;
-  --color-outline: #83746b;
+  --color-primary-fixed: var(--primary-fixed);
+  --color-outline: var(--outline);
   --color-outline-variant: var(--outline-variant);
   --color-background: var(--surface);
   --font-headline: var(--font-cormorant), serif;
@@ -47,6 +47,8 @@
   --on-surface:            var(--text-dark);
   --on-surface-variant:    #7a6055;
   --outline-variant:       var(--dark-beige);
+  --primary-fixed:         #ffdcc5;
+  --outline:               #83746b;
 
   /* Shadows */
   --shadow-sm:      0 1px 3px rgba(58,42,30,0.08);
@@ -519,7 +521,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Selection colors (Stitch) */
 ::selection {
-  background: #ffdcc5;
+  background: var(--primary-fixed);
   color: #301400;
 }
 

@@ -9,30 +9,31 @@ import {
   ClockIcon,
   PaperAirplaneIcon,
 } from '@heroicons/react/24/outline'
+import { CONTACT_INFO } from '@/lib/contact'
 
 const CONTACT_ITEMS = [
   {
     Icon: PhoneIcon,
     label: 'واتساب',
-    value: '+965 2228 9182',
-    href: 'https://wa.me/96522289182',
+    value: CONTACT_INFO.phone,
+    href: CONTACT_INFO.whatsappHref,
   },
   {
     Icon: EnvelopeIcon,
     label: 'البريد الإلكتروني',
-    value: 'contact@deepbeautykw.com',
-    href: 'mailto:contact@deepbeautykw.com',
+    value: CONTACT_INFO.email,
+    href: CONTACT_INFO.emailHref,
   },
   {
     Icon: MapPinIcon,
     label: 'الموقع',
-    value: 'الكويت',
+    value: CONTACT_INFO.location,
     href: null,
   },
   {
     Icon: ClockIcon,
     label: 'ساعات العمل',
-    value: 'السبت – الخميس: ٩ص – ٩م',
+    value: CONTACT_INFO.hours,
     href: null,
   },
 ]

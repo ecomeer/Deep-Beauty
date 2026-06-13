@@ -11,7 +11,6 @@ import { useWishlistContext } from '@/context/WishlistContext'
 import {
   ShoppingBagIcon,
   HeartIcon,
-  StarIcon,
   TruckIcon,
   ShieldCheckIcon,
   SparklesIcon,
@@ -53,13 +52,6 @@ const TRUST = [
   { Icon: ShieldCheckIcon, title: '١٠٠٪ طبيعي',      desc: 'مكوّنات نقية آمنة' },
   { Icon: SparklesIcon,    title: 'جودة فاخرة',      desc: 'مصنوع بعناية واحترافية' },
   { Icon: CheckBadgeIcon,  title: 'ضمان الرضا',      desc: 'استبدال أو استرداد كامل' },
-]
-
-// ─── Testimonials ──────────────────────────────────────────────────────────
-const REVIEWS = [
-  { name: 'سارة العنزي',   city: 'الكويت', text: 'من أول أسبوع لاحظت فرقاً واضحاً في بشرتي — أكثر إشراقاً وترطيباً. الآن لا أتخيّل روتيني بدون منتجات ديب بيوتي.', rating: 5 },
-  { name: 'نورة الرشيد',   city: 'الرياض', text: 'جودة استثنائية وتغليف أنيق يليق بهديّة. جرّبت الكثير من الماركات، لكن ديب بيوتي كسبت قلبي للأبد.', rating: 5 },
-  { name: 'فاطمة الهاشمي', city: 'دبي',    text: 'بشرتي حساسة جداً وكنت خايفة أجرّب، لكن المكوّنات الطبيعية ريّحتني. خدمة العملاء ممتازة والتوصيل كان فوري.', rating: 5 },
 ]
 
 // ─── Section header (eyebrow + headline + "view all" link) ───────────────
@@ -647,65 +639,79 @@ export default function StitchHomeContent({
       )}
 
       {/* ═══════════════════════════════════════
-          8. TESTIMONIALS
+          8. WHY DEEP BEAUTY — BRAND STORY CLOSER
       ═══════════════════════════════════════ */}
-      <section className="py-12 cv-auto bg-white">
-        <div className="px-6 mb-8 text-right">
+      <section className="py-14 bg-white">
+        <div className="px-6 mb-10 text-right">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
-            ✦ آراء عملائنا
+            ✦ لماذا ديب بيوتي
           </span>
-          <h2
-            className="text-2xl font-bold font-headline text-[var(--text-dark)]"
-          >
-            يحبّون ديب بيوتي
+          <h2 className="text-2xl font-bold font-headline text-[var(--text-dark)] mb-3">
+            جمال حقيقي من الأعماق
           </h2>
-          <p className="text-xs mt-1.5 text-[var(--on-surface-variant)]">
-            تقييمات حقيقية من عميلاتنا الكريمات
+          <p className="text-sm leading-relaxed text-[var(--on-surface-variant)] max-w-md">
+            نؤمن بأن العناية الحقيقية تبدأ من مكوّنات نقية ومعايير لا تقبل المساومة.
+            كل منتج يمرّ برحلة بحث وتطوير دقيقة ليصل إليكِ بأعلى جودة.
           </p>
-          {/* Decorative line */}
-          <div className="w-10 h-0.5 mt-3 mr-auto rounded-full bg-primary" />
+          <div className="w-10 h-0.5 mt-4 mr-auto rounded-full bg-primary" />
         </div>
 
-        {/* Horizontal scroll on mobile */}
-        <div
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-6"
-          style={{ scrollbarWidth: 'none' }}
-        >
-          {REVIEWS.map((review, i) => (
+        {/* Stats counters */}
+        <div className="grid grid-cols-3 gap-3 px-6 mb-10">
+          {[
+            { val: '٣+', label: 'سنوات خبرة' },
+            { val: '١٠٠٪', label: 'مكونات طبيعية' },
+            { val: '٥٠٠٠+', label: 'عميلة سعيدة' },
+          ].map((stat, i) => (
             <motion.div
-              key={review.name}
+              key={stat.label}
               {...fadeUp}
               transition={{ duration: 0.45, delay: i * 0.1 }}
-              className="flex-shrink-0 w-[78vw] snap-start rounded-[2rem] p-5 bg-[var(--off-white)] border border-[var(--beige)]"
+              className="text-center py-5 rounded-2xl border border-[var(--beige)] bg-[var(--off-white)]"
             >
-              {/* Stars — with accessible rating label */}
-              <div
-                className="flex gap-1 mb-3 flex-row-reverse justify-end"
-                role="img"
-                aria-label={`تقييم ${review.rating} من 5 نجوم`}
-              >
-                {Array.from({ length: review.rating }).map((_, j) => (
-                  <StarIcon key={j} className="w-4 h-4 text-amber-400 fill-amber-400" aria-hidden="true" />
-                ))}
-              </div>
-
-              <p className="text-sm leading-relaxed text-right mb-4 text-[var(--on-surface-variant)]">
-                {review.text}
-              </p>
-
-              <div className="flex items-center gap-3 pt-3 flex-row-reverse border-t border-[var(--beige)]">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0 bg-primary"
-                >
-                  {review.name[0]}
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-sm text-[var(--text-dark)]">{review.name}</p>
-                  <p className="text-xs text-[var(--on-surface-variant)]">{review.city}</p>
-                </div>
-              </div>
+              <span className="block text-2xl font-bold font-headline text-primary mb-1">
+                {stat.val}
+              </span>
+              <span className="text-xs text-[var(--on-surface-variant)]">
+                {stat.label}
+              </span>
             </motion.div>
           ))}
+        </div>
+
+        {/* Brand values grid */}
+        <div className="grid grid-cols-2 gap-3 px-6 mb-10">
+          {TRUST.map(({ Icon, title, desc }, i) => (
+            <motion.div
+              key={title}
+              {...fadeUp}
+              transition={{ duration: 0.45, delay: i * 0.08 }}
+              className="p-4 rounded-2xl border border-[var(--beige)] bg-[var(--off-white)] text-right"
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--beige)] mb-3">
+                <Icon className="w-5 h-5 text-[var(--primary)]" />
+              </div>
+              <p className="text-sm font-bold text-[var(--text-dark)] mb-1">{title}</p>
+              <p className="text-xs leading-relaxed text-[var(--on-surface-variant)]">{desc}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CTA buttons */}
+        <div className="flex items-center justify-center gap-3 px-6">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white shadow-lg transition-all active:scale-95 bg-primary"
+          >
+            تسوّقي الآن
+            <ArrowLeftIcon className="w-3.5 h-3.5" />
+          </Link>
+          <Link
+            href="/about"
+            className="inline-flex items-center px-5 py-3 rounded-full text-sm font-semibold text-[var(--text-dark)] transition-all border border-[var(--beige)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
+          >
+            قصّتنا
+          </Link>
         </div>
       </section>
 

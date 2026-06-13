@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
 import { CheckCircleIcon, PaperAirplaneIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline'
+import { CONTACT_INFO } from '@/lib/contact'
 import { PaymentIconsRow } from './PaymentIcons'
 
 // ─── Social Icon Components ────────────────────────────────────────────────
@@ -114,18 +115,18 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
             {/* Contact info */}
             <div className="space-y-2.5 mb-6">
               <a
-                href="tel:+96522289182"
+                href={CONTACT_INFO.phoneHref}
                 className="flex items-center gap-2.5 text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
               >
                 <PhoneIcon className="w-4 h-4 flex-shrink-0" />
-                <span dir="ltr">+965 2228 9182</span>
+                <span dir="ltr">{CONTACT_INFO.phone}</span>
               </a>
               <a
-                href="mailto:contact@deepbeautykw.com"
+                href={CONTACT_INFO.emailHref}
                 className="flex items-center gap-2.5 text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
               >
                 <EnvelopeIcon className="w-4 h-4 flex-shrink-0" />
-                <span dir="ltr">contact@deepbeautykw.com</span>
+                <span dir="ltr">{CONTACT_INFO.email}</span>
               </a>
             </div>
 
