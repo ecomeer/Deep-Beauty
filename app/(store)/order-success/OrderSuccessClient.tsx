@@ -41,7 +41,10 @@ function OrderSuccessContent() {
 
   useEffect(() => {
     if (!orderId) { setLoading(false); return }
-    fetch(`/api/orders/${orderId}`)
+    const url = orderNum && orderNum !== 'DB-XXXXXXXX'
+      ? `/api/orders/${orderId}?num=${encodeURIComponent(orderNum)}`
+      : `/api/orders/${orderId}`
+    fetch(url)
       .then(r => r.ok ? r.json() : null)
       .then((json: { order: Order } | null) => {
         if (json?.order) setOrder(json.order)
