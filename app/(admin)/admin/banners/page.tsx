@@ -126,7 +126,7 @@ export default function AdminBanners() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>البنرات الإعلانية</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-dark)]">البنرات الإعلانية</h1>
           <p className="text-sm opacity-60">إدارة صور الهيرو والبنرات الترويجية ({banners.length})</p>
         </div>
         <button type="button" onClick={() => setShowForm(!showForm)} className="btn-primary px-5 py-2.5 text-sm flex items-center gap-2">
@@ -137,7 +137,7 @@ export default function AdminBanners() {
       {/* Add Form */}
       {showForm && (
         <div className="bg-white rounded-2xl shadow-sm border p-6 mb-8" style={{ borderColor: 'var(--beige)' }}>
-          <h2 className="text-base font-bold mb-5" style={{ color: 'var(--text-dark)' }}>إضافة بنر جديد</h2>
+          <h2 className="text-base font-bold mb-5 text-[var(--text-dark)]">إضافة بنر جديد</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -220,7 +220,7 @@ export default function AdminBanners() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-sm truncate" style={{ color: 'var(--text-dark)' }}>{banner.title_ar}</h3>
+                  <h3 className="font-bold text-sm truncate text-[var(--text-dark)]">{banner.title_ar}</h3>
                   {banner.subtitle_ar && <p className="text-xs opacity-60 mt-0.5 truncate">{banner.subtitle_ar}</p>}
                   <p className="text-xs opacity-40 mt-1 font-en" dir="ltr">{banner.link_url}</p>
                 </div>

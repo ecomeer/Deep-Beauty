@@ -12,8 +12,7 @@ export default function CurrencySelector() {
       <select
         value={country}
         onChange={(e) => setCountry(e.target.value as GulfCountry)}
-        className="text-sm font-medium bg-transparent border-none focus:ring-0 cursor-pointer"
-        style={{ color: 'var(--text-dark)' }}
+        className="text-sm font-medium bg-transparent border-none focus:ring-0 cursor-pointer text-[var(--text-dark)]"
       >
         {Object.entries(GULF_COUNTRIES).map(([code, config]) => (
           <option key={code} value={code}>

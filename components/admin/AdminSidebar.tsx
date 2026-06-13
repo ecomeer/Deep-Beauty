@@ -88,13 +88,9 @@ function NavLink({
     <Link
       href={href}
       onClick={onClick}
-      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl mx-2 mb-0.5 text-sm font-medium transition-all duration-200"
-      style={{
-        background: isActive ? 'var(--primary)' : 'transparent',
-        color: isActive ? 'white' : 'rgba(255,255,255,0.62)',
-      }}
-      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)' }}
-      onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+      className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl mx-2 mb-0.5 text-sm font-medium transition-all duration-200 ${
+        isActive ? 'bg-primary text-white' : 'text-white/[0.62] hover:bg-white/[0.08]'
+      }`}
     >
       <Icon className="w-4.5 h-4.5 flex-shrink-0 w-[18px] h-[18px]" />
       <span className="flex-1 leading-none">{label}</span>
@@ -222,6 +218,77 @@ export default function AdminSidebar() {
 
   const SIDEBAR_BG = '#2a1d13'
 
+  // ── Sidebar Nav Content ─────────────────────────────────────────────────
+  // Rendered via function call (not <Component/>) so React doesn't remount
+  // the subtree on every render of AdminSidebar
+  const renderSidebarContent = (onLinkClick?: () => void) => {
+    return (
+      <>
+        {/* Logo */}
+        <div className="px-4 mb-6 pt-1">
+          <Link href="/" target="_blank" className="flex items-center gap-3 group">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md bg-primary"
+            >
+              <span className="text-white font-bold text-sm tracking-widest">BD</span>
+            </div>
+            <div>
+              <p className="text-white font-bold text-sm tracking-wider leading-tight">Deep Beauty</p>
+              <span className="text-[10px] opacity-35 text-white">لوحة التحكم</span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Navigation Groups */}
+        <nav className="flex-1 overflow-y-auto px-1 pb-4" style={{ scrollbarWidth: 'none' }}>
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="mb-4">
+              <p
+                className="px-5 mb-1.5 text-[11px] font-bold uppercase tracking-[0.16em]"
+                style={{ color: 'rgba(255,255,255,0.3)' }}
+              >
+                {group.label}
+              </p>
+              {group.links.map((link) => {
+                const badgeVal = link.badgeKey ? badges[link.badgeKey as keyof Badges] : undefined
+                return (
+                  <NavLink
+                    key={link.href}
+                    href={link.href}
+                    icon={link.icon}
+                    label={link.label}
+                    isActive={!!pathname?.startsWith(link.href)}
+                    badge={badgeVal}
+                    onClick={onLinkClick}
+                  />
+                )
+              })}
+            </div>
+          ))}
+        </nav>
+
+        {/* Bottom actions */}
+        <div className="mx-2 mb-2 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all text-white/45 hover:bg-white/[0.06] hover:text-white/75"
+          >
+            <ShoppingBagIcon className="w-[18px] h-[18px] flex-shrink-0" />
+            <span>عرض المتجر</span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all text-red-500/70 hover:bg-red-500/10 hover:text-red-500/90"
+          >
+            <ArrowRightOnRectangleIcon className="w-[18px] h-[18px] flex-shrink-0" />
+            <span>تسجيل الخروج</span>
+          </button>
+        </div>
+      </>
+    )
+  }
+
   return (
     <>
       {/* ── Desktop Sidebar ───────────────────────────────────────────── */}
@@ -229,7 +296,7 @@ export default function AdminSidebar() {
         className="hidden md:flex flex-col w-[230px] flex-shrink-0 min-h-screen py-5"
         style={{ background: SIDEBAR_BG }}
       >
-        <SidebarContent pathname={pathname} badges={badges} handleLogout={handleLogout} />
+        {renderSidebarContent()}
       </aside>
 
       {/* ── Mobile Top Bar ────────────────────────────────────────────── */}
@@ -249,7 +316,7 @@ export default function AdminSidebar() {
         <div className="flex items-center gap-2">
           <span className="text-white font-bold text-sm tracking-wider">Deep Beauty</span>
           {badges.pendingOrders != null && badges.pendingOrders > 0 && (
-            <span className="min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center text-white" style={{ background: 'var(--primary)' }}>
+            <span className="min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center text-white bg-primary">
               {badges.pendingOrders}
             </span>
           )}
@@ -280,7 +347,7 @@ export default function AdminSidebar() {
             >
               <XMarkIcon className="w-5 h-5" />
             </button>
-            <SidebarContent pathname={pathname} badges={badges} handleLogout={handleLogout} onLinkClick={() => setDrawerOpen(false)} />
+            {renderSidebarContent(() => setDrawerOpen(false))}
           </div>
         </div>
       )}
@@ -314,8 +381,7 @@ export default function AdminSidebar() {
             <Bars3Icon className="w-5 h-5" />
             {badges.pendingOrders != null && badges.pendingOrders > 0 && (
               <span
-                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center text-white"
-                style={{ background: 'var(--primary)' }}
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center text-white bg-primary"
               >
                 {badges.pendingOrders > 9 ? '9+' : badges.pendingOrders}
               </span>

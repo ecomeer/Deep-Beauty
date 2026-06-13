@@ -65,7 +65,7 @@ export default function StatsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="animate-spin w-8 h-8 rounded-full border-4 border-[#9C6644] border-t-transparent" />
+        <div className="animate-spin w-8 h-8 rounded-full border-4 border-[var(--primary)] border-t-transparent" />
       </div>
     )
   }
@@ -81,7 +81,7 @@ export default function StatsPage() {
               onClick={() => setPeriod(p)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 period === p
-                  ? 'bg-[#9C6644] text-white'
+                  ? 'bg-[var(--primary)] text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
@@ -145,12 +145,12 @@ export default function StatsPage() {
             المنتجات الأكثر مبيعاً
           </h2>
           {stats?.topProducts?.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">لا توجد بيانات</p>
+            <p className="text-gray-500 text-center py-8">لا بيانات في هذه الفترة — جرّبي نطاقاً زمنياً أوسع</p>
           ) : (
             <div className="space-y-3">
               {stats?.topProducts?.slice(0, 5).map((item, index) => (
                 <div key={item.product_id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                  <span className="w-6 h-6 rounded-full bg-[#9C6644] text-white text-sm flex items-center justify-center font-bold">
+                  <span className="w-6 h-6 rounded-full bg-[var(--primary)] text-white text-sm flex items-center justify-center font-bold">
                     {index + 1}
                   </span>
                   <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
@@ -178,7 +178,7 @@ export default function StatsPage() {
             أفضل العملاء
           </h2>
           {stats?.topCustomers?.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">لا توجد بيانات</p>
+            <p className="text-gray-500 text-center py-8">لا بيانات في هذه الفترة — جرّبي نطاقاً زمنياً أوسع</p>
           ) : (
             <div className="space-y-3">
               {stats?.topCustomers?.slice(0, 5).map((customer, index) => (

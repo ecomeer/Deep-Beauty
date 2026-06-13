@@ -142,7 +142,7 @@ export default function EnhancedCheckoutPage() {
       setCouponApplied(json.code)
       toast.success(`✅ تم تطبيق كود ${json.code} — خصم ${formatPrice(json.discount)}`)
     } catch {
-      toast.error('❌ حدث خطأ')
+      toast.error('تعذّر التحقق من الكوبون — تأكدي من اتصالك بالإنترنت وحاولي مجدداً')
     }
     setCouponLoading(false)
   }
@@ -255,7 +255,7 @@ export default function EnhancedCheckoutPage() {
       }
     } catch (err: unknown) {
       console.error('Checkout error:', err)
-      const errorMessage = err instanceof Error ? err.message : 'حدث خطأ أثناء إرسال الطلب'
+      const errorMessage = err instanceof Error ? err.message : 'تعذّر إرسال الطلب — تأكدي من اتصالك بالإنترنت وحاولي مجدداً'
       toast.error(`❌ ${errorMessage}`)
     }
     setSubmitting(false)
@@ -352,12 +352,12 @@ export default function EnhancedCheckoutPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
+                <h2 className="text-xl font-bold mb-5 font-headline text-[var(--text-dark)]">
                   المعلومات الشخصية
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
-                    <label htmlFor="field-name" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
+                    <label htmlFor="field-name" className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">
                       الاسم الكامل *
                     </label>
                     <input
@@ -372,7 +372,7 @@ export default function EnhancedCheckoutPage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="field-phone" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
+                    <label htmlFor="field-phone" className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">
                       رقم الهاتف *
                     </label>
                     <input
@@ -393,7 +393,7 @@ export default function EnhancedCheckoutPage() {
                     <p className="text-xs text-gray-500 mt-1">سيتم التواصل معك على هذا الرقم</p>
                   </div>
                   <div>
-                    <label htmlFor="field-email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>
+                    <label htmlFor="field-email" className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">
                       البريد الإلكتروني {createAccount && <span className="text-red-500">*</span>}
                     </label>
                     <input
@@ -425,11 +425,11 @@ export default function EnhancedCheckoutPage() {
                               setAccountPassword('')
                             }
                           }} 
-                          className="w-5 h-5 rounded border-gray-300 text-[#9C6644] focus:ring-[#9C6644] cursor-pointer"
+                          className="w-5 h-5 rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)] cursor-pointer"
                         />
                       </div>
                       <div className="flex-1">
-                        <span className="font-medium text-gray-900 group-hover:text-[#9C6644] transition-colors">
+                        <span className="font-medium text-gray-900 group-hover:text-[var(--primary)] transition-colors">
                           إنشاء حساب (اختياري)
                         </span>
                         <p className="text-sm text-gray-500 mt-1">
@@ -447,7 +447,7 @@ export default function EnhancedCheckoutPage() {
                           className="overflow-hidden"
                         >
                           <div className="mt-4 p-4 bg-[#F5EBE0]/30 rounded-xl">
-                            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-dark)' }}>
+                            <label className="block text-sm font-medium mb-2 text-[var(--text-dark)]">
                               <LockClosedIcon className="w-4 h-4 inline ml-1" />
                               كلمة المرور *
                             </label>
@@ -489,7 +489,7 @@ export default function EnhancedCheckoutPage() {
                 transition={{ delay: 0.1 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
+                <h2 className="text-xl font-bold mb-5 font-headline text-[var(--text-dark)]">
                   عنوان التوصيل
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -530,14 +530,14 @@ export default function EnhancedCheckoutPage() {
                 transition={{ delay: 0.2 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
+                <h2 className="text-xl font-bold mb-5 font-headline text-[var(--text-dark)]">
                   طريقة الدفع
                 </h2>
                 <div className="space-y-3">
                   <label
                     className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       paymentMethod === 'cod'
-                        ? 'border-[#9C6644] bg-[rgba(156,102,68,0.05)]'
+                        ? 'border-[var(--primary)] bg-[rgba(139,94,60,0.05)]'
                         : 'border-gray-200'
                     }`}
                   >
@@ -547,10 +547,10 @@ export default function EnhancedCheckoutPage() {
                       value="cod"
                       checked={paymentMethod === 'cod'}
                       onChange={() => setPaymentMethod('cod')}
-                      className="accent-[#9C6644]"
+                      className="accent-[var(--primary)]"
                     />
                     <div className="flex-1">
-                      <div className="font-bold text-sm mb-1" style={{ color: 'var(--text-dark)' }}>
+                      <div className="font-bold text-sm mb-1 text-[var(--text-dark)]">
                         الدفع عند الاستلام
                       </div>
                       <div className="text-xs opacity-60">ادفع كاش أو KNET عند استلام طلبك</div>
@@ -559,7 +559,7 @@ export default function EnhancedCheckoutPage() {
                   <label
                     className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       paymentMethod === 'online'
-                        ? 'border-[#9C6644] bg-[rgba(156,102,68,0.05)]'
+                        ? 'border-[var(--primary)] bg-[rgba(139,94,60,0.05)]'
                         : 'border-gray-200'
                     }`}
                   >
@@ -569,10 +569,10 @@ export default function EnhancedCheckoutPage() {
                       value="online"
                       checked={paymentMethod === 'online'}
                       onChange={() => setPaymentMethod('online')}
-                      className="accent-[#9C6644]"
+                      className="accent-[var(--primary)]"
                     />
                     <div className="flex-1">
-                      <div className="font-bold text-sm mb-2" style={{ color: 'var(--text-dark)' }}>
+                      <div className="font-bold text-sm mb-2 text-[var(--text-dark)]">
                         الدفع الإلكتروني
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -595,7 +595,7 @@ export default function EnhancedCheckoutPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>
+                <h2 className="text-xl font-bold mb-5 font-headline text-[var(--text-dark)]">
                   ملخص الطلب
                 </h2>
                 
@@ -663,7 +663,7 @@ export default function EnhancedCheckoutPage() {
                   )}
                   <div className="flex justify-between text-lg font-bold pt-2 border-t" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>
                     <span>الإجمالي</span>
-                    <span style={{ color: 'var(--primary)' }} dir="ltr">{formatPrice(Math.max(0, total))}</span>
+                    <span className="text-primary" dir="ltr">{formatPrice(Math.max(0, total))}</span>
                   </div>
                 </div>
 
@@ -673,11 +673,11 @@ export default function EnhancedCheckoutPage() {
                     type="checkbox" 
                     checked={agreed} 
                     onChange={(e) => setAgreed(e.target.checked)} 
-                    className="mt-0.5 w-5 h-5 accent-[#9C6644] rounded" 
+                    className="mt-0.5 w-5 h-5 accent-[var(--primary)] rounded" 
                   />
-                  <span className="text-sm opacity-70" style={{ color: 'var(--text-dark)' }}>
-                    أوافق على <Link href="/terms" className="text-[#9C6644] hover:underline">الشروط والأحكام</Link> و
-                    <Link href="/privacy" className="text-[#9C6644] hover:underline">سياسة الخصوصية</Link>
+                  <span className="text-sm opacity-70 text-[var(--text-dark)]">
+                    أوافق على <Link href="/terms" className="text-[var(--primary)] hover:underline">الشروط والأحكام</Link> و
+                    <Link href="/privacy" className="text-[var(--primary)] hover:underline">سياسة الخصوصية</Link>
                   </span>
                 </label>
 

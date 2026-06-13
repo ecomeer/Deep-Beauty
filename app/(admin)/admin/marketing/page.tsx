@@ -44,7 +44,7 @@ export default function AdminMarketing() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>التسويق</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-dark)]">التسويق</h1>
         <p className="text-sm opacity-60">إدارة الكوبونات والحملات التسويقية والنشرة البريدية</p>
       </div>
 
@@ -62,11 +62,11 @@ export default function AdminMarketing() {
                 <section.icon className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-gray-800 group-hover:text-[#9C6644] transition-colors">
+                <h3 className="font-bold text-gray-800 group-hover:text-[var(--primary)] transition-colors">
                   {section.title}
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">{section.description}</p>
-                <div className="flex items-center gap-1 mt-3 text-sm font-medium" style={{ color: 'var(--primary)' }}>
+                <div className="flex items-center gap-1 mt-3 text-sm font-medium text-primary">
                   <span>إدارة</span>
                   <ArrowLeftIcon className="w-4 h-4 rotate-180" />
                 </div>
@@ -78,11 +78,11 @@ export default function AdminMarketing() {
 
       {/* Channels Status */}
       <div className="bg-white rounded-2xl shadow-sm border p-6" style={{ borderColor: 'var(--beige)' }}>
-        <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-dark)' }}>قنوات التواصل</h2>
+        <h2 className="text-lg font-bold mb-4 text-[var(--text-dark)]">قنوات التواصل</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {CHANNELS.map(channel => (
             <div key={channel.label} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50">
-              <channel.icon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+              <channel.icon className="w-5 h-5 text-primary" />
               <div>
                 <p className="font-medium text-sm">{channel.label}</p>
                 <p className="text-xs opacity-50">{channel.count}</p>

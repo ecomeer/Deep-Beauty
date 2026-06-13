@@ -53,7 +53,7 @@ export default function AdminNewsletter() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>المشتركون في النشرة</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-dark)]">المشتركون في النشرة</h1>
           <p className="text-sm opacity-60">إجمالي المشتركين: {subscribers.length}</p>
         </div>
         <button onClick={exportCSV} className="btn-outline px-4 py-2 text-sm flex items-center gap-2">
@@ -68,7 +68,7 @@ export default function AdminNewsletter() {
         </div>
         <div>
           <p className="text-sm opacity-60 mb-1">إجمالي المشتركين</p>
-          <h3 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>{subscribers.length}</h3>
+          <h3 className="text-2xl font-bold text-[var(--text-dark)]">{subscribers.length}</h3>
         </div>
       </div>
 

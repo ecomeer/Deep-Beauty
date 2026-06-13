@@ -67,14 +67,14 @@ export default function AccountSettingsPage() {
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/account" className="w-9 h-9 rounded-xl bg-white flex items-center justify-center" style={{ border: '1px solid var(--beige)' }}>
-            <ArrowRightIcon className="w-4 h-4" style={{ color: 'var(--text-dark)' }} />
+            <ArrowRightIcon className="w-4 h-4 text-[var(--text-dark)]" />
           </Link>
-          <h1 className="font-bold text-lg" style={{ color: 'var(--text-dark)' }}>الإعدادات</h1>
+          <h1 className="font-bold text-lg text-[var(--text-dark)]">الإعدادات</h1>
         </div>
 
         <form onSubmit={handleSave} className="bg-white rounded-2xl p-5 space-y-4" style={{ border: '1px solid var(--beige)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>الاسم الكامل</label>
+            <label className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">الاسم الكامل</label>
             <input
               type="text"
               value={form.name}
@@ -86,7 +86,7 @@ export default function AccountSettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>البريد الإلكتروني</label>
+            <label className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">البريد الإلكتروني</label>
             <input
               type="email"
               value={user.email}
@@ -94,11 +94,11 @@ export default function AccountSettingsPage() {
               className="w-full px-4 py-3 rounded-xl text-sm outline-none opacity-60 cursor-not-allowed"
               style={{ border: '1.5px solid var(--beige)', background: 'var(--off-white)', color: 'var(--text-dark)' }}
             />
-            <p className="text-xs mt-1" style={{ color: 'var(--on-surface-variant)' }}>لا يمكن تغيير البريد الإلكتروني</p>
+            <p className="text-xs mt-1 text-[var(--on-surface-variant)]">لا يمكن تغيير البريد الإلكتروني</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>رقم الهاتف</label>
+            <label className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">رقم الهاتف</label>
             <input
               type="tel"
               value={form.phone}
@@ -113,8 +113,7 @@ export default function AccountSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-            style={{ background: 'var(--primary)' }}
+            className="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60 bg-primary"
           >
             {saving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
           </button>

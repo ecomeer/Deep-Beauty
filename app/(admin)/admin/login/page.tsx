@@ -47,15 +47,15 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center -m-6" style={{ background: 'var(--beige)' }}>
+    <div className="min-h-screen flex items-center justify-center -m-6 bg-[var(--beige)]">
       <div className="bg-white rounded-3xl p-10 w-full max-w-md shadow-xl text-center">
-        <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-white font-bold font-en text-2xl mb-4" style={{ background: 'var(--primary)' }}>BD</div>
-        <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}>Deep Beauty Admin</h1>
+        <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-white font-bold font-en text-2xl mb-4 bg-primary">BD</div>
+        <h1 className="text-2xl font-bold mb-2 font-headline text-[var(--text-dark)]">Deep Beauty Admin</h1>
         <p className="text-sm opacity-60 mb-8">قم بتسجيل الدخول للوصول إلى لوحة التحكم</p>
 
         <form onSubmit={handleLogin} className="space-y-4 text-right">
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>البريد الإلكتروني</label>
+            <label className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">البريد الإلكتروني</label>
             <input
               type="email"
               required
@@ -66,7 +66,7 @@ export default function AdminLogin() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-dark)' }}>كلمة المرور</label>
+            <label className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">كلمة المرور</label>
             <input
               type="password"
               required

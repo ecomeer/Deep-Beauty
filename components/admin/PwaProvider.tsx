@@ -63,7 +63,7 @@ export default function PwaProvider() {
       title={notifStatus === 'granted' ? 'الإشعارات مفعّلة' : 'تفعيل إشعارات الطلبات'}
       className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all"
       style={{
-        background: notifStatus === 'granted' ? 'rgba(34,197,94,0.1)' : 'rgba(156,102,68,0.1)',
+        background: notifStatus === 'granted' ? 'rgba(34,197,94,0.1)' : 'rgba(139,94,60,0.1)',
         color: notifStatus === 'granted' ? '#16a34a' : 'var(--primary)',
         cursor: notifStatus === 'granted' ? 'default' : 'pointer',
       }}

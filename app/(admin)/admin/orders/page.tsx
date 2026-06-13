@@ -105,7 +105,7 @@ export default function AdminOrders() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>إدارة الطلبات</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-dark)]">إدارة الطلبات</h1>
           <p className="text-sm opacity-60">تتبع طلبات العملاء وتحديث حالتها ({total})</p>
         </div>
         <button type="button" onClick={exportCSV} className="btn-outline px-4 py-2 text-sm flex items-center gap-2">
@@ -203,7 +203,7 @@ export default function AdminOrders() {
                     <td className="text-xs" dir="ltr">{formatDateTime(order.created_at)}</td>
                     <td className="font-medium">{order.customer_name}</td>
                     <td className="text-sm font-en">{order.customer_phone}</td>
-                    <td className="font-bold" style={{ color: 'var(--primary)' }}>{toArabicPrice(order.total)}</td>
+                    <td className="font-bold text-primary">{toArabicPrice(order.total)}</td>
                     <td>
                       <span className={`badge ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS] || 'badge-gray'}`}>
                         {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS] || order.status}
@@ -225,7 +225,7 @@ export default function AdminOrders() {
                       </select>
                     </td>
                     <td>
-                      <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline" style={{ color: 'var(--primary)' }}>
+                      <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline text-primary">
                         عرض
                       </Link>
                     </td>
@@ -256,8 +256,8 @@ export default function AdminOrders() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center mb-3">
-                  <span className="font-bold text-sm" style={{ color: 'var(--primary)' }}>{toArabicPrice(order.total)}</span>
-                  <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline" style={{ color: 'var(--primary)' }}>
+                  <span className="font-bold text-sm text-primary">{toArabicPrice(order.total)}</span>
+                  <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline text-primary">
                     عرض التفاصيل
                   </Link>
                 </div>

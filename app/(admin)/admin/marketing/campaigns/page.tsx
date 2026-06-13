@@ -79,7 +79,7 @@ export default function MarketingCampaigns() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>الحملات التسويقية</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-dark)]">الحملات التسويقية</h1>
           <p className="text-sm opacity-60">إدارة حملات البريد والرسائل والإشعارات ({campaigns.length})</p>
         </div>
         <Link href="/admin/marketing/campaigns/new" className="btn-primary py-2 px-4 shadow-md flex items-center gap-2">

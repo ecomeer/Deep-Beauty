@@ -162,8 +162,7 @@ export default function EnhancedProductDetail() {
       <h2 className="text-2xl font-bold text-[var(--text-dark)]">المنتج غير موجود</h2>
       <Link
         href="/products"
-        className="px-6 py-3 rounded-xl text-white font-medium transition-opacity hover:opacity-90"
-        style={{ background: 'var(--primary)' }}
+        className="px-6 py-3 rounded-xl text-white font-medium transition-opacity hover:opacity-90 bg-primary"
       >
         العودة للمنتجات
       </Link>
@@ -288,7 +287,7 @@ export default function EnhancedProductDetail() {
                     className={`relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border-2 transition-all`}
                     style={{
                       borderColor: selectedImage === i ? 'var(--primary)' : 'transparent',
-                      boxShadow: selectedImage === i ? '0 0 0 3px rgba(156,102,68,0.2)' : 'none',
+                      boxShadow: selectedImage === i ? '0 0 0 3px rgba(139,94,60,0.2)' : 'none',
                     }}
                   >
                     <div
@@ -339,13 +338,12 @@ export default function EnhancedProductDetail() {
             {/* Title */}
             <div>
               <h1
-                className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-1"
-                style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+                className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-1 font-headline text-[var(--text-dark)]"
               >
                 {product.name_ar}
               </h1>
               {product.name_en && (
-                <p className="text-sm font-medium" style={{ color: 'var(--on-surface-variant)' }}>
+                <p className="text-sm font-medium text-[var(--on-surface-variant)]">
                   {product.name_en}
                 </p>
               )}
@@ -365,8 +363,7 @@ export default function EnhancedProductDetail() {
             {/* Price */}
             <div className="flex items-baseline gap-3">
               <span
-                className="text-4xl md:text-5xl font-bold"
-                style={{ color: 'var(--primary)', fontFamily: 'var(--font-cormorant), serif' }}
+                className="text-4xl md:text-5xl font-bold font-headline text-primary"
                 dir="ltr"
               >
                 {formatPrice(displayPrice)}
@@ -399,7 +396,7 @@ export default function EnhancedProductDetail() {
 
             {/* Short Description */}
             {product.description_ar && (
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--on-surface-variant)' }}>
+              <p className="text-sm leading-relaxed text-[var(--on-surface-variant)]">
                 {product.description_ar.slice(0, 180)}
                 {product.description_ar.length > 180 && '...'}
               </p>
@@ -567,8 +564,7 @@ export default function EnhancedProductDetail() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
-              className="py-7"
-              style={{ color: 'var(--on-surface-variant)' }}
+              className="py-7 text-[var(--on-surface-variant)]"
             >
               {activeTab === 'desc' && (
                 <div className="space-y-4 max-w-2xl">
@@ -616,8 +612,7 @@ export default function EnhancedProductDetail() {
                   ].map((step, i) => (
                     <li key={i} className="flex gap-4">
                       <span
-                        className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5"
-                        style={{ background: 'var(--primary)' }}
+                        className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5 bg-primary"
                       >
                         {i + 1}
                       </span>

@@ -135,7 +135,7 @@ export default function ProductForm() {
   return (
     <div className="max-w-4xl mx-auto pb-20">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-dark)' }}>
+        <h1 className="text-2xl font-bold text-[var(--text-dark)]">
           {isEdit ? 'تعديل المنتج' : 'إضافة منتج جديد'}
         </h1>
       </div>
@@ -166,11 +166,11 @@ export default function ProductForm() {
             </div>
             <div className="flex gap-6 mt-2">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} className="accent-[#9C6644] w-4 h-4" />
+                <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} className="accent-[var(--primary)] w-4 h-4" />
                 <span>المنتج نشط؟</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="is_featured" checked={form.is_featured} onChange={handleChange} className="accent-[#9C6644] w-4 h-4" />
+                <input type="checkbox" name="is_featured" checked={form.is_featured} onChange={handleChange} className="accent-[var(--primary)] w-4 h-4" />
                 <span>مميز؟ (يظهر بالرئيسية)</span>
               </label>
             </div>

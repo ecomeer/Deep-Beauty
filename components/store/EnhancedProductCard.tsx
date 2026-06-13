@@ -51,7 +51,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
       quantity: 1,
       slug: product.slug,
     })
-    toast.success('تم إضافة المنتج للسلة 🛒', { duration: 2000, position: 'bottom-center' })
+    toast.success('أُضيف للسلة 🛒', { duration: 2000, position: 'bottom-center' })
     setTimeout(() => setAdding(false), 1500)
   }
 
@@ -66,7 +66,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
       image: product.images?.[0] || '',
       slug: product.slug,
     })
-    toast.success(isWishlisted ? 'تم إزالة من المفضلة' : 'تم إضافة للمفضلة ❤️')
+    toast.success(isWishlisted ? 'أُزيل من المفضلة' : 'أُضيف للمفضلة ❤️')
   }
 
   const discountPercentage = product.sale_price
@@ -86,7 +86,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
           <div className="relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
 
             {/* Image Container */}
-            <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#F5EBE0] to-[#E8DED1]">
+            <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--beige)] to-[var(--dark-beige)]">
               {product.images?.[0] ? (
                 <Image
                   src={product.images[0]}
@@ -99,7 +99,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <SparklesIcon className="w-16 h-16 text-[#9C6644]/30" />
+                  <SparklesIcon className="w-16 h-16 text-primary/30" />
                 </div>
               )}
 
@@ -142,7 +142,8 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
               {/* Quick View — appears on hover via CSS */}
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewOpen(true) }}
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-full bg-white text-gray-800 text-sm font-medium shadow-lg hover:bg-gray-50 transition-all duration-300 flex items-center gap-2 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0"
+                aria-label={`نظرة سريعة على ${product.name_ar}`}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-full bg-white text-gray-800 text-sm font-medium shadow-lg hover:bg-gray-50 transition-all duration-300 flex items-center gap-2 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0"
               >
                 <EyeIcon className="w-4 h-4" />
                 نظرة سريعة
@@ -153,7 +154,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
                 onClick={handleAddToCart}
                 disabled={product.stock_quantity === 0 || adding}
                 aria-label={product.stock_quantity === 0 ? 'نفذت الكمية' : `إضافة ${product.name_ar} للسلة`}
-                className="md:hidden absolute bottom-2 right-2 w-11 h-11 rounded-full bg-[#9C6644] text-white flex items-center justify-center shadow-lg disabled:bg-gray-400 transition-colors"
+                className="md:hidden absolute bottom-2 right-2 w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-lg disabled:bg-gray-400 transition-colors"
               >
                 {adding ? <CheckIcon className="w-5 h-5" /> : <ShoppingBagIcon className="w-5 h-5" />}
               </button>
@@ -162,11 +163,10 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
             {/* Content */}
             <div className="p-4">
               {product.category && (
-                <p className="text-xs text-[#9C6644] font-medium mb-1.5">{product.category}</p>
+                <p className="text-xs text-primary font-medium mb-1.5">{product.category}</p>
               )}
               <h3
-                className="font-bold text-base mb-1.5 leading-tight line-clamp-2 min-h-[2.5rem]"
-                style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+                className="font-bold text-base mb-1.5 leading-tight line-clamp-2 min-h-[2.5rem] font-headline text-[var(--text-dark)]"
               >
                 {product.name_ar}
               </h3>
@@ -176,7 +176,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
 
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
                 <div className="flex flex-col">
-                  <span className="text-lg font-bold text-[#9C6644]" dir="ltr">
+                  <span className="text-lg font-bold text-primary" dir="ltr">
                     {formatPrice(displayPrice)}
                   </span>
                   {(product.sale_price || product.compare_price) && (
@@ -195,7 +195,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : adding
                       ? 'bg-green-500 text-white'
-                      : 'bg-[#9C6644] text-white hover:bg-[#7A5235]'
+                      : 'bg-primary text-white hover:bg-[var(--primary-hover)]'
                   }`}
                 >
                   {adding ? (

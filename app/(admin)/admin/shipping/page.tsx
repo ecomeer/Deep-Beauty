@@ -191,7 +191,7 @@ export default function ShippingManagementPage() {
       {/* Zones List */}
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin w-8 h-8 rounded-full border-4 border-[#9C6644] border-t-transparent" />
+          <div className="animate-spin w-8 h-8 rounded-full border-4 border-[var(--primary)] border-t-transparent" />
         </div>
       ) : zones.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl">
@@ -366,7 +366,7 @@ function ZoneForm({
             required
             value={form.name_ar}
             onChange={e => setForm({ ...form, name_ar: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9C6644] focus:border-[#9C6644]"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
             placeholder="مثال: المملكة العربية السعودية"
           />
         </div>
@@ -379,7 +379,7 @@ function ZoneForm({
             required
             value={form.name_en}
             onChange={e => setForm({ ...form, name_en: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9C6644] focus:border-[#9C6644]"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
             placeholder="e.g., Saudi Arabia"
           />
         </div>
@@ -394,7 +394,7 @@ function ZoneForm({
             required
             value={form.base_rate}
             onChange={e => setForm({ ...form, base_rate: parseFloat(e.target.value) || 0 })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9C6644] focus:border-[#9C6644]"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
           />
           <p className="text-xs text-gray-500 mt-1">ادخل 0 للشحن المجاني</p>
         </div>
@@ -411,7 +411,7 @@ function ZoneForm({
               ...form, 
               free_shipping_threshold: e.target.value ? parseFloat(e.target.value) : null 
             })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9C6644] focus:border-[#9C6644]"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
           />
           <p className="text-xs text-gray-500 mt-1">اتركه فارغاً إذا لا يوجد شحن مجاني</p>
         </div>
@@ -425,7 +425,7 @@ function ZoneForm({
             required
             value={form.estimated_days_min}
             onChange={e => setForm({ ...form, estimated_days_min: parseInt(e.target.value) || 1 })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9C6644] focus:border-[#9C6644]"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
           />
         </div>
 
@@ -437,7 +437,7 @@ function ZoneForm({
             required
             value={form.estimated_days_max}
             onChange={e => setForm({ ...form, estimated_days_max: parseInt(e.target.value) || 1 })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9C6644] focus:border-[#9C6644]"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
           />
         </div>
 
@@ -449,7 +449,7 @@ function ZoneForm({
             min="0"
             value={form.sort_order}
             onChange={e => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9C6644] focus:border-[#9C6644]"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
           />
         </div>
 
@@ -460,7 +460,7 @@ function ZoneForm({
             id="is_active"
             checked={form.is_active}
             onChange={e => setForm({ ...form, is_active: e.target.checked })}
-            className="w-4 h-4 rounded border-gray-300 text-[#9C6644] focus:ring-[#9C6644]"
+            className="w-4 h-4 rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
           />
           <label htmlFor="is_active" className="text-sm font-medium">نشط</label>
         </div>
@@ -477,7 +477,7 @@ function ZoneForm({
               onClick={() => toggleCountry(code)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
                 form.countries.includes(code)
-                  ? 'border-[#9C6644] bg-[#9C6644]/10 text-[#9C6644]'
+                  ? 'border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >

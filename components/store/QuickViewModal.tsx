@@ -53,7 +53,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
       quantity,
       slug: product.slug,
     })
-    toast.success(`تم إضافة ${quantity} من ${product.name_ar} للسلة 🛍️`)
+    toast.success(`أُضيف ${quantity} × ${product.name_ar} للسلة 🛒`)
     handleClose()
   }
 
@@ -66,7 +66,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
       image: product.images?.[0] || '',
       slug: product.slug,
     })
-    toast.success(isWishlisted ? 'تم إزالة من المفضلة' : 'تم إضافة للمفضلة ❤️')
+    toast.success(isWishlisted ? 'أُزيل من المفضلة' : 'أُضيف للمفضلة ❤️')
   }
 
   return (
@@ -110,17 +110,17 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
           {/* Content */}
           <div className="p-6 md:p-8 flex flex-col">
             {product.category && (
-              <span className="text-xs font-medium mb-2" style={{ color: 'var(--primary)' }}>
+              <span className="text-xs font-medium mb-2 text-primary">
                 {product.category}
               </span>
             )}
             
-            <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
+            <h2 className="text-2xl md:text-3xl font-bold mb-2 font-headline">
               {product.name_ar}
             </h2>
             <p className="text-sm opacity-60 mb-4">{product.name_en}</p>
 
-            <div className="text-3xl font-bold mb-6" style={{ color: 'var(--primary)' }} dir="ltr">
+            <div className="text-3xl font-bold mb-6 text-primary" dir="ltr">
               {formatPrice(product.price)}
               {product.compare_price && product.compare_price > product.price && (
                 <span className="text-lg line-through mr-3 opacity-40">

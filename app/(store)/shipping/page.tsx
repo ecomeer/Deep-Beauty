@@ -8,8 +8,7 @@ export default function ShippingPage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-20">
       <h1
-        className="text-4xl font-bold mb-2"
-        style={{ fontFamily: 'var(--font-cormorant), serif', color: 'var(--text-dark)' }}
+        className="text-4xl font-bold mb-2 font-headline text-[var(--text-dark)]"
       >
         الشحن والاسترجاع
       </h1>
@@ -18,7 +17,7 @@ export default function ShippingPage() {
       <div className="space-y-8 text-sm leading-8 opacity-80">
 
         <section>
-          <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--primary)' }}>
+          <h2 className="text-xl font-bold mb-4 text-primary">
             مناطق الشحن والتوصيل
           </h2>
           <div className="space-y-3">
@@ -35,16 +34,16 @@ export default function ShippingPage() {
                 className="flex justify-between items-center px-5 py-3 rounded-xl"
                 style={{ background: 'white', border: '1px solid var(--beige)' }}
               >
-                <span className="font-bold" style={{ color: 'var(--text-dark)' }}>{row.country}</span>
+                <span className="font-bold text-[var(--text-dark)]">{row.country}</span>
                 <span>{row.time}</span>
-                <span style={{ color: 'var(--primary)' }}>{row.price}</span>
+                <span className="text-primary">{row.price}</span>
               </div>
             ))}
           </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--primary)' }}>
+          <h2 className="text-xl font-bold mb-3 text-primary">
             تتبع الطلب
           </h2>
           <p>
@@ -54,7 +53,7 @@ export default function ShippingPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--primary)' }}>
+          <h2 className="text-xl font-bold mb-3 text-primary">
             سياسة الاسترجاع والاستبدال
           </h2>
           <ul className="list-disc list-inside space-y-2 mr-2">
@@ -66,7 +65,7 @@ export default function ShippingPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--primary)' }}>
+          <h2 className="text-xl font-bold mb-3 text-primary">
             كيفية طلب الاسترجاع
           </h2>
           <ol className="list-decimal list-inside space-y-2 mr-2">
@@ -78,12 +77,12 @@ export default function ShippingPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--primary)' }}>
+          <h2 className="text-xl font-bold mb-3 text-primary">
             تواصل معنا
           </h2>
           <p>
             لأي استفسار حول الشحن أو الإرجاع:{' '}
-            <a href="mailto:contact@deepbeautykw.com" style={{ color: 'var(--primary)' }}>
+            <a href="mailto:contact@deepbeautykw.com" className="text-primary">
               contact@deepbeautykw.com
             </a>
           </p>
