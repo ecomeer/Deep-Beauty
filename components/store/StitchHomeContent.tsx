@@ -17,6 +17,13 @@ import {
   CheckBadgeIcon,
   CheckIcon,
   ArrowLeftIcon,
+  FireIcon,
+  BeakerIcon,
+  SunIcon,
+  PaperAirplaneIcon,
+  NoSymbolIcon,
+  HandRaisedIcon,
+  GlobeAltIcon,
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
 import toast from 'react-hot-toast'
@@ -52,6 +59,30 @@ const TRUST = [
   { Icon: ShieldCheckIcon, title: '١٠٠٪ طبيعي',      desc: 'مكوّنات نقية آمنة' },
   { Icon: SparklesIcon,    title: 'جودة فاخرة',      desc: 'مصنوع بعناية واحترافية' },
   { Icon: CheckBadgeIcon,  title: 'ضمان الرضا',      desc: 'استبدال أو استرداد كامل' },
+]
+
+// ─── Instagram icon (inline SVG) ──────────────────────────────────────────
+function IconInstagram({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+    </svg>
+  )
+}
+
+// ─── Certifications ───────────────────────────────────────────────────────
+const CERTS = [
+  { Icon: GlobeAltIcon, label: 'صنع في الكويت 🇰🇼' },
+  { Icon: NoSymbolIcon, label: 'خالي من البارابين' },
+  { Icon: HandRaisedIcon, label: 'لم يُختبر على الحيوانات' },
+  { Icon: BeakerIcon, label: 'بدون مواد كيميائية ضارّة' },
+]
+
+// ─── Skincare routine steps ──────────────────────────────────────────────
+const ROUTINE_STEPS = [
+  { Icon: BeakerIcon, step: '١', title: 'التنظيف', desc: 'ابدأي بغسول لطيف يزيل الشوائب دون أن يجفّف بشرتك.' },
+  { Icon: SunIcon, step: '٢', title: 'الترطيب', desc: 'رطّبي بعمق بكريم غني بالمكونات الطبيعية المغذّية.' },
+  { Icon: ShieldCheckIcon, step: '٣', title: 'الحماية', desc: 'احمي بشرتك يومياً بسيروم مضاد للأكسدة ومعزّز للإشراق.' },
 ]
 
 // ─── Section header (eyebrow + headline + "view all" link) ───────────────
@@ -242,6 +273,33 @@ export default function StitchHomeContent({
   const touchStartX = useRef<number>(0)
   const [bestsellers, setBestsellers] = useState<Product[]>([])
   const [bestsellersLoading, setBestsellersLoading] = useState(true)
+
+  // Countdown timer — offer ends at midnight tonight
+  const [countdown, setCountdown] = useState({ h: '00', m: '00', s: '00' })
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date()
+      const end = new Date(now)
+      end.setHours(23, 59, 59, 999)
+      const diff = Math.max(0, end.getTime() - now.getTime())
+      const h = Math.floor(diff / 3_600_000)
+      const m = Math.floor((diff % 3_600_000) / 60_000)
+      const s = Math.floor((diff % 60_000) / 1_000)
+      setCountdown({
+        h: String(h).padStart(2, '0'),
+        m: String(m).padStart(2, '0'),
+        s: String(s).padStart(2, '0'),
+      })
+    }
+    tick()
+    const id = setInterval(tick, 1_000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Newsletter (home page)
+  const [nlEmail, setNlEmail] = useState('')
+  const [nlDone, setNlDone] = useState(false)
+  const [nlLoading, setNlLoading] = useState(false)
 
   // Middle banner derived values — computed outside JSX to avoid IIFE
   const midBanner      = banners[1]
@@ -443,6 +501,39 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
+          3.5. OFFER COUNTDOWN TIMER
+      ═══════════════════════════════════════ */}
+      <section className="px-4 py-6">
+        <Link href="/offers" className="block group">
+          <div className="rounded-2xl p-5 text-center bg-gradient-to-r from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-dark)] shadow-lg">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <FireIcon className="w-5 h-5 text-amber-300" />
+              <span className="text-xs font-bold uppercase tracking-widest text-white/80">عرض اليوم — ينتهي خلال</span>
+              <FireIcon className="w-5 h-5 text-amber-300" />
+            </div>
+            <div className="flex items-center justify-center gap-3" dir="ltr" suppressHydrationWarning>
+              {[
+                { val: countdown.h, label: 'ساعة' },
+                { val: countdown.m, label: 'دقيقة' },
+                { val: countdown.s, label: 'ثانية' },
+              ].map((t, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <span className="text-2xl font-bold font-headline text-white tabular-nums" suppressHydrationWarning>
+                    {t.val}
+                  </span>
+                  <span className="text-[10px] text-white/60">{t.label}</span>
+                </div>
+              ))}
+            </div>
+            <span className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-full text-xs font-bold text-[var(--primary-dark)] bg-white shadow transition-transform group-hover:scale-105">
+              تصفّحي العروض
+              <ArrowLeftIcon className="w-3 h-3" />
+            </span>
+          </div>
+        </Link>
+      </section>
+
+      {/* ═══════════════════════════════════════
           4. CATEGORY NAVIGATION — RECTANGULAR CARDS
       ═══════════════════════════════════════ */}
       {activeCategories.length > 0 && (
@@ -552,6 +643,54 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
+          5.5. SKINCARE ROUTINE — 3 STEPS
+      ═══════════════════════════════════════ */}
+      <section className="py-10 bg-white border-t border-[var(--beige)]">
+        <div className="px-6 mb-8 text-right">
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
+            ✦ روتينك اليومي
+          </span>
+          <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
+            ٣ خطوات لبشرة مشرقة
+          </h2>
+        </div>
+
+        <div className="flex flex-col gap-4 px-6">
+          {ROUTINE_STEPS.map(({ Icon, step, title, desc }, i) => (
+            <motion.div
+              key={title}
+              {...fadeUp}
+              transition={{ duration: 0.45, delay: i * 0.12 }}
+              className="flex items-start gap-4 text-right"
+            >
+              <div className="relative flex-shrink-0">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[var(--beige)]">
+                  <Icon className="w-6 h-6 text-[var(--primary)]" />
+                </div>
+                <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shadow">
+                  {step}
+                </span>
+              </div>
+              <div className="pt-1">
+                <p className="text-sm font-bold text-[var(--text-dark)] mb-1">{title}</p>
+                <p className="text-xs leading-relaxed text-[var(--on-surface-variant)]">{desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="px-6 mt-6">
+          <Link
+            href="/products"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-primary border border-[var(--beige)] hover:bg-[var(--off-white)] transition-colors"
+          >
+            تسوّقي منتجات الروتين
+            <ArrowLeftIcon className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
           6. MIDDLE BANNER — SPLIT CARD
       ═══════════════════════════════════════ */}
       <section className="px-4 py-8">
@@ -639,6 +778,27 @@ export default function StitchHomeContent({
       )}
 
       {/* ═══════════════════════════════════════
+          7.5. CERTIFICATIONS BAR
+      ═══════════════════════════════════════ */}
+      <section className="py-8 bg-[var(--off-white)] border-y border-[var(--beige)]">
+        <div className="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
+          {CERTS.map(({ Icon, label }, i) => (
+            <motion.div
+              key={label}
+              {...fadeUp}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className="flex-shrink-0 snap-start flex items-center gap-2.5"
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[var(--beige)]">
+                <Icon className="w-5 h-5 text-[var(--primary)]" />
+              </div>
+              <span className="text-xs font-bold text-[var(--text-dark)] whitespace-nowrap">{label}</span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
           8. WHY DEEP BEAUTY — BRAND STORY CLOSER
       ═══════════════════════════════════════ */}
       <section className="py-14 bg-white">
@@ -712,6 +872,114 @@ export default function StitchHomeContent({
           >
             قصّتنا
           </Link>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          9. INSTAGRAM / SOCIAL PROOF
+      ═══════════════════════════════════════ */}
+      <section className="py-10 bg-[var(--off-white)]">
+        <div className="px-6 mb-6 text-right">
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
+            ✦ تابعينا
+          </span>
+          <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
+            الأكثر رواجاً على إنستغرام
+          </h2>
+          <p className="text-xs mt-1.5 text-[var(--on-surface-variant)]">
+            @deepbeautykw
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-1.5 px-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <a
+              key={i}
+              href="https://www.instagram.com/deepbeautykw/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative aspect-square rounded-xl overflow-hidden bg-[var(--beige)]"
+            >
+              <div className="w-full h-full flex items-center justify-center">
+                <SparklesIcon className="w-8 h-8 text-[var(--primary)] opacity-20" />
+              </div>
+              <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
+                <IconInstagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <div className="px-6 mt-5 text-center">
+          <a
+            href="https://www.instagram.com/deepbeautykw/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-primary border border-[var(--beige)] hover:bg-white transition-colors"
+          >
+            <IconInstagram className="w-4 h-4" />
+            تابعينا على إنستغرام
+          </a>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          10. NEWSLETTER CTA
+      ═══════════════════════════════════════ */}
+      <section className="py-12 bg-[var(--text-dark)]">
+        <div className="px-6 text-center">
+          <PaperAirplaneIcon className="w-8 h-8 text-primary mx-auto mb-3 -rotate-45" />
+          <h2 className="text-xl font-bold font-headline text-white mb-2">
+            احصلي على خصم ١٠٪ على أول طلب
+          </h2>
+          <p className="text-xs text-white/55 mb-6 max-w-xs mx-auto">
+            اشتركي في نشرتنا البريدية واحصلي على عروض حصرية ومنتجات جديدة قبل الجميع.
+          </p>
+
+          {nlDone ? (
+            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium bg-green-500/[0.15] text-green-400">
+              <CheckIcon className="w-5 h-5" />
+              تمّ الاشتراك — ترقبي الخصم في بريدك
+            </div>
+          ) : (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!nlEmail || nlLoading) return
+                setNlLoading(true)
+                try {
+                  const res = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: nlEmail }),
+                  })
+                  if (!res.ok) throw new Error()
+                  setNlDone(true)
+                } catch {
+                  // silent — footer form is the fallback
+                } finally {
+                  setNlLoading(false)
+                }
+              }}
+              className="flex gap-2 max-w-sm mx-auto"
+            >
+              <input
+                type="email"
+                value={nlEmail}
+                onChange={e => setNlEmail(e.target.value)}
+                placeholder="البريد الإلكتروني"
+                required
+                className="flex-1 px-4 py-3 rounded-xl text-sm outline-none text-white bg-white/[0.08] border border-white/10 focus:border-primary focus:bg-white/10 transition-all"
+              />
+              <button
+                type="submit"
+                disabled={nlLoading}
+                className="px-5 py-3 rounded-xl text-sm font-bold text-white bg-primary hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
+              >
+                {nlLoading ? '...' : 'اشتركي'}
+              </button>
+            </form>
+          )}
         </div>
       </section>
 
