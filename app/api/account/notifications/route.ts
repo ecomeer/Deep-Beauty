@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
-async function getUser(req: NextRequest) {
+async function getUser() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   return user
 }
 
-export async function GET(req: NextRequest) {
-  const user = await getUser(req)
+export async function GET() {
+  const user = await getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { data, error } = await supabaseAdmin
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
 // PATCH /api/account/notifications — mark all as read
 export async function PATCH(req: NextRequest) {
-  const user = await getUser(req)
+  const user = await getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json().catch(() => ({}))

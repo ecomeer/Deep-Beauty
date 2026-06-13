@@ -47,7 +47,18 @@ export function useWishlist() {
         const res = await fetch('/api/wishlist')
         if (!cancelled && res.ok) {
           const { items: serverItems } = await res.json()
-          setItems((serverItems || []).map((row: any) => ({
+          interface WishlistRow {
+            created_at: string
+            products: {
+              id: string
+              name_ar: string
+              name_en: string
+              price: number
+              images?: string[]
+              slug?: string
+            }
+          }
+          setItems((serverItems || []).map((row: WishlistRow) => ({
             id: row.products.id,
             name_ar: row.products.name_ar,
             name_en: row.products.name_en,

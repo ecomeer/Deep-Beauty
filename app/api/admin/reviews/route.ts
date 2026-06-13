@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('reviews')
-      .select('*, products:product_id (name_ar, images)', { count: 'exact' })
+      .select(
+        'id, product_id, customer_name, rating, comment, is_approved, order_id, created_at, updated_at, products:product_id (name_ar, images)',
+        { count: 'exact' }
+      )
       .order('created_at', { ascending: false })
       .range(from, to)
 
@@ -39,9 +42,9 @@ export async function GET(request: NextRequest) {
       pageSize: PAGE_SIZE,
       totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reviews fetch error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }
 
@@ -68,9 +71,9 @@ export async function PATCH(request: NextRequest) {
     if (error) throw error
     
     return NextResponse.json({ review: data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Review update error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }
 
@@ -95,8 +98,8 @@ export async function DELETE(request: NextRequest) {
     if (error) throw error
     
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Review delete error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }

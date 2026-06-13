@@ -21,8 +21,6 @@ export default function AdminCustomers() {
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
 
-  useEffect(() => { fetchCustomers() }, [page])
-
   async function fetchCustomers() {
     setLoading(true)
     const params = new URLSearchParams({ page: String(page) })
@@ -34,6 +32,9 @@ export default function AdminCustomers() {
     setTotal(data.total ?? 0)
     setLoading(false)
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchCustomers() }, [page])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()

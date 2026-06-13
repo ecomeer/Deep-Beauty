@@ -13,7 +13,28 @@ export async function GET(
   if (orderNumber) {
     const { data, error } = await supabaseAdmin
       .from('orders')
-      .select('*, order_items(*)')
+      .select(`
+        id,
+        order_number,
+        customer_name,
+        subtotal,
+        shipping_cost,
+        coupon_discount,
+        total,
+        status,
+        address_area,
+        payment_method,
+        payment_status,
+        created_at,
+        order_items (
+          id,
+          product_name_ar,
+          product_name_en,
+          quantity,
+          unit_price,
+          total_price
+        )
+      `)
       .eq('id', id)
       .eq('order_number', orderNumber)
       .single()

@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 
 import {
   HomeIcon,
@@ -111,6 +110,89 @@ function NavLink({
   )
 }
 
+// ── Sidebar Nav Content ─────────────────────────────────────────────────
+function SidebarContent({
+  pathname, badges, handleLogout, onLinkClick,
+}: {
+  pathname: string | null
+  badges: Badges
+  handleLogout: () => void
+  onLinkClick?: () => void
+}) {
+  return (
+    <>
+      {/* Logo */}
+      <div className="px-4 mb-6 pt-1">
+        <Link href="/" target="_blank" className="flex items-center gap-3 group">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
+            style={{ background: 'var(--primary)' }}
+          >
+            <span className="text-white font-bold text-sm tracking-widest">BD</span>
+          </div>
+          <div>
+            <p className="text-white font-bold text-sm tracking-wider leading-tight">Deep Beauty</p>
+            <span className="text-[10px] opacity-35 text-white">لوحة التحكم</span>
+          </div>
+        </Link>
+      </div>
+
+      {/* Navigation Groups */}
+      <nav className="flex-1 overflow-y-auto px-1 pb-4" style={{ scrollbarWidth: 'none' }}>
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label} className="mb-4">
+            <p
+              className="px-5 mb-1.5 text-[9px] font-bold uppercase tracking-[0.16em]"
+              style={{ color: 'rgba(255,255,255,0.3)' }}
+            >
+              {group.label}
+            </p>
+            {group.links.map((link) => {
+              const badgeVal = link.badgeKey ? badges[link.badgeKey as keyof Badges] : undefined
+              return (
+                <NavLink
+                  key={link.href}
+                  href={link.href}
+                  icon={link.icon}
+                  label={link.label}
+                  isActive={!!pathname?.startsWith(link.href)}
+                  badge={badgeVal}
+                  onClick={onLinkClick}
+                />
+              )
+            })}
+          </div>
+        ))}
+      </nav>
+
+      {/* Bottom actions */}
+      <div className="mx-2 mb-2 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <Link
+          href="/"
+          target="_blank"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all"
+          style={{ color: 'rgba(255,255,255,0.45)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)' }}
+        >
+          <ShoppingBagIcon className="w-[18px] h-[18px] flex-shrink-0" />
+          <span>عرض المتجر</span>
+        </Link>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all"
+          style={{ color: 'rgba(239,68,68,0.7)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.9)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.7)' }}
+        >
+          <ArrowRightOnRectangleIcon className="w-[18px] h-[18px] flex-shrink-0" />
+          <span>تسجيل الخروج</span>
+        </button>
+      </div>
+    </>
+  )
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────
 export default function AdminSidebar() {
   const pathname  = usePathname()
@@ -140,82 +222,6 @@ export default function AdminSidebar() {
 
   const SIDEBAR_BG = '#2a1d13'
 
-  // ── Sidebar Nav Content ─────────────────────────────────────────────────
-  function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
-    return (
-      <>
-        {/* Logo */}
-        <div className="px-4 mb-6 pt-1">
-          <Link href="/" target="_blank" className="flex items-center gap-3 group">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
-              style={{ background: 'var(--primary)' }}
-            >
-              <span className="text-white font-bold text-sm tracking-widest">BD</span>
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm tracking-wider leading-tight">Deep Beauty</p>
-              <span className="text-[10px] opacity-35 text-white">لوحة التحكم</span>
-            </div>
-          </Link>
-        </div>
-
-        {/* Navigation Groups */}
-        <nav className="flex-1 overflow-y-auto px-1 pb-4" style={{ scrollbarWidth: 'none' }}>
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label} className="mb-4">
-              <p
-                className="px-5 mb-1.5 text-[9px] font-bold uppercase tracking-[0.16em]"
-                style={{ color: 'rgba(255,255,255,0.3)' }}
-              >
-                {group.label}
-              </p>
-              {group.links.map((link) => {
-                const badgeVal = link.badgeKey ? badges[link.badgeKey as keyof Badges] : undefined
-                return (
-                  <NavLink
-                    key={link.href}
-                    href={link.href}
-                    icon={link.icon}
-                    label={link.label}
-                    isActive={!!pathname?.startsWith(link.href)}
-                    badge={badgeVal}
-                    onClick={onLinkClick}
-                  />
-                )
-              })}
-            </div>
-          ))}
-        </nav>
-
-        {/* Bottom actions */}
-        <div className="mx-2 mb-2 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <Link
-            href="/"
-            target="_blank"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all"
-            style={{ color: 'rgba(255,255,255,0.45)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)' }}
-          >
-            <ShoppingBagIcon className="w-[18px] h-[18px] flex-shrink-0" />
-            <span>عرض المتجر</span>
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all"
-            style={{ color: 'rgba(239,68,68,0.7)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.9)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.7)' }}
-          >
-            <ArrowRightOnRectangleIcon className="w-[18px] h-[18px] flex-shrink-0" />
-            <span>تسجيل الخروج</span>
-          </button>
-        </div>
-      </>
-    )
-  }
-
   return (
     <>
       {/* ── Desktop Sidebar ───────────────────────────────────────────── */}
@@ -223,7 +229,7 @@ export default function AdminSidebar() {
         className="hidden md:flex flex-col w-[230px] flex-shrink-0 min-h-screen py-5"
         style={{ background: SIDEBAR_BG }}
       >
-        <SidebarContent />
+        <SidebarContent pathname={pathname} badges={badges} handleLogout={handleLogout} />
       </aside>
 
       {/* ── Mobile Top Bar ────────────────────────────────────────────── */}
@@ -274,7 +280,7 @@ export default function AdminSidebar() {
             >
               <XMarkIcon className="w-5 h-5" />
             </button>
-            <SidebarContent onLinkClick={() => setDrawerOpen(false)} />
+            <SidebarContent pathname={pathname} badges={badges} handleLogout={handleLogout} onLinkClick={() => setDrawerOpen(false)} />
           </div>
         </div>
       )}
