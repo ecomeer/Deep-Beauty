@@ -60,7 +60,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl" className={`${cormorant.variable} ${tajawal.variable} ${almarai.variable}`}>
+    <html lang="ar" dir="rtl" suppressHydrationWarning className={`${cormorant.variable} ${tajawal.variable} ${almarai.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#9C6644" />

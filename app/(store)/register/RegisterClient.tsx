@@ -65,7 +65,12 @@ export default function RegisterClient() {
         await fetch('/api/auth/register-profile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: form.name, phone: form.phone }),
+          body: JSON.stringify({
+            name: form.name,
+            phone: form.phone,
+            userId: authData.user.id,
+            email: authData.user.email,
+          }),
         })
       }
 

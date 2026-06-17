@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { randomUUID } from 'node:crypto'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { checkoutLimiter } from '@/lib/rate-limit'
 
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     // Build order payload for atomic RPC
     const orderData: Record<string, unknown> = {
+      id: randomUUID(),
       order_number: orderNumber,
       customer_name,
       customer_phone,
@@ -76,16 +78,46 @@ export async function POST(req: NextRequest) {
       })
     )
 
-    // Atomically create order + items + decrement stock via DB transaction
+    // Try atomic RPC first, fall back to direct inserts if function doesn't exist
+    let order: Record<string, unknown>
+
     const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic', {
       p_order: orderData,
       p_items: itemsPayload,
     })
 
-    if (rpcError || !orderJson)
-      return NextResponse.json({ error: rpcError?.message || 'فشل في إنشاء الطلب' }, { status: 500 })
+    if (rpcError && rpcError.message?.includes('create_order_atomic')) {
+      // RPC not deployed yet — fall back to direct inserts
+      const { data: insertedOrder, error: insertErr } = await supabaseAdmin
+        .from('orders')
+        .insert(orderData)
+        .select()
+        .single()
 
-    const order = orderJson as Record<string, unknown>
+      if (insertErr || !insertedOrder)
+        return NextResponse.json({ error: insertErr?.message || 'فشل في إنشاء الطلب' }, { status: 500 })
+
+      order = insertedOrder as Record<string, unknown>
+
+      // Insert order items
+      const itemsWithOrderId = itemsPayload.map((item: Record<string, unknown>) => ({
+        ...item,
+        order_id: order['id'],
+      }))
+      await supabaseAdmin.from('order_items').insert(itemsWithOrderId)
+
+      // Decrement stock
+      for (const item of itemsPayload) {
+        await supabaseAdmin.rpc('decrement_stock', {
+          product_id: (item as Record<string, unknown>).product_id,
+          qty: (item as Record<string, unknown>).quantity,
+        })
+      }
+    } else if (rpcError || !orderJson) {
+      return NextResponse.json({ error: rpcError?.message || 'فشل في إنشاء الطلب' }, { status: 500 })
+    } else {
+      order = orderJson as Record<string, unknown>
+    }
 
     // Increment coupon usage
     if (coupon_code && coupon_discount > 0) {

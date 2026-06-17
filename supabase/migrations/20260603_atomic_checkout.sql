@@ -9,8 +9,15 @@ DECLARE
   v_item jsonb;
   v_stock integer;
 BEGIN
-  -- Insert order
-  INSERT INTO orders SELECT * FROM jsonb_populate_record(NULL::orders, p_order)
+  -- Insert order; use the caller-provided id when present, otherwise generate one
+  INSERT INTO orders SELECT * FROM jsonb_populate_record(
+    NULL::orders,
+    jsonb_build_object(
+      'id', COALESCE(p_order->>'id', gen_random_uuid()::text)::uuid,
+      'created_at', NOW(),
+      'updated_at', NOW()
+    ) || p_order || jsonb_build_object('id', COALESCE((p_order->>'id')::uuid, gen_random_uuid()))
+  )
   RETURNING * INTO v_order;
 
   -- Insert items and decrement stock

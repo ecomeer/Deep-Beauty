@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { calculateShipping, ShippingZone } from '@/lib/shipping'
+import { calculateShipping, DEFAULT_SHIPPING_ZONES, ShippingZone } from '@/lib/shipping'
 import { GulfCountry } from '@/lib/currency'
 
 export async function POST(request: NextRequest) {
@@ -15,32 +15,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { data: zones, error } = await supabaseAdmin
-      .from('shipping_zones')
-      .select('id,country_code,name,base_rate,free_threshold,is_active')
-      .eq('is_active', true)
+    let shippingZones: ShippingZone[]
 
-    if (error) throw error
+    try {
+      const { data: zones, error } = await supabaseAdmin
+        .from('shipping_zones')
+        .select('id,name_ar,name_en,countries,base_rate,free_shipping_threshold,estimated_days_min,estimated_days_max,is_active')
+        .eq('is_active', true)
+
+      if (error || !zones?.length) throw error || new Error('No zones')
+      shippingZones = zones as unknown as ShippingZone[]
+    } catch {
+      shippingZones = DEFAULT_SHIPPING_ZONES.map((z, i) => ({ ...z, id: `default-${i}` }))
+    }
 
     const result = calculateShipping(
       countryCode as GulfCountry,
       subtotalKWD,
-      (zones || []) as unknown as ShippingZone[]
+      shippingZones
     )
 
     return NextResponse.json({
       cost: result.rate,
       isFree: result.isFree,
       freeThresholdKWD: result.zone?.free_shipping_threshold ?? null,
-      zone: result.zone
-        ? {
-            id: result.zone.id,
-            name_ar: result.zone.name_ar,
-            name_en: result.zone.name_en,
-            estimated_days_min: result.zone.estimated_days_min,
-            estimated_days_max: result.zone.estimated_days_max,
-          }
-        : null,
+      zone: result.zone ?? null,
     })
   } catch (error: unknown) {
     console.error('Shipping calculation error:', error)
