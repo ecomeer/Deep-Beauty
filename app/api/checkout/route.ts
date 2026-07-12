@@ -164,21 +164,25 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Atomically create order + items + decrement stock via DB transaction
+    // Atomically create order + items + decrement stock + increment coupon
+    // usage (single transaction — the coupon's usage-limit lock is held
+    // until the order either fully commits or rolls back, closing the
+    // race where two concurrent checkouts could both pass the earlier
+    // read-only validate_and_use_coupon check on a single-use coupon).
     const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic', {
       p_order: orderData,
       p_items: itemsPayload,
+      p_coupon_code: discount > 0 ? appliedCouponCode : null,
     })
 
-    if (rpcError || !orderJson)
+    if (rpcError || !orderJson) {
+      if (rpcError?.message?.includes('COUPON_LIMIT_REACHED')) {
+        return NextResponse.json({ error: 'تجاوز كود الخصم الحد الأقصى للاستخدام' }, { status: 400 })
+      }
       return NextResponse.json({ error: rpcError?.message || 'فشل في إنشاء الطلب' }, { status: 500 })
+    }
 
     const order = orderJson as Record<string, unknown>
-
-    // Increment coupon usage
-    if (appliedCouponCode && discount > 0) {
-      await supabaseAdmin.rpc('increment_coupon_usage', { coupon_code: appliedCouponCode })
-    }
 
     // Send push notification (fire and forget)
     try {

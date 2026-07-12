@@ -75,18 +75,45 @@ describe('buildChargeBody', () => {
 })
 
 describe('parsePaymentStatus', () => {
-  it('treats CAPTURED as success', () => {
+  it('treats CAPTURED as success and extracts the order id/number/amount UPayments recorded for this track_id', () => {
     expect(
       parsePaymentStatus({
         status: true,
-        data: { transaction: { result: 'CAPTURED', payment_id: '100412610000005799' } },
+        data: {
+          transaction: {
+            result: 'CAPTURED',
+            payment_id: '100412610000005799',
+            merchant_requested_order_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+            reference: 'DB-20260712-1234',
+            total_price: '25.500',
+          },
+        },
       })
-    ).toEqual({ success: true, result: 'CAPTURED', paymentId: '100412610000005799' })
+    ).toEqual({
+      success: true,
+      result: 'CAPTURED',
+      paymentId: '100412610000005799',
+      orderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      orderNumber: 'DB-20260712-1234',
+      amount: 25.5,
+    })
   })
 
   it('treats anything else as failure', () => {
     expect(parsePaymentStatus({ data: { transaction: { result: 'NOT CAPTURED' } } }).success).toBe(false)
     expect(parsePaymentStatus({ data: {} }).success).toBe(false)
     expect(parsePaymentStatus(null).success).toBe(false)
+  })
+
+  it('returns null orderId/amount when the response omits them', () => {
+    const parsed = parsePaymentStatus({ data: { transaction: { result: 'CAPTURED' } } })
+    expect(parsed.orderId).toBeNull()
+    expect(parsed.amount).toBeNull()
+  })
+
+  it('parses a numeric total_price as well as a string one', () => {
+    expect(
+      parsePaymentStatus({ data: { transaction: { result: 'CAPTURED', total_price: 25.5 } } }).amount
+    ).toBe(25.5)
   })
 })

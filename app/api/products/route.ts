@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
+import { escapeOrFilterValue } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,8 +37,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      // FIXED: support Arabic and English product name search.
-      query = query.or(`name_ar.ilike.%${search}%,name_en.ilike.%${search}%`)
+      // Values are quoted/escaped so a comma or paren in `search` can't
+      // truncate the pattern or inject extra filter clauses.
+      const pattern = escapeOrFilterValue(`%${search}%`)
+      query = query.or(`name_ar.ilike.${pattern},name_en.ilike.${pattern}`)
     }
 
     // FIXED: fetch flash discount in parallel with products query.

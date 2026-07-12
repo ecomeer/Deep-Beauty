@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { escapeOrFilterValue } from '@/lib/utils'
 
 const PAGE_SIZE = 20
 
@@ -21,7 +22,8 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: false })
 
   if (search) {
-    query = query.or(`name_ar.ilike.%${search}%,name_en.ilike.%${search}%`)
+    const pattern = escapeOrFilterValue(`%${search}%`)
+    query = query.or(`name_ar.ilike.${pattern},name_en.ilike.${pattern}`)
   }
   if (category) {
     query = query.eq('category', category)

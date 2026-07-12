@@ -22,7 +22,8 @@ function toNonEmptyString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined
 }
 
-function extractOrderId(invoice: Record<string, unknown>): string | undefined {
+// Exported for tests.
+export function extractOrderId(invoice: Record<string, unknown>): string | undefined {
   const direct =
     toNonEmptyString(invoice.CustomerReference) ??
     toNonEmptyString(invoice.customerReference) ??

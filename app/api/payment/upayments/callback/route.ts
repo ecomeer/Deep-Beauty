@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUPaymentsStatus } from '@/lib/upayments'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+const AMOUNT_EPSILON = 0.001 // KWD has 3 decimal places
+
 // returnUrl / cancelUrl target: UPayments redirects the customer here
 // with track_id appended; `order` and `cancelled` are set by us when
-// creating the charge.
+// creating the charge. `order` is only used as a fallback for the
+// redirect URL — the DB update always keys off the order id/amount
+// recorded by UPayments against this track_id, never the query param,
+// so a captured track_id can't be replayed against a different order.
 export async function GET(request: NextRequest) {
   try {
     const params = request.nextUrl.searchParams
-    const orderId = params.get('order')
     const trackId = params.get('track_id')
     const cancelled = params.get('cancelled')
 
@@ -16,14 +20,46 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/payment-failed?reason=cancelled', request.url))
     }
 
-    if (!orderId || !trackId) {
+    if (!trackId) {
       return NextResponse.redirect(new URL('/payment-failed?reason=missing_id', request.url))
     }
 
     const status = await getUPaymentsStatus(trackId)
 
-    if (!status.success) {
+    if (!status.success || !status.orderId || status.amount == null) {
       return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
+    }
+
+    const { data: order, error: fetchErr } = await supabaseAdmin
+      .from('orders')
+      .select('id, order_number, total, payment_status')
+      .eq('id', status.orderId)
+      .maybeSingle()
+
+    if (fetchErr || !order) {
+      return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
+    }
+
+    // Defense in depth: the paid amount and order number must match what
+    // we originally submitted for this order.
+    const amountMatches = Math.abs(status.amount - Number(order.total)) <= AMOUNT_EPSILON
+    const referenceMatches = !status.orderNumber || status.orderNumber === order.order_number
+    if (!amountMatches || !referenceMatches) {
+      console.error('UPayments callback: amount/reference mismatch', {
+        orderId: order.id,
+        expectedTotal: order.total,
+        paidAmount: status.amount,
+        expectedRef: order.order_number,
+        paidRef: status.orderNumber,
+      })
+      return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
+    }
+
+    // Idempotent: a customer refreshing/revisiting this URL shouldn't re-notify admins.
+    if (order.payment_status === 'paid') {
+      return NextResponse.redirect(
+        new URL(`/order-success?id=${order.id}&num=${encodeURIComponent(order.order_number)}&paid=true`, request.url)
+      )
     }
 
     const { error } = await supabaseAdmin
@@ -33,7 +69,7 @@ export async function GET(request: NextRequest) {
         status: 'confirmed',
         updated_at: new Date().toISOString(),
       })
-      .eq('id', orderId)
+      .eq('id', order.id)
 
     if (error) {
       console.error('Failed to update order:', error)
@@ -41,34 +77,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Notify admins about the paid order (non-critical)
-    let orderNumber: string | null = null
     try {
-      const { data: order } = await supabaseAdmin
-        .from('orders')
-        .select('order_number, customer_name, total')
-        .eq('id', orderId)
-        .single()
-
-      if (order) {
-        orderNumber = order.order_number
-        await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: 'طلب جديد مدفوع! 💳',
-            body: `طلب #${order.order_number} من ${order.customer_name} - المبلغ: ${order.total} د.ك`,
-            url: `/admin/orders/${orderId}`,
-          }),
-        })
-      }
+      await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'طلب جديد مدفوع! 💳',
+          body: `طلب #${order.order_number} - المبلغ: ${order.total} د.ك`,
+          url: `/admin/orders/${order.id}`,
+        }),
+      })
     } catch (notifError) {
       console.error('Failed to send push notification:', notifError)
     }
 
-    const query = orderNumber
-      ? `/order-success?id=${orderId}&num=${encodeURIComponent(orderNumber)}&paid=true`
-      : `/order-success?id=${orderId}&paid=true`
-    return NextResponse.redirect(new URL(query, request.url))
+    return NextResponse.redirect(
+      new URL(`/order-success?id=${order.id}&num=${encodeURIComponent(order.order_number)}&paid=true`, request.url)
+    )
   } catch (error) {
     console.error('UPayments callback error:', error)
     return NextResponse.redirect(new URL('/payment-failed?reason=error', request.url))

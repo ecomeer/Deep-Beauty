@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { escapeOrFilterValue } from '@/lib/utils'
 
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req)
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
     .range(offset, offset + limit - 1)
 
   if (search) {
-    query = query.or(`email.ilike.%${search}%`)
+    query = query.or(`email.ilike.${escapeOrFilterValue(`%${search}%`)}`)
   }
 
   const { data, error, count } = await query
