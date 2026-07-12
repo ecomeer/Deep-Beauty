@@ -23,6 +23,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await req.json()
 
   const updateFields: Record<string, string> = {}
+  let fromStatus: OrderStatus | undefined
 
   if (body.status !== undefined) {
     const { data: current } = await supabaseAdmin
@@ -31,7 +32,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .eq('id', id)
       .single()
 
-    const allowed = VALID_TRANSITIONS[current?.status as OrderStatus] ?? []
+    fromStatus = current?.status as OrderStatus | undefined
+    const allowed = VALID_TRANSITIONS[fromStatus as OrderStatus] ?? []
     if (current && !allowed.includes(body.status)) {
       return NextResponse.json(
         { error: `لا يمكن الانتقال من "${current.status}" إلى "${body.status}"` },
@@ -43,18 +45,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   if (body.payment_status !== undefined) updateFields.payment_status = body.payment_status
 
-  const { data, error } = await supabaseAdmin
-    .from('orders')
-    .update(updateFields)
-    .eq('id', id)
-    .select()
-    .single()
+  // When changing status, condition the update on the order still being in
+  // the state we just validated the transition from — Postgres serializes
+  // concurrent UPDATEs on the same row, so a second, racing PATCH to the
+  // same terminal status won't match and won't restock a second time.
+  let query = supabaseAdmin.from('orders').update(updateFields).eq('id', id)
+  if (fromStatus) query = query.eq('status', fromStatus)
+  const { data, error } = await query.select().maybeSingle()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  if (!data) return NextResponse.json({ error: 'تم تعديل حالة الطلب من مكان آخر — أعد المحاولة' }, { status: 409 })
 
-  // Transitioning into cancelled restores the stock that checkout decremented.
-  // VALID_TRANSITIONS only allows entering 'cancelled' from a non-cancelled
-  // state, so this runs at most once per order.
   if (updateFields.status === 'cancelled') {
     const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: id })
     if (restockErr) console.error('Failed to restock cancelled order:', restockErr)

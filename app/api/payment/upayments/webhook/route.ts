@@ -54,6 +54,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true })
       }
 
+      // A cancelled order has already had its stock restocked — don't
+      // revive it from a stale/duplicate webhook delivery.
       const { error } = await supabaseAdmin
         .from('orders')
         .update({
@@ -62,6 +64,7 @@ export async function POST(request: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq('id', order.id)
+        .neq('status', 'cancelled')
       if (error) console.error('UPayments webhook: order update failed:', error)
     } else {
       // Mark as cancelled only while the order is still pending —
