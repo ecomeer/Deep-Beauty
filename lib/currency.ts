@@ -103,12 +103,6 @@ export function convertFromKWD(amountKWD: number, targetCurrency: CurrencyCode):
   return amountKWD * EXCHANGE_RATES[targetCurrency]
 }
 
-// Convert amount to KWD from source currency
-export function convertToKWD(amount: number, sourceCurrency: CurrencyCode): number {
-  if (sourceCurrency === 'KWD') return amount
-  return amount / EXCHANGE_RATES[sourceCurrency]
-}
-
 // Format price in specific currency
 export function formatPrice(amountKWD: number, currency: CurrencyCode): string {
   const converted = convertFromKWD(amountKWD, currency)
@@ -120,47 +114,7 @@ export function formatPrice(amountKWD: number, currency: CurrencyCode): string {
   return `${converted.toFixed(decimals)} ${symbol}`
 }
 
-// Get country by code
-export function getCountry(code: GulfCountry): CountryConfig {
-  return GULF_COUNTRIES[code]
-}
-
-// Get default country (Kuwait)
-export function getDefaultCountry(): CountryConfig {
-  return GULF_COUNTRIES.KW
-}
-
 // Get currency by country code
 export function getCurrencyByCountry(countryCode: GulfCountry): CurrencyCode {
   return GULF_COUNTRIES[countryCode].currency
-}
-
-// Validate phone number based on country
-export function isValidPhone(phone: string, countryCode: GulfCountry): boolean {
-  const prefixes = {
-    KW: /^\+965[0-9]{8}$/,
-    SA: /^\+9665[0-9]{8}$/,
-    AE: /^\+9715[0-9]{8}$/,
-    QA: /^\+974[0-9]{8}$/,
-    BH: /^\+973[0-9]{8}$/,
-    OM: /^\+968[0-9]{8}$/
-  }
-  
-  return prefixes[countryCode].test(phone.replace(/\s/g, ''))
-}
-
-// Add country prefix to phone if missing
-export function formatPhoneWithPrefix(phone: string, countryCode: GulfCountry): string {
-  const cleanPhone = phone.replace(/\s/g, '').replace(/^0/, '')
-  const prefix = GULF_COUNTRIES[countryCode].phone_prefix
-  
-  if (cleanPhone.startsWith('+')) {
-    return cleanPhone
-  }
-  
-  if (cleanPhone.startsWith(prefix.replace('+', ''))) {
-    return `+${cleanPhone}`
-  }
-  
-  return `${prefix}${cleanPhone}`
 }

@@ -16,6 +16,7 @@ import {
   ChevronLeftIcon,
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { STATUS_LABELS, STATUS_COLORS } from '@/lib/utils'
 
 interface User {
   id: string
@@ -41,12 +42,6 @@ const MENU_ITEMS = [
   { icon: Cog6ToothIcon,    label: 'الإعدادات',  href: '/account/settings',      color: '#6B7280' },
 ]
 
-const STATUS_MAP: Record<string, { label: string; bg: string; color: string }> = {
-  delivered: { label: 'تم التوصيل',   bg: '#DCFCE7', color: '#16A34A' },
-  shipped:   { label: 'تم الشحن',     bg: '#DBEAFE', color: '#1D4ED8' },
-  pending:   { label: 'قيد المعالجة', bg: '#FEF3C7', color: '#B45309' },
-  cancelled: { label: 'ملغى',         bg: '#FEE2E2', color: '#DC2626' },
-}
 
 export default function AccountPage() {
   const router = useRouter()
@@ -195,7 +190,8 @@ export default function AccountPage() {
           ) : (
             <div>
               {recentOrders.map((order, i) => {
-                const st = STATUS_MAP[order.status] || STATUS_MAP.pending
+                const statusLabel = STATUS_LABELS[order.status] || STATUS_LABELS.pending
+                const statusColor = STATUS_COLORS[order.status] || STATUS_COLORS.pending
                 return (
                   <div
                     key={order.id}
@@ -211,7 +207,7 @@ export default function AccountPage() {
                     </div>
                     <div className="text-left flex-shrink-0">
                       <p className="font-bold text-sm mb-1 text-[var(--text-dark)]" dir="ltr">{order.total} د.ك</p>
-                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColor}`}>{statusLabel}</span>
                     </div>
                   </div>
                 )

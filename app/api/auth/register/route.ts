@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createWritableServerClient } from '@/lib/supabase-server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,18 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'الاسم والبريد وكلمة المرور مطلوبة' }, { status: 400 })
     }
 
-    const cookiesToSet: Array<{ name: string; value: string; options: Record<string, unknown> }> = []
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => request.cookies.getAll(),
-          setAll: (cookies) => { cookiesToSet.push(...cookies) },
-        },
-      }
-    )
+    const { supabase, applyCookies } = createWritableServerClient(request)
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
@@ -42,13 +31,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const response = NextResponse.json({
+    return applyCookies(NextResponse.json({
       user: authData.user,
       message: 'تم التسجيل بنجاح',
-    }, { status: 201 })
-
-    cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]))
-    return response
+    }, { status: 201 }))
   } catch {
     return NextResponse.json({ error: 'حدث خطأ أثناء إنشاء الحساب' }, { status: 500 })
   }

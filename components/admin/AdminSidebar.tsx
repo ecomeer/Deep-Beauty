@@ -55,7 +55,7 @@ const NAV_GROUPS = [
     links: [
       { href: '/admin/flash-sales', icon: BoltIcon,       label: 'عروض الفلاش' },
       { href: '/admin/marketing',   icon: MegaphoneIcon,  label: 'التسويق' },
-      { href: '/admin/coupons',     icon: TagIcon,         label: 'الكوبونات' },
+      { href: '/admin/marketing/coupons', icon: TagIcon,   label: 'الكوبونات' },
     ],
   },
   {

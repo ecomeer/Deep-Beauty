@@ -1,18 +1,24 @@
 import type { Metadata } from 'next'
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import EnhancedProductDetail from './EnhancedProductDetail'
 
 type Props = { params: Promise<{ slug: string }> }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const supabase = supabaseAdmin
-  const { data } = await supabase
+// Deduped per request: generateMetadata and the page share one DB query.
+const getProductBySlug = cache(async (slug: string) => {
+  const { data } = await supabaseAdmin
     .from('products')
-    .select('name_ar, description_ar, images')
+    .select('name_ar, description_ar, images, price, compare_price, stock_quantity')
     .eq('slug', slug)
     .single()
+  return data
+})
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const data = await getProductBySlug(slug)
 
   if (!data) return { title: 'منتج | Deep Beauty' }
 
@@ -35,12 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
-  const supabase = supabaseAdmin
-  const { data } = await supabase
-    .from('products')
-    .select('name_ar, description_ar, images, price, compare_price, stock_quantity')
-    .eq('slug', slug)
-    .single()
+  const data = await getProductBySlug(slug)
 
   if (!data) notFound()
 

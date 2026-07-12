@@ -29,49 +29,40 @@ export async function GET(request: NextRequest) {
     const days = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 365
     const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
     
-    // Get order IDs for the period first (order_items has no created_at)
+    // One query over the period's delivered orders; order IDs, daily sales,
+    // and top customers are all derived from it.
     const { data: periodOrders } = await supabase
       .from('orders')
-      .select('id')
-      .gte('created_at', startDate.toISOString())
-      .eq('status', 'delivered')
-
-    const orderIds = (periodOrders || []).map(o => o.id)
-    const safeIds = orderIds.length ? orderIds : ['00000000-0000-0000-0000-000000000000']
-
-    // Get top selling products via those order IDs
-    const { data: topProducts } = await supabase
-      .from('order_items')
-      .select(`
-        product_id,
-        products:product_id (name_ar, images),
-        quantity,
-        unit_price
-      `)
-      .in('order_id', safeIds)
-      .order('quantity', { ascending: false })
-      .limit(10)
-    
-    // Get sales by day
-    const { data: dailySales } = await supabase
-      .from('orders')
-      .select('created_at, total, status')
+      .select('id, created_at, total, status, customer_name, customer_phone')
       .gte('created_at', startDate.toISOString())
       .eq('status', 'delivered')
       .order('created_at', { ascending: true })
-    
-    // Get top customers
-    const { data: topCustomers } = await supabase
-      .from('orders')
-      .select('customer_name, customer_phone, total')
-      .gte('created_at', startDate.toISOString())
-      .eq('status', 'delivered')
-    
-    // Get reviews stats
-    const { data: reviewsStats } = await supabase
-      .from('reviews')
-      .select('is_approved, rating')
-      
+
+    const orders = periodOrders || []
+    const orderIds = orders.map(o => o.id)
+    const safeIds = orderIds.length ? orderIds : ['00000000-0000-0000-0000-000000000000']
+
+    const [{ data: topProducts }, { data: reviewsStats }] = await Promise.all([
+      // Top selling products via those order IDs (order_items has no created_at)
+      supabase
+        .from('order_items')
+        .select(`
+          product_id,
+          products:product_id (name_ar, images),
+          quantity,
+          unit_price
+        `)
+        .in('order_id', safeIds)
+        .order('quantity', { ascending: false })
+        .limit(10),
+      supabase
+        .from('reviews')
+        .select('is_approved, rating'),
+    ])
+
+    const dailySales = orders.map(({ created_at, total, status }) => ({ created_at, total, status }))
+    const topCustomers = orders
+
     // Calculate stats
     const customersMap = new Map<string, StatsCustomer>()
     ;(topCustomers as TopCustomerOrder[] | null)?.forEach(order => {

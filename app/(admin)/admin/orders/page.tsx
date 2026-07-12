@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
+import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDate, formatDateTime } from '@/lib/utils'
 import Link from 'next/link'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -74,7 +74,7 @@ export default function AdminOrders() {
     const headers = ['رقم الطلب', 'التاريخ', 'العميل', 'الهاتف', 'المنطقة', 'المبلغ', 'الحالة', 'طريقة الدفع']
     const rows = filtered.map(o => [
       o.order_number,
-      new Date(o.created_at).toLocaleDateString('ar-KW'),
+      formatDate(o.created_at),
       o.customer_name,
       o.customer_phone,
       o.address_area || '',

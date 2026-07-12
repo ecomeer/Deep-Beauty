@@ -102,22 +102,3 @@ export function calculateShipping(
   
   return { rate: zone.base_rate, isFree: false, zone }
 }
-
-// Get shipping estimate text
-export function getShippingEstimate(zone: ShippingZone | null): string {
-  if (!zone) return ''
-  
-  if (zone.estimated_days_min === zone.estimated_days_max) {
-    return `${zone.estimated_days_min} يوم`
-  }
-  
-  return `من ${zone.estimated_days_min} إلى ${zone.estimated_days_max} أيام`
-}
-
-// Get zone by country
-export function getZoneByCountry(
-  countryCode: GulfCountry,
-  zones: ShippingZone[]
-): ShippingZone | null {
-  return zones.find(z => z.countries.includes(countryCode) && z.is_active) || null
-}

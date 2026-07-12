@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { requireUser } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(
@@ -45,23 +45,8 @@ export async function GET(
     return NextResponse.json({ order: data })
   }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => req.cookies.getAll(),
-        setAll: () => {},
-      },
-    }
-  )
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-  if (userError || !user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const { user, error: authError } = await requireUser()
+  if (authError) return authError
 
   const { data, error } = await supabaseAdmin
     .from('orders')

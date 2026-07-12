@@ -17,6 +17,7 @@ import {
   NoSymbolIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { STATUS_COLORS, formatDate } from '@/lib/utils'
 
 interface Order {
   id: string
@@ -33,13 +34,13 @@ interface Order {
   }>
 }
 
-const STATUS_CONFIG = {
-  pending: { label: 'قيد الانتظار', color: 'bg-amber-100 text-amber-700', icon: ClockIcon },
-  confirmed: { label: 'تم التأكيد', color: 'bg-blue-100 text-blue-700', icon: CheckCircleIcon },
-  processing: { label: 'جاري التحضير', color: 'bg-purple-100 text-purple-700', icon: CubeIcon },
-  shipped: { label: 'تم الشحن', color: 'bg-indigo-100 text-indigo-700', icon: TruckIcon },
-  delivered: { label: 'تم التوصيل', color: 'bg-green-100 text-green-700', icon: CheckCircleIcon },
-  cancelled: { label: 'تم الإلغاء', color: 'bg-red-100 text-red-700', icon: XCircleIcon }
+const STATUS_ICONS = {
+  pending: ClockIcon,
+  confirmed: CheckCircleIcon,
+  processing: CubeIcon,
+  shipped: TruckIcon,
+  delivered: CheckCircleIcon,
+  cancelled: XCircleIcon,
 }
 
 export default function OrdersPage() {
@@ -146,8 +147,7 @@ export default function OrdersPage() {
         ) : (
           <div className="space-y-4">
             {filteredOrders.map((order, index) => {
-              const statusConfig = STATUS_CONFIG[order.status]
-              const StatusIcon = statusConfig.icon
+              const StatusIcon = STATUS_ICONS[order.status]
 
               return (
                 <motion.div
@@ -161,18 +161,12 @@ export default function OrdersPage() {
                   <div className="p-6 border-b">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-xl ${statusConfig.color} flex items-center justify-center`}>
+                        <div className={`w-12 h-12 rounded-xl ${STATUS_COLORS[order.status]} flex items-center justify-center`}>
                           <StatusIcon className="w-6 h-6" />
                         </div>
                         <div>
                           <p className="font-bold text-lg">{order.order_number}</p>
-                          <p className="text-sm text-gray-500">
-                            {new Date(order.created_at).toLocaleDateString('ar-KW', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </p>
+                          <p className="text-sm text-gray-500">{formatDate(order.created_at)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">

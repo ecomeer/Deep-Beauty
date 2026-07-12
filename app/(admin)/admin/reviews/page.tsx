@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { formatDate } from '@/lib/utils'
 
 interface Review {
   id: string
@@ -186,7 +187,7 @@ export default function ReviewsPage() {
                         </div>
                         <span className="text-sm text-gray-500">{review.customer_name}</span>
                         <span className="text-xs text-gray-400">
-                          {new Date(review.created_at).toLocaleDateString('ar-KW')}
+                          {formatDate(review.created_at)}
                         </span>
                       </div>
                     </div>

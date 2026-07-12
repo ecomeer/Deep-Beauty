@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createWritableServerClient } from '@/lib/supabase-server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,18 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'البريد وكلمة المرور مطلوبان' }, { status: 400 })
     }
 
-    const cookiesToSet: Array<{ name: string; value: string; options: Record<string, unknown> }> = []
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => request.cookies.getAll(),
-          setAll: (cookies) => { cookiesToSet.push(...cookies) },
-        },
-      }
-    )
+    const { supabase, applyCookies } = createWritableServerClient(request)
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
@@ -28,9 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'بيانات الدخول غير صحيحة' }, { status: 401 })
     }
 
-    const response = NextResponse.json({ user: data.user })
-    cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]))
-    return response
+    return applyCookies(NextResponse.json({ user: data.user }))
   } catch {
     return NextResponse.json({ error: 'حدث خطأ أثناء تسجيل الدخول' }, { status: 500 })
   }

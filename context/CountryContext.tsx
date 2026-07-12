@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react'
 import { 
   GulfCountry, 
   CurrencyCode, 
@@ -23,6 +23,20 @@ const CountryContext = createContext<CountryContextType | undefined>(undefined)
 const STORAGE_KEY = 'selected_country'
 const DEFAULT_COUNTRY: GulfCountry = 'KW'
 
+function buildCountryValue(
+  country: GulfCountry,
+  setCountry: (country: GulfCountry) => void
+): CountryContextType {
+  const currency = getCurrencyByCountry(country)
+  return {
+    selectedCountry: country,
+    currency,
+    countryConfig: GULF_COUNTRIES[country],
+    setCountry,
+    formatPrice: (amountKWD: number) => formatPrice(amountKWD, currency),
+  }
+}
+
 export function CountryProvider({ children }: { children: ReactNode }) {
   const [selectedCountry, setSelectedCountry] = useState<GulfCountry>(() => {
     if (typeof window === 'undefined') return DEFAULT_COUNTRY
@@ -30,28 +44,18 @@ export function CountryProvider({ children }: { children: ReactNode }) {
     return stored && GULF_COUNTRIES[stored] ? stored : DEFAULT_COUNTRY
   })
 
-  const setCountry = (country: GulfCountry) => {
+  const setCountry = useCallback((country: GulfCountry) => {
     setSelectedCountry(country)
     localStorage.setItem(STORAGE_KEY, country)
-  }
+  }, [])
 
-  const currency = getCurrencyByCountry(selectedCountry)
-  const countryConfig = GULF_COUNTRIES[selectedCountry]
-
-  const formatPriceWithCurrency = (amountKWD: number) => {
-    return formatPrice(amountKWD, currency)
-  }
+  const value = useMemo(
+    () => buildCountryValue(selectedCountry, setCountry),
+    [selectedCountry, setCountry]
+  )
 
   return (
-    <CountryContext.Provider
-      value={{
-        selectedCountry,
-        currency,
-        countryConfig,
-        setCountry,
-        formatPrice: formatPriceWithCurrency
-      }}
-    >
+    <CountryContext.Provider value={value}>
       {children}
     </CountryContext.Provider>
   )
@@ -60,14 +64,8 @@ export function CountryProvider({ children }: { children: ReactNode }) {
 export function useCountry(): CountryContextType {
   const context = useContext(CountryContext)
   if (context === undefined) {
-    // Return safe defaults during SSR before provider mounts
-    return {
-      selectedCountry: DEFAULT_COUNTRY,
-      currency: 'KWD',
-      countryConfig: GULF_COUNTRIES[DEFAULT_COUNTRY],
-      setCountry: () => {},
-      formatPrice: (amount: number) => formatPrice(amount, 'KWD'),
-    }
+    // Safe defaults during SSR before provider mounts
+    return buildCountryValue(DEFAULT_COUNTRY, () => {})
   }
   return context
 }

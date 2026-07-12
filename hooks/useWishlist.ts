@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClientSupabase } from '@/lib/supabase-client'
 
-interface WishlistItem {
+export interface WishlistItem {
   id: string
   name_ar: string
   name_en: string
@@ -14,6 +14,15 @@ interface WishlistItem {
 }
 
 const LS_KEY = 'deep-beauty-wishlist'
+
+// The wishlist API is a toggle: POSTing a product_id adds it if absent,
+// removes it if present.
+const syncToggle = (productId: string) =>
+  fetch('/api/wishlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ product_id: productId }),
+  })
 
 function loadFromLS(): WishlistItem[] {
   try {
@@ -98,11 +107,7 @@ export function useWishlist() {
 
   const addItem = useCallback(async (product: Omit<WishlistItem, 'addedAt'>) => {
     if (isLoggedIn) {
-      await fetch('/api/wishlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: product.id }),
-      })
+      await syncToggle(product.id)
     }
     setItems(prev => {
       if (prev.some(i => i.id === product.id)) return prev
@@ -112,11 +117,7 @@ export function useWishlist() {
 
   const removeItem = useCallback(async (productId: string) => {
     if (isLoggedIn) {
-      await fetch('/api/wishlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: productId }),
-      })
+      await syncToggle(productId)
     }
     setItems(prev => prev.filter(i => i.id !== productId))
   }, [isLoggedIn])
@@ -124,11 +125,7 @@ export function useWishlist() {
   const toggleItem = useCallback(async (product: Omit<WishlistItem, 'addedAt'>) => {
     const exists = items.some(i => i.id === product.id)
     if (isLoggedIn) {
-      await fetch('/api/wishlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: product.id }),
-      })
+      await syncToggle(product.id)
     }
     setItems(prev =>
       exists
@@ -143,13 +140,7 @@ export function useWishlist() {
 
   const clearWishlist = useCallback(async () => {
     if (isLoggedIn) {
-      await Promise.all(items.map(i =>
-        fetch('/api/wishlist', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ product_id: i.id }),
-        })
-      ))
+      await Promise.all(items.map(i => syncToggle(i.id)))
     }
     setItems([])
   }, [items, isLoggedIn])

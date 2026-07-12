@@ -8,9 +8,6 @@ export function cn(...inputs: ClassValue[]) {
 export const toArabicPrice = (price: number): string =>
   price.toFixed(3).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d]) + ' د.ك'
 
-export const toArabicNum = (n: number): string =>
-  n.toString().replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d])
-
 export const isKuwaitPhone = (phone: string): boolean =>
   /^(\+965|965|0)?[569]\d{7}$/.test(phone.replace(/\s/g, ''))
 

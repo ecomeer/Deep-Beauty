@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { requireUser } from '@/lib/supabase-server'
 
 interface OrderItemRow {
   product_name_ar: string | null
@@ -10,17 +10,8 @@ interface OrderItemRow {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient()
-
-    // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      )
-    }
+    const { user, supabase, error: authError } = await requireUser()
+    if (authError) return authError
 
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '20')

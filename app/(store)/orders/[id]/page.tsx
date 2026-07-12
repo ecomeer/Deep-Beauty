@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { toArabicPrice } from '@/lib/utils'
+import { toArabicPrice, formatDateTime } from '@/lib/utils'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -20,8 +20,7 @@ export default async function OrderDetailPage({ params }: Props) {
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm p-6">
         <h1 className="text-2xl font-bold mb-2">تفاصيل الطلب #{order.order_number}</h1>
         <p className="text-sm text-gray-500 mb-6">
-          {/* FIXED: dedicated /orders/[id] detail page for required storefront route. */}
-          {new Date(order.created_at).toLocaleString('ar-KW')}
+          {formatDateTime(order.created_at)}
         </p>
         <div className="space-y-3 mb-6">
           {(order.order_items ?? []).map((item: { id: string; product_name_ar: string; quantity: number; total_price: number }) => (

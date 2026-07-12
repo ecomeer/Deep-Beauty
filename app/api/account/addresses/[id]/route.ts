@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { requireUser } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-
-async function getUser() {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
-}
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { user, error: authError } = await requireUser()
+  if (authError) return authError
 
   const { id } = await params
   const body = await req.json()
@@ -42,8 +36,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { user, error: authError } = await requireUser()
+  if (authError) return authError
 
   const { id } = await params
 

@@ -1,52 +1,42 @@
 import { NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { requireUser } from '@/lib/supabase-server'
 
 export async function GET() {
   try {
-    const supabase = await createServerSupabaseClient()
+    const { user, supabase, error: authError } = await requireUser()
+    if (authError) return authError
 
-    // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      )
-    }
-
-    // Get total orders
-    const { count: totalOrders, error: ordersError } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .eq('customer_email', user.email)
+    const [
+      { count: totalOrders, error: ordersError },
+      { data: orders, error: spentError },
+      { count: wishlistCount, error: wishlistError },
+    ] = await Promise.all([
+      supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('customer_email', user.email),
+      supabase
+        .from('orders')
+        .select('total')
+        .eq('customer_email', user.email)
+        .eq('status', 'delivered'),
+      supabase
+        .from('wishlists')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id),
+    ])
 
     if (ordersError) {
       console.error('Orders count error:', ordersError)
     }
-
-    // Get total spent
-    const { data: orders, error: spentError } = await supabase
-      .from('orders')
-      .select('total')
-      .eq('customer_email', user.email)
-      .eq('status', 'delivered')
-
     if (spentError) {
       console.error('Spent calculation error:', spentError)
     }
-
-    const totalSpent = orders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0
-
-    // Get wishlist count
-    const { count: wishlistCount, error: wishlistError } = await supabase
-      .from('wishlists')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-
     if (wishlistError) {
       console.error('Wishlist count error:', wishlistError)
     }
+
+    const totalSpent = orders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0
 
     return NextResponse.json({
       totalOrders: totalOrders || 0,

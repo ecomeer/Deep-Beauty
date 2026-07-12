@@ -11,6 +11,7 @@ import {
   XCircleIcon
 } from '@heroicons/react/24/outline'
 import { GULF_COUNTRIES, GulfCountry } from '@/lib/currency'
+import { toArabicPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
 interface ShippingZone {
@@ -168,8 +169,8 @@ export default function ShippingManagementPage() {
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <p className="text-sm text-gray-500">متوسط سعر الشحن</p>
           <p className="text-2xl font-bold text-purple-600">
-            {(zones.filter(z => z.base_rate > 0).reduce((sum, z) => sum + z.base_rate, 0) / 
-              Math.max(1, zones.filter(z => z.base_rate > 0).length)).toFixed(2)} د.ك
+            {toArabicPrice(zones.filter(z => z.base_rate > 0).reduce((sum, z) => sum + z.base_rate, 0) /
+              Math.max(1, zones.filter(z => z.base_rate > 0).length))}
           </p>
         </div>
       </div>
@@ -253,14 +254,14 @@ export default function ShippingManagementPage() {
                     <div>
                       <span className="text-gray-500">سعر الشحن:</span>
                       <span className="font-bold mr-1">
-                        {zone.base_rate === 0 ? 'مجاني' : `${zone.base_rate.toFixed(3)} د.ك`}
+                        {zone.base_rate === 0 ? 'مجاني' : toArabicPrice(zone.base_rate)}
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-500">الشحن المجاني:</span>
                       <span className="font-bold mr-1">
-                        {zone.free_shipping_threshold 
-                          ? `عند ${zone.free_shipping_threshold.toFixed(3)} د.ك`
+                        {zone.free_shipping_threshold
+                          ? `عند ${toArabicPrice(zone.free_shipping_threshold)}`
                           : 'غير متاح'
                         }
                       </span>
