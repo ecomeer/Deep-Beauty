@@ -10,6 +10,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   database_error: 'حدث خطأ في تحديث الطلب',
   error: 'حدث خطأ غير متوقع',
   cancelled: 'تم إلغاء عملية الدفع',
+  order_cancelled: 'تم إلغاء هذا الطلب مسبقاً — تواصلي معنا عبر واتساب إذا كنتِ ترغبين بإتمامه',
   unknown_error: 'حدث خطأ غير معروف',
 }
 

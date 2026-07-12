@@ -1,10 +1,16 @@
 -- Restock inventory when an order is cancelled (previously permanent
 -- stock loss: neither the customer self-cancel route nor the admin
 -- status-change route restored stock_quantity).
+--
+-- SECURITY DEFINER is required so this can update stock_quantity despite
+-- the public/service_role-only RLS policy on products — but that means
+-- it must be explicitly revoked from anon/authenticated below, or any
+-- client holding the anon key could call this RPC directly with an
+-- arbitrary order id and inflate stock outside a real cancellation.
 CREATE OR REPLACE FUNCTION public.restock_order_atomic(p_order_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_item record;
@@ -19,6 +25,8 @@ BEGIN
 END;
 $$;
 
+REVOKE EXECUTE ON FUNCTION public.restock_order_atomic(uuid) FROM anon, authenticated;
+
 -- Close a TOCTOU race: validate_and_use_coupon locks + checks the usage
 -- limit, but the increment previously happened in a separate, unlocked
 -- RPC call after order creation — two concurrent checkouts could both
@@ -26,6 +34,12 @@ $$;
 -- increment into create_order_atomic's single transaction so it either
 -- commits together with the order (limit enforced) or rolls back
 -- together with it (no coupon burned on a failed checkout).
+--
+-- This redefinition is based on the version from
+-- 20260612_checkout_lock_order.sql, which locks product rows in
+-- deterministic product_id order to avoid deadlocking with concurrent
+-- checkouts that share products in a different cart order — that fix
+-- must be preserved here, not just the earlier, unordered version.
 CREATE OR REPLACE FUNCTION create_order_atomic(
   p_order jsonb,
   p_items jsonb,
@@ -53,8 +67,10 @@ BEGIN
   INSERT INTO orders SELECT * FROM jsonb_populate_record(NULL::orders, p_order)
   RETURNING * INTO v_order;
 
-  -- Insert items and decrement stock
-  FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
+  -- Insert items and decrement stock, locking products in product_id
+  -- order (deterministic — see comment above) to avoid deadlocks.
+  FOR v_item IN
+    SELECT value FROM jsonb_array_elements(p_items) ORDER BY value->>'product_id'
   LOOP
     INSERT INTO order_items(order_id, product_id, product_name_ar, product_name_en, quantity, unit_price, total_price)
     VALUES (

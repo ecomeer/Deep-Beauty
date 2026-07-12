@@ -32,12 +32,19 @@ export async function GET(request: NextRequest) {
 
     const { data: order, error: fetchErr } = await supabaseAdmin
       .from('orders')
-      .select('id, order_number, total, payment_status')
+      .select('id, order_number, total, status, payment_status')
       .eq('id', status.orderId)
       .maybeSingle()
 
     if (fetchErr || !order) {
       return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
+    }
+
+    // A cancelled order has already had its stock restocked — reviving it
+    // via a stale payment link would confirm an order with no reserved
+    // inventory. The customer needs to place a new order instead.
+    if (order.status === 'cancelled') {
+      return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
     }
 
     // Defense in depth: the paid amount and order number must match what
@@ -62,7 +69,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const { error } = await supabaseAdmin
+    // Re-guard against cancelled here too, in case the order was cancelled
+    // between the fetch above and this update.
+    const { data: updated, error } = await supabaseAdmin
       .from('orders')
       .update({
         payment_status: 'paid',
@@ -70,10 +79,16 @@ export async function GET(request: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq('id', order.id)
+      .neq('status', 'cancelled')
+      .select('id')
+      .maybeSingle()
 
     if (error) {
       console.error('Failed to update order:', error)
       return NextResponse.redirect(new URL('/payment-failed?reason=database_error', request.url))
+    }
+    if (!updated) {
+      return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
     }
 
     // Notify admins about the paid order (non-critical)
