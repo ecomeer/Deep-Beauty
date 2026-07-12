@@ -8,7 +8,8 @@ Production-ready e-commerce storefront and admin dashboard for beauty products.
 - React 19
 - Supabase (Auth, Postgres, Storage, RLS)
 - Tailwind CSS
-- Payments: MyFatoorah (primary flow) + Tap checkout route support
+- Payments: UPayments UInterfaceV2 (KNET, cards, Apple/Google/Samsung Pay) with MyFatoorah fallback
+- Email: Resend (order confirmations, status updates, newsletter)
 
 ## 1) Prerequisites
 
@@ -31,10 +32,11 @@ Required for app startup:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `NEXT_PUBLIC_SITE_URL`
 
-Required for online payments:
+Required for online payments (one of):
 
-- MyFatoorah flow: `MYFATOORAH_TOKEN`, `MYFATOORAH_API_URL`
-- Tap flow: `TAP_SECRET_KEY`
+- UPayments (takes precedence when set): `UPAYMENTS_TOKEN`, `UPAYMENTS_API_URL`
+  (sandbox default; test token `jtest123` — production keys via UPayments support)
+- MyFatoorah fallback: `MYFATOORAH_TOKEN`, `MYFATOORAH_API_URL`
 
 Required for admin access sync:
 
@@ -42,7 +44,10 @@ Required for admin access sync:
 
 Optional:
 
-- `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
+- Email delivery: `RESEND_API_KEY`, `EMAIL_FROM` (emails are skipped gracefully when unset)
+- Push notifications: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
+
+Full Arabic setup walkthrough (Google OAuth, SMTP, UPayments): `docs/setup-auth-ar.md`
 
 ## 3) Database Setup (Supabase)
 
@@ -66,13 +71,15 @@ npm run dev
 
 App runs at `http://localhost:3000`.
 
-## 5) Build Validation
+## 5) Tests & Build Validation
 
 ```bash
+npm test        # vitest unit tests (lib/)
+npm run lint
 npm run build
 ```
 
-Build should pass before deployment.
+All three should pass before deployment.
 
 ## 6) Core Routes
 
