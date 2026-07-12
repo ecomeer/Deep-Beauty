@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { StarIcon } from '@heroicons/react/24/solid'
+import { useAdminList } from '@/hooks/useAdminList'
 import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { formatDate } from '@/lib/utils'
 
 interface Review {
   id: string
@@ -19,34 +21,17 @@ interface Review {
 }
 
 export default function ReviewsPage() {
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all')
   const [processing, setProcessing] = useState<string | null>(null)
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
 
-  useEffect(() => {
-    fetchReviews()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, page])
-
-  async function fetchReviews() {
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/admin/reviews?status=${filter}&page=${page}`)
-      const data = await res.json()
-      setReviews(data.reviews || [])
-      setTotalPages(data.totalPages ?? 1)
-      setTotal(data.total ?? 0)
-    } catch (error) {
-      console.error('Error fetching reviews:', error)
-      toast.error('فشل تحميل التقييمات')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { items: reviews, raw, loading, refetch: fetchReviews } = useAdminList<Review>(
+    `/api/admin/reviews?status=${filter}&page=${page}`,
+    (json) => (json as { reviews?: Review[] }).reviews || []
+  )
+  const meta = raw as { totalPages?: number; total?: number } | null
+  const totalPages = meta?.totalPages ?? 1
+  const total = meta?.total ?? 0
 
   async function handleApprove(id: string, approve: boolean) {
     setProcessing(id)
@@ -186,7 +171,7 @@ export default function ReviewsPage() {
                         </div>
                         <span className="text-sm text-gray-500">{review.customer_name}</span>
                         <span className="text-xs text-gray-400">
-                          {new Date(review.created_at).toLocaleDateString('ar-KW')}
+                          {formatDate(review.created_at)}
                         </span>
                       </div>
                     </div>

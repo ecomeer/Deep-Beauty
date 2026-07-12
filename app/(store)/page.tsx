@@ -40,11 +40,11 @@ export default async function HomePage() {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    const [productsRes, categoriesRes, bannersRes, settingRes] = await withTimeout(
+    const [productsRes, categoriesRes, bannersRes, settingRes, flashDiscount] = await withTimeout(
       Promise.all([
         supabase
           .from('products')
-          .select('*')
+          .select('id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at, updated_at')
           .eq('is_featured', true)
           .eq('is_active', true)
           .order('created_at', { ascending: false })
@@ -65,14 +65,14 @@ export default async function HomePage() {
           .select('value')
           .eq('key', 'announcement_text')
           .maybeSingle(),
+        getActiveFlashDiscount(),
       ]),
       12000
     )
 
-    const flashDiscount = await getActiveFlashDiscount()
     featuredProducts = (productsRes.data || []).map((p) => ({
       ...p,
-      sale_price: applyDiscount(p.price, flashDiscount) ?? p.sale_price,
+      sale_price: applyDiscount(p.price, flashDiscount),
     }))
     categories = categoriesRes.data || []
     banners = bannersRes.data || []

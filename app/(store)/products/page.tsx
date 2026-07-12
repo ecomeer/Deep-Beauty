@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { Product, Category } from '@/types'
 import ProductsClientShell from '@/components/store/ProductsClientShell'
 import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
+import { resolveCategoryName } from '@/lib/categories'
 
 export const revalidate = 600 // revalidate every 10 minutes
 
@@ -31,7 +32,7 @@ export default async function ProductsPage({
 }: {
   searchParams: Promise<{ category?: string }>
 }) {
-  const { category: defaultCategory = '' } = await searchParams
+  const { category: rawCategory = '' } = await searchParams
   let products: Product[] = []
   let categories: Category[] = []
 
@@ -43,7 +44,8 @@ export default async function ProductsPage({
           .from('products')
           .select('id,name_ar,name_en,slug,category,price,compare_price,stock_quantity,images,is_active,is_featured,created_at,updated_at')
           .eq('is_active', true)
-          .order('created_at', { ascending: false }),
+          .order('created_at', { ascending: false })
+          .limit(500),
         supabase
           .from('categories')
           .select('id,name_ar,name_en,slug,is_active,image_url')
@@ -71,7 +73,11 @@ export default async function ProductsPage({
           <p className="text-sm opacity-60">اكتشفي مجموعتنا الكاملة من منتجات العناية بالبشرة</p>
         </div>
       </div>
-      <ProductsClientShell products={products} categories={categories} defaultCategory={defaultCategory} />
+      <ProductsClientShell
+        products={products}
+        categories={categories}
+        defaultCategory={resolveCategoryName(rawCategory, categories)}
+      />
     </div>
   )
 }

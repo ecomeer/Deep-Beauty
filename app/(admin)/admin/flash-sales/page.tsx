@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { formatDateTime } from '@/lib/utils'
 import { TrashIcon, BoltIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { useAdminList } from '@/hooks/useAdminList'
 
 interface FlashSale {
   id: string
@@ -36,8 +37,10 @@ function Countdown({ endsAt }: { endsAt: string }) {
 }
 
 export default function AdminFlashSales() {
-  const [sales, setSales] = useState<FlashSale[]>([])
-  const [loading, setLoading] = useState(true)
+  const { items: sales, loading, refetch: fetchSales } = useAdminList<FlashSale>(
+    '/api/admin/flash-sales',
+    (json) => (json as { sales?: FlashSale[] }).sales || []
+  )
   const [adding, setAdding] = useState(false)
   const [form, setForm] = useState({
     name_ar: '',
@@ -46,15 +49,6 @@ export default function AdminFlashSales() {
     ends_at: '',
     apply_to: 'all' as 'all' | 'category' | 'products',
   })
-
-  const fetchSales = useCallback(async () => {
-    const res = await fetch('/api/admin/flash-sales')
-    const data = await res.json()
-    setSales(data.sales || [])
-    setLoading(false)
-  }, [])
-
-  useEffect(() => { fetchSales() }, [fetchSales])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

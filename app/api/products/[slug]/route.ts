@@ -9,9 +9,8 @@ export async function GET(
   const { slug } = await params
 
   const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at'
-  const [productRes, allProductsRes, flashDiscount] = await Promise.all([
+  const [productRes, flashDiscount] = await Promise.all([
     supabaseAdmin.from('products').select(productColumns).eq('slug', slug).eq('is_active', true).single(),
-    supabaseAdmin.from('products').select(productColumns).eq('is_active', true).limit(20),
     getActiveFlashDiscount(),
   ])
 
@@ -19,14 +18,32 @@ export async function GET(
     return NextResponse.json({ error: 'Product not found' }, { status: 404 })
 
   const product = productRes.data
-  const allOthers = (allProductsRes.data || []).filter((p) => p.id !== product.id)
 
-  // Prefer same category, then fill with others
-  const sameCategory = allOthers.filter((p) => p.category === product.category)
-  const otherCategory = allOthers.filter((p) => p.category !== product.category)
-  const related = [...sameCategory, ...otherCategory]
-    .slice(0, 6)
-    .map((p) => ({ ...p, sale_price: applyDiscount(p.price, flashDiscount) }))
+  // Prefer same category, then fill with others — query only the 6 rows needed
+  // instead of pulling a batch and filtering in JS.
+  let relatedRows: typeof productRes.data[] = []
+  if (product.category) {
+    const { data } = await supabaseAdmin
+      .from('products')
+      .select(productColumns)
+      .eq('is_active', true)
+      .eq('category', product.category)
+      .neq('id', product.id)
+      .limit(6)
+    relatedRows = data || []
+  }
+  if (relatedRows.length < 6) {
+    const excludeIds = [product.id, ...relatedRows.map((p) => p.id)]
+    const { data } = await supabaseAdmin
+      .from('products')
+      .select(productColumns)
+      .eq('is_active', true)
+      .not('id', 'in', `(${excludeIds.join(',')})`)
+      .limit(6 - relatedRows.length)
+    relatedRows = [...relatedRows, ...(data || [])]
+  }
+
+  const related = relatedRows.map((p) => ({ ...p, sale_price: applyDiscount(p.price, flashDiscount) }))
 
   return NextResponse.json({
     product: { ...product, sale_price: applyDiscount(product.price, flashDiscount) },

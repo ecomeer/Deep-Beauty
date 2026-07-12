@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-
-function getAllowedAdminEmails(): string[] {
-  const list = process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? ''
-  return list
-    .split(',')
-    .map(e => e.trim().toLowerCase())
-    .filter(Boolean)
-}
+import { createWritableServerClient } from '@/lib/supabase-server'
+import { getAllowedAdminEmails } from '@/lib/admin-config'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
     }
 
@@ -25,18 +15,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'البريد وكلمة المرور مطلوبان' }, { status: 400 })
     }
 
-    const cookiesToSet: Array<{ name: string; value: string; options: Record<string, unknown> }> = []
-
-    const supabase = createServerClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        cookies: {
-          getAll: () => request.cookies.getAll(),
-          setAll: (cookies) => { cookiesToSet.push(...cookies) },
-        },
-      }
-    )
+    const { supabase, applyCookies } = createWritableServerClient(request)
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
@@ -74,11 +53,7 @@ export async function POST(request: NextRequest) {
       console.error('Failed to upsert user record:', e)
     }
 
-    const response = NextResponse.json({ ok: true })
-    cookiesToSet.forEach(({ name, value, options }) =>
-      response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2])
-    )
-    return response
+    return applyCookies(NextResponse.json({ ok: true }))
   } catch (err) {
     console.error('Admin login error:', err)
     return NextResponse.json({ error: 'حدث خطأ أثناء تسجيل الدخول' }, { status: 500 })

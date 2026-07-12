@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
+import { createWritableServerClient } from '@/lib/supabase-server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,19 +10,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const cookiesToSet: Array<{ name: string; value: string; options: Record<string, unknown> }> = []
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => request.cookies.getAll(),
-          setAll: (cookies) => {
-            cookiesToSet.push(...cookies)
-          },
-        },
-      }
-    )
+    const { supabase, applyCookies } = createWritableServerClient(request)
 
     const {
       data: { user },
@@ -55,11 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
     }
 
-    const response = NextResponse.json({ ok: true })
-    cookiesToSet.forEach(({ name, value, options }) =>
-      response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2])
-    )
-    return response
+    return applyCookies(NextResponse.json({ ok: true }))
   } catch (error) {
     console.error('Profile registration error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

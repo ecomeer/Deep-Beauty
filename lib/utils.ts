@@ -8,11 +8,17 @@ export function cn(...inputs: ClassValue[]) {
 export const toArabicPrice = (price: number): string =>
   price.toFixed(3).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d]) + ' د.ك'
 
-export const toArabicNum = (n: number): string =>
-  n.toString().replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d])
-
 export const isKuwaitPhone = (phone: string): boolean =>
   /^(\+965|965|0)?[569]\d{7}$/.test(phone.replace(/\s/g, ''))
+
+// Normalizes a phone number for wa.me links: digits only, Kuwait country
+// code prepended for local 8-digit numbers.
+export const toWhatsAppPhone = (phone: string): string => {
+  const digits = phone.replace(/\D/g, '').replace(/^0+/, '')
+  if (digits.startsWith('965')) return digits
+  if (digits.length === 8) return `965${digits}`
+  return digits
+}
 
 export const generateOrderNumber = (): string => {
   const date = new Date()
@@ -142,20 +148,6 @@ export const COUNTRY_AREAS: Record<string, string[]> = {
   ],
 }
 
-export const STATUS_LABELS: Record<string, string> = {
-  pending: 'قيد الانتظار',
-  confirmed: 'مؤكد',
-  processing: 'قيد المعالجة',
-  shipped: 'تم الشحن',
-  delivered: 'تم التسليم',
-  cancelled: 'ملغي',
-}
-
-export const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  processing: 'bg-orange-100 text-orange-800',
-  shipped: 'bg-purple-100 text-purple-800',
-  delivered: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-}
+// Order-status display config lives in lib/order-status.ts; re-exported
+// here so existing `from '@/lib/utils'` imports keep working.
+export { STATUS_LABELS, STATUS_COLORS } from './order-status'

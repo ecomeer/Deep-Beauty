@@ -3,26 +3,7 @@
 import { createContext, useContext, ReactNode } from 'react'
 import { useWishlist } from '@/hooks/useWishlist'
 
-interface WishlistItem {
-  id: string
-  name_ar: string
-  name_en: string
-  price: number
-  image: string
-  slug: string
-  addedAt: string
-}
-
-interface WishlistContextType {
-  items: WishlistItem[]
-  addItem: (product: Omit<WishlistItem, 'addedAt'>) => void
-  removeItem: (productId: string) => void
-  toggleItem: (product: Omit<WishlistItem, 'addedAt'>) => void
-  isInWishlist: (productId: string) => boolean
-  clearWishlist: () => void
-  totalItems: number
-  isLoaded: boolean
-}
+type WishlistContextType = ReturnType<typeof useWishlist>
 
 const WishlistContext = createContext<WishlistContextType | null>(null)
 

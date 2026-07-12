@@ -13,10 +13,14 @@ import {
   UserIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline'
+import dynamic from 'next/dynamic'
 import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
-import EnhancedCartSidebar from './EnhancedCartSidebar'
 import CountrySelector from './CountrySelector'
+
+// The cart drawer starts closed and isn't needed for first paint —
+// lazy-loading it keeps framer-motion out of the initial bundle.
+const EnhancedCartSidebar = dynamic(() => import('./EnhancedCartSidebar'), { ssr: false })
 
 const NAV_LINKS = [
   { href: '/', label: 'الرئيسية' },

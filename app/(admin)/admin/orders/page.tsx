@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
+import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDate, formatDateTime } from '@/lib/utils'
+import { ORDER_STATUSES } from '@/lib/order-status'
 import Link from 'next/link'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -74,7 +75,7 @@ export default function AdminOrders() {
     const headers = ['رقم الطلب', 'التاريخ', 'العميل', 'الهاتف', 'المنطقة', 'المبلغ', 'الحالة', 'طريقة الدفع']
     const rows = filtered.map(o => [
       o.order_number,
-      new Date(o.created_at).toLocaleDateString('ar-KW'),
+      formatDate(o.created_at),
       o.customer_name,
       o.customer_phone,
       o.address_area || '',
@@ -92,13 +93,11 @@ export default function AdminOrders() {
     URL.revokeObjectURL(url)
   }
 
+  // Derived from the central status list so no status (e.g. processing)
+  // can go missing from the filters again.
   const statusButtons = [
     { value: 'all', label: 'الكل', cls: 'badge-primary' },
-    { value: 'pending', label: 'قيد الانتظار', cls: 'bg-orange-100 text-orange-700' },
-    { value: 'confirmed', label: 'مؤكد', cls: 'bg-blue-100 text-blue-700' },
-    { value: 'shipped', label: 'مشحون', cls: 'bg-purple-100 text-purple-700' },
-    { value: 'delivered', label: 'مكتمل', cls: 'bg-green-100 text-green-700' },
-    { value: 'cancelled', label: 'ملغي', cls: 'bg-red-100 text-red-700' },
+    ...ORDER_STATUSES.map((s) => ({ value: s, label: STATUS_LABELS[s], cls: STATUS_COLORS[s] })),
   ]
 
   return (
@@ -217,11 +216,9 @@ export default function AdminOrders() {
                         style={{ borderColor: 'var(--dark-beige)' }}
                         title="تغيير حالة الطلب"
                       >
-                        <option value="pending">قيد الانتظار</option>
-                        <option value="confirmed">تأكيد الطلب</option>
-                        <option value="shipped">تم الشحن</option>
-                        <option value="delivered">التسليم بنجاح</option>
-                        <option value="cancelled">إلغاء الطلب</option>
+                        {ORDER_STATUSES.map((s) => (
+                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                        ))}
                       </select>
                     </td>
                     <td>
@@ -270,11 +267,9 @@ export default function AdminOrders() {
                     style={{ borderColor: 'var(--dark-beige)' }}
                     title="تغيير حالة الطلب"
                   >
-                    <option value="pending">قيد الانتظار</option>
-                    <option value="confirmed">تأكيد</option>
-                    <option value="shipped">تم الشحن</option>
-                    <option value="delivered">مكتمل</option>
-                    <option value="cancelled">ملغي</option>
+                    {ORDER_STATUSES.map((s) => (
+                      <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                    ))}
                   </select>
                 </div>
                 <p className="text-xs opacity-50 mt-2" dir="ltr">{formatDateTime(order.created_at)}</p>

@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { createClientSupabase } from '@/lib/supabase-client'
+import { translateAuthError } from '@/lib/auth-errors'
 
 export default function LoginClient() {
   const router = useRouter()
@@ -36,14 +37,7 @@ export default function LoginClient() {
       })
 
       if (error) {
-        const msg = error.message?.toLowerCase() ?? ''
-        if (msg.includes('email not confirmed')) {
-          toast.error('يرجى تأكيد بريدك الإلكتروني أولاً')
-        } else if (msg.includes('invalid login')) {
-          toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
-        } else {
-          toast.error(error.message || 'بيانات الدخول غير صحيحة')
-        }
+        toast.error(translateAuthError(error, 'بيانات الدخول غير صحيحة'))
       } else {
         toast.success('تم تسجيل الدخول بنجاح! 🎉')
         router.refresh()
@@ -177,7 +171,7 @@ export default function LoginClient() {
                     provider: 'google',
                     options: { redirectTo: `${window.location.origin}/auth/callback` }
                   })
-                  if (error) toast.error('حدث خطأ أثناء الدخول بحساب Google')
+                  if (error) toast.error(translateAuthError(error, 'حدث خطأ أثناء الدخول بحساب Google'))
                 } catch {
                   toast.error('حدث خطأ أثناء الدخول بحساب Google')
                 }

@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { checkoutLimiter } from '@/lib/rate-limit'
 import { calculateShipping, ShippingZone } from '@/lib/shipping'
 import { GulfCountry } from '@/lib/currency'
+import { sendEmail, orderConfirmationEmail } from '@/lib/email'
 
 interface CheckoutItem {
   id: string
@@ -193,6 +194,27 @@ export async function POST(req: NextRequest) {
       })
     } catch {
       // Non-critical
+    }
+
+    // Order confirmation email to the customer (non-critical)
+    if (customer_email) {
+      try {
+        const { subject, html } = orderConfirmationEmail(
+          {
+            order_number: orderNumber,
+            customer_name,
+            total,
+            subtotal,
+            shipping_cost: shippingCost,
+            coupon_discount: discount,
+            created_at: new Date().toISOString(),
+          },
+          itemsPayload
+        )
+        await sendEmail({ to: customer_email, subject, html })
+      } catch {
+        // Non-critical
+      }
     }
 
     return NextResponse.json({ order })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { sendEmail, newsletterEmail } from '@/lib/email'
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _authErr = await requireAdmin(req)
@@ -46,11 +47,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (_authErr) return _authErr
   try {
     await params
-    const { action } = await req.json()
+    // Parse the body once — action and campaign fields arrive together
+    const { action, subject, content } = await req.json()
 
     if (action === 'send_campaign') {
-      const { subject, content } = await req.json()
-      
       if (!subject || !content) {
         return NextResponse.json({ error: 'Subject and content are required' }, { status: 400 })
       }
@@ -63,11 +63,34 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
       if (subsError) return NextResponse.json({ error: subsError.message }, { status: 500 })
 
-      // Here you would integrate with an email service like SendGrid, Mailgun, etc.
-      // For now, we'll just return the count
-      return NextResponse.json({ 
-        message: `Newsletter campaign prepared for ${subscribers?.length || 0} subscribers`,
-        subscriber_count: subscribers?.length || 0
+      const list = subscribers || []
+      const { subject: emailSubject, html } = newsletterEmail(subject, content)
+
+      // Send in batches of 50, sequentially between batches, to respect rate limits
+      let sent = 0
+      let failed = 0
+      const BATCH_SIZE = 50
+      for (let i = 0; i < list.length; i += BATCH_SIZE) {
+        const batch = list.slice(i, i + BATCH_SIZE)
+        const results = await Promise.all(
+          batch.map((sub) => sendEmail({ to: sub.email, subject: emailSubject, html }))
+        )
+        sent += results.filter((r) => r.sent).length
+        failed += results.filter((r) => !r.sent).length
+      }
+
+      if (list.length > 0 && sent === 0) {
+        return NextResponse.json(
+          { error: 'لم يُرسل أي بريد — تأكد من ضبط RESEND_API_KEY', subscriber_count: list.length },
+          { status: 502 }
+        )
+      }
+
+      return NextResponse.json({
+        message: `تم إرسال الحملة إلى ${sent} مشترك${failed ? ` (فشل ${failed})` : ''}`,
+        subscriber_count: list.length,
+        sent,
+        failed,
       })
     }
 

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { hasAdminMetadata, isDevBypass, isEmailAllowListed } from '@/lib/admin-config'
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -53,18 +54,10 @@ export async function proxy(request: NextRequest) {
     return response
   }
 
-  const hasAdminMeta = user?.app_metadata?.role === 'admin' || user?.user_metadata?.role === 'admin'
-  const allowedEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
-    .split(',')
-    .map(e => e.trim().toLowerCase())
-    .filter(Boolean)
-  const emailInAllowList = user?.email
-    ? allowedEmails.includes(user.email.toLowerCase())
-    : false
-  const isAdmin = hasAdminMeta || emailInAllowList
+  const isAdmin = hasAdminMetadata(user) || isEmailAllowListed(user?.email)
 
   // ── DEV PREVIEW BYPASS — local machine only, NOT Vercel ─────────
-  if (process.env.NEXT_PUBLIC_DEV_BYPASS === 'true' && isAdminRoute) {
+  if (isDevBypass() && isAdminRoute) {
     return NextResponse.next({ request })
   }
   // ────────────────────────────────────────────────────────────────

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { toArabicPrice, formatDateTime } from '@/lib/utils'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { useAdminList } from '@/hooks/useAdminList'
 
 interface Customer {
   full_name: string
@@ -14,32 +15,25 @@ interface Customer {
 }
 
 export default function AdminCustomers() {
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [submittedSearch, setSubmittedSearch] = useState('')
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
 
-  async function fetchCustomers() {
-    setLoading(true)
-    const params = new URLSearchParams({ page: String(page) })
-    if (search) params.set('search', search)
-    const res = await fetch(`/api/admin/customers?${params}`)
-    const data = await res.json()
-    setCustomers(data.customers || [])
-    setTotalPages(data.totalPages ?? 1)
-    setTotal(data.total ?? 0)
-    setLoading(false)
-  }
+  const params = new URLSearchParams({ page: String(page) })
+  if (submittedSearch) params.set('search', submittedSearch)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchCustomers() }, [page])
+  const { items: customers, raw, loading } = useAdminList<Customer>(
+    `/api/admin/customers?${params}`,
+    (json) => (json as { customers?: Customer[] }).customers || []
+  )
+  const meta = raw as { totalPages?: number; total?: number } | null
+  const totalPages = meta?.totalPages ?? 1
+  const total = meta?.total ?? 0
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setPage(1)
-    fetchCustomers()
+    setSubmittedSearch(search)
   }
 
   return (

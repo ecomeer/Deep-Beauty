@@ -1,3 +1,7 @@
+import type { OrderStatus } from '@/lib/order-status'
+
+export type { OrderStatus }
+
 export interface Product {
   id: string
   name_ar: string
@@ -45,7 +49,7 @@ export interface Order {
   subtotal: number
   shipping_cost: number
   total: number
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  status: OrderStatus
   payment_method: string
   payment_status: 'unpaid' | 'paid' | 'refunded'
   coupon_code?: string

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
+import { toArabicPrice, toWhatsAppPhone, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
+import { STATUS_CUSTOMER_MESSAGES } from '@/lib/order-status'
 import toast from 'react-hot-toast'
 import { 
   CheckCircleIcon, 
@@ -114,17 +115,10 @@ export default function AdminOrderDetail() {
     }
   }
 
-  const STATUS_MESSAGES: Record<string, string> = {
-    confirmed: 'تم تأكيد طلبك',
-    shipped: 'تم شحن طلبك وهو في الطريق إليك',
-    delivered: 'تم توصيل طلبك بنجاح، شكراً لتسوقك معنا! 💚',
-    cancelled: 'تم إلغاء طلبك. للاستفسار تواصل معنا.',
-  }
-
   const notifyCustomer = async (statusOrMessage?: string) => {
     if (!order) return
     const message = statusOrMessage
-      ? `مرحباً ${order.customer_name}، ${STATUS_MESSAGES[statusOrMessage] || statusOrMessage} — طلب رقم ${order.order_number} 🛍️`
+      ? `مرحباً ${order.customer_name}، ${STATUS_CUSTOMER_MESSAGES[statusOrMessage] || statusOrMessage} — طلب رقم ${order.order_number} 🛍️`
       : `تحديث طلب ${order.order_number}: ${trackingForm.status_label_ar} - ${trackingForm.description_ar || ''}`
 
     const res = await fetch(`/api/admin/orders/${order.id}/notify`, {
@@ -175,7 +169,10 @@ export default function AdminOrderDetail() {
         </div>
         
         {/* Status Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <a href={`/admin/orders/${order.id}/invoice`} className="btn-outline py-2 text-sm flex items-center gap-1">
+            <DocumentTextIcon className="w-4 h-4" /> فاتورة
+          </a>
           {order.status === 'pending' && <button onClick={() => updateStatus('confirmed')} className="btn-primary py-2 text-sm shadow-sm bg-blue-600 hover:bg-blue-700">تأكيد الطلب</button>}
           {order.status === 'confirmed' && <button onClick={() => updateStatus('shipped')} className="btn-primary py-2 text-sm shadow-sm bg-purple-600 hover:bg-purple-700">تحديث كمشحون</button>}
           {order.status === 'shipped' && <button onClick={() => updateStatus('delivered')} className="btn-primary py-2 text-sm shadow-sm bg-green-600 hover:bg-green-700">التسليم بنجاح</button>}
@@ -378,7 +375,7 @@ export default function AdminOrderDetail() {
               <div>
                 <div className="opacity-60 mb-1">الهاتف:</div>
                 <div className="font-bold font-en">{order.customer_phone}</div>
-                <a href={`https://wa.me/965${order.customer_phone}`} target="_blank" className="text-xs text-green-600 mt-1 inline-block font-bold">💬 مراسلة واتساب</a>
+                <a href={`https://wa.me/${toWhatsAppPhone(order.customer_phone)}`} target="_blank" className="text-xs text-green-600 mt-1 inline-block font-bold">💬 مراسلة واتساب</a>
               </div>
               {order.customer_email && (
                 <div>

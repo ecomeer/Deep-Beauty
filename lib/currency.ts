@@ -97,70 +97,61 @@ export const CURRENCY_SYMBOLS: Record<CurrencyCode, string> = {
   OMR: 'ر.ع'
 }
 
-// Convert amount from KWD to target currency
-export function convertFromKWD(amountKWD: number, targetCurrency: CurrencyCode): number {
-  if (targetCurrency === 'KWD') return amountKWD
-  return amountKWD * EXCHANGE_RATES[targetCurrency]
-}
+// Admin-managed overrides (settings table) take precedence; the static
+// table above is the fallback when no override is configured.
+export type ExchangeRates = Partial<Record<CurrencyCode, number>>
 
-// Convert amount to KWD from source currency
-export function convertToKWD(amount: number, sourceCurrency: CurrencyCode): number {
-  if (sourceCurrency === 'KWD') return amount
-  return amount / EXCHANGE_RATES[sourceCurrency]
+// Convert amount from KWD to target currency
+export function convertFromKWD(
+  amountKWD: number,
+  targetCurrency: CurrencyCode,
+  rates?: ExchangeRates
+): number {
+  if (targetCurrency === 'KWD') return amountKWD
+  const rate = rates?.[targetCurrency] || EXCHANGE_RATES[targetCurrency]
+  return amountKWD * rate
 }
 
 // Format price in specific currency
-export function formatPrice(amountKWD: number, currency: CurrencyCode): string {
-  const converted = convertFromKWD(amountKWD, currency)
+export function formatPrice(
+  amountKWD: number,
+  currency: CurrencyCode,
+  rates?: ExchangeRates
+): string {
+  const converted = convertFromKWD(amountKWD, currency, rates)
   const symbol = CURRENCY_SYMBOLS[currency]
-  
+
   // Different decimal places based on currency
   const decimals = currency === 'KWD' || currency === 'BHD' || currency === 'OMR' ? 3 : 2
-  
+
   return `${converted.toFixed(decimals)} ${symbol}`
 }
 
-// Get country by code
-export function getCountry(code: GulfCountry): CountryConfig {
-  return GULF_COUNTRIES[code]
+// Settings keys (settings table) for admin-managed exchange rates
+export const EXCHANGE_RATE_SETTING_KEYS: Record<string, CurrencyCode> = {
+  exchange_rate_sar: 'SAR',
+  exchange_rate_aed: 'AED',
+  exchange_rate_qar: 'QAR',
+  exchange_rate_bhd: 'BHD',
+  exchange_rate_omr: 'OMR',
 }
 
-// Get default country (Kuwait)
-export function getDefaultCountry(): CountryConfig {
-  return GULF_COUNTRIES.KW
+// Parses settings rows ({key, value}) into an ExchangeRates object,
+// ignoring missing or non-numeric values.
+export function parseExchangeRateSettings(
+  rows: Array<{ key: string; value: string | null }> | null | undefined
+): ExchangeRates | undefined {
+  if (!rows?.length) return undefined
+  const rates: ExchangeRates = {}
+  for (const row of rows) {
+    const currency = EXCHANGE_RATE_SETTING_KEYS[row.key]
+    const rate = row.value ? parseFloat(row.value) : NaN
+    if (currency && Number.isFinite(rate) && rate > 0) rates[currency] = rate
+  }
+  return Object.keys(rates).length ? rates : undefined
 }
 
 // Get currency by country code
 export function getCurrencyByCountry(countryCode: GulfCountry): CurrencyCode {
   return GULF_COUNTRIES[countryCode].currency
-}
-
-// Validate phone number based on country
-export function isValidPhone(phone: string, countryCode: GulfCountry): boolean {
-  const prefixes = {
-    KW: /^\+965[0-9]{8}$/,
-    SA: /^\+9665[0-9]{8}$/,
-    AE: /^\+9715[0-9]{8}$/,
-    QA: /^\+974[0-9]{8}$/,
-    BH: /^\+973[0-9]{8}$/,
-    OM: /^\+968[0-9]{8}$/
-  }
-  
-  return prefixes[countryCode].test(phone.replace(/\s/g, ''))
-}
-
-// Add country prefix to phone if missing
-export function formatPhoneWithPrefix(phone: string, countryCode: GulfCountry): string {
-  const cleanPhone = phone.replace(/\s/g, '').replace(/^0/, '')
-  const prefix = GULF_COUNTRIES[countryCode].phone_prefix
-  
-  if (cleanPhone.startsWith('+')) {
-    return cleanPhone
-  }
-  
-  if (cleanPhone.startsWith(prefix.replace('+', ''))) {
-    return `+${cleanPhone}`
-  }
-  
-  return `${prefix}${cleanPhone}`
 }

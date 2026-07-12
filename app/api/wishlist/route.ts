@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { requireUser } from '@/lib/supabase-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,12 +11,8 @@ interface WishlistRow {
 
 export async function GET() {
   try {
-    const supabase = await createServerSupabaseClient()
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'يجب تسجيل الدخول أولاً' }, { status: 401 })
-    }
+    const { user, supabase, error: authError } = await requireUser()
+    if (authError) return authError
 
     const { data, error } = await supabase
       .from('wishlists')
@@ -53,12 +49,8 @@ export async function GET() {
 // Returns: { action: 'added' | 'removed' }
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient()
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'يجب تسجيل الدخول أولاً' }, { status: 401 })
-    }
+    const { user, supabase, error: authError } = await requireUser()
+    if (authError) return authError
 
     const { product_id } = await req.json()
     if (!product_id) {

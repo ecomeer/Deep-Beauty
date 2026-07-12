@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { VALID_TRANSITIONS, type OrderStatus } from '@/lib/order-status'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _authErr = await requireAdmin(req)
@@ -13,15 +14,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   ])
   if (orderRes.error || !orderRes.data) return NextResponse.json({ error: 'Order not found' }, { status: 404 })
   return NextResponse.json({ order: orderRes.data, items: itemsRes.data || [], tracking: trackingRes.data || [] })
-}
-
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  pending:    ['confirmed', 'cancelled'],
-  confirmed:  ['processing', 'shipped', 'cancelled'],
-  processing: ['shipped', 'cancelled'],
-  shipped:    ['delivered'],
-  delivered:  [],
-  cancelled:  [],
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -39,7 +31,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .eq('id', id)
       .single()
 
-    const allowed = VALID_TRANSITIONS[current?.status ?? ''] ?? []
+    const allowed = VALID_TRANSITIONS[current?.status as OrderStatus] ?? []
     if (current && !allowed.includes(body.status)) {
       return NextResponse.json(
         { error: `لا يمكن الانتقال من "${current.status}" إلى "${body.status}"` },

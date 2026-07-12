@@ -171,7 +171,7 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
               {categories.map((cat) => (
                 <li key={cat.id}>
                   <Link
-                    href={`/products?category=${encodeURIComponent(cat.name_ar)}`}
+                    href={`/products?category=${encodeURIComponent(cat.slug)}`}
                     className="text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
                   >
                     {cat.name_ar}
