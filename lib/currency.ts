@@ -97,21 +97,58 @@ export const CURRENCY_SYMBOLS: Record<CurrencyCode, string> = {
   OMR: 'ر.ع'
 }
 
+// Admin-managed overrides (settings table) take precedence; the static
+// table above is the fallback when no override is configured.
+export type ExchangeRates = Partial<Record<CurrencyCode, number>>
+
 // Convert amount from KWD to target currency
-export function convertFromKWD(amountKWD: number, targetCurrency: CurrencyCode): number {
+export function convertFromKWD(
+  amountKWD: number,
+  targetCurrency: CurrencyCode,
+  rates?: ExchangeRates
+): number {
   if (targetCurrency === 'KWD') return amountKWD
-  return amountKWD * EXCHANGE_RATES[targetCurrency]
+  const rate = rates?.[targetCurrency] || EXCHANGE_RATES[targetCurrency]
+  return amountKWD * rate
 }
 
 // Format price in specific currency
-export function formatPrice(amountKWD: number, currency: CurrencyCode): string {
-  const converted = convertFromKWD(amountKWD, currency)
+export function formatPrice(
+  amountKWD: number,
+  currency: CurrencyCode,
+  rates?: ExchangeRates
+): string {
+  const converted = convertFromKWD(amountKWD, currency, rates)
   const symbol = CURRENCY_SYMBOLS[currency]
-  
+
   // Different decimal places based on currency
   const decimals = currency === 'KWD' || currency === 'BHD' || currency === 'OMR' ? 3 : 2
-  
+
   return `${converted.toFixed(decimals)} ${symbol}`
+}
+
+// Settings keys (settings table) for admin-managed exchange rates
+export const EXCHANGE_RATE_SETTING_KEYS: Record<string, CurrencyCode> = {
+  exchange_rate_sar: 'SAR',
+  exchange_rate_aed: 'AED',
+  exchange_rate_qar: 'QAR',
+  exchange_rate_bhd: 'BHD',
+  exchange_rate_omr: 'OMR',
+}
+
+// Parses settings rows ({key, value}) into an ExchangeRates object,
+// ignoring missing or non-numeric values.
+export function parseExchangeRateSettings(
+  rows: Array<{ key: string; value: string | null }> | null | undefined
+): ExchangeRates | undefined {
+  if (!rows?.length) return undefined
+  const rates: ExchangeRates = {}
+  for (const row of rows) {
+    const currency = EXCHANGE_RATE_SETTING_KEYS[row.key]
+    const rate = row.value ? parseFloat(row.value) : NaN
+    if (currency && Number.isFinite(rate) && rate > 0) rates[currency] = rate
+  }
+  return Object.keys(rates).length ? rates : undefined
 }
 
 // Get currency by country code

@@ -43,7 +43,8 @@ export default async function ProductsPage({
           .from('products')
           .select('id,name_ar,name_en,slug,category,price,compare_price,stock_quantity,images,is_active,is_featured,created_at,updated_at')
           .eq('is_active', true)
-          .order('created_at', { ascending: false }),
+          .order('created_at', { ascending: false })
+          .limit(500),
         supabase
           .from('categories')
           .select('id,name_ar,name_en,slug,is_active,image_url')

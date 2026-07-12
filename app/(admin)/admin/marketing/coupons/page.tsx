@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { PlusIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import { toArabicPrice, formatDate } from '@/lib/utils'
+import { useAdminList } from '@/hooks/useAdminList'
 
 interface Coupon {
   id: string
@@ -20,19 +20,10 @@ interface Coupon {
 }
 
 export default function AdminCoupons() {
-  const [coupons, setCoupons] = useState<Coupon[]>([])
-  const [loading, setLoading] = useState(true)
-
-  const fetchCoupons = async () => {
-    const res = await fetch('/api/admin/coupons')
-    const data = await res.json()
-    setCoupons(Array.isArray(data) ? data : [])
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    fetchCoupons()
-  }, [])
+  const { items: coupons, setItems: setCoupons, loading } = useAdminList<Coupon>(
+    '/api/admin/coupons',
+    (json) => (Array.isArray(json) ? (json as Coupon[]) : [])
+  )
 
   const toggleActive = async (id: string, current: boolean) => {
     const res = await fetch(`/api/admin/coupons/${id}`, {

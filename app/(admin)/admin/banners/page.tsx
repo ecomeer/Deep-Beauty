@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { TrashIcon, PhotoIcon, ChevronUpIcon, ChevronDownIcon, PlusIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { useAdminList } from '@/hooks/useAdminList'
 
 interface Banner {
   id: string
@@ -17,20 +18,14 @@ interface Banner {
 const EMPTY_FORM = { title_ar: '', subtitle_ar: '', image_url: '', link_url: '/products' }
 
 export default function AdminBanners() {
-  const [banners, setBanners] = useState<Banner[]>([])
-  const [loading, setLoading] = useState(true)
+  const { items: banners, setItems: setBanners, loading, refetch: fetchBanners } = useAdminList<Banner>(
+    '/api/admin/banners',
+    (json) => (json as { banners?: Banner[] }).banners || []
+  )
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
-
-  const fetchBanners = useCallback(async () => {
-    const res = await fetch('/api/admin/banners'); const { banners: data } = await res.json()
-    setBanners(data || [])
-    setLoading(false)
-  }, [])
-
-  useEffect(() => { fetchBanners() }, [fetchBanners])
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]

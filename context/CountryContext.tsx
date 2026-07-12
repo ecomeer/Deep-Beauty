@@ -1,13 +1,14 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react'
-import { 
-  GulfCountry, 
-  CurrencyCode, 
-  CountryConfig, 
-  GULF_COUNTRIES, 
+import {
+  GulfCountry,
+  CurrencyCode,
+  CountryConfig,
+  GULF_COUNTRIES,
   getCurrencyByCountry,
-  formatPrice 
+  formatPrice,
+  type ExchangeRates,
 } from '@/lib/currency'
 
 interface CountryContextType {
@@ -25,7 +26,8 @@ const DEFAULT_COUNTRY: GulfCountry = 'KW'
 
 function buildCountryValue(
   country: GulfCountry,
-  setCountry: (country: GulfCountry) => void
+  setCountry: (country: GulfCountry) => void,
+  rates?: ExchangeRates
 ): CountryContextType {
   const currency = getCurrencyByCountry(country)
   return {
@@ -33,11 +35,18 @@ function buildCountryValue(
     currency,
     countryConfig: GULF_COUNTRIES[country],
     setCountry,
-    formatPrice: (amountKWD: number) => formatPrice(amountKWD, currency),
+    formatPrice: (amountKWD: number) => formatPrice(amountKWD, currency, rates),
   }
 }
 
-export function CountryProvider({ children }: { children: ReactNode }) {
+export function CountryProvider({
+  children,
+  initialRates,
+}: {
+  children: ReactNode
+  // Admin-managed exchange rates loaded server-side from the settings table
+  initialRates?: ExchangeRates
+}) {
   const [selectedCountry, setSelectedCountry] = useState<GulfCountry>(() => {
     if (typeof window === 'undefined') return DEFAULT_COUNTRY
     const stored = localStorage.getItem(STORAGE_KEY) as GulfCountry | null
@@ -50,8 +59,8 @@ export function CountryProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => buildCountryValue(selectedCountry, setCountry),
-    [selectedCountry, setCountry]
+    () => buildCountryValue(selectedCountry, setCountry, initialRates),
+    [selectedCountry, setCountry, initialRates]
   )
 
   return (

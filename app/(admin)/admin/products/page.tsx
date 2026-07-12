@@ -1,54 +1,41 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Product, Category } from '@/types'
+import { useAdminList } from '@/hooks/useAdminList'
 import { toArabicPrice } from '@/lib/utils'
 import Link from 'next/link'
 import { MagnifyingGlassIcon, PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [search, setSearch] = useState('')
+  const [submittedSearch, setSubmittedSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [stockFilter, setStockFilter] = useState('all')
-  const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
 
-  async function fetchCategories() {
-    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
-    setCategories(data || [])
-  }
+  const { items: categories } = useAdminList<Category>(
+    '/api/admin/categories',
+    (json) => (json as { categories?: Category[] }).categories || []
+  )
 
-  useEffect(() => {
-    fetchCategories()
-  }, [])
+  const params = new URLSearchParams({ page: String(page) })
+  if (submittedSearch) params.set('search', submittedSearch)
+  if (categoryFilter !== 'all') params.set('category', categoryFilter)
 
-  async function fetchProducts() {
-    setLoading(true)
-    const params = new URLSearchParams({ page: String(page) })
-    if (search) params.set('search', search)
-    if (categoryFilter !== 'all') params.set('category', categoryFilter)
-    const res = await fetch(`/api/admin/products?${params}`)
-    const data = await res.json()
-    setProducts(data.products || [])
-    setTotalPages(data.totalPages ?? 1)
-    setTotal(data.total ?? 0)
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    fetchProducts()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, categoryFilter])
+  const { items: products, raw, loading, refetch: fetchProducts } = useAdminList<Product>(
+    `/api/admin/products?${params}`,
+    (json) => (json as { products?: Product[] }).products || []
+  )
+  const meta = raw as { totalPages?: number; total?: number } | null
+  const totalPages = meta?.totalPages ?? 1
+  const total = meta?.total ?? 0
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setPage(1)
-    fetchProducts()
+    setSubmittedSearch(search)
   }
 
   const handleDelete = async (id: string) => {

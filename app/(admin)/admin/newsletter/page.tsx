@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { formatDateTime } from '@/lib/utils'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon, TrashIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
+import { useAdminList } from '@/hooks/useAdminList'
 
 interface Subscriber {
   id: string
@@ -12,19 +13,11 @@ interface Subscriber {
 }
 
 export default function AdminNewsletter() {
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([])
-  const [loading, setLoading] = useState(true)
+  const { items: subscribers, setItems: setSubscribers, loading } = useAdminList<Subscriber>(
+    '/api/admin/newsletter',
+    (json) => (json as { subscribers?: Subscriber[] }).subscribers || []
+  )
   const [search, setSearch] = useState('')
-
-  async function fetchSubscribers() {
-    const res = await fetch('/api/admin/newsletter')
-    if (!res.ok) { toast.error('تعذّر تحميل المشتركين'); setLoading(false); return }
-    const data = await res.json()
-    setSubscribers(data.subscribers || [])
-    setLoading(false)
-  }
-
-  useEffect(() => { fetchSubscribers() }, [])
 
   const handleDelete = async (id: string, email: string) => {
     if (!confirm(`هل أنت متأكد من حذف ${email}؟`)) return

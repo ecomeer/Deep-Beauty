@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import { Category } from '@/types'
+import { useAdminList } from '@/hooks/useAdminList'
 import { PlusIcon, TrashIcon, PhotoIcon, PencilSquareIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -12,8 +13,10 @@ function slugify(text: string) {
 const EMPTY_FORM = { name_ar: '', name_en: '', slug: '', image_url: '' }
 
 export default function AdminCategories() {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
+  const { items: categories, setItems: setCategories, loading, refetch: fetchCategories } = useAdminList<Category>(
+    '/api/admin/categories',
+    (json) => (json as { categories?: Category[] }).categories || []
+  )
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -23,14 +26,6 @@ export default function AdminCategories() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editUploading, setEditUploading] = useState(false)
   const editInputRef = useRef<HTMLInputElement>(null)
-
-  const fetchCategories = useCallback(async () => {
-    const res = await fetch('/api/admin/categories'); const { categories: data } = await res.json()
-    setCategories(data || [])
-    setLoading(false)
-  }, [])
-
-  useEffect(() => { fetchCategories() }, [fetchCategories])
 
   async function uploadImage(file: File): Promise<string | null> {
     const formData = new FormData()

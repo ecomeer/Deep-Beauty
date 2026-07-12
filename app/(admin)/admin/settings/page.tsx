@@ -10,6 +10,11 @@ interface Settings {
   tiktok_url: string
   snapchat_url: string
   announcement_text: string
+  exchange_rate_sar: string
+  exchange_rate_aed: string
+  exchange_rate_qar: string
+  exchange_rate_bhd: string
+  exchange_rate_omr: string
 }
 
 const DEFAULTS: Settings = {
@@ -19,7 +24,21 @@ const DEFAULTS: Settings = {
   tiktok_url: '',
   snapchat_url: '',
   announcement_text: '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك',
+  // Fallback values mirror EXCHANGE_RATES in lib/currency.ts
+  exchange_rate_sar: '12.25',
+  exchange_rate_aed: '11.95',
+  exchange_rate_qar: '11.85',
+  exchange_rate_bhd: '1.23',
+  exchange_rate_omr: '1.26',
 }
+
+const EXCHANGE_RATE_FIELDS: Array<{ name: keyof Settings; label: string }> = [
+  { name: 'exchange_rate_sar', label: 'ريال سعودي (SAR)' },
+  { name: 'exchange_rate_aed', label: 'درهم إماراتي (AED)' },
+  { name: 'exchange_rate_qar', label: 'ريال قطري (QAR)' },
+  { name: 'exchange_rate_bhd', label: 'دينار بحريني (BHD)' },
+  { name: 'exchange_rate_omr', label: 'ريال عماني (OMR)' },
+]
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState<Settings>(DEFAULTS)
@@ -122,6 +141,32 @@ export default function AdminSettings() {
           <div>
             <label className="block text-sm font-bold mb-1.5">رابط سناب شات</label>
             <input name="snapchat_url" value={settings.snapchat_url} onChange={handleChange} className="input-field" dir="ltr" placeholder="https://snapchat.com/add/deepbeautykw" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border p-6 space-y-5" style={{ borderColor: 'var(--beige)' }}>
+          <h2 className="text-base font-bold border-b pb-3" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>أسعار الصرف (مقابل 1 دينار كويتي)</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {EXCHANGE_RATE_FIELDS.map(({ name, label }) => (
+              <div key={name}>
+                <label className="block text-sm font-bold mb-1.5">{label}</label>
+                <input
+                  name={name}
+                  type="number"
+                  step="0.001"
+                  min="0"
+                  value={settings[name]}
+                  onChange={handleChange}
+                  className="input-field"
+                  dir="ltr"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-xl p-3 bg-blue-50 border border-blue-200 text-xs text-blue-700">
+            💡 تُستخدم لعرض الأسعار بعملة الزائر في المتجر. الدفع الفعلي يتم بالدينار الكويتي. التعديل يسري خلال دقائق.
           </div>
         </div>
 
