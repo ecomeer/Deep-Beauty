@@ -18,9 +18,8 @@ export default function PwaProvider() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js', { scope: '/admin/' })
-        .then((reg) => {
+        .then(() => {
           setSwReady(true)
-          console.log('[SW] Registered', reg.scope)
         })
         .catch((err) => console.error('[SW] Registration failed', err))
     }
@@ -48,7 +47,6 @@ export default function PwaProvider() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sub),
         })
-        console.log('[PWA] Push subscription saved')
       } catch (err) {
         console.error('[PWA] Subscribe error', err)
       }

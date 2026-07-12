@@ -5,6 +5,7 @@ import {
   toWhatsAppPhone,
   slugify,
   generateOrderNumber,
+  escapeOrFilterValue,
   STATUS_LABELS,
   STATUS_COLORS,
 } from './utils'
@@ -57,5 +58,32 @@ describe('generateOrderNumber', () => {
 describe('order status config', () => {
   it('labels and colors cover the same statuses', () => {
     expect(Object.keys(STATUS_COLORS).sort()).toEqual(Object.keys(STATUS_LABELS).sort())
+  })
+})
+
+describe('escapeOrFilterValue', () => {
+  it('wraps a plain value in double quotes', () => {
+    expect(escapeOrFilterValue('%hello%')).toBe('"%hello%"')
+  })
+
+  it('neutralizes a comma that would otherwise split the .or() filter into an extra clause', () => {
+    // Without quoting, `%Cream, 50ml%` would end the ilike pattern at the
+    // comma and let the rest be parsed as a second filter clause.
+    const escaped = escapeOrFilterValue('%Cream, 50ml%')
+    expect(escaped).toBe('"%Cream, 50ml%"')
+    expect(escaped.split('","').length).toBe(1) // still one opaque quoted value
+  })
+
+  it('escapes embedded double quotes and backslashes', () => {
+    expect(escapeOrFilterValue('%say "hi"%')).toBe('"%say \\"hi\\"%"')
+    expect(escapeOrFilterValue('back\\slash')).toBe('"back\\\\slash"')
+  })
+
+  it('neutralizes an attempted extra-clause injection attempt', () => {
+    const malicious = 'x",id.eq.1) --'
+    const escaped = escapeOrFilterValue(`%${malicious}%`)
+    // The whole thing stays inside one pair of quotes with the inner
+    // quote escaped, instead of closing early and starting a new clause.
+    expect(escaped).toBe('"%x\\",id.eq.1) --%"')
   })
 })

@@ -51,5 +51,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+  // Transitioning into cancelled restores the stock that checkout decremented.
+  // VALID_TRANSITIONS only allows entering 'cancelled' from a non-cancelled
+  // state, so this runs at most once per order.
+  if (updateFields.status === 'cancelled') {
+    const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: id })
+    if (restockErr) console.error('Failed to restock cancelled order:', restockErr)
+  }
+
   return NextResponse.json({ data })
 }

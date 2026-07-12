@@ -151,3 +151,14 @@ export const COUNTRY_AREAS: Record<string, string[]> = {
 // Order-status display config lives in lib/order-status.ts; re-exported
 // here so existing `from '@/lib/utils'` imports keep working.
 export { STATUS_LABELS, STATUS_COLORS } from './order-status'
+
+// PostgREST's .or() filter syntax splits condition strings on
+// unescaped top-level commas, and interprets parentheses too. A raw
+// user-supplied `search` value containing a comma or parenthesis
+// (e.g. a product named "Cream, 50ml", or a deliberately crafted
+// value) truncates the intended ilike pattern and turns the remainder
+// into extra, attacker-influenced filter clauses. Per PostgREST's
+// convention, wrapping the value in double quotes treats it as a
+// single opaque string; escape internal double quotes/backslashes.
+export const escapeOrFilterValue = (value: string): string =>
+  `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`

@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUPaymentsStatus } from '@/lib/upayments'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+const AMOUNT_EPSILON = 0.001 // KWD has 3 decimal places
+
 // notificationUrl target: safety net for payments where the customer
 // never returns through the browser redirect. UPayments webhooks carry
-// no signature, so the payload is never trusted directly — the payment
-// is re-verified through the status API before any order update.
+// no signature, so NOTHING in the request body is trusted — track_id is
+// the only thing we take from it, and the order id / amount used for the
+// DB update are re-derived from UPayments' own status-check response for
+// that track_id, never from the webhook body's order_id field.
 export async function POST(request: NextRequest) {
   try {
     // The payload may arrive as JSON or form-encoded.
@@ -18,16 +22,38 @@ export async function POST(request: NextRequest) {
     }
 
     const trackId = payload.track_id
-    // requested_order_id carries the order.id we sent when creating the charge
-    const orderId = payload.requested_order_id || payload.order_id
-
-    if (!trackId || !orderId) {
+    if (!trackId) {
       return NextResponse.json({ received: true })
     }
 
     const status = await getUPaymentsStatus(trackId)
+    if (!status.orderId) {
+      return NextResponse.json({ received: true })
+    }
+
+    const { data: order } = await supabaseAdmin
+      .from('orders')
+      .select('id, order_number, total, status')
+      .eq('id', status.orderId)
+      .maybeSingle()
+
+    if (!order) {
+      return NextResponse.json({ received: true })
+    }
 
     if (status.success) {
+      const amountMatches =
+        status.amount != null && Math.abs(status.amount - Number(order.total)) <= AMOUNT_EPSILON
+      const referenceMatches = !status.orderNumber || status.orderNumber === order.order_number
+      if (!amountMatches || !referenceMatches) {
+        console.error('UPayments webhook: amount/reference mismatch', {
+          orderId: order.id,
+          expectedTotal: order.total,
+          paidAmount: status.amount,
+        })
+        return NextResponse.json({ received: true })
+      }
+
       const { error } = await supabaseAdmin
         .from('orders')
         .update({
@@ -35,21 +61,27 @@ export async function POST(request: NextRequest) {
           status: 'confirmed',
           updated_at: new Date().toISOString(),
         })
-        .eq('id', orderId)
+        .eq('id', order.id)
       if (error) console.error('UPayments webhook: order update failed:', error)
     } else {
       // Mark as cancelled only while the order is still pending —
       // never downgrade an order that was already confirmed.
-      const { error } = await supabaseAdmin
+      const { error, data } = await supabaseAdmin
         .from('orders')
         .update({
           payment_status: 'unpaid',
           status: 'cancelled',
           updated_at: new Date().toISOString(),
         })
-        .eq('id', orderId)
+        .eq('id', order.id)
         .eq('status', 'pending')
+        .select('id')
+        .maybeSingle()
       if (error) console.error('UPayments webhook: order cancel failed:', error)
+      else if (data) {
+        const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: order.id })
+        if (restockErr) console.error('Failed to restock cancelled order:', restockErr)
+      }
     }
 
     return NextResponse.json({ received: true })

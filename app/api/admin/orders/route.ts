@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { escapeOrFilterValue } from '@/lib/utils'
 
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req)
@@ -24,8 +25,9 @@ export async function GET(req: NextRequest) {
   }
 
   if (search) {
+    const pattern = escapeOrFilterValue(`%${search}%`)
     query = query.or(
-      `order_number.ilike.%${search}%,customer_name.ilike.%${search}%,customer_phone.ilike.%${search}%`
+      `order_number.ilike.${pattern},customer_name.ilike.${pattern},customer_phone.ilike.${pattern}`
     )
   }
 

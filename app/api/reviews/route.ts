@@ -36,6 +36,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return NextResponse.json({ error: 'Rating must be an integer from 1 to 5' }, { status: 400 })
+    }
+
     const supabase = await createServerSupabaseClient()
     const { data, error } = await supabase
       .from('reviews')

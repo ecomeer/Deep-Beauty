@@ -32,5 +32,9 @@ export async function POST(
     .eq('id', id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: id })
+  if (restockErr) console.error('Failed to restock cancelled order:', restockErr)
+
   return NextResponse.json({ ok: true })
 }

@@ -82,17 +82,43 @@ export interface UPaymentsStatus {
   success: boolean
   result: string | null
   paymentId: string | null
+  // The order id (order.id we sent) and order number (reference we sent)
+  // and paid amount, as recorded by UPayments against this specific
+  // track_id. Callers MUST use these — not any client-supplied query
+  // param or webhook body field — to decide which order to mark paid,
+  // otherwise a track_id for one payment can be replayed against an
+  // unrelated order (see callback/webhook routes).
+  orderId: string | null
+  orderNumber: string | null
+  amount: number | null
 }
 
 // Exported for tests: interprets a get-payment-status response.
 export function parsePaymentStatus(json: unknown): UPaymentsStatus {
-  const transaction = (json as { data?: { transaction?: { result?: string; payment_id?: string } } })
-    ?.data?.transaction
+  const transaction = (
+    json as {
+      data?: {
+        transaction?: {
+          result?: string
+          payment_id?: string
+          merchant_requested_order_id?: string
+          reference?: string
+          total_price?: string | number
+        }
+      }
+    }
+  )?.data?.transaction
   const result = transaction?.result ?? null
+  const rawAmount = transaction?.total_price
+  const amount =
+    rawAmount != null && rawAmount !== '' ? Number(rawAmount) : null
   return {
     success: result === 'CAPTURED',
     result,
     paymentId: transaction?.payment_id ?? null,
+    orderId: transaction?.merchant_requested_order_id ?? null,
+    orderNumber: transaction?.reference ?? null,
+    amount: amount != null && Number.isFinite(amount) ? amount : null,
   }
 }
 
@@ -115,7 +141,7 @@ export async function getUPaymentsStatus(trackId: string): Promise<UPaymentsStat
   const json = await res.json().catch(() => null)
   if (!res.ok || !json) {
     console.error('UPayments status check failed:', res.status, json)
-    return { success: false, result: null, paymentId: null }
+    return { success: false, result: null, paymentId: null, orderId: null, orderNumber: null, amount: null }
   }
 
   return parsePaymentStatus(json)
