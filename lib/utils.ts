@@ -148,20 +148,6 @@ export const COUNTRY_AREAS: Record<string, string[]> = {
   ],
 }
 
-export const STATUS_LABELS: Record<string, string> = {
-  pending: 'قيد الانتظار',
-  confirmed: 'مؤكد',
-  processing: 'قيد المعالجة',
-  shipped: 'تم الشحن',
-  delivered: 'تم التسليم',
-  cancelled: 'ملغي',
-}
-
-export const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  processing: 'bg-orange-100 text-orange-800',
-  shipped: 'bg-purple-100 text-purple-800',
-  delivered: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-}
+// Order-status display config lives in lib/order-status.ts; re-exported
+// here so existing `from '@/lib/utils'` imports keep working.
+export { STATUS_LABELS, STATUS_COLORS } from './order-status'

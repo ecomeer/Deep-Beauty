@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toArabicPrice, toWhatsAppPhone, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
+import { STATUS_CUSTOMER_MESSAGES } from '@/lib/order-status'
 import toast from 'react-hot-toast'
 import { 
   CheckCircleIcon, 
@@ -114,17 +115,10 @@ export default function AdminOrderDetail() {
     }
   }
 
-  const STATUS_MESSAGES: Record<string, string> = {
-    confirmed: 'تم تأكيد طلبك',
-    shipped: 'تم شحن طلبك وهو في الطريق إليك',
-    delivered: 'تم توصيل طلبك بنجاح، شكراً لتسوقك معنا! 💚',
-    cancelled: 'تم إلغاء طلبك. للاستفسار تواصل معنا.',
-  }
-
   const notifyCustomer = async (statusOrMessage?: string) => {
     if (!order) return
     const message = statusOrMessage
-      ? `مرحباً ${order.customer_name}، ${STATUS_MESSAGES[statusOrMessage] || statusOrMessage} — طلب رقم ${order.order_number} 🛍️`
+      ? `مرحباً ${order.customer_name}، ${STATUS_CUSTOMER_MESSAGES[statusOrMessage] || statusOrMessage} — طلب رقم ${order.order_number} 🛍️`
       : `تحديث طلب ${order.order_number}: ${trackingForm.status_label_ar} - ${trackingForm.description_ar || ''}`
 
     const res = await fetch(`/api/admin/orders/${order.id}/notify`, {

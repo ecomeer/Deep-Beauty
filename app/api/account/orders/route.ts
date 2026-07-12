@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireUser } from '@/lib/supabase-server'
+import { ACTIVE_ORDER_STATUSES } from '@/lib/order-status'
 
 interface OrderItemRow {
   product_name_ar: string | null
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     // Apply filter
     if (filter === 'active') {
-      query = query.in('status', ['pending', 'confirmed', 'processing', 'shipped'])
+      query = query.in('status', ACTIVE_ORDER_STATUSES)
     } else if (filter === 'completed') {
       query = query.eq('status', 'delivered')
     } else if (filter === 'cancelled') {

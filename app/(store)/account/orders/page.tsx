@@ -18,12 +18,13 @@ import {
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { STATUS_COLORS, formatDate } from '@/lib/utils'
+import { ACTIVE_ORDER_STATUSES, type OrderStatus } from '@/lib/order-status'
 
 interface Order {
   id: string
   order_number: string
   total: number
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  status: OrderStatus
   created_at: string
   item_count: number
   items: Array<{
@@ -74,7 +75,7 @@ export default function OrdersPage() {
   }, [fetchOrders])
 
   const filteredOrders = orders.filter(order => {
-    if (filter === 'active') return ['pending', 'confirmed', 'processing', 'shipped'].includes(order.status)
+    if (filter === 'active') return ACTIVE_ORDER_STATUSES.includes(order.status)
     if (filter === 'completed') return order.status === 'delivered'
     if (filter === 'cancelled') return order.status === 'cancelled'
     return true

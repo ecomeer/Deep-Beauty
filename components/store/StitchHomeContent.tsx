@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Product, Category } from '@/types'
 import { useCountry } from '@/context/CountryContext'
+import FadeUp from '@/components/store/FadeUp'
 import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
 import {
@@ -41,16 +41,6 @@ interface Props {
   categories: Category[]
   banners?: Banner[]
   announcementText?: string
-}
-
-// ─── Motion helpers ────────────────────────────────────────────────────────
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
-
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-40px' },
-  transition: { duration: 0.55, ease: EASE },
 }
 
 // ─── Trust features ────────────────────────────────────────────────────────
@@ -482,10 +472,10 @@ export default function StitchHomeContent({
       <section className="py-8 bg-white border-b border-[var(--beige)]">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6">
           {TRUST.map(({ Icon, title, desc }, i) => (
-            <motion.div
+            <FadeUp
               key={title}
-              {...fadeUp}
-              transition={{ duration: 0.45, delay: i * 0.07 }}
+              duration={0.45}
+              delay={i * 0.07}
               className="flex flex-col items-center text-center gap-2"
             >
               <div
@@ -495,7 +485,7 @@ export default function StitchHomeContent({
               </div>
               <p className="text-xs font-bold text-[var(--text-dark)]">{title}</p>
               <p className="text-xs text-[var(--on-surface-variant)]">{desc}</p>
-            </motion.div>
+            </FadeUp>
           ))}
         </div>
       </section>
@@ -543,15 +533,15 @@ export default function StitchHomeContent({
           {/* Horizontal scroll — rectangular cards with image overlay */}
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4" style={{ scrollbarWidth: 'none' }}>
             {activeCategories.map((cat, i) => (
-              <motion.div
+              <FadeUp
                 key={cat.id}
-                {...fadeUp}
-                transition={{ duration: 0.4, delay: i * 0.07 }}
+                duration={0.4}
+                delay={i * 0.07}
                 className="flex-shrink-0 snap-start"
                 style={{ width: '36vw', maxWidth: 148 }}
               >
                 <Link
-                  href={`/products?category=${encodeURIComponent(cat.name_ar)}`}
+                  href={`/products?category=${encodeURIComponent(cat.slug)}`}
                   aria-label={`تصفح فئة ${cat.name_ar}`}
                   className="group block relative rounded-2xl overflow-hidden aspect-[3/4] bg-[var(--beige)]"
                 >
@@ -586,7 +576,7 @@ export default function StitchHomeContent({
                     className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-[var(--primary)] transition-all duration-300"
                   />
                 </Link>
-              </motion.div>
+              </FadeUp>
             ))}
           </div>
         </section>
@@ -657,10 +647,10 @@ export default function StitchHomeContent({
 
         <div className="flex flex-col gap-4 px-6">
           {ROUTINE_STEPS.map(({ Icon, step, title, desc }, i) => (
-            <motion.div
+            <FadeUp
               key={title}
-              {...fadeUp}
-              transition={{ duration: 0.45, delay: i * 0.12 }}
+              duration={0.45}
+              delay={i * 0.12}
               className="flex items-start gap-4 text-right"
             >
               <div className="relative flex-shrink-0">
@@ -675,7 +665,7 @@ export default function StitchHomeContent({
                 <p className="text-sm font-bold text-[var(--text-dark)] mb-1">{title}</p>
                 <p className="text-xs leading-relaxed text-[var(--on-surface-variant)]">{desc}</p>
               </div>
-            </motion.div>
+            </FadeUp>
           ))}
         </div>
 
@@ -783,17 +773,17 @@ export default function StitchHomeContent({
       <section className="py-8 bg-[var(--off-white)] border-y border-[var(--beige)]">
         <div className="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
           {CERTS.map(({ Icon, label }, i) => (
-            <motion.div
+            <FadeUp
               key={label}
-              {...fadeUp}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
+              duration={0.4}
+              delay={i * 0.08}
               className="flex-shrink-0 snap-start flex items-center gap-2.5"
             >
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[var(--beige)]">
                 <Icon className="w-5 h-5 text-[var(--primary)]" />
               </div>
               <span className="text-xs font-bold text-[var(--text-dark)] whitespace-nowrap">{label}</span>
-            </motion.div>
+            </FadeUp>
           ))}
         </div>
       </section>
@@ -823,10 +813,10 @@ export default function StitchHomeContent({
             { val: '١٠٠٪', label: 'مكونات طبيعية' },
             { val: '٥٠٠٠+', label: 'عميلة سعيدة' },
           ].map((stat, i) => (
-            <motion.div
+            <FadeUp
               key={stat.label}
-              {...fadeUp}
-              transition={{ duration: 0.45, delay: i * 0.1 }}
+              duration={0.45}
+              delay={i * 0.1}
               className="text-center py-5 rounded-2xl border border-[var(--beige)] bg-[var(--off-white)]"
             >
               <span className="block text-2xl font-bold font-headline text-primary mb-1">
@@ -835,17 +825,17 @@ export default function StitchHomeContent({
               <span className="text-xs text-[var(--on-surface-variant)]">
                 {stat.label}
               </span>
-            </motion.div>
+            </FadeUp>
           ))}
         </div>
 
         {/* Brand values grid */}
         <div className="grid grid-cols-2 gap-3 px-6 mb-10">
           {TRUST.map(({ Icon, title, desc }, i) => (
-            <motion.div
+            <FadeUp
               key={title}
-              {...fadeUp}
-              transition={{ duration: 0.45, delay: i * 0.08 }}
+              duration={0.45}
+              delay={i * 0.08}
               className="p-4 rounded-2xl border border-[var(--beige)] bg-[var(--off-white)] text-right"
             >
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--beige)] mb-3">
@@ -853,7 +843,7 @@ export default function StitchHomeContent({
               </div>
               <p className="text-sm font-bold text-[var(--text-dark)] mb-1">{title}</p>
               <p className="text-xs leading-relaxed text-[var(--on-surface-variant)]">{desc}</p>
-            </motion.div>
+            </FadeUp>
           ))}
         </div>
 
