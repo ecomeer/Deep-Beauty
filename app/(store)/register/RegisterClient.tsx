@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
   EyeIcon, 
@@ -17,9 +16,9 @@ import {
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { createClientSupabase } from '@/lib/supabase-client'
+import { translateAuthError } from '@/lib/auth-errors'
 
 export default function RegisterClient() {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [step, setStep] = useState<'form' | 'success'>('form')
@@ -56,26 +55,21 @@ export default function RegisterClient() {
       })
 
       if (authError) {
-        toast.error(authError.message || 'حدث خطأ أثناء التسجيل')
+        toast.error(translateAuthError(authError, 'حدث خطأ أثناء التسجيل'))
         return
       }
 
-      // Create profile in users table
-      if (authData.user) {
-        await fetch('/api/auth/register-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: authData.user.id,
-            email: authData.user.email,
-            name: form.name,
-            phone: form.phone,
-          }),
-        })
+      // Profile row in `users` is created by the on_auth_user_created DB trigger.
+
+      if (authData.session) {
+        // Email confirmation is disabled — the user is already logged in.
+        toast.success('تم إنشاء الحساب وتسجيل دخولك! 🎉')
+        window.location.href = '/account'
+        return
       }
 
+      // Email confirmation required — show the "check your inbox" screen.
       setStep('success')
-      setTimeout(() => { router.push('/login') }, 3000)
     } catch {
       toast.error('حدث خطأ أثناء التسجيل')
     } finally {
@@ -101,7 +95,7 @@ export default function RegisterClient() {
           </motion.div>
           <h2 className="text-2xl font-bold mb-2">تم إنشاء الحساب بنجاح!</h2>
           <p className="text-gray-500 mb-6">
-            تم إرسال رسالة تأكيد إلى بريدك الإلكتروني. سيتم تحويلك إلى صفحة الدخول...
+            أرسلنا رسالة تأكيد إلى بريدك الإلكتروني — افحصي بريدك (ومجلد السبام) واضغطي رابط التأكيد، ثم سجّلي دخولك.
           </p>
           <Link href="/login" className="btn-primary inline-block px-8 py-3">
             تسجيل الدخول الآن
@@ -293,7 +287,7 @@ export default function RegisterClient() {
                     provider: 'google',
                     options: { redirectTo: `${window.location.origin}/auth/callback` }
                   })
-                  if (error) toast.error('حدث خطأ أثناء إنشاء الحساب بـ Google')
+                  if (error) toast.error(translateAuthError(error, 'حدث خطأ أثناء إنشاء الحساب بـ Google'))
                 } catch {
                   toast.error('حدث خطأ أثناء إنشاء الحساب بـ Google')
                 }

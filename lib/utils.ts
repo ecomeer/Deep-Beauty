@@ -11,6 +11,15 @@ export const toArabicPrice = (price: number): string =>
 export const isKuwaitPhone = (phone: string): boolean =>
   /^(\+965|965|0)?[569]\d{7}$/.test(phone.replace(/\s/g, ''))
 
+// Normalizes a phone number for wa.me links: digits only, Kuwait country
+// code prepended for local 8-digit numbers.
+export const toWhatsAppPhone = (phone: string): string => {
+  const digits = phone.replace(/\D/g, '').replace(/^0+/, '')
+  if (digits.startsWith('965')) return digits
+  if (digits.length === 8) return `965${digits}`
+  return digits
+}
+
 export const generateOrderNumber = (): string => {
   const date = new Date()
   const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '')
