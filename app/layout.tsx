@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Almarai } from 'next/font/google'
+import { unstable_cache } from 'next/cache'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import Pixels from '@/components/Pixels'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -47,11 +50,37 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+// Cached at the data layer (not per-request) so every page render doesn't
+// hit the DB — pixel IDs change rarely, a 5-minute staleness window mirrors
+// the public /api/settings endpoint's own cache header.
+const getPixelSettings = unstable_cache(
+  async () => {
+    try {
+      const { data } = await supabaseAdmin
+        .from('settings')
+        .select('key, value')
+        .in('key', ['meta_pixel_id', 'snap_pixel_id', 'gtm_id'])
+      const map = Object.fromEntries((data || []).map((r) => [r.key, r.value]))
+      return {
+        metaPixelId: map.meta_pixel_id || null,
+        snapPixelId: map.snap_pixel_id || null,
+        gtmId: map.gtm_id || null,
+      }
+    } catch {
+      return { metaPixelId: null, snapPixelId: null, gtmId: null }
+    }
+  },
+  ['pixel-settings'],
+  { revalidate: 300 }
+)
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const { metaPixelId, snapPixelId, gtmId } = await getPixelSettings()
+
   return (
     <html lang="ar" dir="rtl" className={`${cormorant.variable} ${almarai.variable}`}>
       <head>
@@ -70,6 +99,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://flagcdn.com" />
       </head>
       <body suppressHydrationWarning>
+        <Pixels metaPixelId={metaPixelId} snapPixelId={snapPixelId} gtmId={gtmId} />
         {children}
       </body>
     </html>

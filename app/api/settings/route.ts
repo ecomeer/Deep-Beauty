@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 // Public settings endpoint — only returns non-sensitive settings for store display
-const PUBLIC_KEYS = ['announcement_text', 'whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url']
+const PUBLIC_KEYS = [
+  'announcement_text', 'whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url',
+  'meta_pixel_id', 'snap_pixel_id', 'gtm_id',
+]
 
 export async function GET() {
   const { data, error } = await supabaseAdmin

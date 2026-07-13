@@ -184,6 +184,18 @@ export async function POST(req: NextRequest) {
 
     const order = orderJson as Record<string, unknown>
 
+    // Mark any pending abandoned-cart snapshot for this phone as recovered
+    // (non-critical — best-effort, never blocks order confirmation)
+    try {
+      await supabaseAdmin
+        .from('abandoned_carts')
+        .update({ recovered: true, updated_at: new Date().toISOString() })
+        .eq('customer_phone', customer_phone)
+        .eq('recovered', false)
+    } catch {
+      // Non-critical
+    }
+
     // Send push notification (fire and forget)
     try {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'

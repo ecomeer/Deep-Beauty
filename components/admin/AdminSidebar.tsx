@@ -22,6 +22,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   TagIcon,
+  ShoppingCartIcon,
 } from '@heroicons/react/24/outline'
 
 // ─── Navigation structure ─────────────────────────────────────────────────
@@ -56,6 +57,7 @@ const NAV_GROUPS = [
       { href: '/admin/flash-sales', icon: BoltIcon,       label: 'عروض الفلاش' },
       { href: '/admin/marketing',   icon: MegaphoneIcon,  label: 'التسويق' },
       { href: '/admin/marketing/coupons', icon: TagIcon,   label: 'الكوبونات' },
+      { href: '/admin/abandoned-carts', icon: ShoppingCartIcon, label: 'السلات المهملة' },
     ],
   },
   {
