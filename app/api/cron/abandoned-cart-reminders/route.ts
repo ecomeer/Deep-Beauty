@@ -9,7 +9,8 @@ interface CartItem {
   quantity: number
 }
 
-// Vercel Cron (see vercel.json) hits this hourly. Emails carts that are
+// Vercel Cron (see vercel.json) hits this once daily — the Hobby plan
+// doesn't allow finer-grained cron schedules. Emails carts that are
 // between 1 and 24 hours old, still unrecovered, have an email on file,
 // and haven't already been reminded — a customer editing the checkout
 // form for hours shouldn't get a reminder mid-purchase, and a cart older
