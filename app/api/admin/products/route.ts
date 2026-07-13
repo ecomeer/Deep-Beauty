@@ -6,7 +6,7 @@ import { escapeOrFilterValue } from '@/lib/utils'
 const PAGE_SIZE = 20
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'products')
   if (_authErr) return _authErr
 
   const { searchParams } = new URL(req.url)
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'products')
   if (_authErr) return _authErr
   const body = await req.json()
 

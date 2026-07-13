@@ -24,6 +24,24 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.trim().toLowerCase()
+
+    // A 'staff' account is scoped access granted by an admin via /admin/team
+    // — it never touches app_metadata and must not be overwritten by the
+    // admin-sync logic below.
+    const { data: existingUser } = await supabaseAdmin
+      .from('users')
+      .select('role, is_active')
+      .eq('id', data.user.id)
+      .maybeSingle()
+
+    if (existingUser?.role === 'staff') {
+      if (existingUser.is_active === false) {
+        await supabase.auth.signOut()
+        return NextResponse.json({ error: 'تم إيقاف هذا الحساب' }, { status: 403 })
+      }
+      return applyCookies(NextResponse.json({ ok: true }))
+    }
+
     const hasAdminMeta = data.user.app_metadata?.role === 'admin'
     const allowedEmails = getAllowedAdminEmails()
     const emailInAllowList = allowedEmails.length === 0 || allowedEmails.includes(normalizedEmail)

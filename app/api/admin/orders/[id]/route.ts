@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth-admin'
 import { VALID_TRANSITIONS, type OrderStatus } from '@/lib/order-status'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'orders')
   if (_authErr) return _authErr
   const { id } = await params
   const [orderRes, itemsRes, trackingRes] = await Promise.all([
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'orders')
   if (_authErr) return _authErr
   const { id } = await params
   const body = await req.json()

@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'products')
   if (_authErr) return _authErr
   const { id } = await params
   const { data, error } = await supabaseAdmin.from('products').select('*').eq('id', id).single()
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'products')
   if (_authErr) return _authErr
   try {
     const { id } = await params
@@ -54,7 +54,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'products')
   if (_authErr) return _authErr
   const { id } = await params
   const { error } = await supabaseAdmin.from('products').delete().eq('id', id)

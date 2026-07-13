@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth-admin'
 import { escapeOrFilterValue } from '@/lib/utils'
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'orders')
   if (_authErr) return _authErr
   const { searchParams } = new URL(req.url)
   const status = searchParams.get('status')

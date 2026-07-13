@@ -9,7 +9,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const _authErr = await requireAdmin(request)
+  const _authErr = await requireAdmin(request, 'orders')
   if (_authErr) return _authErr
 
   try {
