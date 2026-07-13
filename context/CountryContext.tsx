@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode } from 'react'
 import {
   GulfCountry,
   CurrencyCode,
@@ -47,11 +47,14 @@ export function CountryProvider({
   // Admin-managed exchange rates loaded server-side from the settings table
   initialRates?: ExchangeRates
 }) {
-  const [selectedCountry, setSelectedCountry] = useState<GulfCountry>(() => {
-    if (typeof window === 'undefined') return DEFAULT_COUNTRY
+  // Use the same country during SSR and the first browser render. Restore a
+  // visitor's saved country after mount to prevent hydration mismatches.
+  const [selectedCountry, setSelectedCountry] = useState<GulfCountry>(DEFAULT_COUNTRY)
+
+  useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as GulfCountry | null
-    return stored && GULF_COUNTRIES[stored] ? stored : DEFAULT_COUNTRY
-  })
+    if (stored && GULF_COUNTRIES[stored]) setSelectedCountry(stored)
+  }, [])
 
   const setCountry = useCallback((country: GulfCountry) => {
     setSelectedCountry(country)

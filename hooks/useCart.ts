@@ -6,20 +6,26 @@ import { CartItem } from '@/types'
 const CART_KEY = 'deep_beauty_cart'
 
 export function useCart() {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    try {
-      if (typeof window === 'undefined') return []
-      const saved = localStorage.getItem(CART_KEY)
-      return saved ? (JSON.parse(saved) as CartItem[]) : []
-    } catch {
-      return []
-    }
-  })
+  // Keep the first render identical on the server and browser. The cart is
+  // restored from localStorage after mount to avoid React hydration errors.
+  const [items, setItems] = useState<CartItem[]>([])
+  const [hydrated, setHydrated] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(items))
-  }, [items])
+    try {
+      const saved = localStorage.getItem(CART_KEY)
+      if (saved) setItems(JSON.parse(saved) as CartItem[])
+    } catch {
+      // Ignore malformed client storage and start with an empty cart.
+    } finally {
+      setHydrated(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (hydrated) localStorage.setItem(CART_KEY, JSON.stringify(items))
+  }, [items, hydrated])
 
   const addItem = useCallback((item: CartItem) => {
     setItems((prev) => {
