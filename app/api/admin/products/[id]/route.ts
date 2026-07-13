@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { sendEmail, backInStockEmail } from '@/lib/email'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _authErr = await requireAdmin(req)
@@ -34,6 +35,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       if (key in body) updateFields[key] = body[key]
     }
 
+    // Capture the pre-update stock level so we can detect a 0 → positive
+    // restock below, without an extra round-trip when stock isn't changing.
+    let previousStock: number | null = null
+    if ('stock_quantity' in updateFields) {
+      const { data: before } = await supabaseAdmin.from('products').select('stock_quantity').eq('id', id).maybeSingle()
+      previousStock = before?.stock_quantity ?? null
+    }
+
     const { data, error } = await supabaseAdmin
       .from('products')
       .update(updateFields)
@@ -46,10 +55,36 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: error.message, details: error }, { status: 400 })
     }
 
+    if (previousStock !== null && previousStock <= 0 && Number(data.stock_quantity) > 0) {
+      notifyBackInStock(id, data.name_ar, data.slug).catch((err) =>
+        console.error('Failed to send back-in-stock notifications:', err)
+      )
+    }
+
     return NextResponse.json({ data })
   } catch (err) {
     console.error('PATCH error:', err)
     return NextResponse.json({ error: 'Internal server error', details: String(err) }, { status: 500 })
+  }
+}
+
+async function notifyBackInStock(productId: string, productName: string, slug: string) {
+  const { data: subs } = await supabaseAdmin
+    .from('stock_notifications')
+    .select('id, email')
+    .eq('product_id', productId)
+    .eq('notified', false)
+
+  if (!subs || subs.length === 0) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.deepbeautykw.com'
+  const { subject, html } = backInStockEmail(productName, `${siteUrl}/products/${slug}`)
+
+  for (const sub of subs) {
+    const result = await sendEmail({ to: sub.email, subject, html })
+    if (result.sent) {
+      await supabaseAdmin.from('stock_notifications').update({ notified: true }).eq('id', sub.id)
+    }
   }
 }
 

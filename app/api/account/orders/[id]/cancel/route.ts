@@ -13,7 +13,7 @@ export async function POST(
 
   const { data: order, error: fetchErr } = await supabaseAdmin
     .from('orders')
-    .select('id, status, user_id, payment_status, payment_method')
+    .select('id, status, user_id, payment_status, payment_method, loyalty_points_earned, loyalty_points_redeemed')
     .eq('id', id)
     .single()
 
@@ -44,6 +44,13 @@ export async function POST(
 
   const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: id })
   if (restockErr) console.error('Failed to restock cancelled order:', restockErr)
+
+  // Reverse this order's loyalty-points effect: give back what it spent,
+  // take back what it earned (non-critical, best-effort).
+  const pointsDelta = (order.loyalty_points_redeemed ?? 0) - (order.loyalty_points_earned ?? 0)
+  if (pointsDelta !== 0 && order.user_id) {
+    try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: order.user_id, p_delta: pointsDelta }) } catch { /* non-critical */ }
+  }
 
   return NextResponse.json({ ok: true })
 }

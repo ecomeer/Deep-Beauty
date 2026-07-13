@@ -15,6 +15,7 @@ interface Settings {
   exchange_rate_qar: string
   exchange_rate_bhd: string
   exchange_rate_omr: string
+  loyalty_kwd_per_point: string
 }
 
 const DEFAULTS: Settings = {
@@ -30,6 +31,7 @@ const DEFAULTS: Settings = {
   exchange_rate_qar: '11.85',
   exchange_rate_bhd: '1.23',
   exchange_rate_omr: '1.26',
+  loyalty_kwd_per_point: '0.01',
 }
 
 const EXCHANGE_RATE_FIELDS: Array<{ name: keyof Settings; label: string }> = [
@@ -167,6 +169,28 @@ export default function AdminSettings() {
 
           <div className="rounded-xl p-3 bg-blue-50 border border-blue-200 text-xs text-blue-700">
             💡 تُستخدم لعرض الأسعار بعملة الزائر في المتجر. الدفع الفعلي يتم بالدينار الكويتي. التعديل يسري خلال دقائق.
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border p-6 space-y-5" style={{ borderColor: 'var(--beige)' }}>
+          <h2 className="text-base font-bold border-b pb-3" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>نقاط الولاء</h2>
+
+          <div>
+            <label className="block text-sm font-bold mb-1.5">قيمة النقطة الواحدة (بالدينار الكويتي)</label>
+            <input
+              name="loyalty_kwd_per_point"
+              type="number"
+              step="0.001"
+              min="0.001"
+              value={settings.loyalty_kwd_per_point}
+              onChange={handleChange}
+              className="input-field"
+              dir="ltr"
+            />
+          </div>
+
+          <div className="rounded-xl p-3 bg-blue-50 border border-blue-200 text-xs text-blue-700">
+            💡 العملاء المسجلون يكسبون نقطة واحدة عن كل دينار يُنفق، ويقدرون يستبدلونها عند الدفع بهذا السعر. مثال: 0.01 يعني 100 نقطة = 1 د.ك خصم.
           </div>
         </div>
 

@@ -17,7 +17,7 @@ export async function GET() {
     // Get user profile from database
     const { data: profile, error: profileError } = await supabase
       .from('users')
-      .select('id,email,name,phone,role,is_active,created_at')
+      .select('id,email,name,phone,role,is_active,created_at,loyalty_points')
       .eq('id', user.id)
       .single()
 
@@ -31,7 +31,8 @@ export async function GET() {
         email: user.email,
         name: profile?.name || user.user_metadata?.name || user.email,
         phone: profile?.phone || user.user_metadata?.phone,
-        avatar: user.user_metadata?.avatar_url || null
+        avatar: user.user_metadata?.avatar_url || null,
+        loyaltyPoints: profile?.loyalty_points ?? 0
       }
     })
   } catch (error: unknown) {
