@@ -45,3 +45,37 @@ export function rateLimit(key: string, limit: number, windowMs: number): boolean
 export function checkoutLimiter(ip: string): boolean {
   return rateLimit(`checkout:${ip}`, 5, 60_000)
 }
+
+/** Pre-configured limiter: 10 login attempts per 5 minutes per IP. */
+export function loginLimiter(ip: string): boolean {
+  return rateLimit(`login:${ip}`, 10, 5 * 60_000)
+}
+
+/** Pre-configured limiter: 5 registration attempts per 10 minutes per IP. */
+export function registerLimiter(ip: string): boolean {
+  return rateLimit(`register:${ip}`, 5, 10 * 60_000)
+}
+
+/** Pre-configured limiter: 20 coupon-code checks per 5 minutes per IP. */
+export function couponLimiter(ip: string): boolean {
+  return rateLimit(`coupon:${ip}`, 20, 5 * 60_000)
+}
+
+/** Pre-configured limiter: 20 order-tracking lookups per 5 minutes per IP. */
+export function trackOrderLimiter(ip: string): boolean {
+  return rateLimit(`track:${ip}`, 20, 5 * 60_000)
+}
+
+/** Pre-configured limiter: 10 review submissions per 10 minutes per IP. */
+export function reviewLimiter(ip: string): boolean {
+  return rateLimit(`review:${ip}`, 10, 10 * 60_000)
+}
+
+/** Extracts the client IP from forwarded headers set by the hosting proxy. */
+export function getClientIp(req: { headers: { get(name: string): string | null } }): string {
+  return (
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('x-real-ip') ||
+    'unknown'
+  )
+}

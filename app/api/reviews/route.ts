@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getClientIp, reviewLimiter } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,6 +30,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    if (!reviewLimiter(getClientIp(request))) {
+      return NextResponse.json({ error: 'طلبات كثيرة، يرجى الانتظار قليلاً' }, { status: 429 })
+    }
+
     const body = await request.json()
     const { productId, customerName, rating, comment, orderId } = body
 

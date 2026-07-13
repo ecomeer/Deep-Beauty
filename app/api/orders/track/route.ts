@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getClientIp, trackOrderLimiter } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
+    if (!trackOrderLimiter(getClientIp(request))) {
+      return NextResponse.json({ error: 'طلبات كثيرة، يرجى الانتظار قليلاً' }, { status: 429 })
+    }
+
     const { searchParams } = new URL(request.url)
     const orderNumber = searchParams.get('order')
     const phone = searchParams.get('phone')

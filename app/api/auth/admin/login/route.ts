@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createWritableServerClient } from '@/lib/supabase-server'
 import { getAllowedAdminEmails } from '@/lib/admin-config'
+import { getClientIp, loginLimiter } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+    }
+
+    if (!loginLimiter(getClientIp(request))) {
+      return NextResponse.json({ error: 'محاولات كثيرة، يرجى الانتظار قليلاً' }, { status: 429 })
     }
 
     const { email, password } = await request.json()

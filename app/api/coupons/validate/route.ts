@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getClientIp, couponLimiter } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  if (!couponLimiter(getClientIp(req))) {
+    return NextResponse.json({ error: 'طلبات كثيرة، يرجى الانتظار قليلاً' }, { status: 429 })
+  }
+
   const { code, subtotal } = await req.json()
   if (!code) return NextResponse.json({ error: 'كود مطلوب' }, { status: 400 })
 

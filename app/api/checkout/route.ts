@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { checkoutLimiter } from '@/lib/rate-limit'
+import { checkoutLimiter, getClientIp } from '@/lib/rate-limit'
 import { calculateShipping, ShippingZone } from '@/lib/shipping'
 import { GulfCountry } from '@/lib/currency'
 import { sendEmail, orderConfirmationEmail } from '@/lib/email'
@@ -13,10 +13,7 @@ interface CheckoutItem {
 export async function POST(req: NextRequest) {
   try {
     // Rate limiting — derive IP from forwarded headers
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      req.headers.get('x-real-ip') ||
-      'unknown'
+    const ip = getClientIp(req)
     if (!checkoutLimiter(ip)) {
       return NextResponse.json({ error: 'طلبات كثيرة، يرجى الانتظار قليلاً' }, { status: 429 })
     }

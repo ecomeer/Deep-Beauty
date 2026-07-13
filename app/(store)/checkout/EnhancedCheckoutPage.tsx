@@ -614,10 +614,11 @@ export default function EnhancedCheckoutPage() {
                   {couponApplied ? (
                     <div className="flex items-center justify-between p-3 rounded-xl text-sm" style={{ background: 'rgba(34,197,94,0.1)', color: '#16a34a' }}>
                       <span>✅ كود {couponApplied} — خصم {formatPrice(couponDiscount)}</span>
-                      <button 
-                        type="button" 
-                        onClick={() => { setCouponApplied(''); setCouponDiscount(0); setCouponCode('') }} 
+                      <button
+                        type="button"
+                        onClick={() => { setCouponApplied(''); setCouponDiscount(0); setCouponCode('') }}
                         className="text-red-400 font-bold hover:text-red-600"
+                        aria-label="إزالة كود الخصم"
                       >
                         ✕
                       </button>
