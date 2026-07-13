@@ -33,11 +33,17 @@ export async function POST(request: NextRequest) {
 
     const { data: order } = await supabaseAdmin
       .from('orders')
-      .select('id, order_number, total, status')
+      .select('id, order_number, total, status, payment_status')
       .eq('id', status.orderId)
       .maybeSingle()
 
     if (!order) {
+      return NextResponse.json({ received: true })
+    }
+
+    // Idempotent: a delayed/duplicate webhook for an already-paid order
+    // (possibly shipped/delivered since) must not reset it to 'confirmed'.
+    if (order.payment_status === 'paid') {
       return NextResponse.json({ received: true })
     }
 
