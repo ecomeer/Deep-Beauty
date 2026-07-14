@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'products')
   if (_authErr) return _authErr
   const { data, error } = await supabaseAdmin
     .from('categories')
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'products')
   if (_authErr) return _authErr
   const body = await req.json()
 

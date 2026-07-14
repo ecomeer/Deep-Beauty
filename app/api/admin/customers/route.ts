@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/auth-admin'
 const PAGE_SIZE = 50
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'customers')
   if (_authErr) return _authErr
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'customers')
   if (_authErr) return _authErr
   try {
     const body = await req.json()

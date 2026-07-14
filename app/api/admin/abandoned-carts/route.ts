@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'marketing')
   if (_authErr) return _authErr
 
   const { data, error } = await supabaseAdmin

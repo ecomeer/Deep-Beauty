@@ -85,7 +85,7 @@ BEGIN
 
     -- Check and decrement stock with lock
     SELECT stock_quantity INTO v_stock FROM products WHERE id = (v_item->>'product_id')::uuid FOR UPDATE;
-    IF v_stock < (v_item->>'quantity')::integer THEN
+    IF v_stock IS NULL OR v_stock < (v_item->>'quantity')::integer THEN
       RAISE EXCEPTION 'Insufficient stock for product %', v_item->>'product_name_ar';
     END IF;
     UPDATE products SET stock_quantity = stock_quantity - (v_item->>'quantity')::integer

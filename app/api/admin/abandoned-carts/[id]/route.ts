@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/auth-admin'
 // Dismiss a cart from the recovery list (e.g. the admin already contacted
 // the customer, or recovered them manually) without deleting the record.
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'marketing')
   if (_authErr) return _authErr
   const { id } = await params
 

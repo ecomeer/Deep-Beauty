@@ -43,7 +43,12 @@ export async function POST(
   if (!data) return NextResponse.json({ error: 'لا يمكن إلغاء الطلب بعد تأكيده. تواصل معنا عبر واتساب' }, { status: 400 })
 
   const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: id })
-  if (restockErr) console.error('Failed to restock cancelled order:', restockErr)
+  if (restockErr) {
+    // The cancellation itself succeeded and must not be rolled back here —
+    // surface the restock failure so it isn't silently lost to server logs.
+    console.error('Failed to restock cancelled order:', restockErr)
+    return NextResponse.json({ ok: true, restockWarning: true })
+  }
 
   return NextResponse.json({ ok: true })
 }

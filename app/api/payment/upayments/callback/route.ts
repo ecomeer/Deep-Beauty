@@ -96,6 +96,7 @@ export async function GET(request: NextRequest) {
       await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(5000),
         body: JSON.stringify({
           title: 'طلب جديد مدفوع! 💳',
           body: `طلب #${order.order_number} - المبلغ: ${order.total} د.ك`,

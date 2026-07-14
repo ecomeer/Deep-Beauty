@@ -2,13 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { hasAdminMetadata, isDevBypass, isEmailAllowListed } from '@/lib/admin-config'
+import type { Permission } from '@/lib/admin-permissions'
 
 /**
  * Verifies the request comes from an authenticated admin via session cookie.
- * Returns null if admin, or a NextResponse error otherwise.
- * Usage: const err = await requireAdmin(req); if (err) return err
+ * Returns null if authorized, or a NextResponse error otherwise.
+ *
+ * `permission`, when passed, is the scoped capability a 'staff' user needs
+ * (full admins bypass this check). Passing `'staff'` restricts the route to
+ * full admins only — even a staff user with every other permission can't
+ * manage other staff accounts.
+ * Usage: const err = await requireAdmin(req, 'orders'); if (err) return err
  */
-export async function requireAdmin(req: NextRequest): Promise<NextResponse | null> {
+export async function requireAdmin(
+  req: NextRequest,
+  permission?: Permission | 'staff'
+): Promise<NextResponse | null> {
   if (isDevBypass()) return null
 
   try {
@@ -40,19 +49,32 @@ export async function requireAdmin(req: NextRequest): Promise<NextResponse | nul
     // allowlist — the same sources the proxy page-guard accepts — to avoid
     // false 403s when only one source is configured.
     const [usersRoleRes, profilesRoleRes] = await Promise.all([
-      supabaseAdmin.from('users').select('role, is_active').eq('id', user.id).maybeSingle(),
+      supabaseAdmin.from('users').select('role, is_active, permissions').eq('id', user.id).maybeSingle(),
       supabaseAdmin.from('profiles').select('role').eq('id', user.id).maybeSingle(),
     ])
     const roleFromUsers = usersRoleRes.data?.role
     const isActiveUser = usersRoleRes.data?.is_active !== false
     const roleFromProfiles = profilesRoleRes.data?.role
-    const hasAdminRole =
+    const isFullAdmin =
       [roleFromUsers, roleFromProfiles].includes('admin') ||
       hasAdminMetadata(user) ||
       isEmailAllowListed(user.email)
-    const isAdmin = isActiveUser && hasAdminRole
 
-    if (!isAdmin) {
+    if (!isActiveUser) {
+      return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 })
+    }
+    if (isFullAdmin) return null
+
+    // Staff management is never delegable to staff themselves.
+    if (permission === 'staff') {
+      return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 })
+    }
+
+    const isStaff = roleFromUsers === 'staff'
+    const staffPermissions = usersRoleRes.data?.permissions ?? []
+    const isAuthorizedStaff = isStaff && (!permission || staffPermissions.includes(permission))
+
+    if (!isAuthorizedStaff) {
       return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 })
     }
 

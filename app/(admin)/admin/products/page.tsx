@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { Product, Category } from '@/types'
 import { useAdminList } from '@/hooks/useAdminList'
 import { toArabicPrice } from '@/lib/utils'
+import { toCsv, downloadCsv } from '@/lib/csv'
 import Link from 'next/link'
-import { MagnifyingGlassIcon, PlusIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon, PlusIcon, PencilSquareIcon, TrashIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 export default function AdminProducts() {
@@ -62,6 +63,17 @@ export default function AdminProducts() {
     return true
   })
 
+  function exportCSV() {
+    const csv = toCsv(filtered, [
+      { key: 'name_ar', label: 'الاسم' },
+      { key: 'category', label: 'الفئة' },
+      { key: 'price', label: 'السعر' },
+      { key: 'stock_quantity', label: 'المخزون' },
+      { key: 'is_active', label: 'نشط' },
+    ])
+    downloadCsv(`products-${new Date().toISOString().slice(0, 10)}.csv`, csv)
+  }
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
@@ -69,9 +81,14 @@ export default function AdminProducts() {
           <h1 className="text-2xl font-bold text-[var(--text-dark)]">إدارة المنتجات</h1>
           <p className="text-sm opacity-60">عرض وإضافة وتعديل المنتجات ({total})</p>
         </div>
-        <Link href="/admin/products/new" className="btn-primary py-2 px-4 shadow-md flex items-center gap-2">
-          <PlusIcon className="w-5 h-5" /> إضافة منتج
-        </Link>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={exportCSV} className="btn-outline py-2 px-4 flex items-center gap-2">
+            <ArrowDownTrayIcon className="w-4 h-4" /> تصدير CSV
+          </button>
+          <Link href="/admin/products/new" className="btn-primary py-2 px-4 shadow-md flex items-center gap-2">
+            <PlusIcon className="w-5 h-5" /> إضافة منتج
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border overflow-hidden" style={{ borderColor: 'var(--beige)' }}>
