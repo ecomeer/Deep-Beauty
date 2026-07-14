@@ -229,6 +229,7 @@ export default function AdminBanners() {
                       onClick={() => moveOrder(banner.id, 'up')}
                       disabled={idx === 0}
                       title="تحريك للأعلى"
+                      aria-label="تحريك للأعلى"
                       className="p-1 rounded hover:bg-gray-100 disabled:opacity-20 transition-colors"
                     >
                       <ChevronUpIcon className="w-4 h-4" />
@@ -238,6 +239,7 @@ export default function AdminBanners() {
                       onClick={() => moveOrder(banner.id, 'down')}
                       disabled={idx === banners.length - 1}
                       title="تحريك للأسفل"
+                      aria-label="تحريك للأسفل"
                       className="p-1 rounded hover:bg-gray-100 disabled:opacity-20 transition-colors"
                     >
                       <ChevronDownIcon className="w-4 h-4" />
@@ -258,6 +260,7 @@ export default function AdminBanners() {
                     type="button"
                     onClick={() => handleDelete(banner.id)}
                     title="حذف البنر"
+                    aria-label="حذف البنر"
                     className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"
                   >
                     <TrashIcon className="w-4 h-4" />

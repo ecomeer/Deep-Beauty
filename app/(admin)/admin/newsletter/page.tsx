@@ -80,40 +80,71 @@ export default function AdminNewsletter() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>البريد الإلكتروني</th>
-                <th>تاريخ الاشتراك</th>
-                <th>حذف</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={3} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
-              ) : filtered.length === 0 ? (
-                <tr><td colSpan={3} className="text-center py-10 opacity-50">لا يوجد مشتركون</td></tr>
-              ) : (
-                filtered.map(s => (
-                  <tr key={s.id}>
-                    <td className="font-en text-sm" dir="ltr">{s.email}</td>
-                    <td className="text-xs" dir="ltr">{formatDateTime(s.created_at)}</td>
-                    <td>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(s.id, s.email)}
-                        className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </button>
-                    </td>
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <EnvelopeIcon className="w-12 h-12 opacity-20" />
+            <p className="text-sm opacity-50">لا يوجد مشتركون</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>البريد الإلكتروني</th>
+                    <th>تاريخ الاشتراك</th>
+                    <th>حذف</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {filtered.map(s => (
+                    <tr key={s.id}>
+                      <td className="font-en text-sm" dir="ltr">{s.email}</td>
+                      <td className="text-xs" dir="ltr">{formatDateTime(s.created_at)}</td>
+                      <td>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(s.id, s.email)}
+                          title="حذف المشترك"
+                          aria-label="حذف المشترك"
+                          className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden p-4 space-y-3">
+              {filtered.map(s => (
+                <div key={s.id} className="border rounded-xl p-4 flex items-center justify-between gap-3" style={{ borderColor: 'var(--beige)' }}>
+                  <div className="min-w-0">
+                    <p className="font-en text-sm font-medium truncate" dir="ltr">{s.email}</p>
+                    <p className="text-xs opacity-50 mt-0.5" dir="ltr">{formatDateTime(s.created_at)}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(s.id, s.email)}
+                    title="حذف المشترك"
+                    aria-label="حذف المشترك"
+                    className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors flex-shrink-0"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

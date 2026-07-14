@@ -6,7 +6,7 @@ import { useAdminList } from '@/hooks/useAdminList'
 import { toArabicPrice } from '@/lib/utils'
 import { toCsv, downloadCsv } from '@/lib/csv'
 import Link from 'next/link'
-import { MagnifyingGlassIcon, PlusIcon, PencilSquareIcon, TrashIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon, PlusIcon, PencilSquareIcon, TrashIcon, ArrowDownTrayIcon, CubeIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 export default function AdminProducts() {
@@ -196,129 +196,130 @@ export default function AdminProducts() {
           </div>
         )}
 
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th className="w-8">
-                  <input
-                    type="checkbox"
-                    checked={filtered.length > 0 && selectedIds.size === filtered.length}
-                    onChange={toggleSelectAll}
-                    title="تحديد الكل"
-                  />
-                </th>
-                <th>الصورة</th>
-                <th>الاسم</th>
-                <th>الفئة</th>
-                <th>السعر</th>
-                <th>المخزون</th>
-                <th>الحالة</th>
-                <th>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={8} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
-              ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="text-center py-10 opacity-50">لا توجد منتجات تطابق بحثك</td></tr>
-              ) : (
-                filtered.map(p => (
-                  <tr key={p.id}>
-                    <td>
-                      <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelect(p.id)} title="تحديد" />
-                    </td>
-                    <td>
-                      <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
-                        {p.images?.[0]
-                          ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
-                          : <span className="text-lg">🧴</span>}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="font-bold">{p.name_ar}</div>
-                      <div className="text-xs opacity-50 font-en">{p.name_en}</div>
-                    </td>
-                    <td><span className="badge badge-primary">{p.category}</span></td>
-                    <td className="font-bold text-primary">{toArabicPrice(p.price)}</td>
-                    <td>
-                      <span className={`font-bold ${p.stock_quantity === 0 ? 'text-red-500' : p.stock_quantity < 10 ? 'text-orange-500' : 'text-green-600'}`}>
-                        {p.stock_quantity}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        onClick={() => toggleStatus(p.id, p.is_active)}
-                        className={`badge ${p.is_active ? 'badge-success' : 'badge-gray'} hover:opacity-80 transition-opacity cursor-pointer`}
-                      >
-                        {p.is_active ? 'نشط' : 'معطل'}
-                      </button>
-                    </td>
-                    <td>
-                      <div className="flex items-center gap-2">
-                        <Link href={`/admin/products/${p.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
-                          <PencilSquareIcon className="w-5 h-5" />
-                        </Link>
-                        <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
-                          <TrashIcon className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <CubeIcon className="w-12 h-12 opacity-20" />
+            <p className="text-sm opacity-50">لا توجد منتجات تطابق بحثك</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th className="w-8">
+                      <input
+                        type="checkbox"
+                        checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                        onChange={toggleSelectAll}
+                        title="تحديد الكل"
+                      />
+                    </th>
+                    <th>الصورة</th>
+                    <th>الاسم</th>
+                    <th>الفئة</th>
+                    <th>السعر</th>
+                    <th>المخزون</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {filtered.map(p => (
+                    <tr key={p.id}>
+                      <td>
+                        <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelect(p.id)} title="تحديد" />
+                      </td>
+                      <td>
+                        <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
+                          {p.images?.[0]
+                            ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
+                            : <span className="text-lg">🧴</span>}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="font-bold">{p.name_ar}</div>
+                        <div className="text-xs opacity-50 font-en">{p.name_en}</div>
+                      </td>
+                      <td><span className="badge badge-primary">{p.category}</span></td>
+                      <td className="font-bold text-primary">{toArabicPrice(p.price)}</td>
+                      <td>
+                        <span className={`font-bold ${p.stock_quantity === 0 ? 'text-red-500' : p.stock_quantity < 10 ? 'text-orange-500' : 'text-green-600'}`}>
+                          {p.stock_quantity}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          onClick={() => toggleStatus(p.id, p.is_active)}
+                          className={`badge ${p.is_active ? 'badge-success' : 'badge-gray'} hover:opacity-80 transition-opacity cursor-pointer`}
+                        >
+                          {p.is_active ? 'نشط' : 'معطل'}
+                        </button>
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <Link href={`/admin/products/${p.id}`} title="تعديل المنتج" aria-label="تعديل المنتج" className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
+                            <PencilSquareIcon className="w-5 h-5" />
+                          </Link>
+                          <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" aria-label="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                            <TrashIcon className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Mobile Cards */}
-        <div className="md:hidden p-4 space-y-3">
-          {loading ? (
-            <div className="text-center py-10 opacity-50">جاري التحميل...</div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-10 opacity-50">لا توجد منتجات تطابق بحثك</div>
-          ) : (
-            filtered.map(p => (
-              <div key={p.id} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
-                <div className="flex gap-3 mb-3">
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
-                    {p.images?.[0]
-                      ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
-                      : <span className="text-xl">🧴</span>}
+            {/* Mobile Cards */}
+            <div className="md:hidden p-4 space-y-3">
+              {filtered.map(p => (
+                <div key={p.id} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
+                  <div className="flex gap-3 mb-3">
+                    <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+                      {p.images?.[0]
+                        ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" />
+                        : <span className="text-xl">🧴</span>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm truncate">{p.name_ar}</div>
+                      <div className="text-xs opacity-50 font-en truncate">{p.name_en}</div>
+                      <span className="badge badge-primary text-xs mt-1">{p.category}</span>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-sm truncate">{p.name_ar}</div>
-                    <div className="text-xs opacity-50 font-en truncate">{p.name_en}</div>
-                    <span className="badge badge-primary text-xs mt-1">{p.category}</span>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="font-bold text-primary">{toArabicPrice(p.price)}</span>
+                    <span className={`font-bold text-sm ${p.stock_quantity === 0 ? 'text-red-500' : p.stock_quantity < 10 ? 'text-orange-500' : 'text-green-600'}`}>
+                      مخزون: {p.stock_quantity}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleStatus(p.id, p.is_active)}
+                      className={`flex-1 badge ${p.is_active ? 'badge-success' : 'badge-gray'} py-2 text-sm cursor-pointer`}
+                    >
+                      {p.is_active ? 'نشط' : 'معطل'}
+                    </button>
+                    <Link href={`/admin/products/${p.id}`} title="تعديل المنتج" aria-label="تعديل المنتج" className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
+                      <PencilSquareIcon className="w-5 h-5" />
+                    </Link>
+                    <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" aria-label="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="font-bold text-primary">{toArabicPrice(p.price)}</span>
-                  <span className={`font-bold text-sm ${p.stock_quantity === 0 ? 'text-red-500' : p.stock_quantity < 10 ? 'text-orange-500' : 'text-green-600'}`}>
-                    مخزون: {p.stock_quantity}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => toggleStatus(p.id, p.is_active)}
-                    className={`flex-1 badge ${p.is_active ? 'badge-success' : 'badge-gray'} py-2 text-sm cursor-pointer`}
-                  >
-                    {p.is_active ? 'نشط' : 'معطل'}
-                  </button>
-                  <Link href={`/admin/products/${p.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
-                    <PencilSquareIcon className="w-5 h-5" />
-                  </Link>
-                  <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {totalPages > 1 && (

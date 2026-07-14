@@ -154,7 +154,11 @@ export default function AdminOrderDetail() {
     }
   }
 
-  if (loading) return <div className="p-10 text-center">جاري التحميل...</div>
+  if (loading) return (
+    <div className="flex h-40 items-center justify-center">
+      <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+    </div>
+  )
   if (!order) return <div className="p-10 text-center">الطلب غير موجود</div>
 
   return (

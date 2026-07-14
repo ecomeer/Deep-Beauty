@@ -24,6 +24,7 @@ import {
   TagIcon,
   ShoppingCartIcon,
   UserGroupIcon,
+  PaperAirplaneIcon,
 } from '@heroicons/react/24/outline'
 import type { Permission } from '@/lib/admin-permissions'
 
@@ -61,8 +62,10 @@ const NAV_GROUPS: { label: string; links: { href: string; icon: React.ElementTyp
     links: [
       { href: '/admin/flash-sales', icon: BoltIcon,       label: 'عروض الفلاش', permission: 'marketing' },
       { href: '/admin/marketing',   icon: MegaphoneIcon,  label: 'التسويق',     permission: 'marketing' },
+      { href: '/admin/marketing/campaigns', icon: PaperAirplaneIcon, label: 'الحملات', permission: 'marketing' },
       { href: '/admin/marketing/coupons', icon: TagIcon,   label: 'الكوبونات',  permission: 'marketing' },
       { href: '/admin/abandoned-carts', icon: ShoppingCartIcon, label: 'السلات المهملة', permission: 'marketing' },
+      { href: '/admin/newsletter', icon: EnvelopeIcon, label: 'المشتركون', permission: 'marketing' },
     ],
   },
   {

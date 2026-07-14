@@ -214,9 +214,18 @@ export default function AdminFlashSales() {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan={6} className="p-4 text-center opacity-50">جاري التحميل...</td></tr>
+                    <tr><td colSpan={6} className="p-0">
+                      <div className="flex h-40 items-center justify-center">
+                        <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+                      </div>
+                    </td></tr>
                   ) : sales.length === 0 ? (
-                    <tr><td colSpan={6} className="p-8 text-center opacity-50">لا توجد عروض بعد</td></tr>
+                    <tr><td colSpan={6} className="p-0">
+                      <div className="flex flex-col items-center justify-center py-16 gap-3">
+                        <BoltIcon className="w-12 h-12 opacity-20" />
+                        <p className="text-sm opacity-50">لا توجد عروض بعد</p>
+                      </div>
+                    </td></tr>
                   ) : (
                     sales.map(s => (
                       <tr key={s.id}>

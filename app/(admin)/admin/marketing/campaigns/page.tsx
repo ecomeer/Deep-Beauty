@@ -88,6 +88,17 @@ export default function MarketingCampaigns() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border overflow-hidden" style={{ borderColor: 'var(--beige)' }}>
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+          </div>
+        ) : campaigns.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <EnvelopeIcon className="w-12 h-12 opacity-20" />
+            <p className="text-sm opacity-50">لا توجد حملات بعد</p>
+          </div>
+        ) : (
+        <>
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="admin-table">
@@ -102,12 +113,7 @@ export default function MarketingCampaigns() {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr><td colSpan={6} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
-              ) : campaigns.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-10 opacity-50">لا توجد حملات بعد</td></tr>
-              ) : (
-                campaigns.map(c => {
+              {campaigns.map(c => {
                   const TypeIcon = TYPE_ICONS[c.type]
                   return (
                     <tr key={c.id}>
@@ -141,34 +147,29 @@ export default function MarketingCampaigns() {
                               onClick={() => handleSend(c.id)}
                               className="p-2 rounded-lg hover:bg-green-50 text-green-500"
                               title="إرسال الآن"
+                              aria-label="إرسال الآن"
                             >
                               <PaperAirplaneIcon className="w-5 h-5" />
                             </button>
                           )}
-                          <Link href={`/admin/marketing/campaigns/${c.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
+                          <Link href={`/admin/marketing/campaigns/${c.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500" title="تعديل الحملة" aria-label="تعديل الحملة">
                             <PencilSquareIcon className="w-5 h-5" />
                           </Link>
-                          <button onClick={() => handleDelete(c.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                          <button onClick={() => handleDelete(c.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500" title="حذف الحملة" aria-label="حذف الحملة">
                             <TrashIcon className="w-5 h-5" />
                           </button>
                         </div>
                       </td>
                     </tr>
                   )
-                })
-              )}
+                })}
             </tbody>
           </table>
         </div>
 
         {/* Mobile Cards */}
         <div className="md:hidden p-4 space-y-3">
-          {loading ? (
-            <div className="text-center py-10 opacity-50">جاري التحميل...</div>
-          ) : campaigns.length === 0 ? (
-            <div className="text-center py-10 opacity-50">لا توجد حملات بعد</div>
-          ) : (
-            campaigns.map(c => {
+          {campaigns.map(c => {
               const TypeIcon = TYPE_ICONS[c.type]
               return (
                 <div key={c.id} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
@@ -201,20 +202,22 @@ export default function MarketingCampaigns() {
                           onClick={() => handleSend(c.id)}
                           className="p-2 rounded-lg hover:bg-green-50 text-green-500"
                           title="إرسال الآن"
+                          aria-label="إرسال الآن"
                         >
                           <PaperAirplaneIcon className="w-5 h-5" />
                         </button>
                       )}
-                      <button onClick={() => handleDelete(c.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                      <button onClick={() => handleDelete(c.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500" title="حذف الحملة" aria-label="حذف الحملة">
                         <TrashIcon className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
                 </div>
               )
-            })
-          )}
+          })}
         </div>
+        </>
+        )}
       </div>
     </div>
   )
