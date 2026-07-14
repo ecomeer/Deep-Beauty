@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDate, formatDateTime } from '@/lib/utils'
 import { ORDER_STATUSES } from '@/lib/order-status'
+import { toCsv, downloadCsv } from '@/lib/csv'
 import Link from 'next/link'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -109,25 +110,27 @@ export default function AdminOrders() {
   })
 
   function exportCSV() {
-    const headers = ['رقم الطلب', 'التاريخ', 'العميل', 'الهاتف', 'المنطقة', 'المبلغ', 'الحالة', 'طريقة الدفع']
-    const rows = filtered.map(o => [
-      o.order_number,
-      formatDate(o.created_at),
-      o.customer_name,
-      o.customer_phone,
-      o.address_area || '',
-      Number(o.total).toFixed(3),
-      STATUS_LABELS[o.status as keyof typeof STATUS_LABELS] || o.status,
-      o.payment_method,
+    const rows = filtered.map(o => ({
+      order_number: o.order_number,
+      date: formatDate(o.created_at),
+      customer_name: o.customer_name,
+      customer_phone: o.customer_phone,
+      address_area: o.address_area || '',
+      total: Number(o.total).toFixed(3),
+      status: STATUS_LABELS[o.status as keyof typeof STATUS_LABELS] || o.status,
+      payment_method: o.payment_method,
+    }))
+    const csv = toCsv(rows, [
+      { key: 'order_number', label: 'رقم الطلب' },
+      { key: 'date', label: 'التاريخ' },
+      { key: 'customer_name', label: 'العميل' },
+      { key: 'customer_phone', label: 'الهاتف' },
+      { key: 'address_area', label: 'المنطقة' },
+      { key: 'total', label: 'المبلغ' },
+      { key: 'status', label: 'الحالة' },
+      { key: 'payment_method', label: 'طريقة الدفع' },
     ])
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadCsv(`orders-${new Date().toISOString().slice(0, 10)}.csv`, csv)
   }
 
   // Derived from the central status list so no status (e.g. processing)

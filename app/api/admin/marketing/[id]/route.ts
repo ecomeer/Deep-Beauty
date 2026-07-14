@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'marketing')
   if (_authErr) return _authErr
   try {
     const body = await req.json()
@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'marketing')
   if (_authErr) return _authErr
   try {
     const { id } = await params
@@ -42,7 +42,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'marketing')
   if (_authErr) return _authErr
   try {
     const { id } = await params

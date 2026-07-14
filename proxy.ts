@@ -54,7 +54,14 @@ export async function proxy(request: NextRequest) {
     return response
   }
 
-  const isAdmin = hasAdminMetadata(user) || isEmailAllowListed(user?.email)
+  let isAdmin = hasAdminMetadata(user) || isEmailAllowListed(user?.email)
+
+  // A 'staff' account has no admin app_metadata/allowlist entry — check the
+  // DB role too (RLS lets a user read their own users row with the anon key).
+  if (!isAdmin && user) {
+    const { data: userRow } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
+    if (userRow?.role === 'staff') isAdmin = true
+  }
 
   // ── DEV PREVIEW BYPASS — local machine only, NOT Vercel ─────────
   if (isDevBypass() && isAdminRoute) {

@@ -51,6 +51,11 @@ export function stockNotifyLimiter(ip: string): boolean {
   return rateLimit(`stock-notify:${ip}`, 10, 5 * 60_000)
 }
 
+/** Pre-configured limiter: 20 abandoned-cart snapshot saves per 5 minutes per IP. */
+export function abandonedCartLimiter(ip: string): boolean {
+  return rateLimit(`abandoned-cart:${ip}`, 20, 5 * 60_000)
+}
+
 /** Extracts the client IP from forwarded headers set by the hosting proxy. */
 export function getClientIp(req: { headers: { get(name: string): string | null } }): string {
   return (

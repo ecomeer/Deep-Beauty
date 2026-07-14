@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 const PUBLIC_KEYS = [
   'announcement_text', 'whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url',
   'loyalty_kwd_per_point',
+  'meta_pixel_id', 'snap_pixel_id', 'gtm_id',
 ]
 
 export async function GET() {

@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
     const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic', {
       p_order: orderData,
       p_items: itemsPayload,
-      p_coupon_code: discount > 0 ? appliedCouponCode : null,
+      p_coupon_code: appliedCouponCode,
     })
 
     if (rpcError || !orderJson) {
@@ -234,7 +234,10 @@ export async function POST(req: NextRequest) {
       if (rpcError?.message?.includes('COUPON_LIMIT_REACHED')) {
         return NextResponse.json({ error: 'تجاوز كود الخصم الحد الأقصى للاستخدام' }, { status: 400 })
       }
-      return NextResponse.json({ error: rpcError?.message || 'فشل في إنشاء الطلب' }, { status: 500 })
+      if (rpcError?.message?.startsWith('Insufficient stock')) {
+        return NextResponse.json({ error: 'أحد المنتجات غير متوفر بالكمية المطلوبة' }, { status: 400 })
+      }
+      return NextResponse.json({ error: 'فشل في إنشاء الطلب' }, { status: 500 })
     }
 
     const order = orderJson as Record<string, unknown>
@@ -242,6 +245,18 @@ export async function POST(req: NextRequest) {
     // Award points earned on this order (non-critical, best-effort).
     if (pointsEarned > 0 && user_id) {
       try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: user_id, p_delta: pointsEarned }) } catch { /* non-critical */ }
+    }
+
+    // Mark any pending abandoned-cart snapshot for this phone as recovered
+    // (non-critical — best-effort, never blocks order confirmation)
+    try {
+      await supabaseAdmin
+        .from('abandoned_carts')
+        .update({ recovered: true, updated_at: new Date().toISOString() })
+        .eq('customer_phone', customer_phone)
+        .eq('recovered', false)
+    } catch {
+      // Non-critical
     }
 
     // Send push notification (fire and forget)

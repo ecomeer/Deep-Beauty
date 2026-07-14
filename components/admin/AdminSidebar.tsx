@@ -22,47 +22,55 @@ import {
   Bars3Icon,
   XMarkIcon,
   TagIcon,
+  ShoppingCartIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline'
+import type { Permission } from '@/lib/admin-permissions'
 
 // ─── Navigation structure ─────────────────────────────────────────────────
-const NAV_GROUPS = [
+// `permission` gates a link for 'staff' accounts (undefined = always
+// visible to any authenticated admin/staff). Full admins always see
+// everything, regardless of `permission`.
+const NAV_GROUPS: { label: string; links: { href: string; icon: React.ElementType; label: string; badgeKey?: string; permission?: Permission; adminOnly?: boolean }[] }[] = [
   {
     label: 'الرئيسي',
     links: [
       { href: '/admin/dashboard', icon: HomeIcon,     label: 'نظرة عامة' },
-      { href: '/admin/orders',    icon: InboxIcon,    label: 'الطلبات',   badgeKey: 'pendingOrders' },
+      { href: '/admin/orders',    icon: InboxIcon,    label: 'الطلبات',   badgeKey: 'pendingOrders', permission: 'orders' },
       { href: '/admin/stats',     icon: ChartBarIcon, label: 'الإحصائيات' },
     ],
   },
   {
     label: 'المتجر',
     links: [
-      { href: '/admin/products',   icon: ShoppingBagIcon, label: 'المنتجات' },
-      { href: '/admin/categories', icon: Squares2X2Icon,  label: 'الفئات' },
-      { href: '/admin/banners',    icon: PhotoIcon,        label: 'البنرات' },
-      { href: '/admin/reviews',    icon: StarIcon,         label: 'التقييمات' },
+      { href: '/admin/products',   icon: ShoppingBagIcon, label: 'المنتجات', permission: 'products' },
+      { href: '/admin/categories', icon: Squares2X2Icon,  label: 'الفئات',   permission: 'products' },
+      { href: '/admin/banners',    icon: PhotoIcon,        label: 'البنرات',  permission: 'products' },
+      { href: '/admin/reviews',    icon: StarIcon,         label: 'التقييمات', permission: 'reviews' },
     ],
   },
   {
     label: 'العملاء',
     links: [
-      { href: '/admin/customers',   icon: UsersIcon,    label: 'العملاء' },
-      { href: '/admin/newsletter',  icon: EnvelopeIcon, label: 'المشتركون' },
+      { href: '/admin/customers',   icon: UsersIcon,    label: 'العملاء',    permission: 'customers' },
+      { href: '/admin/newsletter',  icon: EnvelopeIcon, label: 'المشتركون',  permission: 'customers' },
     ],
   },
   {
     label: 'التسويق',
     links: [
-      { href: '/admin/flash-sales', icon: BoltIcon,       label: 'عروض الفلاش' },
-      { href: '/admin/marketing',   icon: MegaphoneIcon,  label: 'التسويق' },
-      { href: '/admin/marketing/coupons', icon: TagIcon,   label: 'الكوبونات' },
+      { href: '/admin/flash-sales', icon: BoltIcon,       label: 'عروض الفلاش', permission: 'marketing' },
+      { href: '/admin/marketing',   icon: MegaphoneIcon,  label: 'التسويق',     permission: 'marketing' },
+      { href: '/admin/marketing/coupons', icon: TagIcon,   label: 'الكوبونات',  permission: 'marketing' },
+      { href: '/admin/abandoned-carts', icon: ShoppingCartIcon, label: 'السلات المهملة', permission: 'marketing' },
     ],
   },
   {
     label: 'الإعدادات',
     links: [
-      { href: '/admin/shipping', icon: TruckIcon,       label: 'الشحن' },
-      { href: '/admin/settings', icon: Cog6ToothIcon,   label: 'الإعدادات' },
+      { href: '/admin/shipping', icon: TruckIcon,       label: 'الشحن',       permission: 'settings' },
+      { href: '/admin/settings', icon: Cog6ToothIcon,   label: 'الإعدادات',   permission: 'settings' },
+      { href: '/admin/team',     icon: UserGroupIcon,   label: 'الفريق',      adminOnly: true },
     ],
   },
 ]
@@ -106,95 +114,34 @@ function NavLink({
   )
 }
 
-// ── Sidebar Nav Content ─────────────────────────────────────────────────
-function SidebarContent({
-  pathname, badges, handleLogout, onLinkClick,
-}: {
-  pathname: string | null
-  badges: Badges
-  handleLogout: () => void
-  onLinkClick?: () => void
-}) {
-  return (
-    <>
-      {/* Logo */}
-      <div className="px-4 mb-6 pt-1">
-        <Link href="/" target="_blank" className="flex items-center gap-3 group">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
-            style={{ background: 'var(--primary)' }}
-          >
-            <span className="text-white font-bold text-sm tracking-widest">BD</span>
-          </div>
-          <div>
-            <p className="text-white font-bold text-sm tracking-wider leading-tight">Deep Beauty</p>
-            <span className="text-[10px] opacity-35 text-white">لوحة التحكم</span>
-          </div>
-        </Link>
-      </div>
-
-      {/* Navigation Groups */}
-      <nav className="flex-1 overflow-y-auto px-1 pb-4" style={{ scrollbarWidth: 'none' }}>
-        {NAV_GROUPS.map((group) => (
-          <div key={group.label} className="mb-4">
-            <p
-              className="px-5 mb-1.5 text-[9px] font-bold uppercase tracking-[0.16em]"
-              style={{ color: 'rgba(255,255,255,0.3)' }}
-            >
-              {group.label}
-            </p>
-            {group.links.map((link) => {
-              const badgeVal = link.badgeKey ? badges[link.badgeKey as keyof Badges] : undefined
-              return (
-                <NavLink
-                  key={link.href}
-                  href={link.href}
-                  icon={link.icon}
-                  label={link.label}
-                  isActive={!!pathname?.startsWith(link.href)}
-                  badge={badgeVal}
-                  onClick={onLinkClick}
-                />
-              )
-            })}
-          </div>
-        ))}
-      </nav>
-
-      {/* Bottom actions */}
-      <div className="mx-2 mb-2 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link
-          href="/"
-          target="_blank"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all"
-          style={{ color: 'rgba(255,255,255,0.45)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)' }}
-        >
-          <ShoppingBagIcon className="w-[18px] h-[18px] flex-shrink-0" />
-          <span>عرض المتجر</span>
-        </Link>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all"
-          style={{ color: 'rgba(239,68,68,0.7)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.9)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.7)' }}
-        >
-          <ArrowRightOnRectangleIcon className="w-[18px] h-[18px] flex-shrink-0" />
-          <span>تسجيل الخروج</span>
-        </button>
-      </div>
-    </>
-  )
-}
-
 // ─── Main Component ───────────────────────────────────────────────────────
 export default function AdminSidebar() {
   const pathname  = usePathname()
   const router    = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [badges, setBadges]         = useState<Badges>({})
+  const [role, setRole]             = useState<'admin' | 'staff'>('admin')
+  const [permissions, setPermissions] = useState<Permission[]>([])
+
+  // Fetch current admin's role/permissions once, so staff accounts only see
+  // nav items they're actually authorized for.
+  useEffect(() => {
+    fetch('/api/admin/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.role === 'staff') {
+          setRole('staff')
+          setPermissions(d.permissions ?? [])
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const canSee = (link: { permission?: Permission; adminOnly?: boolean }) => {
+    if (role === 'admin') return true
+    if (link.adminOnly) return false
+    return !link.permission || permissions.includes(link.permission)
+  }
 
   // Fetch badge counts once on mount, then every 2 minutes — NOT on every navigation
   useEffect(() => {
@@ -249,7 +196,7 @@ export default function AdminSidebar() {
               >
                 {group.label}
               </p>
-              {group.links.map((link) => {
+              {group.links.filter(canSee).map((link) => {
                 const badgeVal = link.badgeKey ? badges[link.badgeKey as keyof Badges] : undefined
                 return (
                   <NavLink

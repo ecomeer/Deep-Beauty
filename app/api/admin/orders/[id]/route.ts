@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth-admin'
 import { VALID_TRANSITIONS, type OrderStatus } from '@/lib/order-status'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'orders')
   if (_authErr) return _authErr
   const { id } = await params
   const [orderRes, itemsRes, trackingRes] = await Promise.all([
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'orders')
   if (_authErr) return _authErr
   const { id } = await params
   const body = await req.json()
@@ -32,9 +32,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .eq('id', id)
       .single()
 
-    fromStatus = current?.status as OrderStatus | undefined
-    const allowed = VALID_TRANSITIONS[fromStatus as OrderStatus] ?? []
-    if (current && !allowed.includes(body.status)) {
+    if (!current) {
+      return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 })
+    }
+
+    fromStatus = current.status as OrderStatus
+    const allowed = VALID_TRANSITIONS[fromStatus] ?? []
+    if (!allowed.includes(body.status)) {
       return NextResponse.json(
         { error: `لا يمكن الانتقال من "${current.status}" إلى "${body.status}"` },
         { status: 400 }
@@ -56,9 +60,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   if (!data) return NextResponse.json({ error: 'تم تعديل حالة الطلب من مكان آخر — أعد المحاولة' }, { status: 409 })
 
+  let restockWarning = false
   if (updateFields.status === 'cancelled') {
     const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: id })
-    if (restockErr) console.error('Failed to restock cancelled order:', restockErr)
+    if (restockErr) {
+      // The status change itself already committed and must not be rolled
+      // back here — surface the restock failure instead of only logging it,
+      // so admins have a way to notice and reconcile stock manually.
+      console.error('Failed to restock cancelled order:', restockErr)
+      restockWarning = true
+    }
 
     // Reverse this order's loyalty-points effect (non-critical, best-effort).
     const pointsDelta = (data.loyalty_points_redeemed ?? 0) - (data.loyalty_points_earned ?? 0)
@@ -67,5 +78,5 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
   }
 
-  return NextResponse.json({ data })
+  return NextResponse.json({ data, ...(restockWarning && { restockWarning: true }) })
 }
