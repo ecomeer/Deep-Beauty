@@ -205,6 +205,15 @@ Use dedicated non-production test identities stored as GitHub Actions secrets:
 
 Test on Vercel Preview + Supabase development branch or isolated test data. Never run destructive admin tests against production.
 
+### Browser-test environment variables
+
+The current Playwright suite is anonymous/public and does not require credentials:
+
+- `PLAYWRIGHT_BASE_URL`: optional local or non-production Preview URL. It defaults to local `http://127.0.0.1:3100`.
+- `VERCEL_AUTOMATION_BYPASS_SECRET`: optional environment-only Vercel Deployment Protection bypass for a protected Preview. Never commit its value.
+
+Authenticated admin, staff and customer suites are not part of the current public suite. When they are added, they must use dedicated non-production identities from environment variables only; no credential values belong in the repository.
+
 ## Recommended delivery order
 
 1. Permission bypass and RPC security.

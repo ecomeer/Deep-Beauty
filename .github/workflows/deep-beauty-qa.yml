@@ -7,12 +7,13 @@ on:
   pull_request:
     branches:
       - main
+      - qa/deep-beauty
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Website URL to test (production or Vercel Preview)'
+        description: 'Non-production URL to test (local or Vercel Preview)'
         required: false
-        default: 'https://www.deepbeautykw.com'
+        default: ''
 
 permissions:
   contents: read
@@ -27,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'https://www.deepbeautykw.com' }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
     steps:
       - name: Checkout repository
@@ -41,9 +42,6 @@ jobs:
 
       - name: Install project dependencies
         run: npm ci
-
-      - name: Install Playwright test runner
-        run: npm install --no-save @playwright/test@latest
 
       - name: Run unit tests
         run: npm test
@@ -60,7 +58,34 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Resolve Vercel Preview URL
+        id: preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          REQUESTED_URL: ${{ github.event.inputs.base_url }}
+        run: |
+          if [ -n "$REQUESTED_URL" ]; then
+            echo "url=$REQUESTED_URL" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          for attempt in $(seq 1 30); do
+            deployment_id=$(gh api "repos/${GITHUB_REPOSITORY}/deployments?sha=${DEPLOY_SHA}" --jq '[.[] | select(.environment == "Preview")] | first | .id // empty')
+            if [ -n "$deployment_id" ]; then
+              preview_url=$(gh api "repos/${GITHUB_REPOSITORY}/deployments/${deployment_id}/statuses" --jq '[.[] | select(.state == "success" and .environment == "Preview")] | first | .target_url // empty')
+              if [ -n "$preview_url" ]; then
+                echo "url=$preview_url" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo 'No successful Vercel Preview deployment was found for this commit.' >&2
+          exit 1
+
       - name: Run safe storefront tests
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.url }}
         run: npx playwright test
 
       - name: Upload Playwright evidence
