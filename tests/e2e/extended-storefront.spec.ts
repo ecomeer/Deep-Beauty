@@ -1,9 +1,5 @@
 import { expect, test } from '@playwright/test'
 
-async function openProducts(page: Parameters<typeof test>[0] extends never ? never : never) {
-  return page
-}
-
 // This suite is intentionally read-only. It never submits a checkout, consumes a
 // coupon, creates an account, or sends credentials to the authentication service.
 test.describe('Deep Beauty extended safe QA', () => {
@@ -34,7 +30,8 @@ test.describe('Deep Beauty extended safe QA', () => {
     expect(href).toMatch(/^\/products\/[a-zA-Z0-9-]+/)
 
     await firstProductLink.locator('h3').click()
-    await expect(page).toHaveURL(new RegExp(`${href!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\?|$)`))
+    const escapedHref = href!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    await expect(page).toHaveURL(new RegExp(`${escapedHref}(?:\\?|$)`))
     await expect(page.locator('h1').first()).toBeVisible()
   })
 
@@ -96,16 +93,16 @@ test.describe('Deep Beauty extended safe QA', () => {
 
     const adminMe = await request.get('/api/admin/me')
     expect(adminMe.status()).toBe(401)
-    await expect(adminMe.json()).resolves.toMatchObject({ error: 'Unauthorized' })
+    expect(await adminMe.json()).toMatchObject({ error: 'Unauthorized' })
 
     const accountOrders = await request.get('/api/account/orders')
     expect(accountOrders.status()).toBe(401)
-    await expect(accountOrders.json()).resolves.toMatchObject({ error: 'Unauthorized' })
+    expect(await accountOrders.json()).toMatchObject({ error: 'Unauthorized' })
 
     const missingCouponCode = await request.post('/api/coupons/validate', {
       data: { subtotal: 10 },
     })
     expect(missingCouponCode.status()).toBe(400)
-    await expect(missingCouponCode.json()).resolves.toMatchObject({ error: 'كود مطلوب' })
+    expect(await missingCouponCode.json()).toMatchObject({ error: 'كود مطلوب' })
   })
 })
