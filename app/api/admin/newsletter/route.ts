@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth-admin'
 import { escapeOrFilterValue } from '@/lib/utils'
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'customers')
   if (_authErr) return _authErr
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get('page') || '1')
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  const _authErr = await requireAdmin(req, 'customers')
   if (_authErr) return _authErr
   try {
     const body = await req.json()

@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/auth-admin'
 const PAGE_SIZE = 20
 
 export async function GET(request: NextRequest) {
-  const _authErr = await requireAdmin(request)
+  const _authErr = await requireAdmin(request, 'reviews')
   if (_authErr) return _authErr
   try {
     const { searchParams } = new URL(request.url)
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const _authErr = await requireAdmin(request)
+  const _authErr = await requireAdmin(request, 'reviews')
   if (_authErr) return _authErr
   try {
     const body = await request.json()
@@ -78,7 +78,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const _authErr = await requireAdmin(request)
+  const _authErr = await requireAdmin(request, 'reviews')
   if (_authErr) return _authErr
   try {
     const { searchParams } = new URL(request.url)

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { toArabicPrice, formatDateTime } from '@/lib/utils'
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { toCsv, downloadCsv } from '@/lib/csv'
+import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { useAdminList } from '@/hooks/useAdminList'
 
 interface Customer {
@@ -36,11 +37,28 @@ export default function AdminCustomers() {
     setSubmittedSearch(search)
   }
 
+  function exportCSV() {
+    const csv = toCsv(customers, [
+      { key: 'full_name', label: 'الاسم' },
+      { key: 'phone', label: 'الهاتف' },
+      { key: 'email', label: 'البريد' },
+      { key: 'orders_count', label: 'عدد الطلبات' },
+      { key: 'total_spent', label: 'إجمالي المنفق' },
+      { key: 'last_order_at', label: 'آخر طلب' },
+    ])
+    downloadCsv(`customers-${new Date().toISOString().slice(0, 10)}.csv`, csv)
+  }
+
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--text-dark)]">العملاء</h1>
-        <p className="text-sm opacity-60">جميع العملاء بما فيهم الطلبات بدون تسجيل ({total})</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--text-dark)]">العملاء</h1>
+          <p className="text-sm opacity-60">جميع العملاء بما فيهم الطلبات بدون تسجيل ({total})</p>
+        </div>
+        <button type="button" onClick={exportCSV} className="btn-outline px-4 py-2 text-sm flex items-center gap-2">
+          <ArrowDownTrayIcon className="w-4 h-4" /> تصدير CSV
+        </button>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border overflow-hidden" style={{ borderColor: 'var(--beige)' }}>
