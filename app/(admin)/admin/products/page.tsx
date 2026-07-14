@@ -264,10 +264,10 @@ export default function AdminProducts() {
                       </td>
                       <td>
                         <div className="flex items-center gap-2">
-                          <Link href={`/admin/products/${p.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
+                          <Link href={`/admin/products/${p.id}`} title="تعديل المنتج" aria-label="تعديل المنتج" className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
                             <PencilSquareIcon className="w-5 h-5" />
                           </Link>
-                          <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                          <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" aria-label="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
                             <TrashIcon className="w-5 h-5" />
                           </button>
                         </div>
@@ -308,10 +308,10 @@ export default function AdminProducts() {
                     >
                       {p.is_active ? 'نشط' : 'معطل'}
                     </button>
-                    <Link href={`/admin/products/${p.id}`} className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
+                    <Link href={`/admin/products/${p.id}`} title="تعديل المنتج" aria-label="تعديل المنتج" className="p-2 rounded-lg hover:bg-blue-50 text-blue-500">
                       <PencilSquareIcon className="w-5 h-5" />
                     </Link>
-                    <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                    <button type="button" onClick={() => handleDelete(p.id)} title="حذف المنتج" aria-label="حذف المنتج" className="p-2 rounded-lg hover:bg-red-50 text-red-500">
                       <TrashIcon className="w-5 h-5" />
                     </button>
                   </div>
