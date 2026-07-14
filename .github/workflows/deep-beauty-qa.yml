@@ -1,22 +1,12 @@
-name: Deep Beauty Playwright QA
+name: Deep Beauty QA
 
 on:
   push:
     branches:
       - qa/deep-beauty
-    paths:
-      - 'playwright.config.ts'
-      - 'tests/e2e/**'
-      - 'tsconfig.json'
-      - '.github/workflows/deep-beauty-qa.yml'
   pull_request:
     branches:
       - main
-    paths:
-      - 'playwright.config.ts'
-      - 'tests/e2e/**'
-      - 'tsconfig.json'
-      - '.github/workflows/deep-beauty-qa.yml'
   workflow_dispatch:
     inputs:
       base_url:
@@ -27,11 +17,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deep-beauty-qa-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  storefront-e2e:
-    name: Storefront E2E
+  quality-and-e2e:
+    name: Quality Gates + Storefront E2E
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     env:
       PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'https://www.deepbeautykw.com' }}
 
@@ -50,6 +44,18 @@ jobs:
 
       - name: Install Playwright test runner
         run: npm install --no-save @playwright/test@latest
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run production build
+        run: npm run build
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
