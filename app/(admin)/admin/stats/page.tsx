@@ -93,7 +93,7 @@ export default function StatsPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="stats-card">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
               <ArrowTrendingUpIcon className="w-5 h-5 text-green-600" />
@@ -103,7 +103,7 @@ export default function StatsPage() {
           <p className="text-2xl font-bold">{toArabicPrice(totalRevenue)}</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="stats-card">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
               <ShoppingBagIcon className="w-5 h-5 text-blue-600" />
@@ -113,7 +113,7 @@ export default function StatsPage() {
           <p className="text-2xl font-bold">{totalOrders}</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="stats-card">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
               <StarIcon className="w-5 h-5 text-yellow-600" />
@@ -126,7 +126,7 @@ export default function StatsPage() {
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="stats-card">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
               <UsersIcon className="w-5 h-5 text-purple-600" />
@@ -139,7 +139,7 @@ export default function StatsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Products */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-2xl border shadow-sm p-6" style={{ borderColor: 'var(--beige)' }}>
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
             <ShoppingBagIcon className="w-5 h-5" />
             المنتجات الأكثر مبيعاً
@@ -172,7 +172,7 @@ export default function StatsPage() {
         </div>
 
         {/* Top Customers */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-2xl border shadow-sm p-6" style={{ borderColor: 'var(--beige)' }}>
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
             <UsersIcon className="w-5 h-5" />
             أفضل العملاء
@@ -204,7 +204,7 @@ export default function StatsPage() {
         </div>
 
         {/* Reviews Stats */}
-        <div className="bg-white rounded-xl shadow-sm p-6 lg:col-span-2">
+        <div className="bg-white rounded-2xl border shadow-sm p-6 lg:col-span-2" style={{ borderColor: 'var(--beige)' }}>
           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
             <StarIcon className="w-5 h-5" />
             إحصائيات التقييمات

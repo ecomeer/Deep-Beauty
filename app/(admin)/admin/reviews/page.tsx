@@ -184,6 +184,7 @@ export default function ReviewsPage() {
                           disabled={processing === review.id}
                           className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
                           title="موافقة"
+                          aria-label="موافقة"
                         >
                           <CheckCircleIcon className="w-5 h-5" />
                         </button>
@@ -194,6 +195,7 @@ export default function ReviewsPage() {
                           disabled={processing === review.id}
                           className="p-2 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
                           title="رفض"
+                          aria-label="رفض"
                         >
                           <XCircleIcon className="w-5 h-5" />
                         </button>
@@ -203,6 +205,7 @@ export default function ReviewsPage() {
                         disabled={processing === review.id}
                         className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
                         title="حذف"
+                        aria-label="حذف"
                       >
                         <TrashIcon className="w-5 h-5" />
                       </button>
