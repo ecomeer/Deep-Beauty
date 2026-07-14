@@ -99,6 +99,8 @@ test.describe('Deep Beauty extended safe QA', () => {
     expect(accountOrders.status()).toBe(401)
     expect(await accountOrders.json()).toMatchObject({ error: 'Unauthorized' })
 
+    // Missing-code validation exits before the coupon RPC, so this check cannot
+    // increment a coupon usage counter or mutate a promotion record.
     const missingCouponCode = await request.post('/api/coupons/validate', {
       data: { subtotal: 10 },
     })
