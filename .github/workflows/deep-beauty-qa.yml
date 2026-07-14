@@ -7,6 +7,15 @@ on:
     paths:
       - 'playwright.config.ts'
       - 'tests/e2e/**'
+      - 'tsconfig.json'
+      - '.github/workflows/deep-beauty-qa.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'playwright.config.ts'
+      - 'tests/e2e/**'
+      - 'tsconfig.json'
       - '.github/workflows/deep-beauty-qa.yml'
   workflow_dispatch:
     inputs:
