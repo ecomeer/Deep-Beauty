@@ -46,6 +46,11 @@ export function checkoutLimiter(ip: string): boolean {
   return rateLimit(`checkout:${ip}`, 5, 60_000)
 }
 
+/** Pre-configured limiter: 10 back-in-stock subscriptions per 5 minutes per IP. */
+export function stockNotifyLimiter(ip: string): boolean {
+  return rateLimit(`stock-notify:${ip}`, 10, 5 * 60_000)
+}
+
 /** Pre-configured limiter: 20 abandoned-cart snapshot saves per 5 minutes per IP. */
 export function abandonedCartLimiter(ip: string): boolean {
   return rateLimit(`abandoned-cart:${ip}`, 20, 5 * 60_000)

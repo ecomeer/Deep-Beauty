@@ -15,6 +15,8 @@ export default function AdminProducts() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [stockFilter, setStockFilter] = useState('all')
   const [page, setPage] = useState(1)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkApplying, setBulkApplying] = useState(false)
 
   const { items: categories } = useAdminList<Category>(
     '/api/admin/categories',
@@ -54,6 +56,50 @@ export default function AdminProducts() {
     })
     if (!res.ok) toast.error('حدث خطأ')
     else fetchProducts()
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    setSelectedIds(prev => prev.size === filtered.length ? new Set() : new Set(filtered.map(p => p.id)))
+  }
+
+  async function bulkSetActive(isActive: boolean) {
+    if (selectedIds.size === 0) return
+    setBulkApplying(true)
+    await Promise.all(
+      Array.from(selectedIds).map(id =>
+        fetch(`/api/admin/products/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_active: isActive }),
+        })
+      )
+    )
+    setBulkApplying(false)
+    setSelectedIds(new Set())
+    toast.success('تم التحديث')
+    fetchProducts()
+  }
+
+  async function bulkDelete() {
+    if (selectedIds.size === 0) return
+    if (!confirm(`هل أنت متأكد من حذف ${selectedIds.size} منتج؟`)) return
+    setBulkApplying(true)
+    await Promise.all(
+      Array.from(selectedIds).map(id => fetch(`/api/admin/products/${id}`, { method: 'DELETE' }))
+    )
+    setBulkApplying(false)
+    setSelectedIds(new Set())
+    toast.success('تم الحذف')
+    fetchProducts()
   }
 
   // Stock filter is client-side on current page
@@ -139,11 +185,30 @@ export default function AdminProducts() {
           </div>
         </div>
 
+        {/* Bulk actions bar */}
+        {selectedIds.size > 0 && (
+          <div className="flex flex-wrap items-center gap-3 p-3 border-b bg-amber-50" style={{ borderColor: 'var(--beige)' }}>
+            <span className="text-sm font-bold">{selectedIds.size} محدد</span>
+            <button type="button" onClick={() => bulkSetActive(true)} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تفعيل</button>
+            <button type="button" onClick={() => bulkSetActive(false)} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تعطيل</button>
+            <button type="button" onClick={bulkDelete} disabled={bulkApplying} className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50">حذف</button>
+            <button type="button" onClick={() => setSelectedIds(new Set())} className="text-xs text-gray-500 hover:text-gray-700">إلغاء التحديد</button>
+          </div>
+        )}
+
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="admin-table">
             <thead>
               <tr>
+                <th className="w-8">
+                  <input
+                    type="checkbox"
+                    checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                    onChange={toggleSelectAll}
+                    title="تحديد الكل"
+                  />
+                </th>
                 <th>الصورة</th>
                 <th>الاسم</th>
                 <th>الفئة</th>
@@ -155,12 +220,15 @@ export default function AdminProducts() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-10 opacity-50">لا توجد منتجات تطابق بحثك</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 opacity-50">لا توجد منتجات تطابق بحثك</td></tr>
               ) : (
                 filtered.map(p => (
                   <tr key={p.id}>
+                    <td>
+                      <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelect(p.id)} title="تحديد" />
+                    </td>
                     <td>
                       <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
                         {p.images?.[0]

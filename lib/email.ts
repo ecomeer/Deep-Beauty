@@ -154,3 +154,45 @@ export function orderStatusEmail(order: OrderEmailData, message?: string): { sub
 export function newsletterEmail(subject: string, contentHtml: string): { subject: string; html: string } {
   return { subject, html: emailShell(subject, contentHtml) }
 }
+
+export function abandonedCartEmail(
+  customerName: string | null,
+  items: { name_ar: string; quantity: number }[],
+  checkoutUrl: string
+): { subject: string; html: string } {
+  const greeting = customerName ? `مرحباً ${customerName}،` : 'مرحباً،'
+  const itemsList = items.map((i) => `<li>${i.name_ar} × ${i.quantity}</li>`).join('')
+  const body = `
+    <p>${greeting}</p>
+    <p>لاحظنا إنك تركتِ بعض المنتجات بسلتك ولم تكملي الطلب:</p>
+    <ul style="padding-right:20px;">${itemsList}</ul>
+    <p style="margin-top:16px;">
+      <a href="${checkoutUrl}" style="display:inline-block;background:#8B6F5C;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">
+        إكمال الطلب
+      </a>
+    </p>
+  `
+  return {
+    subject: 'نسيتِ شيئاً بسلتك 🌸 — Deep Beauty',
+    html: emailShell('سلتك بانتظارك', body),
+  }
+}
+
+export function backInStockEmail(productName: string, productUrl: string): { subject: string; html: string } {
+  const body = `
+    <p>مرحباً،</p>
+    <p>المنتج الذي طلبتِ إشعارك عنه متوفر الآن بالمخزون:</p>
+    <div style="background:#FAF6F1;border-radius:8px;padding:14px 18px;text-align:center;font-size:17px;font-weight:bold;color:#8B6F5C;margin:12px 0;">
+      ${productName}
+    </div>
+    <p style="margin-top:16px;">
+      <a href="${productUrl}" style="display:inline-block;background:#8B6F5C;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">
+        تسوقي الآن
+      </a>
+    </p>
+  `
+  return {
+    subject: `${productName} متوفر الآن! — Deep Beauty`,
+    html: emailShell('المنتج متوفر الآن', body),
+  }
+}

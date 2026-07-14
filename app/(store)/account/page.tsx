@@ -23,6 +23,7 @@ interface User {
   name: string
   email: string
   phone?: string
+  loyaltyPoints?: number
 }
 
 interface Order {
@@ -122,11 +123,12 @@ export default function AccountPage() {
         </div>
 
         {/* Stats */}
-        <div className="max-w-2xl mx-auto px-4 pb-5 grid grid-cols-3 gap-3 mt-2">
+        <div className="max-w-2xl mx-auto px-4 pb-5 grid grid-cols-4 gap-3 mt-2">
           {[
             { val: stats.totalOrders,                     label: 'طلب' },
             { val: Number(stats.totalSpent).toFixed(3),   label: 'د.ك' },
             { val: stats.wishlistCount,                    label: 'مفضلة' },
+            { val: user.loyaltyPoints ?? 0,                label: 'نقطة' },
           ].map(({ val, label }) => (
             <div key={label} className="text-center rounded-2xl py-3" style={{ background: 'rgba(255,255,255,0.15)' }}>
               <p className="text-white font-bold text-xl leading-none">{val}</p>

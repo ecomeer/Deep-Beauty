@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
       payment_method,
       user_id,
       items,
+      redeem_points,
     } = body as {
       orderNumber: string
       customer_name: string
@@ -54,6 +55,7 @@ export async function POST(req: NextRequest) {
       payment_method: string
       user_id?: string
       items: CheckoutItem[]
+      redeem_points?: number
     }
 
     // Validate required fields
@@ -116,6 +118,48 @@ export async function POST(req: NextRequest) {
       appliedCouponCode = coupon.code
     }
 
+    // ── Redeem loyalty points (logged-in customers only) ──
+    // Points are claimed atomically here (conditional decrement) before the
+    // order exists, so two concurrent checkouts can't both spend the same
+    // balance. If order creation fails below, the claimed points are
+    // refunded.
+    let pointsDiscount = 0
+    let pointsRedeemed = 0
+    if (user_id && redeem_points && redeem_points > 0) {
+      const { data: rateRow } = await supabaseAdmin
+        .from('settings')
+        .select('value')
+        .eq('key', 'loyalty_kwd_per_point')
+        .maybeSingle()
+      const kwdPerPoint = Number(rateRow?.value) || 0.01
+
+      const { data: userRow } = await supabaseAdmin
+        .from('users')
+        .select('loyalty_points')
+        .eq('id', user_id)
+        .maybeSingle()
+      const balance = userRow?.loyalty_points ?? 0
+
+      const maxAffordablePoints = Math.floor(Math.max(0, subtotal - discount) / kwdPerPoint)
+      pointsRedeemed = Math.max(0, Math.min(Math.floor(redeem_points), balance, maxAffordablePoints))
+
+      if (pointsRedeemed > 0) {
+        const { data: claimed } = await supabaseAdmin
+          .from('users')
+          .update({ loyalty_points: balance - pointsRedeemed })
+          .eq('id', user_id)
+          .gte('loyalty_points', pointsRedeemed)
+          .select('id')
+          .maybeSingle()
+
+        if (claimed) {
+          pointsDiscount = Math.round(pointsRedeemed * kwdPerPoint * 1000) / 1000
+        } else {
+          pointsRedeemed = 0
+        }
+      }
+    }
+
     // ── Re-validate shipping server-side ──
     const { data: zones } = await supabaseAdmin
       .from('shipping_zones')
@@ -126,7 +170,11 @@ export async function POST(req: NextRequest) {
     const shippingResult = calculateShipping(resolvedCountry, subtotal, (zones || []) as unknown as ShippingZone[])
     const shippingCost = shippingResult.rate
 
-    const total = Math.max(0, subtotal - discount + shippingCost)
+    const total = Math.max(0, subtotal - discount - pointsDiscount + shippingCost)
+
+    // Points earned on this order's net product spend (after coupon, before
+    // the points redemption/shipping noise), floored to whole points.
+    const pointsEarned = user_id ? Math.floor(Math.max(0, subtotal - discount)) : 0
 
     // Build order payload for atomic RPC
     const orderData: Record<string, unknown> = {
@@ -149,6 +197,8 @@ export async function POST(req: NextRequest) {
       status: 'pending',
       payment_method,
       payment_status: 'unpaid',
+      loyalty_points_earned: pointsEarned,
+      loyalty_points_redeemed: pointsRedeemed,
     }
     if (user_id) orderData.user_id = user_id
 
@@ -176,6 +226,11 @@ export async function POST(req: NextRequest) {
     })
 
     if (rpcError || !orderJson) {
+      // Refund any points claimed above — the order that would have spent
+      // them never committed.
+      if (pointsRedeemed > 0 && user_id) {
+        try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: user_id, p_delta: pointsRedeemed }) } catch { /* non-critical */ }
+      }
       if (rpcError?.message?.includes('COUPON_LIMIT_REACHED')) {
         return NextResponse.json({ error: 'تجاوز كود الخصم الحد الأقصى للاستخدام' }, { status: 400 })
       }
@@ -186,6 +241,11 @@ export async function POST(req: NextRequest) {
     }
 
     const order = orderJson as Record<string, unknown>
+
+    // Award points earned on this order (non-critical, best-effort).
+    if (pointsEarned > 0 && user_id) {
+      try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: user_id, p_delta: pointsEarned }) } catch { /* non-critical */ }
+    }
 
     // Mark any pending abandoned-cart snapshot for this phone as recovered
     // (non-critical — best-effort, never blocks order confirmation)

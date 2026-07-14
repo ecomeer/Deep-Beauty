@@ -70,6 +70,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       console.error('Failed to restock cancelled order:', restockErr)
       restockWarning = true
     }
+
+    // Reverse this order's loyalty-points effect (non-critical, best-effort).
+    const pointsDelta = (data.loyalty_points_redeemed ?? 0) - (data.loyalty_points_earned ?? 0)
+    if (pointsDelta !== 0 && data.user_id) {
+      try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: data.user_id, p_delta: pointsDelta }) } catch { /* non-critical */ }
+    }
   }
 
   return NextResponse.json({ data, ...(restockWarning && { restockWarning: true }) })

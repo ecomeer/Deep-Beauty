@@ -74,6 +74,9 @@ export default function EnhancedProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
   const [addingToCart, setAddingToCart] = useState(false)
+  const [notifyEmail, setNotifyEmail] = useState('')
+  const [notifySubmitting, setNotifySubmitting] = useState(false)
+  const [notifySubscribed, setNotifySubscribed] = useState(false)
 
   const isWishlisted = product ? isInWishlist(product.id) : false
 
@@ -123,6 +126,29 @@ export default function EnhancedProductDetail() {
       },
     })
     setTimeout(() => setAddingToCart(false), 1500)
+  }
+
+  const handleNotifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!product || !notifyEmail.trim()) return
+    setNotifySubmitting(true)
+    try {
+      const res = await fetch('/api/stock-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product.id, email: notifyEmail.trim() }),
+      })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        toast.error(json.error || 'حدث خطأ')
+      } else {
+        setNotifySubscribed(true)
+        toast.success('سنعلمك بالبريد عند توفر المنتج ✅')
+      }
+    } catch {
+      toast.error('تعذّر الاشتراك — تأكدي من اتصالك بالإنترنت')
+    }
+    setNotifySubmitting(false)
   }
 
   const handleToggleWishlist = () => {
@@ -524,6 +550,34 @@ export default function EnhancedProductDetail() {
                 <ShareIcon className="w-6 h-6 text-[var(--on-surface-variant)]" />
               </motion.button>
             </div>
+
+            {/* Back-in-stock notify form */}
+            {product.stock_quantity === 0 && (
+              notifySubscribed ? (
+                <p className="mt-3 text-sm text-emerald-600 font-medium">
+                  ✅ سنعلمك بالبريد الإلكتروني عند توفر المنتج
+                </p>
+              ) : (
+                <form onSubmit={handleNotifySubmit} className="mt-3 flex gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={notifyEmail}
+                    onChange={(e) => setNotifyEmail(e.target.value)}
+                    placeholder="بريدك الإلكتروني"
+                    dir="ltr"
+                    className="input-field flex-1 text-sm"
+                  />
+                  <button
+                    type="submit"
+                    disabled={notifySubmitting}
+                    className="btn-outline px-4 py-2 text-sm whitespace-nowrap disabled:opacity-50"
+                  >
+                    {notifySubmitting ? '...' : 'أعلميني عند التوفر'}
+                  </button>
+                </form>
+              )
+            )}
           </motion.div>
         </div>
 

@@ -37,6 +37,7 @@ interface AuthMeResponse {
     email?: string
     name?: string
     phone?: string
+    loyaltyPoints?: number
   }
 }
 
@@ -71,6 +72,20 @@ export default function EnhancedCheckoutPage() {
   // Shipping from admin zones
   const [shippingCost, setShippingCost] = useState(0)
   const [freeThreshold, setFreeThreshold] = useState<number | null>(null)
+
+  // Loyalty points redemption
+  const [kwdPerPoint, setKwdPerPoint] = useState(0.01)
+  const [usePoints, setUsePoints] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        const rate = data?.settings?.find((s: { key: string }) => s.key === 'loyalty_kwd_per_point')?.value
+        if (rate) setKwdPerPoint(Number(rate))
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     fetch('/api/shipping/calculate', {
@@ -121,7 +136,13 @@ export default function EnhancedCheckoutPage() {
   }, [countryCode])
 
   const shipping = freeThreshold !== null && subtotal >= freeThreshold ? 0 : shippingCost
-  const total = subtotal + shipping - couponDiscount
+  const pointsBalance = userData?.loyaltyPoints ?? 0
+  const maxRedeemablePoints = Math.min(
+    pointsBalance,
+    Math.floor(Math.max(0, subtotal - couponDiscount) / kwdPerPoint)
+  )
+  const pointsDiscount = usePoints ? Math.round(maxRedeemablePoints * kwdPerPoint * 1000) / 1000 : 0
+  const total = subtotal + shipping - couponDiscount - pointsDiscount
 
   // Debounced abandoned-cart snapshot: once the phone number is valid and
   // there are items in the cart, save a recovery snapshot a couple seconds
@@ -187,8 +208,10 @@ export default function EnhancedCheckoutPage() {
     setSubmitting(true)
     trackInitiateCheckout(Math.max(0, total), items.length)
     try {
-      // Create account first if requested
-      let userId = null
+      // Create account first if requested. Already-logged-in customers keep
+      // their existing id so the order (and any loyalty points) attach to
+      // their account instead of being created as a guest order.
+      let userId = userData?.id ?? null
       if (createAccount && form.customer_email) {
         const registerRes = await fetch('/api/auth/register', {
           method: 'POST',
@@ -232,6 +255,7 @@ export default function EnhancedCheckoutPage() {
           total: Math.max(0, total),
           coupon_code: couponApplied || null,
           coupon_discount: couponDiscount,
+          redeem_points: usePoints ? maxRedeemablePoints : 0,
           country_code: countryConfig.code,
           payment_method: paymentMethod,
           user_id: userId || null,
@@ -673,6 +697,23 @@ export default function EnhancedCheckoutPage() {
                   )}
                 </div>
 
+                {/* Loyalty points redemption */}
+                {isLoggedIn && pointsBalance > 0 && (
+                  <div className="border-t pt-4 mb-4" style={{ borderColor: 'var(--beige)' }}>
+                    <label className="flex items-center justify-between gap-3 cursor-pointer">
+                      <span className="text-sm">
+                        استخدام نقاطي ({pointsBalance} نقطة{maxRedeemablePoints > 0 ? ` — خصم ${formatPrice(maxRedeemablePoints * kwdPerPoint)}` : ''})
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={usePoints}
+                        onChange={(e) => setUsePoints(e.target.checked)}
+                        className="w-5 h-5"
+                      />
+                    </label>
+                  </div>
+                )}
+
                 {/* Totals */}
                 <div className="space-y-2 text-sm border-t pt-4" style={{ borderColor: 'var(--beige)' }}>
                   <div className="flex justify-between">
@@ -689,6 +730,12 @@ export default function EnhancedCheckoutPage() {
                     <div className="flex justify-between text-green-600">
                       <span>خصم الكوبون</span>
                       <span dir="ltr">- {formatPrice(couponDiscount)}</span>
+                    </div>
+                  )}
+                  {pointsDiscount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>خصم النقاط</span>
+                      <span dir="ltr">- {formatPrice(pointsDiscount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-lg font-bold pt-2 border-t" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>

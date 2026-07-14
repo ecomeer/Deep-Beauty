@@ -30,6 +30,9 @@ export default function AdminOrders() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkStatus, setBulkStatus] = useState('')
+  const [bulkApplying, setBulkApplying] = useState(false)
 
   async function fetchOrders() {
     setLoading(true)
@@ -61,6 +64,40 @@ export default function AdminOrders() {
     })
     if (!res.ok) toast.error('حدث خطأ أثناء تحديث الحالة')
     else { toast.success('تم تحديث الطلب بنجاح'); fetchOrders() }
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    setSelectedIds(prev => prev.size === filtered.length ? new Set() : new Set(filtered.map(o => o.id)))
+  }
+
+  async function applyBulkStatus() {
+    if (!bulkStatus || selectedIds.size === 0) return
+    setBulkApplying(true)
+    const results = await Promise.all(
+      Array.from(selectedIds).map(id =>
+        fetch(`/api/admin/orders/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: bulkStatus }),
+        }).then(r => r.ok)
+      )
+    )
+    const failed = results.filter(ok => !ok).length
+    setBulkApplying(false)
+    setSelectedIds(new Set())
+    setBulkStatus('')
+    if (failed > 0) toast.error(`فشل تحديث ${failed} طلب — قد يكون الانتقال غير مسموح لبعضها`)
+    else toast.success('تم تحديث الطلبات المحددة')
+    fetchOrders()
   }
 
   // Date filter is client-side on current page only
@@ -178,11 +215,46 @@ export default function AdminOrders() {
           </div>
         </div>
 
+        {/* Bulk actions bar */}
+        {selectedIds.size > 0 && (
+          <div className="flex flex-wrap items-center gap-3 p-3 border-b bg-amber-50" style={{ borderColor: 'var(--beige)' }}>
+            <span className="text-sm font-bold">{selectedIds.size} محدد</span>
+            <select
+              value={bulkStatus}
+              onChange={e => setBulkStatus(e.target.value)}
+              className="text-xs border rounded-lg px-2 py-1.5 outline-none bg-white font-medium"
+              style={{ borderColor: 'var(--dark-beige)' }}
+            >
+              <option value="">اختر حالة جديدة...</option>
+              {ORDER_STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+            </select>
+            <button
+              type="button"
+              onClick={applyBulkStatus}
+              disabled={!bulkStatus || bulkApplying}
+              className="btn-primary text-xs px-4 py-1.5 disabled:opacity-50"
+            >
+              {bulkApplying ? 'جاري التطبيق...' : 'تطبيق'}
+            </button>
+            <button type="button" onClick={() => setSelectedIds(new Set())} className="text-xs text-gray-500 hover:text-gray-700">
+              إلغاء التحديد
+            </button>
+          </div>
+        )}
+
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="admin-table">
             <thead>
               <tr>
+                <th className="w-8">
+                  <input
+                    type="checkbox"
+                    checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                    onChange={toggleSelectAll}
+                    title="تحديد الكل"
+                  />
+                </th>
                 <th>رقم الطلب</th>
                 <th>التاريخ</th>
                 <th>العميل</th>
@@ -195,12 +267,15 @@ export default function AdminOrders() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
+                <tr><td colSpan={9} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={8} className="text-center py-10 opacity-50">لا توجد طلبات تطابق بحثك</td></tr>
+                <tr><td colSpan={9} className="text-center py-10 opacity-50">لا توجد طلبات تطابق بحثك</td></tr>
               ) : (
                 filtered.map(order => (
                   <tr key={order.id}>
+                    <td>
+                      <input type="checkbox" checked={selectedIds.has(order.id)} onChange={() => toggleSelect(order.id)} title="تحديد" />
+                    </td>
                     <td className="font-en font-bold text-xs">{order.order_number}</td>
                     <td className="text-xs" dir="ltr">{formatDateTime(order.created_at)}</td>
                     <td className="font-medium">{order.customer_name}</td>
