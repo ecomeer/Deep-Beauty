@@ -6,24 +6,34 @@ const configuredHost = new URL(configuredBaseUrl).hostname.replace(/^www\./, '')
 function monitorApplication(page: Page) {
   const consoleErrors: string[] = []
   const serverErrors: string[] = []
+  const unexpectedClientErrors: string[] = []
 
   page.on('console', (message) => {
     if (message.type() !== 'error') return
 
     const text = message.text()
     const ignoredThirdPartyError = /(facebook|connect\.facebook|snapchat|sc-static|googletagmanager|google-analytics|doubleclick)/i.test(text)
-    if (!ignoredThirdPartyError) consoleErrors.push(text)
+    const genericExpectedGuest401 = /Failed to load resource: the server responded with a status of 401/i.test(text)
+
+    if (!ignoredThirdPartyError && !genericExpectedGuest401) consoleErrors.push(text)
   })
 
   page.on('response', (response) => {
     const requestType = response.request().resourceType()
     if (!['document', 'xhr', 'fetch'].includes(requestType)) return
-    if (response.status() < 500) return
 
     const url = new URL(response.url())
     const responseHost = url.hostname.replace(/^www\./, '')
-    if (responseHost === configuredHost) {
+    if (responseHost !== configuredHost) return
+
+    if (response.status() >= 500) {
       serverErrors.push(`${response.status()} ${url.pathname}`)
+      return
+    }
+
+    const isExpectedGuestAuthResponse = response.status() === 401 && url.pathname === '/api/auth/me'
+    if (response.status() >= 400 && !isExpectedGuestAuthResponse) {
+      unexpectedClientErrors.push(`${response.status()} ${url.pathname}`)
     }
   })
 
@@ -31,6 +41,7 @@ function monitorApplication(page: Page) {
     assertHealthy() {
       expect(consoleErrors, 'Relevant browser console errors').toEqual([])
       expect(serverErrors, 'Unexpected 5xx application responses').toEqual([])
+      expect(unexpectedClientErrors, 'Unexpected same-origin 4xx responses').toEqual([])
     },
   }
 }
@@ -57,8 +68,13 @@ test.describe('Deep Beauty storefront smoke tests', () => {
     expect(response?.status() ?? 500).toBeLessThan(500)
     await expect(page).toHaveTitle(/Deep Beauty|ديب بيوتي/i)
 
-    const bodyText = (await page.locator('body').innerText()).trim()
-    expect(bodyText.length).toBeGreaterThan(100)
+    const body = page.locator('body')
+    await expect.poll(
+      async () => (await body.innerText()).trim().length,
+      { timeout: 30_000, message: 'Homepage should finish loading meaningful storefront content' }
+    ).toBeGreaterThan(100)
+
+    const bodyText = (await body.innerText()).trim()
     expect(bodyText).toMatch(/ديب بيوتي|Deep Beauty|تسوق|منتج/i)
 
     health.assertHealthy()
