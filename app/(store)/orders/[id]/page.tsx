@@ -2,15 +2,19 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { toArabicPrice, formatDateTime } from '@/lib/utils'
+import { requireUser } from '@/lib/supabase-server'
 
 type Props = { params: Promise<{ id: string }> }
 
 export default async function OrderDetailPage({ params }: Props) {
   const { id } = await params
+  const { user, error: authError } = await requireUser()
+  if (authError || !user) notFound()
   const { data: order } = await supabaseAdmin
     .from('orders')
     .select('id,order_number,customer_name,status,payment_status,payment_method,total,subtotal,shipping_cost,coupon_discount,created_at,address_area,order_items(*)')
     .eq('id', id)
+    .or(`user_id.eq.${user.id},customer_email.eq.${user.email}`)
     .maybeSingle()
 
   if (!order) notFound()

@@ -13,6 +13,7 @@ interface InvoiceItem {
   quantity: number
   unit_price: number
   total_price: number
+  product_image_url?: string | null
 }
 
 export default async function OrderInvoicePage({ params }: Props) {
@@ -24,7 +25,7 @@ export default async function OrderInvoicePage({ params }: Props) {
       address_area, address_block, address_street, address_house,
       subtotal, shipping_cost, coupon_discount, coupon_code, total,
       status, payment_method, payment_status, created_at,
-      order_items ( id, product_name_ar, quantity, unit_price, total_price )
+      order_items ( id, product_name_ar, quantity, unit_price, total_price, product_image_url )
     `)
     .eq('id', id)
     .maybeSingle()
@@ -96,7 +97,12 @@ export default async function OrderInvoicePage({ params }: Props) {
             <tbody>
               {items.map((item) => (
                 <tr key={item.id}>
-                  <td className="p-3 border-b border-[var(--beige)]">{item.product_name_ar}</td>
+                  <td className="p-3 border-b border-[var(--beige)]">
+                    <div className="flex items-center gap-2">
+                      {item.product_image_url && <img src={item.product_image_url} alt="" className="h-10 w-10 rounded object-cover" />}
+                      <span>{item.product_name_ar}</span>
+                    </div>
+                  </td>
                   <td className="p-3 border-b border-[var(--beige)] text-center">{item.quantity}</td>
                   <td className="p-3 border-b border-[var(--beige)] text-center" dir="ltr">{toArabicPrice(item.unit_price)}</td>
                   <td className="p-3 border-b border-[var(--beige)] text-left" dir="ltr">{toArabicPrice(item.total_price)}</td>

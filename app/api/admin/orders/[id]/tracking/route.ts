@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { requireAdmin } from '@/lib/auth-admin'
+import { getAuthenticatedUserId, requireAdmin } from '@/lib/auth-admin'
+import { STATUS_LABELS } from '@/lib/order-status'
 
 // GET - Get tracking history for an order
 export async function GET(
@@ -15,7 +16,7 @@ export async function GET(
 
     const { data, error } = await supabase
       .from('order_tracking')
-      .select('id,order_id,status,note,location,created_at')
+      .select('id,order_id,status,description_ar,description_en,location,created_at,created_by')
       .eq('order_id', id)
       .order('created_at', { ascending: false })
 
@@ -41,37 +42,25 @@ export async function POST(
   try {
     const { id } = await params
     const body = await request.json()
-    const supabase = supabaseAdmin
-
-    const { data, error } = await supabase
-      .from('order_tracking')
-      .insert([{
-        order_id: id,
-        status: body.status,
-        status_label_ar: body.status_label_ar,
-        status_label_en: body.status_label_en,
-        description_ar: body.description_ar,
-        description_en: body.description_en,
-        location: body.location,
-        is_customer_visible: body.is_customer_visible ?? true,
-        created_by: body.created_by,
-      }])
-      .select()
-      .single()
-
-    if (error) throw error
-
-    if (body.update_order_status) {
-      await supabase
-        .from('orders')
-        .update({
-          status: body.status,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-    }
-
-    return NextResponse.json({ tracking: data }, { status: 201 })
+    const createdBy = await getAuthenticatedUserId(request)
+    if (!createdBy) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { data: current, error: currentError } = await supabaseAdmin.from('orders').select('status').eq('id', id).single()
+    if (currentError || !current) return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 })
+    const status = body.status as string
+    if (!Object.prototype.hasOwnProperty.call(STATUS_LABELS, status)) return NextResponse.json({ error: 'حالة غير صحيحة' }, { status: 400 })
+    const { data, error } = await supabaseAdmin.rpc('transition_order_with_tracking', {
+      p_order_id: id,
+      p_expected_status: current.status,
+      p_new_status: status,
+      p_created_by: createdBy,
+      p_description_ar: body.description_ar ?? body.note ?? null,
+      p_description_en: body.description_en ?? null,
+      p_location: body.location ?? null,
+      p_customer_visible: body.is_customer_visible ?? true,
+    })
+    if (error) return NextResponse.json({ error: error.message }, { status: error.message.includes('INVALID') ? 400 : 409 })
+    const { data: tracking } = await supabaseAdmin.from('order_tracking').select('*').eq('order_id', id).eq('status', status).order('created_at', { ascending: false }).limit(1).single()
+    return NextResponse.json({ tracking, order: data }, { status: 201 })
   } catch (error: unknown) {
     console.error('Add tracking error:', error)
     return NextResponse.json(

@@ -222,6 +222,12 @@ export default function OrdersPage() {
                       
                       <div className="flex gap-3 mt-6">
                         <Link
+                          href={`/account/orders/${order.id}/invoice`}
+                          className="flex-1 py-3 border-2 border-[var(--primary)] text-[var(--primary)] rounded-xl font-bold text-center"
+                        >
+                          الفاتورة
+                        </Link>
+                        <Link
                           href={`/track?order=${order.order_number}`}
                           className="flex-1 py-3 bg-[var(--primary)] text-white rounded-xl font-bold text-center hover:bg-[var(--primary-hover)] transition-colors"
                         >

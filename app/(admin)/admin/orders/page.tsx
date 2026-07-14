@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDate, formatDateTime } from '@/lib/utils'
-import { ORDER_STATUSES } from '@/lib/order-status'
+import { ORDER_STATUSES, VALID_TRANSITIONS, type OrderStatus } from '@/lib/order-status'
 import { toCsv, downloadCsv } from '@/lib/csv'
 import Link from 'next/link'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline'
@@ -33,27 +33,37 @@ export default function AdminOrders() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [bulkStatus, setBulkStatus] = useState('')
   const [bulkApplying, setBulkApplying] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function fetchOrders() {
     setLoading(true)
-    const params = new URLSearchParams({ page: String(page) })
+    const params = new URLSearchParams({ page: String(page), limit: '50' })
     if (statusFilter !== 'all') params.set('status', statusFilter)
     if (search) params.set('search', search)
+    if (dateFrom) params.set('dateFrom', dateFrom)
+    if (dateTo) params.set('dateTo', dateTo)
+    setError(null)
     const res = await fetch(`/api/admin/orders?${params}`)
-    const data = await res.json()
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      setError(data.error || 'تعذر تحميل الطلبات')
+      setOrders([])
+      setLoading(false)
+      return
+    }
     setOrders(data.orders || [])
+    setSelectedIds(new Set())
     setTotalPages(data.totalPages ?? 1)
     setTotal(data.total ?? 0)
     setLoading(false)
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchOrders() }, [page, statusFilter])
+  useEffect(() => { fetchOrders() }, [page, statusFilter, dateFrom, dateTo])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setPage(1)
-    fetchOrders()
   }
 
   const updateStatus = async (id: string, newStatus: string) => {
@@ -100,17 +110,21 @@ export default function AdminOrders() {
     fetchOrders()
   }
 
-  // Date filter is client-side on current page only
-  const filtered = orders.filter(o => {
-    if (!dateFrom && !dateTo) return true
-    const d = new Date(o.created_at)
-    if (dateFrom && d < new Date(dateFrom)) return false
-    if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false
-    return true
-  })
+  const filtered = orders
 
   function exportCSV() {
-    const rows = filtered.map(o => ({
+    const params = new URLSearchParams({ export: 'true', limit: '200' })
+    if (statusFilter !== 'all') params.set('status', statusFilter)
+    if (search) params.set('search', search)
+    if (dateFrom) params.set('dateFrom', dateFrom)
+    if (dateTo) params.set('dateTo', dateTo)
+    fetch(`/api/admin/orders?${params}`)
+      .then(async res => {
+        if (!res.ok) throw new Error('export')
+        return res.json()
+      })
+      .then(({ orders: exportOrders = [] }) => {
+        const rows = exportOrders.map((o: OrderRow) => ({
       order_number: o.order_number,
       date: formatDate(o.created_at),
       customer_name: o.customer_name,
@@ -119,18 +133,20 @@ export default function AdminOrders() {
       total: Number(o.total).toFixed(3),
       status: STATUS_LABELS[o.status as keyof typeof STATUS_LABELS] || o.status,
       payment_method: o.payment_method,
-    }))
-    const csv = toCsv(rows, [
-      { key: 'order_number', label: 'رقم الطلب' },
-      { key: 'date', label: 'التاريخ' },
-      { key: 'customer_name', label: 'العميل' },
-      { key: 'customer_phone', label: 'الهاتف' },
-      { key: 'address_area', label: 'المنطقة' },
-      { key: 'total', label: 'المبلغ' },
-      { key: 'status', label: 'الحالة' },
-      { key: 'payment_method', label: 'طريقة الدفع' },
-    ])
-    downloadCsv(`orders-${new Date().toISOString().slice(0, 10)}.csv`, csv)
+        }))
+        const csv = toCsv(rows, [
+          { key: 'order_number', label: 'رقم الطلب' },
+          { key: 'date', label: 'التاريخ' },
+          { key: 'customer_name', label: 'العميل' },
+          { key: 'customer_phone', label: 'الهاتف' },
+          { key: 'address_area', label: 'المنطقة' },
+          { key: 'total', label: 'المبلغ' },
+          { key: 'status', label: 'الحالة' },
+          { key: 'payment_method', label: 'طريقة الدفع' },
+        ])
+        downloadCsv(`orders-${new Date().toISOString().slice(0, 10)}.csv`, csv)
+      })
+      .catch(() => toast.error('تعذر تصدير الطلبات'))
   }
 
   // Derived from the central status list so no status (e.g. processing)
@@ -188,7 +204,7 @@ export default function AdminOrders() {
               <input
                 type="date"
                 value={dateFrom}
-                onChange={e => setDateFrom(e.target.value)}
+                onChange={e => { setDateFrom(e.target.value); setPage(1) }}
                 className="input-field py-2 text-sm w-36"
                 dir="ltr"
                 title="من تاريخ"
@@ -197,7 +213,7 @@ export default function AdminOrders() {
               <input
                 type="date"
                 value={dateTo}
-                onChange={e => setDateTo(e.target.value)}
+                onChange={e => { setDateTo(e.target.value); setPage(1) }}
                 className="input-field py-2 text-sm w-36"
                 dir="ltr"
                 title="إلى تاريخ"
@@ -205,7 +221,7 @@ export default function AdminOrders() {
               {(dateFrom || dateTo) && (
                 <button
                   type="button"
-                  onClick={() => { setDateFrom(''); setDateTo('') }}
+                  onClick={() => { setDateFrom(''); setDateTo(''); setPage(1) }}
                   className="text-xs text-red-400 hover:text-red-600"
                 >
                   مسح
@@ -245,6 +261,11 @@ export default function AdminOrders() {
         {loading ? (
           <div className="flex h-40 items-center justify-center">
             <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <p className="text-sm text-red-600">{error}</p>
+            <button type="button" onClick={fetchOrders} className="btn-outline px-4 py-2 text-sm">إعادة المحاولة</button>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -300,7 +321,7 @@ export default function AdminOrders() {
                           style={{ borderColor: 'var(--dark-beige)' }}
                           title="تغيير حالة الطلب"
                         >
-                          {ORDER_STATUSES.map((s) => (
+                          {[order.status as OrderStatus, ...(VALID_TRANSITIONS[order.status as OrderStatus] || [])].map((s) => (
                             <option key={s} value={s}>{STATUS_LABELS[s]}</option>
                           ))}
                         </select>
@@ -345,7 +366,7 @@ export default function AdminOrders() {
                       style={{ borderColor: 'var(--dark-beige)' }}
                       title="تغيير حالة الطلب"
                     >
-                      {ORDER_STATUSES.map((s) => (
+                      {[order.status as OrderStatus, ...(VALID_TRANSITIONS[order.status as OrderStatus] || [])].map((s) => (
                         <option key={s} value={s}>{STATUS_LABELS[s]}</option>
                       ))}
                     </select>

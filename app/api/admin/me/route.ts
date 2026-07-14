@@ -30,13 +30,14 @@ export async function GET(req: NextRequest) {
 
   const { data: userRow } = await supabaseAdmin
     .from('users')
-    .select('role, permissions')
+    .select('role, is_active, permissions')
     .eq('id', user.id)
     .maybeSingle()
 
   const isFullAdmin =
     userRow?.role === 'admin' || hasAdminMetadata(user) || isEmailAllowListed(user.email)
 
+  if (userRow?.is_active === false) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   if (isFullAdmin) return NextResponse.json({ role: 'admin', permissions: [] })
   if (userRow?.role === 'staff') {
     return NextResponse.json({ role: 'staff', permissions: userRow.permissions ?? [] })

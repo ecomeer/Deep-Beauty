@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { requireAdmin } from '@/lib/auth-admin'
+import { getAuthenticatedUserId, requireAdmin } from '@/lib/auth-admin'
 import { VALID_TRANSITIONS, type OrderStatus } from '@/lib/order-status'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -53,9 +53,26 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // the state we just validated the transition from — Postgres serializes
   // concurrent UPDATEs on the same row, so a second, racing PATCH to the
   // same terminal status won't match and won't restock a second time.
-  let query = supabaseAdmin.from('orders').update(updateFields).eq('id', id)
-  if (fromStatus) query = query.eq('status', fromStatus)
-  const { data, error } = await query.select().maybeSingle()
+  let data: Record<string, unknown> | null = null
+  let error: { message: string } | null = null
+  if (fromStatus) {
+    const createdBy = await getAuthenticatedUserId(req)
+    if (!createdBy) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const transition = await supabaseAdmin.rpc('transition_order_with_tracking', {
+      p_order_id: id,
+      p_expected_status: fromStatus,
+      p_new_status: updateFields.status,
+      p_created_by: createdBy,
+    })
+    data = transition.data as Record<string, unknown> | null
+    error = transition.error ? { message: transition.error.message } : null
+  } else if (Object.keys(updateFields).length > 0) {
+    const result = await supabaseAdmin.from('orders').update(updateFields).eq('id', id).select().maybeSingle()
+    data = result.data as Record<string, unknown> | null
+    error = result.error ? { message: result.error.message } : null
+  } else {
+    return NextResponse.json({ error: 'لا توجد تغييرات' }, { status: 400 })
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   if (!data) return NextResponse.json({ error: 'تم تعديل حالة الطلب من مكان آخر — أعد المحاولة' }, { status: 409 })
@@ -72,7 +89,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     // Reverse this order's loyalty-points effect (non-critical, best-effort).
-    const pointsDelta = (data.loyalty_points_redeemed ?? 0) - (data.loyalty_points_earned ?? 0)
+    const pointsDelta = Number(data.loyalty_points_redeemed ?? 0) - Number(data.loyalty_points_earned ?? 0)
     if (pointsDelta !== 0 && data.user_id) {
       try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: data.user_id, p_delta: pointsDelta }) } catch { /* non-critical */ }
     }

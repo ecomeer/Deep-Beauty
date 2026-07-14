@@ -7,6 +7,7 @@ interface OrderItemRow {
   product_name_en: string | null
   quantity: number
   unit_price: number
+  product_image_url?: string | null
 }
 
 export async function GET(request: NextRequest) {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
         status, payment_method, payment_status, created_at,
         order_items (
           id, product_id, product_name_ar, product_name_en,
-          quantity, unit_price, total_price
+          quantity, unit_price, total_price, product_image_url
         )
       `)
       .or(`user_id.eq.${user.id},customer_email.eq.${user.email}`)
@@ -64,11 +65,11 @@ export async function GET(request: NextRequest) {
       payment_method: order.payment_method,
       payment_status: order.payment_status,
       created_at: order.created_at,
-      item_count: (order.order_items as OrderItemRow[] | null)?.length ?? 0,
+      item_count: ((order.order_items as OrderItemRow[] | null) ?? []).reduce((sum, item) => sum + item.quantity, 0),
       items: ((order.order_items as OrderItemRow[] | null) ?? []).map((item) => ({
         name: item.product_name_ar,
         name_en: item.product_name_en,
-        image: null,           // no image stored in order_items; fetch from product if needed
+        image: item.product_image_url || '/images/product-placeholder.svg',
         quantity: item.quantity,
         price: item.unit_price,
       })),
