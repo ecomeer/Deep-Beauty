@@ -123,6 +123,36 @@ export default function EnhancedCheckoutPage() {
   const shipping = freeThreshold !== null && subtotal >= freeThreshold ? 0 : shippingCost
   const total = subtotal + shipping - couponDiscount
 
+  // Debounced abandoned-cart snapshot: once the phone number is valid and
+  // there are items in the cart, save a recovery snapshot a couple seconds
+  // after the customer stops typing — not on every keystroke, and never
+  // while actively submitting the order.
+  useEffect(() => {
+    if (submitting) return
+    if (!isKuwaitPhone(form.customer_phone) || items.length === 0) return
+
+    const timer = setTimeout(() => {
+      fetch('/api/cart/abandoned', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_name: form.customer_name || null,
+          customer_phone: form.customer_phone,
+          customer_email: form.customer_email || null,
+          items: items.map(item => ({
+            id: item.id,
+            name_ar: item.name_ar,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+          subtotal,
+        }),
+      }).catch(() => {})
+    }, 2500)
+
+    return () => clearTimeout(timer)
+  }, [form.customer_phone, form.customer_name, form.customer_email, items, subtotal, submitting])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }

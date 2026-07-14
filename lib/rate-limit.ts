@@ -45,3 +45,17 @@ export function rateLimit(key: string, limit: number, windowMs: number): boolean
 export function checkoutLimiter(ip: string): boolean {
   return rateLimit(`checkout:${ip}`, 5, 60_000)
 }
+
+/** Pre-configured limiter: 20 abandoned-cart snapshot saves per 5 minutes per IP. */
+export function abandonedCartLimiter(ip: string): boolean {
+  return rateLimit(`abandoned-cart:${ip}`, 20, 5 * 60_000)
+}
+
+/** Extracts the client IP from forwarded headers set by the hosting proxy. */
+export function getClientIp(req: { headers: { get(name: string): string | null } }): string {
+  return (
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('x-real-ip') ||
+    'unknown'
+  )
+}
