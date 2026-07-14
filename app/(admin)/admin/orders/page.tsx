@@ -5,7 +5,7 @@ import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDate, formatDateTime
 import { ORDER_STATUSES } from '@/lib/order-status'
 import { toCsv, downloadCsv } from '@/lib/csv'
 import Link from 'next/link'
-import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon, ArrowDownTrayIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 interface OrderRow {
@@ -242,119 +242,120 @@ export default function AdminOrders() {
           </div>
         )}
 
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th className="w-8">
-                  <input
-                    type="checkbox"
-                    checked={filtered.length > 0 && selectedIds.size === filtered.length}
-                    onChange={toggleSelectAll}
-                    title="تحديد الكل"
-                  />
-                </th>
-                <th>رقم الطلب</th>
-                <th>التاريخ</th>
-                <th>العميل</th>
-                <th>الهاتف</th>
-                <th>المبلغ</th>
-                <th>الحالة</th>
-                <th>تغيير الحالة</th>
-                <th>تفاصيل</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={9} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
-              ) : filtered.length === 0 ? (
-                <tr><td colSpan={9} className="text-center py-10 opacity-50">لا توجد طلبات تطابق بحثك</td></tr>
-              ) : (
-                filtered.map(order => (
-                  <tr key={order.id}>
-                    <td>
-                      <input type="checkbox" checked={selectedIds.has(order.id)} onChange={() => toggleSelect(order.id)} title="تحديد" />
-                    </td>
-                    <td className="font-en font-bold text-xs">{order.order_number}</td>
-                    <td className="text-xs" dir="ltr">{formatDateTime(order.created_at)}</td>
-                    <td className="font-medium">{order.customer_name}</td>
-                    <td className="text-sm font-en">{order.customer_phone}</td>
-                    <td className="font-bold text-primary">{toArabicPrice(order.total)}</td>
-                    <td>
-                      <span className={`badge ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS] || 'badge-gray'}`}>
-                        {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS] || order.status}
-                      </span>
-                    </td>
-                    <td>
-                      <select
-                        value={order.status}
-                        onChange={e => updateStatus(order.id, e.target.value)}
-                        className="text-xs border rounded-lg px-2 py-1 outline-none bg-white font-medium"
-                        style={{ borderColor: 'var(--dark-beige)' }}
-                        title="تغيير حالة الطلب"
-                      >
-                        {ORDER_STATUSES.map((s) => (
-                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline text-primary">
-                        عرض
-                      </Link>
-                    </td>
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <ClipboardDocumentListIcon className="w-12 h-12 opacity-20" />
+            <p className="text-sm opacity-50">لا توجد طلبات تطابق بحثك</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th className="w-8">
+                      <input
+                        type="checkbox"
+                        checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                        onChange={toggleSelectAll}
+                        title="تحديد الكل"
+                      />
+                    </th>
+                    <th>رقم الطلب</th>
+                    <th>التاريخ</th>
+                    <th>العميل</th>
+                    <th>الهاتف</th>
+                    <th>المبلغ</th>
+                    <th>الحالة</th>
+                    <th>تغيير الحالة</th>
+                    <th>تفاصيل</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {filtered.map(order => (
+                    <tr key={order.id}>
+                      <td>
+                        <input type="checkbox" checked={selectedIds.has(order.id)} onChange={() => toggleSelect(order.id)} title="تحديد" />
+                      </td>
+                      <td className="font-en font-bold text-xs">{order.order_number}</td>
+                      <td className="text-xs" dir="ltr">{formatDateTime(order.created_at)}</td>
+                      <td className="font-medium">{order.customer_name}</td>
+                      <td className="text-sm font-en">{order.customer_phone}</td>
+                      <td className="font-bold text-primary">{toArabicPrice(order.total)}</td>
+                      <td>
+                        <span className={`badge ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS] || 'badge-gray'}`}>
+                          {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS] || order.status}
+                        </span>
+                      </td>
+                      <td>
+                        <select
+                          value={order.status}
+                          onChange={e => updateStatus(order.id, e.target.value)}
+                          className="text-xs border rounded-lg px-2 py-1 outline-none bg-white font-medium"
+                          style={{ borderColor: 'var(--dark-beige)' }}
+                          title="تغيير حالة الطلب"
+                        >
+                          {ORDER_STATUSES.map((s) => (
+                            <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline text-primary">
+                          عرض
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Mobile Cards */}
-        <div className="md:hidden p-4 space-y-3">
-          {loading ? (
-            <div className="text-center py-10 opacity-50">جاري التحميل...</div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-10 opacity-50">لا توجد طلبات تطابق بحثك</div>
-          ) : (
-            filtered.map(order => (
-              <div key={order.id} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <span className="font-en font-bold text-xs">#{order.order_number}</span>
-                    <p className="font-medium text-sm">{order.customer_name}</p>
-                    <p className="text-xs opacity-60 font-en">{order.customer_phone}</p>
+            {/* Mobile Cards */}
+            <div className="md:hidden p-4 space-y-3">
+              {filtered.map(order => (
+                <div key={order.id} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className="font-en font-bold text-xs">#{order.order_number}</span>
+                      <p className="font-medium text-sm">{order.customer_name}</p>
+                      <p className="text-xs opacity-60 font-en">{order.customer_phone}</p>
+                    </div>
+                    <span className={`badge ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS] || 'badge-gray'} text-xs`}>
+                      {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS] || order.status}
+                    </span>
                   </div>
-                  <span className={`badge ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS] || 'badge-gray'} text-xs`}>
-                    {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS] || order.status}
-                  </span>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="font-bold text-sm text-primary">{toArabicPrice(order.total)}</span>
+                    <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline text-primary">
+                      عرض التفاصيل
+                    </Link>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs opacity-60">الحالة:</span>
+                    <select
+                      value={order.status}
+                      onChange={e => updateStatus(order.id, e.target.value)}
+                      className="flex-1 text-xs border rounded-lg px-2 py-1.5 outline-none bg-white font-medium"
+                      style={{ borderColor: 'var(--dark-beige)' }}
+                      title="تغيير حالة الطلب"
+                    >
+                      {ORDER_STATUSES.map((s) => (
+                        <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="text-xs opacity-50 mt-2" dir="ltr">{formatDateTime(order.created_at)}</p>
                 </div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="font-bold text-sm text-primary">{toArabicPrice(order.total)}</span>
-                  <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:underline text-primary">
-                    عرض التفاصيل
-                  </Link>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs opacity-60">الحالة:</span>
-                  <select
-                    value={order.status}
-                    onChange={e => updateStatus(order.id, e.target.value)}
-                    className="flex-1 text-xs border rounded-lg px-2 py-1.5 outline-none bg-white font-medium"
-                    style={{ borderColor: 'var(--dark-beige)' }}
-                    title="تغيير حالة الطلب"
-                  >
-                    {ORDER_STATUSES.map((s) => (
-                      <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                    ))}
-                  </select>
-                </div>
-                <p className="text-xs opacity-50 mt-2" dir="ltr">{formatDateTime(order.created_at)}</p>
-              </div>
-            ))
-          )}
-        </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {totalPages > 1 && (

@@ -197,7 +197,8 @@ export default function AdminCategories() {
           <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
         </div>
       ) : categories.length === 0 ? (
-        <div className="bg-white rounded-2xl border p-16 text-center" style={{ borderColor: 'var(--beige)' }}>
+        <div className="bg-white rounded-2xl border p-16 flex flex-col items-center justify-center gap-3" style={{ borderColor: 'var(--beige)' }}>
+          <PhotoIcon className="w-12 h-12 opacity-20" />
           <p className="text-sm opacity-50">لا توجد فئات بعد</p>
         </div>
       ) : (

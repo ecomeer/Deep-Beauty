@@ -150,23 +150,23 @@ export default function ShippingManagementPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="stats-card">
           <p className="text-sm text-gray-500">إجمالي المناطق</p>
           <p className="text-2xl font-bold">{zones.length}</p>
         </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="stats-card">
           <p className="text-sm text-gray-500">المناطق النشطة</p>
           <p className="text-2xl font-bold text-green-600">
             {zones.filter(z => z.is_active).length}
           </p>
         </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="stats-card">
           <p className="text-sm text-gray-500">الدول المدعومة</p>
           <p className="text-2xl font-bold text-blue-600">
             {new Set(zones.flatMap(z => z.countries)).size}
           </p>
         </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm">
+        <div className="stats-card">
           <p className="text-sm text-gray-500">متوسط سعر الشحن</p>
           <p className="text-2xl font-bold text-purple-600">
             {toArabicPrice(zones.filter(z => z.base_rate > 0).reduce((sum, z) => sum + z.base_rate, 0) /
@@ -195,7 +195,7 @@ export default function ShippingManagementPage() {
           <div className="animate-spin w-8 h-8 rounded-full border-4 border-[var(--primary)] border-t-transparent" />
         </div>
       ) : zones.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl">
+        <div className="text-center py-12 bg-white rounded-2xl border" style={{ borderColor: 'var(--beige)' }}>
           <TruckIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
           <p className="text-gray-500 mb-4">لا توجد مناطق شحن مضافة</p>
           <button
@@ -210,12 +210,13 @@ export default function ShippingManagementPage() {
           {zones.map((zone) => (
             <div
               key={zone.id}
-              className={`bg-white rounded-xl p-6 shadow-sm transition-all ${
+              className={`bg-white rounded-2xl border p-6 shadow-sm transition-all ${
                 !zone.is_active ? 'opacity-60' : ''
               }`}
+              style={{ borderColor: 'var(--beige)' }}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                <div className="flex-1 w-full">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-lg font-bold">{zone.name_ar}</h3>
                     <span className="text-sm text-gray-500">({zone.name_en})</span>
@@ -279,7 +280,7 @@ export default function ShippingManagementPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-start sm:self-auto">
                   <button
                     onClick={() => toggleActive(zone)}
                     className={`p-2 rounded-lg transition-colors ${
@@ -353,7 +354,7 @@ function ZoneForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-sm mb-8">
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border p-6 shadow-sm mb-8" style={{ borderColor: 'var(--beige)' }}>
       <h2 className="text-lg font-bold mb-4">
         {isEdit ? 'تعديل منطقة الشحن' : 'إضافة منطقة شحن جديدة'}
       </h2>
@@ -367,7 +368,7 @@ function ZoneForm({
             required
             value={form.name_ar}
             onChange={e => setForm({ ...form, name_ar: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
+            className="input-field py-2"
             placeholder="مثال: المملكة العربية السعودية"
           />
         </div>
@@ -380,7 +381,7 @@ function ZoneForm({
             required
             value={form.name_en}
             onChange={e => setForm({ ...form, name_en: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
+            className="input-field py-2"
             placeholder="e.g., Saudi Arabia"
           />
         </div>
@@ -395,7 +396,7 @@ function ZoneForm({
             required
             value={form.base_rate}
             onChange={e => setForm({ ...form, base_rate: parseFloat(e.target.value) || 0 })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
+            className="input-field py-2"
           />
           <p className="text-xs text-gray-500 mt-1">ادخل 0 للشحن المجاني</p>
         </div>
@@ -412,7 +413,7 @@ function ZoneForm({
               ...form, 
               free_shipping_threshold: e.target.value ? parseFloat(e.target.value) : null 
             })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
+            className="input-field py-2"
           />
           <p className="text-xs text-gray-500 mt-1">اتركه فارغاً إذا لا يوجد شحن مجاني</p>
         </div>
@@ -426,7 +427,7 @@ function ZoneForm({
             required
             value={form.estimated_days_min}
             onChange={e => setForm({ ...form, estimated_days_min: parseInt(e.target.value) || 1 })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
+            className="input-field py-2"
           />
         </div>
 
@@ -438,7 +439,7 @@ function ZoneForm({
             required
             value={form.estimated_days_max}
             onChange={e => setForm({ ...form, estimated_days_max: parseInt(e.target.value) || 1 })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
+            className="input-field py-2"
           />
         </div>
 
@@ -450,7 +451,7 @@ function ZoneForm({
             min="0"
             value={form.sort_order}
             onChange={e => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]"
+            className="input-field py-2"
           />
         </div>
 

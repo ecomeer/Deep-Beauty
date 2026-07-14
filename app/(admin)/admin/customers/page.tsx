@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { toArabicPrice, formatDateTime } from '@/lib/utils'
 import { toCsv, downloadCsv } from '@/lib/csv'
-import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon, ArrowDownTrayIcon, UsersIcon } from '@heroicons/react/24/outline'
 import { useAdminList } from '@/hooks/useAdminList'
 
 interface Customer {
@@ -78,44 +78,75 @@ export default function AdminCustomers() {
           </form>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>الاسم</th>
-                <th>الهاتف</th>
-                <th>البريد</th>
-                <th>عدد الطلبات</th>
-                <th>إجمالي المنفق</th>
-                <th>آخر طلب</th>
-                <th>تواصل</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={7} className="text-center py-10 opacity-50">جاري التحميل...</td></tr>
-              ) : customers.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-10 opacity-50">لا يوجد عملاء</td></tr>
-              ) : (
-                customers.map((c, i) => (
-                  <tr key={i}>
-                    <td className="font-bold">{c.full_name}</td>
-                    <td className="font-en text-sm" dir="ltr">{c.phone || '-'}</td>
-                    <td className="font-en text-sm">{c.email || '-'}</td>
-                    <td className="font-bold text-center">{c.orders_count}</td>
-                    <td className="font-bold text-primary" dir="ltr">{toArabicPrice(c.total_spent)}</td>
-                    <td className="text-xs" dir="ltr">{formatDateTime(c.last_order_at)}</td>
-                    <td>
-                      {c.phone ? (
-                        <a href={`https://wa.me/965${c.phone}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200">واتساب</a>
-                      ) : '-'}
-                    </td>
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+          </div>
+        ) : customers.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <UsersIcon className="w-12 h-12 opacity-20" />
+            <p className="text-sm opacity-50">لا يوجد عملاء</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>الاسم</th>
+                    <th>الهاتف</th>
+                    <th>البريد</th>
+                    <th>عدد الطلبات</th>
+                    <th>إجمالي المنفق</th>
+                    <th>آخر طلب</th>
+                    <th>تواصل</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {customers.map((c, i) => (
+                    <tr key={i}>
+                      <td className="font-bold">{c.full_name}</td>
+                      <td className="font-en text-sm" dir="ltr">{c.phone || '-'}</td>
+                      <td className="font-en text-sm">{c.email || '-'}</td>
+                      <td className="font-bold text-center">{c.orders_count}</td>
+                      <td className="font-bold text-primary" dir="ltr">{toArabicPrice(c.total_spent)}</td>
+                      <td className="text-xs" dir="ltr">{formatDateTime(c.last_order_at)}</td>
+                      <td>
+                        {c.phone ? (
+                          <a href={`https://wa.me/965${c.phone}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200">واتساب</a>
+                        ) : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden p-4 space-y-3">
+              {customers.map((c, i) => (
+                <div key={i} className="border rounded-xl p-4" style={{ borderColor: 'var(--beige)' }}>
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm">{c.full_name}</p>
+                      <p className="text-xs opacity-60 font-en" dir="ltr">{c.phone || '-'}</p>
+                      <p className="text-xs opacity-60 font-en truncate">{c.email || '-'}</p>
+                    </div>
+                    {c.phone && (
+                      <a href={`https://wa.me/965${c.phone}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200 flex-shrink-0">واتساب</a>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center text-sm mt-3">
+                    <span className="opacity-60">{c.orders_count} طلب</span>
+                    <span className="font-bold text-primary" dir="ltr">{toArabicPrice(c.total_spent)}</span>
+                  </div>
+                  <p className="text-xs opacity-40 mt-1" dir="ltr">آخر طلب: {formatDateTime(c.last_order_at)}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {totalPages > 1 && (
