@@ -1,0 +1,60 @@
+name: Deep Beauty Playwright QA
+
+on:
+  push:
+    branches:
+      - qa/deep-beauty
+    paths:
+      - 'playwright.config.ts'
+      - 'tests/e2e/**'
+      - '.github/workflows/deep-beauty-qa.yml'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Website URL to test (production or Vercel Preview)'
+        required: false
+        default: 'https://www.deepbeautykw.com'
+
+permissions:
+  contents: read
+
+jobs:
+  storefront-e2e:
+    name: Storefront E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'https://www.deepbeautykw.com' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Install Playwright test runner
+        run: npm install --no-save @playwright/test@latest
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run safe storefront tests
+        run: npx playwright test
+
+      - name: Upload Playwright evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deep-beauty-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
