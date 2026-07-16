@@ -22,7 +22,10 @@ export default defineConfig({
     timezoneId: 'Asia/Kuwait',
     trace: 'retain-on-failure',
     extraHTTPHeaders: vercelBypassSecret
-      ? { 'x-vercel-protection-bypass': vercelBypassSecret }
+      ? {
+          'x-vercel-protection-bypass': vercelBypassSecret,
+          'x-vercel-set-bypass-cookie': 'true',
+        }
       : undefined,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

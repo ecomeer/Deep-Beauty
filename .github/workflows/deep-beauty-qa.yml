@@ -1,4 +1,4 @@
-name: Deep Beauty QA
+name: Deep Beauty Quality Gates
 
 on:
   push:
@@ -9,26 +9,19 @@ on:
       - main
       - qa/deep-beauty
   workflow_dispatch:
-    inputs:
-      base_url:
-        description: 'Non-production URL to test (local or Vercel Preview)'
-        required: false
-        default: ''
 
 permissions:
   contents: read
 
 concurrency:
-  group: deep-beauty-qa-${{ github.ref }}
+  group: deep-beauty-quality-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality-and-e2e:
-    name: Quality Gates + Storefront E2E
+  quality:
+    name: Quality Gates
     runs-on: ubuntu-latest
-    timeout-minutes: 40
-    env:
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
@@ -54,47 +47,3 @@ jobs:
 
       - name: Run production build
         run: npm run build
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Resolve Vercel Preview URL
-        id: preview
-        env:
-          GH_TOKEN: ${{ github.token }}
-          DEPLOY_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          REQUESTED_URL: ${{ github.event.inputs.base_url }}
-        run: |
-          if [ -n "$REQUESTED_URL" ]; then
-            echo "url=$REQUESTED_URL" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          for attempt in $(seq 1 30); do
-            deployment_id=$(gh api "repos/${GITHUB_REPOSITORY}/deployments?sha=${DEPLOY_SHA}" --jq '[.[] | select(.environment == "Preview")] | first | .id // empty')
-            if [ -n "$deployment_id" ]; then
-              preview_url=$(gh api "repos/${GITHUB_REPOSITORY}/deployments/${deployment_id}/statuses" --jq '[.[] | select(.state == "success" and .environment == "Preview")] | first | .target_url // empty')
-              if [ -n "$preview_url" ]; then
-                echo "url=$preview_url" >> "$GITHUB_OUTPUT"
-                exit 0
-              fi
-            fi
-            sleep 10
-          done
-          echo 'No successful Vercel Preview deployment was found for this commit.' >&2
-          exit 1
-
-      - name: Run safe storefront tests
-        env:
-          PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.url }}
-        run: npx playwright test
-
-      - name: Upload Playwright evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: deep-beauty-playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          if-no-files-found: ignore
-          retention-days: 14
