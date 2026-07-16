@@ -20,6 +20,17 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-require-imports": "off",
     },
   },
+  {
+    // These two tests capture context values via a module-level variable
+    // inside a throwaway <Capture/> component — fine outside production code.
+    files: [
+      "components/store/QuickViewModal.test.tsx",
+      "components/store/EnhancedCartSidebar.test.tsx",
+    ],
+    rules: {
+      "react-hooks/globals": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -30,6 +41,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "Deep-Beauty/**",
     "next-env.d.ts",
+    "coverage/**",
   ]),
 ]);
 
