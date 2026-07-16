@@ -13,8 +13,11 @@ vi.mock('@/lib/supabase-admin', () => ({
   ),
 }))
 
-const requireAdmin = vi.hoisted(() => vi.fn())
-vi.mock('@/lib/auth-admin', () => ({ requireAdmin }))
+const authMocks = vi.hoisted(() => ({
+  requireAdmin: vi.fn(),
+  getAuthenticatedUserId: vi.fn(),
+}))
+vi.mock('@/lib/auth-admin', () => authMocks)
 
 import { GET, PATCH } from './route'
 
@@ -30,7 +33,12 @@ function setDb(config: {
       order_items: { data: [] },
       order_tracking: { data: [] },
     },
-    rpc: { restock_order_atomic: {}, increment_loyalty_points: {}, ...config.rpc },
+    rpc: {
+      transition_order_with_tracking: { data: { id: 'o1' } },
+      restock_order_atomic: {},
+      increment_loyalty_points: {},
+      ...config.rpc,
+    },
   })
   holders.admin = mock.client
   return mock
@@ -47,17 +55,19 @@ const patch = (body: unknown) =>
   )
 
 beforeEach(() => {
-  requireAdmin.mockReset()
-  requireAdmin.mockResolvedValue(null)
+  authMocks.requireAdmin.mockReset()
+  authMocks.requireAdmin.mockResolvedValue(null)
+  authMocks.getAuthenticatedUserId.mockReset()
+  authMocks.getAuthenticatedUserId.mockResolvedValue('admin-1')
   setDb()
 })
 
 describe('GET /api/admin/orders/[id]', () => {
   it("gates on requireAdmin with the 'orders' permission", async () => {
-    requireAdmin.mockResolvedValue(NextResponse.json({ error: 'x' }, { status: 403 }))
+    authMocks.requireAdmin.mockResolvedValue(NextResponse.json({ error: 'x' }, { status: 403 }))
     const res = await GET(new NextRequest('http://localhost/api/admin/orders/o1'), ctx)
     expect(res.status).toBe(403)
-    expect(requireAdmin).toHaveBeenCalledWith(expect.anything(), 'orders')
+    expect(authMocks.requireAdmin).toHaveBeenCalledWith(expect.anything(), 'orders')
   })
 
   it('returns 404 for an unknown order', async () => {
@@ -97,30 +107,40 @@ describe('PATCH /api/admin/orders/[id] — status transitions', () => {
     expect((await patch({ status: 'confirmed' })).status).toBe(404)
   })
 
-  it('applies a valid transition guarded by the previous status', async () => {
+  it('applies a valid transition atomically with the previous status and actor', async () => {
     const mock = setDb({
-      orders: [{ data: { status: 'pending' } }, { data: { id: 'o1', status: 'confirmed' } }],
+      orders: [{ data: { status: 'pending' } }],
+      rpc: {
+        transition_order_with_tracking: { data: { id: 'o1', status: 'confirmed' } },
+      },
     })
     const res = await patch({ status: 'confirmed' })
     expect(res.status).toBe(200)
-
-    const update = mock.queries.filter((q) => q.table === 'orders')[1]
-    expect(update.calls.filter((c) => c.method === 'eq').map((c) => c.args)).toContainEqual([
-      'status',
-      'pending',
-    ])
+    expect(authMocks.getAuthenticatedUserId).toHaveBeenCalled()
+    expect(mock.rpcCalls).toContainEqual({
+      fn: 'transition_order_with_tracking',
+      args: {
+        p_order_id: 'o1',
+        p_expected_status: 'pending',
+        p_new_status: 'confirmed',
+        p_created_by: 'admin-1',
+      },
+    })
   })
 
   it('returns 409 when a concurrent change won the race', async () => {
-    setDb({ orders: [{ data: { status: 'pending' } }, { data: null }] })
+    setDb({
+      orders: [{ data: { status: 'pending' } }],
+      rpc: { transition_order_with_tracking: { data: null } },
+    })
     expect((await patch({ status: 'confirmed' })).status).toBe(409)
   })
 
   it('restocks and reverses loyalty points when cancelling', async () => {
     const mock = setDb({
-      orders: [
-        { data: { status: 'pending' } },
-        {
+      orders: [{ data: { status: 'pending' } }],
+      rpc: {
+        transition_order_with_tracking: {
           data: {
             id: 'o1',
             status: 'cancelled',
@@ -129,21 +149,24 @@ describe('PATCH /api/admin/orders/[id] — status transitions', () => {
             loyalty_points_earned: 3,
           },
         },
-      ],
+      },
     })
     const res = await patch({ status: 'cancelled' })
     expect(res.status).toBe(200)
     expect(mock.rpcCalls).toContainEqual({ fn: 'restock_order_atomic', args: { p_order_id: 'o1' } })
     expect(mock.rpcCalls).toContainEqual({
       fn: 'increment_loyalty_points',
-      args: { p_user_id: 'u1', p_delta: 7 }, // redeemed 10 back, earned 3 removed
+      args: { p_user_id: 'u1', p_delta: 7 },
     })
   })
 
   it('surfaces a restock failure as restockWarning without rolling back', async () => {
     setDb({
-      orders: [{ data: { status: 'pending' } }, { data: { id: 'o1', status: 'cancelled' } }],
-      rpc: { restock_order_atomic: { error: { message: 'stock row locked' } } },
+      orders: [{ data: { status: 'pending' } }],
+      rpc: {
+        transition_order_with_tracking: { data: { id: 'o1', status: 'cancelled' } },
+        restock_order_atomic: { error: { message: 'stock row locked' } },
+      },
     })
     const res = await patch({ status: 'cancelled' })
     expect(res.status).toBe(200)
