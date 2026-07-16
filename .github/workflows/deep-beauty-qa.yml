@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - qa/deep-beauty
+      - phase-3-stabilization
   pull_request:
     branches:
       - main
       - qa/deep-beauty
+      - codex/start-phase-2-of-stabilization-work
   workflow_dispatch:
 
 permissions:
