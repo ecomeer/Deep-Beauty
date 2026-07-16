@@ -1,5 +1,5 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
 
 export const dynamic = 'force-dynamic'
@@ -7,13 +7,16 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '4')
-    
-    const supabase = await createServerSupabaseClient()
+    const requestedLimit = Number.parseInt(searchParams.get('limit') || '4', 10)
+    const limit = Number.isFinite(requestedLimit)
+      ? Math.min(24, Math.max(1, requestedLimit))
+      : 4
 
-    // Real bestsellers ranking based on order_items, falling back to
-    // is_featured products when there's no order history yet.
-    const { data: products, error } = await supabase.rpc('get_bestseller_products', { p_limit: limit })
+    // The aggregation reads order history and therefore stays private. The
+    // public route exposes only the returned active product rows.
+    const { data: products, error } = await supabaseAdmin.rpc('get_bestseller_products', {
+      p_limit: limit,
+    })
 
     if (error) {
       console.error('Bestsellers error:', error)

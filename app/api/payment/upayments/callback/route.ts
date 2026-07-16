@@ -4,27 +4,42 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 
 const AMOUNT_EPSILON = 0.001 // KWD has 3 decimal places
 
-// returnUrl / cancelUrl target: UPayments redirects the customer here
-// with track_id appended; `order` and `cancelled` are set by us when
-// creating the charge. `order` is only used as a fallback for the
-// redirect URL — the DB update always keys off the order id/amount
-// recorded by UPayments against this track_id, never the query param,
-// so a captured track_id can't be replayed against a different order.
+// returnUrl / cancelUrl target. The database identity and amount always come
+// from UPayments' status API for track_id, never from query order values.
 export async function GET(request: NextRequest) {
   try {
     const params = request.nextUrl.searchParams
     const trackId = params.get('track_id')
     const cancelled = params.get('cancelled')
 
-    if (cancelled === '1') {
-      return NextResponse.redirect(new URL('/payment-failed?reason=cancelled', request.url))
-    }
-
     if (!trackId) {
       return NextResponse.redirect(new URL('/payment-failed?reason=missing_id', request.url))
     }
 
     const status = await getUPaymentsStatus(trackId)
+
+    if (cancelled === '1') {
+      // A query flag alone is not enough to choose an order. Resolve it from
+      // UPayments and never cancel a payment that the gateway says captured.
+      if (status.orderId && !status.success) {
+        const { data } = await supabaseAdmin
+          .from('orders')
+          .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+          .eq('id', status.orderId)
+          .eq('status', 'pending')
+          .neq('payment_status', 'paid')
+          .select('id')
+          .maybeSingle()
+
+        if (data) {
+          const { error } = await supabaseAdmin.rpc('cancel_order_effects_atomic', {
+            p_order_id: status.orderId,
+          })
+          if (error) console.error('Failed to reverse cancelled UPayments order:', error)
+        }
+      }
+      return NextResponse.redirect(new URL('/payment-failed?reason=cancelled', request.url))
+    }
 
     if (!status.success || !status.orderId || status.amount == null) {
       return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
@@ -40,15 +55,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
     }
 
-    // A cancelled order has already had its stock restocked — reviving it
-    // via a stale payment link would confirm an order with no reserved
-    // inventory. The customer needs to place a new order instead.
     if (order.status === 'cancelled') {
       return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
     }
 
-    // Defense in depth: the paid amount and order number must match what
-    // we originally submitted for this order.
     const amountMatches = Math.abs(status.amount - Number(order.total)) <= AMOUNT_EPSILON
     const referenceMatches = !status.orderNumber || status.orderNumber === order.order_number
     if (!amountMatches || !referenceMatches) {
@@ -62,20 +72,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
     }
 
-    // Idempotent: a customer refreshing/revisiting this URL shouldn't re-notify admins.
+    // Revisiting the callback may backfill an interrupted loyalty award, but
+    // cannot award twice because the RPC flips a guarded database flag.
     if (order.payment_status === 'paid') {
+      await supabaseAdmin.rpc('award_order_loyalty_points', { p_order_id: order.id })
       return NextResponse.redirect(
         new URL(`/order-success?id=${order.id}&num=${encodeURIComponent(order.order_number)}&paid=true`, request.url)
       )
     }
 
-    // Re-guard against cancelled here too, in case the order was cancelled
-    // between the fetch above and this update.
     const { data: updated, error } = await supabaseAdmin
       .from('orders')
       .update({
         payment_status: 'paid',
         status: 'confirmed',
+        payment_expires_at: null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', order.id)
@@ -91,7 +102,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
     }
 
-    // Notify admins about the paid order (non-critical)
+    const { error: loyaltyError } = await supabaseAdmin.rpc('award_order_loyalty_points', {
+      p_order_id: order.id,
+    })
+    if (loyaltyError) console.error('Failed to award loyalty points:', loyaltyError)
+
     try {
       await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
         method: 'POST',

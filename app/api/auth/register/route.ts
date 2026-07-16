@@ -21,16 +21,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: authError.message }, { status: 400 })
     }
 
-    if (authData.user) {
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert({ id: authData.user.id, name, email, phone, role: 'customer', is_active: true })
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError)
-      }
-    }
-
+    // public.users is created by the trusted auth.users trigger. Do not let
+    // a browser session insert role-bearing rows directly.
     return applyCookies(NextResponse.json({
       user: authData.user,
       message: 'تم التسجيل بنجاح',

@@ -44,6 +44,14 @@ export function extractOrderId(invoice: Record<string, unknown>): string | undef
   return userDefined
 }
 
+// Exported for tests. Gateway responses may encode KWD values as numbers or strings.
+export function extractInvoiceAmount(invoice: Record<string, unknown>): number | undefined {
+  const raw = invoice.InvoiceValue
+  if (raw === '' || raw === null || raw === undefined) return undefined
+  const amount = typeof raw === 'number' ? raw : typeof raw === 'string' ? Number(raw.trim()) : NaN
+  return Number.isFinite(amount) && amount >= 0 ? amount : undefined
+}
+
 export async function initiatePayment(
   data: PaymentInitiateRequest
 ): Promise<PaymentInitiateResponse> {
@@ -129,7 +137,7 @@ export async function verifyPayment(paymentId: string): Promise<{
   return {
     success,
     orderId,
-    amount: typeof invoice.InvoiceValue === 'number' ? invoice.InvoiceValue : undefined,
+    amount: extractInvoiceAmount(invoice),
     paymentMethod: toNonEmptyString(invoice.PaymentMethod),
   }
 }
