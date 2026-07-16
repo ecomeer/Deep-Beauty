@@ -1,49 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { createWritableServerClient } from '@/lib/supabase-server'
+import { requireUser } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { normalizeCustomerProfileUpdate } from '@/lib/profile-updates'
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, phone, userId, email } = await request.json()
+    const { user, error: authError } = await requireUser()
+    if (authError) return authError
 
-    if (!userId || !email) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    let updates
+    try {
+      updates = normalizeCustomerProfileUpdate(await request.json())
+    } catch {
+      return NextResponse.json({ error: 'No valid profile fields' }, { status: 400 })
     }
 
-    const { supabase, applyCookies } = createWritableServerClient(request)
+    const userUpdates: Record<string, string> = {}
+    if (updates.name !== undefined) userUpdates.name = updates.name
+    if (updates.phone !== undefined) userUpdates.phone = updates.phone
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    if (Object.keys(userUpdates).length > 0) {
+      const { error } = await supabaseAdmin
+        .from('users')
+        .update(userUpdates)
+        .eq('id', user.id)
 
-    if (userError || !user || user.id !== userId || user.email !== email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: { autoRefreshToken: false, persistSession: false },
+      if (error) {
+        console.error('Profile registration update error:', error)
+        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
       }
-    )
-
-    // Create profile in users table
-    const { error: insertError } = await supabaseAdmin.from('users').upsert({
-      id: userId,
-      name,
-      email,
-      phone,
-      role: 'customer',
-      is_active: true,
-    })
-
-    if (insertError) {
-      return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
     }
 
-    return applyCookies(NextResponse.json({ ok: true }))
+    // Do not accept browser-supplied id/email/role/is_active. The Auth trigger
+    // owns identity creation; account activation remains an admin decision.
+    return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Profile registration error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
