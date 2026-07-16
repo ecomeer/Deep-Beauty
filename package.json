@@ -10,6 +10,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fontsource/almarai": "^5.2.8",
+    "@fontsource/cormorant-garamond": "^5.2.11",
     "@heroicons/react": "^2.2.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
