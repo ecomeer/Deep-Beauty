@@ -8,6 +8,7 @@ const migration = readFileSync(
   'utf8'
 )
 const checkoutRoute = readFileSync(join(root, 'app/api/checkout/route.ts'), 'utf8')
+const bestsellersRoute = readFileSync(join(root, 'app/api/products/bestsellers/route.ts'), 'utf8')
 
 describe('security hardening migration contract', () => {
   it('adds a versioned secure checkout RPC without dropping the live legacy RPC', () => {
@@ -20,6 +21,14 @@ describe('security hardening migration contract', () => {
 
   it('routes new checkout traffic through the secure atomic RPC', () => {
     expect(checkoutRoute).toContain(".rpc('create_order_atomic_secure'")
+  })
+
+  it('keeps the private bestseller RPC reachable only through trusted server code', () => {
+    expect(migration).toContain(
+      'REVOKE EXECUTE ON FUNCTION public.get_bestseller_products(integer) FROM PUBLIC, anon, authenticated;'
+    )
+    expect(bestsellersRoute).toContain("import { supabaseAdmin } from '@/lib/supabase-admin'")
+    expect(bestsellersRoute).toContain("supabaseAdmin.rpc('get_bestseller_products'")
   })
 
   it('removes direct privilege-bearing profile writes from browser roles', () => {
