@@ -1,4 +1,4 @@
-name: Deep Beauty QA
+name: Deep Beauty Quality Gates
 
 on:
   push:
@@ -7,27 +7,21 @@ on:
   pull_request:
     branches:
       - main
+      - qa/deep-beauty
   workflow_dispatch:
-    inputs:
-      base_url:
-        description: 'Website URL to test (production or Vercel Preview)'
-        required: false
-        default: 'https://www.deepbeautykw.com'
 
 permissions:
   contents: read
 
 concurrency:
-  group: deep-beauty-qa-${{ github.ref }}
+  group: deep-beauty-quality-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality-and-e2e:
-    name: Quality Gates + Storefront E2E
+  quality:
+    name: Quality Gates
     runs-on: ubuntu-latest
-    timeout-minutes: 40
-    env:
-      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'https://www.deepbeautykw.com' }}
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
@@ -42,9 +36,6 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
-      - name: Install Playwright test runner
-        run: npm install --no-save @playwright/test@latest
-
       - name: Run unit tests
         run: npm test
 
@@ -56,20 +47,3 @@ jobs:
 
       - name: Run production build
         run: npm run build
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Run safe storefront tests
-        run: npx playwright test
-
-      - name: Upload Playwright evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: deep-beauty-playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          if-no-files-found: ignore
-          retention-days: 14

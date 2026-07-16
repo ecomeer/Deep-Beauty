@@ -81,9 +81,9 @@ const NAV_GROUPS: { label: string; links: { href: string; icon: React.ElementTyp
 // Bottom nav quick links
 const BOTTOM_NAV = [
   { href: '/admin/dashboard', icon: HomeIcon,        label: 'الرئيسية' },
-  { href: '/admin/orders',    icon: InboxIcon,       label: 'الطلبات' },
-  { href: '/admin/products',  icon: ShoppingBagIcon, label: 'المنتجات' },
-  { href: '/admin/settings',  icon: Cog6ToothIcon,   label: 'الإعدادات' },
+  { href: '/admin/orders',    icon: InboxIcon,       label: 'الطلبات', permission: 'orders' as Permission },
+  { href: '/admin/products',  icon: ShoppingBagIcon, label: 'المنتجات', permission: 'products' as Permission },
+  { href: '/admin/settings',  icon: Cog6ToothIcon,   label: 'الإعدادات', permission: 'settings' as Permission },
 ]
 
 interface Badges { pendingOrders?: number }
@@ -123,7 +123,7 @@ export default function AdminSidebar() {
   const router    = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [badges, setBadges]         = useState<Badges>({})
-  const [role, setRole]             = useState<'admin' | 'staff'>('admin')
+  const [role, setRole]             = useState<'unknown' | 'admin' | 'staff'>('unknown')
   const [permissions, setPermissions] = useState<Permission[]>([])
 
   // Fetch current admin's role/permissions once, so staff accounts only see
@@ -141,6 +141,7 @@ export default function AdminSidebar() {
   }, [])
 
   const canSee = (link: { permission?: Permission; adminOnly?: boolean }) => {
+    if (role === 'unknown') return false
     if (role === 'admin') return true
     if (link.adminOnly) return false
     return !link.permission || permissions.includes(link.permission)
@@ -307,7 +308,7 @@ export default function AdminSidebar() {
         className="md:hidden fixed bottom-0 right-0 left-0 z-40 flex items-center border-t safe-area-bottom"
         style={{ background: SIDEBAR_BG, borderColor: 'rgba(255,255,255,0.08)' }}
       >
-        {BOTTOM_NAV.map((link) => {
+        {BOTTOM_NAV.filter(canSee).map((link) => {
           const isActive = pathname?.startsWith(link.href)
           const Icon = link.icon
           return (

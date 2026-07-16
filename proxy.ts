@@ -1,6 +1,19 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { hasAdminMetadata, isDevBypass, isEmailAllowListed } from '@/lib/admin-config'
+import { resolveAdminAccess } from '@/lib/admin-access'
+import type { Permission } from '@/lib/admin-permissions'
+
+function permissionForAdminPath(pathname: string): Permission | 'staff' | undefined {
+  if (pathname === '/admin/team' || pathname.startsWith('/admin/team/')) return 'staff'
+  if (pathname === '/admin/orders' || pathname.startsWith('/admin/orders/')) return 'orders'
+  if (pathname === '/admin/products' || pathname.startsWith('/admin/products/') || pathname.startsWith('/admin/categories') || pathname.startsWith('/admin/banners')) return 'products'
+  if (pathname.startsWith('/admin/customers') || pathname.startsWith('/admin/newsletter')) return 'customers'
+  if (pathname.startsWith('/admin/reviews')) return 'reviews'
+  if (pathname.startsWith('/admin/settings') || pathname.startsWith('/admin/shipping')) return 'settings'
+  if (pathname.startsWith('/admin/marketing') || pathname.startsWith('/admin/flash-sales') || pathname.startsWith('/admin/abandoned-carts')) return 'marketing'
+  return undefined
+}
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -54,13 +67,20 @@ export async function proxy(request: NextRequest) {
     return response
   }
 
-  let isAdmin = hasAdminMetadata(user) || isEmailAllowListed(user?.email)
-
-  // A 'staff' account has no admin app_metadata/allowlist entry — check the
-  // DB role too (RLS lets a user read their own users row with the anon key).
-  if (!isAdmin && user) {
-    const { data: userRow } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
-    if (userRow?.role === 'staff') isAdmin = true
+  let access: ReturnType<typeof resolveAdminAccess> = 'unauthenticated'
+  if (user) {
+    const { data: userRow } = await supabase
+      .from('users')
+      .select('role, is_active, permissions')
+      .eq('id', user.id)
+      .maybeSingle()
+    access = resolveAdminAccess({
+      role: userRow?.role,
+      isActive: userRow?.is_active !== false,
+      permissions: userRow?.permissions,
+      hasAdminMetadata: hasAdminMetadata(user),
+      isEmailAllowListed: isEmailAllowListed(user.email),
+    }, permissionForAdminPath(pathname))
   }
 
   // ── DEV PREVIEW BYPASS — local machine only, NOT Vercel ─────────
@@ -73,12 +93,15 @@ export async function proxy(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
     }
-    if (!isAdmin) {
+    if (access === 'unauthenticated') {
       return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
+    if (access === 'forbidden') {
+      return NextResponse.redirect(new URL('/admin/403', request.url))
     }
   }
 
-  if (isLoginPage && user && isAdmin) {
+  if (isLoginPage && user && access !== 'forbidden' && access !== 'unauthenticated') {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url))
   }
 

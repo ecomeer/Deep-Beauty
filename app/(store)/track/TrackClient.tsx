@@ -48,7 +48,7 @@ interface TrackingEvent {
 const STATUS_STEPS = [
   { key: 'pending', label: 'تم الطلب', icon: ClockIcon },
   { key: 'confirmed', label: 'تم التأكيد', icon: CheckCircleIcon },
-  { key: 'preparing', label: 'جاري التحضير', icon: ArchiveBoxIcon },
+  { key: 'processing', label: 'قيد المعالجة', icon: ArchiveBoxIcon },
   { key: 'shipped', label: 'تم الشحن', icon: TruckIcon },
   { key: 'delivered', label: 'تم التوصيل', icon: CheckCircleIcon }
 ]

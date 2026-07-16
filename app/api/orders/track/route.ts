@@ -25,11 +25,12 @@ export async function GET(request: NextRequest) {
         total,
         payment_method,
         payment_status,
-        shipping_address,
+        address_line1, address_area, address_block, address_street, address_house,
         created_at,
         order_items (
           quantity,
-          price,
+          unit_price,
+          product_image_url,
           product:product_id (name_ar, images)
         )
       `)
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     const { data: tracking } = await supabaseAdmin
       .from('order_tracking')
-      .select('id,status,note,location,created_at')
+      .select('id,status,description_ar,description_en,location,created_at')
       .eq('order_id', order.id)
       .eq('is_customer_visible', true)
       .order('created_at', { ascending: false })

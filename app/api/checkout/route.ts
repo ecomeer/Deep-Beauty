@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     const productIds = items.map((item) => item.id)
     const { data: dbProducts, error: dbErr } = await supabaseAdmin
       .from('products')
-      .select('id, price, is_active, name_ar, name_en')
+      .select('id, price, is_active, name_ar, name_en, slug, images')
       .in('id', productIds)
 
     if (dbErr) {
@@ -211,6 +211,8 @@ export async function POST(req: NextRequest) {
         quantity: item.quantity,
         unit_price: product.price,
         total_price: product.price * item.quantity,
+        product_image_url: product.images?.[0] || '/images/product-placeholder.svg',
+        product_slug: product.slug,
       }
     })
 

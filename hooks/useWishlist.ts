@@ -33,6 +33,14 @@ function loadFromLS(): WishlistItem[] {
   }
 }
 
+function saveToLS(items: WishlistItem[]) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(items))
+  } catch {
+    // Storage can be unavailable in privacy-restricted browser contexts.
+  }
+}
+
 export function useWishlist() {
   const [items, setItems] = useState<WishlistItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
@@ -111,7 +119,9 @@ export function useWishlist() {
     }
     setItems(prev => {
       if (prev.some(i => i.id === product.id)) return prev
-      return [...prev, { ...product, addedAt: new Date().toISOString() }]
+      const next = [...prev, { ...product, addedAt: new Date().toISOString() }]
+      if (!isLoggedIn) saveToLS(next)
+      return next
     })
   }, [isLoggedIn])
 
@@ -119,7 +129,11 @@ export function useWishlist() {
     if (isLoggedIn) {
       await syncToggle(productId)
     }
-    setItems(prev => prev.filter(i => i.id !== productId))
+    setItems(prev => {
+      const next = prev.filter(i => i.id !== productId)
+      if (!isLoggedIn) saveToLS(next)
+      return next
+    })
   }, [isLoggedIn])
 
   const toggleItem = useCallback(async (product: Omit<WishlistItem, 'addedAt'>) => {
@@ -128,9 +142,13 @@ export function useWishlist() {
       await syncToggle(product.id)
     }
     setItems(prev =>
-      exists
-        ? prev.filter(i => i.id !== product.id)
-        : [...prev, { ...product, addedAt: new Date().toISOString() }]
+      (() => {
+        const next = exists
+          ? prev.filter(i => i.id !== product.id)
+          : [...prev, { ...product, addedAt: new Date().toISOString() }]
+        if (!isLoggedIn) saveToLS(next)
+        return next
+      })()
     )
   }, [items, isLoggedIn])
 
@@ -142,6 +160,7 @@ export function useWishlist() {
     if (isLoggedIn) {
       await Promise.all(items.map(i => syncToggle(i.id)))
     }
+    if (!isLoggedIn) saveToLS([])
     setItems([])
   }, [items, isLoggedIn])
 

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { formatKuwaitDate, formatKuwaitDateTime, getKuwaitDateKey } from './kuwait-time'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -21,30 +22,17 @@ export const toWhatsAppPhone = (phone: string): string => {
 }
 
 export const generateOrderNumber = (): string => {
-  const date = new Date()
-  const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '')
+  const dateStr = getKuwaitDateKey()
   const rand = Math.floor(1000 + Math.random() * 9000)
   return `DB-${dateStr}-${rand}`
 }
 
 export const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr)
-  return new Intl.DateTimeFormat('ar-KW', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(date)
+  return formatKuwaitDate(dateStr)
 }
 
 export const formatDateTime = (dateStr: string): string => {
-  const date = new Date(dateStr)
-  return new Intl.DateTimeFormat('ar-KW', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
+  return formatKuwaitDateTime(dateStr)
 }
 
 export const slugify = (text: string): string =>

@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'https://www.deepbeautykw.com'
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3100'
+const baseURLHost = new URL(baseURL).hostname
+const vercelBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -18,7 +20,13 @@ export default defineConfig({
     baseURL,
     locale: 'ar-KW',
     timezoneId: 'Asia/Kuwait',
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
+    extraHTTPHeaders: vercelBypassSecret
+      ? {
+          'x-vercel-protection-bypass': vercelBypassSecret,
+          'x-vercel-set-bypass-cookie': 'true',
+        }
+      : undefined,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     navigationTimeout: 30_000,
@@ -40,4 +48,14 @@ export default defineConfig({
       },
     },
   ],
+  ...(baseURLHost === '127.0.0.1' || baseURLHost === 'localhost'
+    ? {
+        webServer: {
+          command: 'npm run start -- -p 3100',
+          url: 'http://127.0.0.1:3100',
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+      }
+    : {}),
 })

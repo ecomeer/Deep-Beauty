@@ -262,7 +262,7 @@ export default function AdminOrderDetail() {
                       <option value="">اختر الحالة</option>
                       <option value="pending">قيد الانتظار</option>
                       <option value="confirmed">تم التأكيد</option>
-                      <option value="preparing">جاري التحضير</option>
+                          <option value="processing">قيد المعالجة</option>
                       <option value="shipped">تم الشحن</option>
                       <option value="out_for_delivery">في الطريق للتوصيل</option>
                       <option value="delivered">تم التوصيل</option>
@@ -336,7 +336,7 @@ export default function AdminOrderDetail() {
                         }`}>
                           {event.status === 'delivered' ? <CheckCircleIcon className="w-4 h-4" /> :
                            event.status === 'shipped' ? <TruckIcon className="w-4 h-4" /> :
-                           event.status === 'preparing' ? <ArchiveBoxIcon className="w-4 h-4" /> :
+                           event.status === 'processing' ? <ArchiveBoxIcon className="w-4 h-4" /> :
                            <ClockIcon className="w-4 h-4" />}
                         </div>
                       </div>
