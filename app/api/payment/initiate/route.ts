@@ -19,7 +19,9 @@ export async function POST(request: NextRequest) {
     // never from the client — so the charge always matches the order.
     const { data: order } = await supabaseAdmin
       .from('orders')
-      .select('id, order_number, total, customer_name, customer_phone, customer_email, payment_status')
+      .select(
+        'id, order_number, total, customer_name, customer_phone, customer_email, payment_status, status'
+      )
       .eq('id', orderId)
       .single()
 
@@ -29,11 +31,9 @@ export async function POST(request: NextRequest) {
     if (order.payment_status === 'paid') {
       return NextResponse.json({ error: 'Order already paid' }, { status: 409 })
     }
-
-    await supabaseAdmin
-      .from('orders')
-      .update({ payment_method: 'online', payment_status: 'unpaid' })
-      .eq('id', orderId)
+    if (order.status === 'cancelled') {
+      return NextResponse.json({ error: 'Cancelled orders cannot be paid' }, { status: 409 })
+    }
 
     const paymentRequest = {
       orderId: order.id,
@@ -44,10 +44,23 @@ export async function POST(request: NextRequest) {
       customerEmail: order.customer_email || undefined,
     }
 
+    const markOnlinePaymentAttempt = async () => {
+      const { error } = await supabaseAdmin
+        .from('orders')
+        .update({ payment_method: 'online', payment_status: 'unpaid' })
+        .eq('id', orderId)
+        .neq('status', 'cancelled')
+
+      if (error) {
+        console.error('Failed to record online payment method:', error)
+      }
+    }
+
     // UPayments (KNET / cards / wallets) takes precedence when configured;
     // otherwise fall back to MyFatoorah.
     if (isUPaymentsConfigured()) {
       const payment = await createUPaymentsCharge(paymentRequest)
+      await markOnlinePaymentAttempt()
       return NextResponse.json({ paymentUrl: payment.paymentUrl, gateway: 'upayments' })
     }
 
@@ -59,6 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     const payment = await initiatePayment(paymentRequest)
+    await markOnlinePaymentAttempt()
 
     return NextResponse.json({
       paymentUrl: payment.paymentUrl,
