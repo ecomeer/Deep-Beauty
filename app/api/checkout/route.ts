@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic', {
+    const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic_secure', {
       p_order: orderData,
       p_items: itemsPayload,
       p_coupon_code: appliedCouponCode,
