@@ -3,13 +3,20 @@ import { getUPaymentsStatus } from '@/lib/upayments'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 const AMOUNT_EPSILON = 0.001 // KWD has 3 decimal places
+const TERMINAL_FAILURE_RESULTS = new Set([
+  'CANCELLED',
+  'FAILED',
+  'DECLINED',
+  'ABANDONED',
+  'EXPIRED',
+  'VOIDED',
+])
 
 // notificationUrl target: safety net for payments where the customer
 // never returns through the browser redirect. UPayments webhooks carry
 // no signature, so NOTHING in the request body is trusted — track_id is
 // the only thing we take from it, and the order id / amount used for the
-// DB update are re-derived from UPayments' own status-check response for
-// that track_id, never from the webhook body's order_id field.
+// DB update are re-derived from UPayments' own status-check response.
 export async function POST(request: NextRequest) {
   try {
     // The payload may arrive as JSON or form-encoded.
@@ -41,9 +48,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true })
     }
 
-    // Idempotent: a delayed/duplicate webhook for an already-paid order
-    // (possibly shipped/delivered since) must not reset it to 'confirmed'.
+    // Idempotent: a delayed/duplicate webhook for an already-paid order may
+    // backfill an interrupted loyalty award, but cannot award it twice.
     if (order.payment_status === 'paid') {
+      await supabaseAdmin.rpc('award_order_loyalty_points', { p_order_id: order.id })
       return NextResponse.json({ received: true })
     }
 
@@ -60,21 +68,31 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true })
       }
 
-      // A cancelled order has already had its stock restocked — don't
-      // revive it from a stale/duplicate webhook delivery.
-      const { error } = await supabaseAdmin
+      // A cancelled order has already had its stock restored — do not revive it.
+      const { error, data } = await supabaseAdmin
         .from('orders')
         .update({
           payment_status: 'paid',
           status: 'confirmed',
+          payment_expires_at: null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', order.id)
         .neq('status', 'cancelled')
-      if (error) console.error('UPayments webhook: order update failed:', error)
-    } else {
-      // Mark as cancelled only while the order is still pending —
-      // never downgrade an order that was already confirmed.
+        .select('id')
+        .maybeSingle()
+
+      if (error) {
+        console.error('UPayments webhook: order update failed:', error)
+      } else if (data) {
+        const { error: loyaltyError } = await supabaseAdmin.rpc('award_order_loyalty_points', {
+          p_order_id: order.id,
+        })
+        if (loyaltyError) console.error('UPayments webhook: loyalty award failed:', loyaltyError)
+      }
+    } else if (status.result && TERMINAL_FAILURE_RESULTS.has(status.result.toUpperCase())) {
+      // Only terminal gateway failures cancel an order. Pending/unknown states
+      // keep their reservation until the payment-expiry cleanup handles them.
       const { error, data } = await supabaseAdmin
         .from('orders')
         .update({
@@ -86,17 +104,21 @@ export async function POST(request: NextRequest) {
         .eq('status', 'pending')
         .select('id')
         .maybeSingle()
-      if (error) console.error('UPayments webhook: order cancel failed:', error)
-      else if (data) {
-        const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: order.id })
-        if (restockErr) console.error('Failed to restock cancelled order:', restockErr)
+
+      if (error) {
+        console.error('UPayments webhook: order cancel failed:', error)
+      } else if (data) {
+        const { error: reverseError } = await supabaseAdmin.rpc('cancel_order_effects_atomic', {
+          p_order_id: order.id,
+        })
+        if (reverseError) console.error('UPayments webhook: cancellation reversal failed:', reverseError)
       }
     }
 
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error('UPayments webhook error:', error)
-    // Always 200 so UPayments doesn't retry forever on our internal errors
+    // Always 200 so UPayments doesn't retry forever on our internal errors.
     return NextResponse.json({ received: true })
   }
 }
