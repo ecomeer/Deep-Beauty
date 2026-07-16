@@ -5,7 +5,8 @@ describe('order presentation helpers', () => {
   it('falls back when a historical snapshot image is missing', () => {
     expect(getOrderItemImage(null)).toBe(ORDER_ITEM_IMAGE_FALLBACK)
     expect(getOrderItemImage('')).toBe(ORDER_ITEM_IMAGE_FALLBACK)
-    expect(getOrderItemImage('/snap.jpg')).toBe('/snap.jpg')
+    expect(getOrderItemImage('/snap.jpg', '/current.jpg')).toBe('/snap.jpg')
+    expect(getOrderItemImage(null, '/current.jpg')).toBe('/current.jpg')
   })
 
   it('counts total quantities, not order item rows', () => {

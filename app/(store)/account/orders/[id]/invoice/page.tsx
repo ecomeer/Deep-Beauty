@@ -15,6 +15,7 @@ type InvoiceItem = {
   unit_price: number
   total_price: number
   product_image_url?: string | null
+  product_id?: string | null
 }
 
 const paymentMethodLabel = (method: string | null) => method === 'cod' ? 'الدفع عند الاستلام' : 'دفع إلكتروني'
@@ -30,11 +31,17 @@ export default async function CustomerInvoicePage({ params }: Props) {
     address_area, address_block, address_street, address_house, notes,
     subtotal, shipping_cost, coupon_discount, coupon_code, total, status,
     payment_method, payment_status, created_at, paid_at, confirmed_at, processing_at, shipped_at, delivered_at, cancelled_at, refunded_at,
-    order_items (id, product_name_ar, quantity, unit_price, total_price, product_image_url)
+    order_items (id, product_id, product_name_ar, quantity, unit_price, total_price, product_image_url)
   `).eq('id', id).or(`user_id.eq.${user.id},customer_email.eq.${user.email}`).maybeSingle()
   if (!order) notFound()
 
   const items = (order.order_items ?? []) as InvoiceItem[]
+  const missingSnapshotProductIds = Array.from(new Set(items.filter((item) => !item.product_image_url && item.product_id).map((item) => item.product_id as string)))
+  let currentImageByProductId = new Map<string, string | null>()
+  if (missingSnapshotProductIds.length > 0) {
+    const { data: products } = await supabaseAdmin.from('products').select('id, images').in('id', missingSnapshotProductIds)
+    currentImageByProductId = new Map((products ?? []).map((product) => [product.id, product.images?.[0] ?? null]))
+  }
   const lifecycle = [
     ['تاريخ الطلب', order.created_at],
     ['تاريخ الدفع', order.paid_at],
@@ -94,7 +101,7 @@ export default async function CustomerInvoicePage({ params }: Props) {
                 <tr key={item.id}>
                   <td className="p-3 border-b border-[var(--beige)]">
                     <div className="flex items-center gap-2">
-                      <img src={getOrderItemImage(item.product_image_url)} alt="" className="h-12 w-12 rounded object-cover" />
+                      <img src={getOrderItemImage(item.product_image_url, item.product_id ? currentImageByProductId.get(item.product_id) : null)} alt="" className="h-12 w-12 rounded object-cover" />
                       <span>{item.product_name_ar}</span>
                     </div>
                   </td>

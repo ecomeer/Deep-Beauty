@@ -6,8 +6,8 @@ export interface SnapshotOrderItem {
   total_price?: number | null
 }
 
-export function getOrderItemImage(imageUrl?: string | null): string {
-  return imageUrl?.trim() || ORDER_ITEM_IMAGE_FALLBACK
+export function getOrderItemImage(imageUrl?: string | null, currentImageUrl?: string | null): string {
+  return imageUrl?.trim() || currentImageUrl?.trim() || ORDER_ITEM_IMAGE_FALLBACK
 }
 
 export function getOrderItemQuantityTotal(items: SnapshotOrderItem[] | null | undefined): number {
