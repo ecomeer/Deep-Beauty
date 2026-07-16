@@ -26,10 +26,20 @@ const user = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 })
 
-function setAuth(u: Record<string, unknown> | null, dbRole: string | null = null) {
+function setAuth(
+  u: Record<string, unknown> | null,
+  dbRole: string | null = null,
+  permissions: string[] = []
+) {
   holders.getUser = vi.fn().mockResolvedValue({ data: { user: u } })
   holders.from = createSupabaseMock({
-    tables: { users: { data: dbRole ? { role: dbRole } : null } },
+    tables: {
+      users: {
+        data: dbRole
+          ? { role: dbRole, is_active: true, permissions }
+          : null,
+      },
+    },
   }).client.from
 }
 
@@ -73,10 +83,10 @@ describe('proxy (admin gating middleware)', () => {
     expectRedirect(res, '/admin/login')
   })
 
-  it('redirects authenticated non-admin users off admin routes', async () => {
+  it('redirects authenticated non-admin users to the forbidden page', async () => {
     setAuth(user())
     const res = await proxy(req('/admin/orders'))
-    expectRedirect(res, '/admin/login')
+    expectRedirect(res, '/admin/403')
   })
 
   it('lets a metadata admin through', async () => {
@@ -92,8 +102,8 @@ describe('proxy (admin gating middleware)', () => {
     expect(res.headers.get('location')).toBeNull()
   })
 
-  it('lets a staff account (DB role) through', async () => {
-    setAuth(user(), 'staff')
+  it('lets a staff account with the orders permission through', async () => {
+    setAuth(user(), 'staff', ['orders'])
     const res = await proxy(req('/admin/orders'))
     expect(res.headers.get('location')).toBeNull()
   })
@@ -101,7 +111,7 @@ describe('proxy (admin gating middleware)', () => {
   it('does not treat a plain customer DB role as staff', async () => {
     setAuth(user(), 'customer')
     const res = await proxy(req('/admin/orders'))
-    expectRedirect(res, '/admin/login')
+    expectRedirect(res, '/admin/403')
   })
 
   it('bounces an already-signed-in admin from the login page to the dashboard', async () => {
