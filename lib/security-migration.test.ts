@@ -9,6 +9,7 @@ const migration = readFileSync(
 )
 const checkoutRoute = readFileSync(join(root, 'app/api/checkout/route.ts'), 'utf8')
 const bestsellersRoute = readFileSync(join(root, 'app/api/products/bestsellers/route.ts'), 'utf8')
+const staffRoute = readFileSync(join(root, 'app/api/admin/staff/route.ts'), 'utf8')
 
 describe('security hardening migration contract', () => {
   it('adds a versioned secure checkout RPC without dropping the live legacy RPC', () => {
@@ -29,6 +30,11 @@ describe('security hardening migration contract', () => {
     )
     expect(bestsellersRoute).toContain("import { supabaseAdmin } from '@/lib/supabase-admin'")
     expect(bestsellersRoute).toContain("supabaseAdmin.rpc('get_bestseller_products'")
+  })
+
+  it('updates the auth-trigger-created staff row instead of inserting a duplicate', () => {
+    expect(staffRoute).toContain(".from('users')\n    .update({")
+    expect(staffRoute).not.toContain(".from('users')\n    .insert({")
   })
 
   it('removes direct privilege-bearing profile writes from browser roles', () => {
