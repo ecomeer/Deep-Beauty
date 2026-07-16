@@ -19,6 +19,7 @@ import {
 import toast from 'react-hot-toast'
 import { STATUS_COLORS, formatDate } from '@/lib/utils'
 import { ACTIVE_ORDER_STATUSES, type OrderStatus } from '@/lib/order-status'
+import { useCartContext } from '@/context/CartContext'
 
 interface Order {
   id: string
@@ -46,6 +47,7 @@ const STATUS_ICONS = {
 
 export default function OrdersPage() {
   const router = useRouter()
+  const { addItem } = useCartContext()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'cancelled'>('all')
@@ -73,6 +75,16 @@ export default function OrdersPage() {
   useEffect(() => {
     fetchOrders()
   }, [fetchOrders])
+
+  const handleReorder = async (orderId: string) => {
+    const res = await fetch(`/api/account/orders/${orderId}/reorder`, { method: 'POST' })
+    const data = await res.json()
+    if (!res.ok) { toast.error(data.error || 'تعذرت إعادة الطلب'); return }
+    for (const item of data.added || []) addItem(item)
+    if (data.added?.length) toast.success('تمت إضافة المنتجات المتوفرة بالسعر الحالي')
+    if (data.skipped?.length) toast.error(data.skipped.map((s: { name: string; reason: string }) => `${s.name}: ${s.reason}`).join('، '), { duration: 6000 })
+    if (!data.added?.length && !data.skipped?.length) toast.error('لا توجد منتجات قابلة للإضافة')
+  }
 
   const filteredOrders = orders.filter(order => {
     if (filter === 'active') return ACTIVE_ORDER_STATUSES.includes(order.status)
@@ -175,6 +187,7 @@ export default function OrdersPage() {
                           <p className="font-bold text-lg">{order.total} د.ك</p>
                           <p className="text-sm text-gray-500">{order.item_count} منتج</p>
                         </div>
+                        <Link href={`/account/orders/${order.id}`} className="p-2 hover:bg-gray-100 rounded-xl transition-colors" title="فتح تفاصيل الطلب"><EyeIcon className="w-5 h-5 text-gray-400" /></Link>
                         <button
                           onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
                           className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
@@ -254,7 +267,7 @@ export default function OrdersPage() {
                           </button>
                         )}
                         {order.status === 'delivered' && (
-                          <button className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors">
+                          <button onClick={() => handleReorder(order.id)} className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors">
                             إعادة الطلب
                           </button>
                         )}
