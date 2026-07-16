@@ -10,6 +10,7 @@ on:
       - main
       - qa/deep-beauty
       - codex/start-phase-2-of-stabilization-work
+      - phase-3-stabilization
   workflow_dispatch:
 
 permissions:
