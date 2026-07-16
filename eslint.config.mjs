@@ -30,6 +30,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "Deep-Beauty/**",
     "next-env.d.ts",
+    "coverage/**",
   ]),
 ]);
 

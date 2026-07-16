@@ -8,6 +8,16 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['lib/**/*.test.ts'],
+    include: [
+      'lib/**/*.test.ts',
+      'app/**/*.test.ts',
+      'hooks/**/*.test.{ts,tsx}',
+      '*.test.ts',
+    ],
+    coverage: {
+      provider: 'v8',
+      include: ['lib/**', 'app/api/**', 'hooks/**', 'proxy.ts'],
+      exclude: ['**/*.test.*'],
+    },
   },
 })
