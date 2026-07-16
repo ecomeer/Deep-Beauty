@@ -122,6 +122,25 @@ export function parsePaymentStatus(json: unknown): UPaymentsStatus {
   }
 }
 
+const TERMINAL_FAILURE_RESULTS = new Set([
+  'NOT CAPTURED',
+  'DECLINED',
+  'FAILED',
+  'CANCELED',
+  'CANCELLED',
+  'EXPIRED',
+  'VOIDED',
+])
+
+/**
+ * Only explicit terminal failures should cancel and restock an order.
+ * Pending/processing/unknown statuses are left untouched for a later retry.
+ */
+export function isTerminalUPaymentsFailure(result: string | null): boolean {
+  if (!result) return false
+  return TERMINAL_FAILURE_RESULTS.has(result.trim().toUpperCase())
+}
+
 // UPayments webhooks carry no signature, so callers MUST verify a
 // payment through this status API before trusting it.
 export async function getUPaymentsStatus(trackId: string): Promise<UPaymentsStatus> {

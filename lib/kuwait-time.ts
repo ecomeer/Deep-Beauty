@@ -1,12 +1,22 @@
 export const KUWAIT_TIME_ZONE = 'Asia/Kuwait'
 
-export function getKuwaitDateKey(date: Date = new Date()): string {
+function getKuwaitDateParts(date: Date = new Date()): Record<string, string> {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: KUWAIT_TIME_ZONE,
     year: 'numeric', month: '2-digit', day: '2-digit',
   }).formatToParts(date)
-  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+
+  return Object.fromEntries(parts.map((part) => [part.type, part.value]))
+}
+
+export function getKuwaitDateKey(date: Date = new Date()): string {
+  const values = getKuwaitDateParts(date)
   return `${values.year}${values.month}${values.day}`
+}
+
+export function getKuwaitIsoDateKey(date: Date = new Date()): string {
+  const values = getKuwaitDateParts(date)
+  return `${values.year}-${values.month}-${values.day}`
 }
 
 export function formatKuwaitDate(date: string | Date): string {

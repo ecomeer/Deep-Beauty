@@ -2,9 +2,9 @@ import { STATUS_LABELS, toArabicPrice, formatDateTime } from '@/lib/utils'
 import { CONTACT_INFO } from '@/lib/contact'
 
 // Email delivery via the Resend REST API (no SDK dependency).
-// When RESEND_API_KEY is not configured every send becomes a logged no-op,
-// so checkout/notify flows keep working and emails switch on the moment
-// the key is added.
+// Both RESEND_API_KEY and EMAIL_FROM must be configured. Requiring an explicit
+// sender prevents production from silently falling back to an unverified domain
+// and returning Resend 403 errors.
 
 const RESEND_API_URL = 'https://api.resend.com/emails'
 
@@ -24,7 +24,11 @@ export async function sendEmail(params: {
     return { sent: false, error: 'not_configured' }
   }
 
-  const from = process.env.EMAIL_FROM || `Deep Beauty <${CONTACT_INFO.email}>`
+  const from = process.env.EMAIL_FROM?.trim()
+  if (!from) {
+    console.error('[email] EMAIL_FROM not configured — email skipped:', params.subject)
+    return { sent: false, error: 'from_not_configured' }
+  }
 
   try {
     const res = await fetch(RESEND_API_URL, {
@@ -39,7 +43,7 @@ export async function sendEmail(params: {
 
     if (!res.ok) {
       const body = await res.text().catch(() => '')
-      console.error('[email] Resend error', res.status, body)
+      console.error('[email] Resend error', res.status, body.slice(0, 500))
       return { sent: false, error: `resend_${res.status}` }
     }
 
