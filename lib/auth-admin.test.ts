@@ -126,9 +126,10 @@ describe('requireAdmin', () => {
     expect(res?.status).toBe(403)
   })
 
-  it('allows staff when the route requires no specific permission', async () => {
+  it('rejects staff when a route declares no delegated permission', async () => {
     setDbRoles({ role: 'staff', is_active: true, permissions: [] })
-    expect(await requireAdmin(req())).toBeNull()
+    const res = await requireAdmin(req())
+    expect(res?.status).toBe(403)
   })
 
   it("never delegates the 'staff' scope to staff themselves", async () => {
