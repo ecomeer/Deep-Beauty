@@ -1,6 +1,7 @@
 export interface CustomerProfileUpdate {
   name?: string
   phone?: string
+  default_address?: Record<string, unknown> | null
 }
 
 /**
@@ -28,6 +29,16 @@ export function normalizeCustomerProfileUpdate(input: unknown): CustomerProfileU
   if (typeof body.phone === 'string') {
     const phone = body.phone.trim()
     if (phone) updates.phone = phone
+  }
+
+  if (body.default_address === null) {
+    updates.default_address = null
+  } else if (
+    body.default_address &&
+    typeof body.default_address === 'object' &&
+    !Array.isArray(body.default_address)
+  ) {
+    updates.default_address = body.default_address as Record<string, unknown>
   }
 
   if (Object.keys(updates).length === 0) {
