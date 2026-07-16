@@ -1,24 +1,21 @@
 import type { Metadata } from 'next'
-import { Cormorant_Garamond, Almarai } from 'next/font/google'
 import { unstable_cache } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import Pixels from '@/components/Pixels'
+import '@fontsource/almarai/arabic-300.css'
+import '@fontsource/almarai/arabic-400.css'
+import '@fontsource/almarai/arabic-700.css'
+import '@fontsource/cormorant-garamond/latin-300.css'
+import '@fontsource/cormorant-garamond/latin-300-italic.css'
+import '@fontsource/cormorant-garamond/latin-400.css'
+import '@fontsource/cormorant-garamond/latin-400-italic.css'
+import '@fontsource/cormorant-garamond/latin-500.css'
+import '@fontsource/cormorant-garamond/latin-500-italic.css'
+import '@fontsource/cormorant-garamond/latin-600.css'
+import '@fontsource/cormorant-garamond/latin-600-italic.css'
+import '@fontsource/cormorant-garamond/latin-700.css'
+import '@fontsource/cormorant-garamond/latin-700-italic.css'
 import './globals.css'
-
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  style: ['normal', 'italic'],
-  variable: '--font-cormorant',
-  display: 'swap',
-})
-
-const almarai = Almarai({
-  subsets: ['arabic'],
-  weight: ['300', '400', '700'],
-  variable: '--font-almarai',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.deepbeautykw.com'),
@@ -82,7 +79,7 @@ export default async function RootLayout({
   const { metaPixelId, snapPixelId, gtmId } = await getPixelSettings()
 
   return (
-    <html lang="ar" dir="rtl" className={`${cormorant.variable} ${almarai.variable}`}>
+    <html lang="ar" dir="rtl">
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#8B5E3C" />

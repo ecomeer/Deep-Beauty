@@ -1,8 +1,12 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
+import { NextRequest } from 'next/server'
+import { requireAdmin } from '@/lib/auth-admin'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { toArabicPrice, formatDateTime, STATUS_LABELS } from '@/lib/utils'
 import { CONTACT_INFO } from '@/lib/contact'
+import { getOrderItemImage } from '@/lib/order-presentation'
 import PrintButton from './PrintButton'
 
 type Props = { params: Promise<{ id: string }> }
@@ -18,13 +22,16 @@ interface InvoiceItem {
 
 export default async function OrderInvoicePage({ params }: Props) {
   const { id } = await params
+  const cookieHeader = (await cookies()).getAll().map((cookie) => `${cookie.name}=${cookie.value}`).join('; ')
+  const authError = await requireAdmin(new NextRequest('http://localhost/admin-invoice', { headers: { cookie: cookieHeader } }), 'orders')
+  if (authError) notFound()
   const { data: order } = await supabaseAdmin
     .from('orders')
     .select(`
       id, order_number, customer_name, customer_phone, customer_email,
       address_area, address_block, address_street, address_house,
       subtotal, shipping_cost, coupon_discount, coupon_code, total,
-      status, payment_method, payment_status, created_at,
+      status, payment_method, payment_status, created_at, paid_at, confirmed_at, processing_at, shipped_at, delivered_at, cancelled_at, refunded_at,
       order_items ( id, product_name_ar, quantity, unit_price, total_price, product_image_url )
     `)
     .eq('id', id)
@@ -64,7 +71,7 @@ export default async function OrderInvoicePage({ params }: Props) {
             <div className="text-left">
               <div className="text-lg font-bold">فاتورة</div>
               <div className="font-en text-sm" dir="ltr">{order.order_number}</div>
-              <div className="text-xs opacity-60 mt-1">{formatDateTime(order.created_at)}</div>
+              <div className="text-xs opacity-60 mt-1">{formatDateTime(order.created_at)} (توقيت الكويت)</div>
               <div className="text-xs mt-1">{STATUS_LABELS[order.status] || order.status}</div>
             </div>
           </div>
@@ -99,7 +106,7 @@ export default async function OrderInvoicePage({ params }: Props) {
                 <tr key={item.id}>
                   <td className="p-3 border-b border-[var(--beige)]">
                     <div className="flex items-center gap-2">
-                      {item.product_image_url && <img src={item.product_image_url} alt="" className="h-10 w-10 rounded object-cover" />}
+                      <img src={getOrderItemImage(item.product_image_url)} alt="" className="h-10 w-10 rounded object-cover" />
                       <span>{item.product_name_ar}</span>
                     </div>
                   </td>
@@ -131,8 +138,11 @@ export default async function OrderInvoicePage({ params }: Props) {
               <span>الإجمالي</span>
               <span dir="ltr">{toArabicPrice(order.total)}</span>
             </div>
-            <div className="text-xs opacity-60 pt-2">
-              طريقة الدفع: {order.payment_method === 'cod' ? 'دفع عند الاستلام' : 'دفع إلكتروني'} — {order.payment_status === 'paid' ? 'مدفوع' : 'غير مدفوع'}
+            <div className="text-xs opacity-60 pt-2 space-y-1">
+              <div>تاريخ الدفع: {order.paid_at ? formatDateTime(order.paid_at) : '—'}</div>
+              <div>تأكيد: {order.confirmed_at ? formatDateTime(order.confirmed_at) : '—'} · شحن: {order.shipped_at ? formatDateTime(order.shipped_at) : '—'} · تسليم: {order.delivered_at ? formatDateTime(order.delivered_at) : '—'}</div>
+              <div>طريقة الدفع: {order.payment_method === 'cod' ? 'دفع عند الاستلام' : 'دفع إلكتروني'} — {order.payment_status === 'paid' ? 'مدفوع' : 'غير مدفوع'}</div>
+              <div className="font-en" dir="ltr">Safe reference: {order.order_number}</div>
             </div>
           </div>
 
