@@ -159,6 +159,7 @@ REVOKE EXECUTE ON FUNCTION public.increment_loyalty_points(uuid, integer) FROM P
 REVOKE EXECUTE ON FUNCTION public.validate_and_use_coupon(text, numeric) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.get_admin_customers(text, integer, integer) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.get_bestseller_products(integer) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.create_order_atomic(jsonb, jsonb, text) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.restock_order_atomic(uuid) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.notify_order_status_change() FROM PUBLIC, anon, authenticated;
@@ -169,11 +170,11 @@ REVOKE EXECUTE ON FUNCTION public.is_admin() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Atomic checkout: coupon usage, loyalty redemption, order/items, and stock
+-- Versioned atomic checkout: coupon, loyalty, order/items, and stock.
+-- Keep the legacy three-argument RPC available to service_role during the
+-- database-first/application-second rollout so live checkout has no downtime.
 -- ─────────────────────────────────────────────────────────────────────────────
-DROP FUNCTION IF EXISTS public.create_order_atomic(jsonb, jsonb, text);
-
-CREATE FUNCTION public.create_order_atomic(
+CREATE FUNCTION public.create_order_atomic_secure(
   p_order jsonb,
   p_items jsonb,
   p_coupon_code text,
@@ -319,9 +320,9 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.create_order_atomic(jsonb, jsonb, text, integer, numeric)
+REVOKE ALL ON FUNCTION public.create_order_atomic_secure(jsonb, jsonb, text, integer, numeric)
   FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.create_order_atomic(jsonb, jsonb, text, integer, numeric)
+GRANT EXECUTE ON FUNCTION public.create_order_atomic_secure(jsonb, jsonb, text, integer, numeric)
   TO service_role;
 
 -- ─────────────────────────────────────────────────────────────────────────────
