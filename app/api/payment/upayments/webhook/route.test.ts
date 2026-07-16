@@ -13,8 +13,11 @@ vi.mock('@/lib/supabase-admin', () => ({
   ),
 }))
 
-const getUPaymentsStatus = vi.hoisted(() => vi.fn())
-vi.mock('@/lib/upayments', () => ({ getUPaymentsStatus }))
+const upaymentsMocks = vi.hoisted(() => ({
+  getUPaymentsStatus: vi.fn(),
+  isTerminalUPaymentsFailure: vi.fn(),
+}))
+vi.mock('@/lib/upayments', () => upaymentsMocks)
 
 import { POST } from './route'
 
@@ -44,13 +47,15 @@ const post = (body: unknown) =>
   )
 
 beforeEach(() => {
-  getUPaymentsStatus.mockReset()
-  getUPaymentsStatus.mockResolvedValue({
+  upaymentsMocks.getUPaymentsStatus.mockReset()
+  upaymentsMocks.getUPaymentsStatus.mockResolvedValue({
     success: true,
     orderId: 'o1',
     orderNumber: 'DB-1',
     amount: 25.5,
   })
+  upaymentsMocks.isTerminalUPaymentsFailure.mockReset()
+  upaymentsMocks.isTerminalUPaymentsFailure.mockReturnValue(false)
   setDb({ data: order })
 })
 
@@ -58,19 +63,18 @@ describe('POST /api/payment/upayments/webhook', () => {
   it('acknowledges but ignores a payload without track_id', async () => {
     const res = await post({ foo: 'bar' })
     expect(res.status).toBe(200)
-    expect(getUPaymentsStatus).not.toHaveBeenCalled()
+    expect(upaymentsMocks.getUPaymentsStatus).not.toHaveBeenCalled()
   })
 
   it('accepts form-encoded payloads', async () => {
     await post('track_id=t-123&order_id=attacker-controlled')
-    expect(getUPaymentsStatus).toHaveBeenCalledWith('t-123')
+    expect(upaymentsMocks.getUPaymentsStatus).toHaveBeenCalledWith('t-123')
   })
 
   it('re-derives the order from the status check, never from the webhook body', async () => {
     const mock = setDb({ data: order })
     await post({ track_id: 't-123', order_id: 'spoofed-order' })
 
-    // The order lookup must use the id from getUPaymentsStatus ('o1').
     const orderQuery = mock.queries.find((q) => q.table === 'orders')!
     expect(orderQuery.calls.filter((c) => c.method === 'eq').map((c) => c.args)).toContainEqual([
       'id',
@@ -88,21 +92,20 @@ describe('POST /api/payment/upayments/webhook', () => {
     const payload = update.calls.find((c) => c.method === 'update')!.args[0] as Record<string, unknown>
     expect(payload.payment_status).toBe('paid')
     expect(payload.status).toBe('confirmed')
-    // Must never revive a cancelled (already restocked) order.
     expect(update.calls.map((c) => `${c.method}:${(c.args as unknown[])[1]}`)).toContain(
       'neq:cancelled'
     )
   })
 
   it('refuses to mark paid on an amount mismatch', async () => {
-    getUPaymentsStatus.mockResolvedValue({ success: true, orderId: 'o1', amount: 1.0 })
+    upaymentsMocks.getUPaymentsStatus.mockResolvedValue({ success: true, orderId: 'o1', amount: 1.0 })
     const mock = setDb({ data: order })
     await post({ track_id: 't-123' })
     expect(tableCalled(mock.queries, 'orders', 'update')).toBe(false)
   })
 
   it('refuses to mark paid on a reference mismatch', async () => {
-    getUPaymentsStatus.mockResolvedValue({
+    upaymentsMocks.getUPaymentsStatus.mockResolvedValue({
       success: true,
       orderId: 'o1',
       orderNumber: 'DB-OTHER',
@@ -120,15 +123,20 @@ describe('POST /api/payment/upayments/webhook', () => {
     expect(tableCalled(mock.queries, 'orders', 'update')).toBe(false)
   })
 
-  it('cancels and restocks a pending order on payment failure', async () => {
-    getUPaymentsStatus.mockResolvedValue({ success: false, orderId: 'o1' })
+  it('cancels and restocks a pending order on an explicit terminal payment failure', async () => {
+    upaymentsMocks.getUPaymentsStatus.mockResolvedValue({
+      success: false,
+      orderId: 'o1',
+      result: 'DECLINED',
+    })
+    upaymentsMocks.isTerminalUPaymentsFailure.mockReturnValue(true)
     const mock = setDb([{ data: order }, { data: { id: 'o1' } }])
     await post({ track_id: 't-123' })
 
+    expect(upaymentsMocks.isTerminalUPaymentsFailure).toHaveBeenCalledWith('DECLINED')
     const update = mock.queries.filter((q) => q.table === 'orders')[1]
     const payload = update.calls.find((c) => c.method === 'update')!.args[0] as Record<string, unknown>
     expect(payload.status).toBe('cancelled')
-    // Only cancels while still pending.
     expect(update.calls.filter((c) => c.method === 'eq').map((c) => c.args)).toContainEqual([
       'status',
       'pending',
@@ -136,15 +144,20 @@ describe('POST /api/payment/upayments/webhook', () => {
     expect(mock.rpcCalls).toContainEqual({ fn: 'restock_order_atomic', args: { p_order_id: 'o1' } })
   })
 
-  it('does not restock when the order was no longer pending', async () => {
-    getUPaymentsStatus.mockResolvedValue({ success: false, orderId: 'o1' })
+  it('does not restock when a terminal failure races with a non-pending order', async () => {
+    upaymentsMocks.getUPaymentsStatus.mockResolvedValue({
+      success: false,
+      orderId: 'o1',
+      result: 'DECLINED',
+    })
+    upaymentsMocks.isTerminalUPaymentsFailure.mockReturnValue(true)
     const mock = setDb([{ data: { ...order, status: 'confirmed' } }, { data: null }])
     await post({ track_id: 't-123' })
     expect(mock.rpcCalls.some((c) => c.fn === 'restock_order_atomic')).toBe(false)
   })
 
   it('returns 200 even when processing throws, so the gateway stops retrying', async () => {
-    getUPaymentsStatus.mockRejectedValue(new Error('gateway timeout'))
+    upaymentsMocks.getUPaymentsStatus.mockRejectedValue(new Error('gateway timeout'))
     const res = await post({ track_id: 't-123' })
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ received: true })
