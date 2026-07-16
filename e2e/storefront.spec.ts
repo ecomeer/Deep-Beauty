@@ -22,7 +22,9 @@ test.describe('storefront purchase-path smoke', () => {
   test('home page renders the Arabic storefront', async ({ page }) => {
     await gotoStore(page, '/')
     await expect(page.locator('html')).toHaveAttribute('lang', /ar/)
-    await expect(page.locator('body')).toContainText(/.+/)
+    // Arabic-storefront marker text — not a bare "any character" check — so a
+    // broken deployment (error page, empty boundary) fails this assertion.
+    await expect(page.locator('body')).toContainText('ديب')
   })
 
   test('products listing shows product cards', async ({ page }) => {
@@ -42,15 +44,15 @@ test.describe('storefront purchase-path smoke', () => {
 
     // Add to cart (Arabic storefront button)
     const addButton = page.getByRole('button', { name: /أضف للسلة|إضافة للسلة/ }).first()
-    await addButton.waitFor({ timeout: 20_000 })
+    // Fails loudly (rather than silently skipping) if the first listed
+    // product is out of stock — a real signal worth surfacing.
+    await expect(addButton).toBeEnabled({ timeout: 20_000 })
+    await addButton.click()
 
-    if (await addButton.isEnabled()) {
-      await addButton.click()
-      // The cart sidebar opens and shows the cart heading
-      await expect(page.getByRole('dialog', { name: 'سلة التسوق' })).toBeVisible({
-        timeout: 10_000,
-      })
-    }
+    // The cart sidebar opens and shows the cart heading
+    await expect(page.getByRole('dialog', { name: 'سلة التسوق' })).toBeVisible({
+      timeout: 10_000,
+    })
 
     // Checkout page renders its form regardless
     await page.goto('/checkout')

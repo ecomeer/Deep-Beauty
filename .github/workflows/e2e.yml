@@ -7,9 +7,12 @@ on:
 
 jobs:
   smoke:
+    # startsWith() is case-insensitive in GitHub Actions expressions, so this
+    # catches 'Production', 'production', etc. regardless of how the
+    # environment name is cased.
     if: >-
       github.event.deployment_status.state == 'success' &&
-      github.event.deployment.environment != 'Production'
+      !startsWith(github.event.deployment.environment, 'production')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +23,18 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "version=$(npm ls @playwright/test --json | node -pe 'JSON.parse(require("fs").readFileSync(0)).dependencies["@playwright/test"].version')" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - run: npx playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+      - run: npx playwright install-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
       - run: npx playwright test
         env:
           E2E_BASE_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}

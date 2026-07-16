@@ -21,9 +21,12 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // Tests capture context values via a module-level variable inside a
-    // throwaway <Capture/> component — fine outside production code.
-    files: ["**/*.test.{ts,tsx}"],
+    // These two tests capture context values via a module-level variable
+    // inside a throwaway <Capture/> component — fine outside production code.
+    files: [
+      "components/store/QuickViewModal.test.tsx",
+      "components/store/EnhancedCartSidebar.test.tsx",
+    ],
     rules: {
       "react-hooks/globals": "off",
     },

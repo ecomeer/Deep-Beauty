@@ -10,6 +10,9 @@ export default defineConfig({
   test: {
     // Required for @testing-library/react's automatic DOM cleanup between tests.
     globals: true,
+    // Vitest 4 removed environmentMatchGlobs — DOM-touching suites opt into
+    // jsdom individually via a `// @vitest-environment jsdom` file pragma;
+    // everything else stays on the faster default 'node' environment.
     include: [
       'lib/**/*.test.ts',
       'app/**/*.test.ts',
