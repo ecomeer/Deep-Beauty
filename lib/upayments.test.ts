@@ -4,6 +4,7 @@ import {
   createUPaymentsCharge,
   buildChargeBody,
   parsePaymentStatus,
+  isTerminalUPaymentsFailure,
 } from './upayments'
 
 const ORIGINAL_ENV = { ...process.env }
@@ -115,5 +116,21 @@ describe('parsePaymentStatus', () => {
     expect(
       parsePaymentStatus({ data: { transaction: { result: 'CAPTURED', total_price: 25.5 } } }).amount
     ).toBe(25.5)
+  })
+})
+
+describe('isTerminalUPaymentsFailure', () => {
+  it('recognizes explicit terminal failures', () => {
+    expect(isTerminalUPaymentsFailure('NOT CAPTURED')).toBe(true)
+    expect(isTerminalUPaymentsFailure('declined')).toBe(true)
+    expect(isTerminalUPaymentsFailure('CANCELLED')).toBe(true)
+    expect(isTerminalUPaymentsFailure('expired')).toBe(true)
+  })
+
+  it('does not treat pending, processing, unknown, or missing results as terminal', () => {
+    expect(isTerminalUPaymentsFailure('PENDING')).toBe(false)
+    expect(isTerminalUPaymentsFailure('PROCESSING')).toBe(false)
+    expect(isTerminalUPaymentsFailure('SOMETHING_NEW')).toBe(false)
+    expect(isTerminalUPaymentsFailure(null)).toBe(false)
   })
 })
