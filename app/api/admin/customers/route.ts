@@ -5,13 +5,12 @@ import { requireAdmin } from '@/lib/auth-admin'
 const PAGE_SIZE = 50
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req, 'customers')
-  if (_authErr) return _authErr
+  const authError = await requireAdmin(req, 'customers')
+  if (authError) return authError
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
 
-  // Aggregate + paginate customers entirely in SQL (see get_admin_customers)
   const { data, error } = await supabaseAdmin.rpc('get_admin_customers', {
     p_search: search || null,
     p_page: page,
@@ -24,35 +23,65 @@ export async function GET(req: NextRequest) {
   const total = result?.total ?? 0
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
-  return NextResponse.json({ customers: result?.customers ?? [], total, page, pageSize: PAGE_SIZE, totalPages })
+  return NextResponse.json({
+    customers: result?.customers ?? [],
+    total,
+    page,
+    pageSize: PAGE_SIZE,
+    totalPages,
+  })
 }
 
 export async function POST(req: NextRequest) {
-  const _authErr = await requireAdmin(req, 'customers')
-  if (_authErr) return _authErr
+  const authError = await requireAdmin(req, 'customers')
+  if (authError) return authError
+
   try {
     const body = await req.json()
-    const { email, full_name, phone, role = 'customer' } = body
+    const rawName = typeof body.name === 'string' ? body.name : body.full_name
+    const name = typeof rawName === 'string' ? rawName.trim() : ''
+    const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
+    const phone = typeof body.phone === 'string' ? body.phone.trim() : ''
 
-    if (!email || !full_name) {
-      return NextResponse.json({ error: 'Email and full name are required' }, { status: 400 })
+    if (!name || !email || !email.includes('@')) {
+      return NextResponse.json({ error: 'البريد والاسم الكامل مطلوبان' }, { status: 400 })
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('users')
-      .insert([{
-        email: email.trim().toLowerCase(),
-        full_name: full_name.trim(),
-        phone: phone?.trim() || null,
-        role,
-        created_at: new Date().toISOString(),
-      }])
-      .select()
-      .single()
+    // Creating a customer must create an Auth identity first. The trusted
+    // auth.users trigger creates public.users with role=customer; request-body
+    // role/permissions values are intentionally ignored.
+    const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      data: { name, phone: phone || null },
+    })
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data, { status: 201 })
-  } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+    const invitedUser = data.user
+    if (!invitedUser) {
+      return NextResponse.json({ error: 'تعذر إنشاء دعوة العميل' }, { status: 500 })
+    }
+
+    const { data: customer, error: customerError } = await supabaseAdmin
+      .from('users')
+      .update({ name, phone: phone || null, role: 'customer', is_active: true, permissions: [] })
+      .eq('id', invitedUser.id)
+      .select('id,email,name,phone,role,is_active,created_at')
+      .maybeSingle()
+
+    if (customerError) return NextResponse.json({ error: customerError.message }, { status: 500 })
+
+    return NextResponse.json(
+      customer ?? {
+        id: invitedUser.id,
+        email: invitedUser.email,
+        name,
+        phone: phone || null,
+        role: 'customer',
+        is_active: true,
+      },
+      { status: 201 }
+    )
+  } catch (error) {
+    return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }
