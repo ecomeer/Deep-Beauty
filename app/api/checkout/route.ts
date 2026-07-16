@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { checkoutLimiter } from '@/lib/rate-limit'
 import { calculateShipping, ShippingZone } from '@/lib/shipping'
 import { GulfCountry } from '@/lib/currency'
 import { sendEmail, orderConfirmationEmail } from '@/lib/email'
+import { resolveCheckoutUserId } from '@/lib/checkout-identity'
 
 interface CheckoutItem {
   id: string
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
       coupon_code,
       country_code,
       payment_method,
-      user_id,
+      user_id: browserSuppliedUserId,
       items,
       redeem_points,
     } = body as {
@@ -68,6 +70,18 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'عناصر السلة غير صحيحة' }, { status: 400 })
       }
     }
+
+    // A checkout may be a guest checkout. When there is a signed-in user,
+    // ownership comes only from the verified Supabase session — never body.user_id.
+    let authenticatedUserId: string | null = null
+    try {
+      const sessionClient = await createServerSupabaseClient()
+      const { data: { user } } = await sessionClient.auth.getUser()
+      authenticatedUserId = user?.id ?? null
+    } catch {
+      // Invalid or absent session is a normal guest checkout.
+    }
+    const userId = resolveCheckoutUserId(authenticatedUserId, browserSuppliedUserId)
 
     // ── Re-validate prices server-side (never trust client totals) ──
     const productIds = items.map((item) => item.id)
@@ -118,46 +132,30 @@ export async function POST(req: NextRequest) {
       appliedCouponCode = coupon.code
     }
 
-    // ── Redeem loyalty points (logged-in customers only) ──
-    // Points are claimed atomically here (conditional decrement) before the
-    // order exists, so two concurrent checkouts can't both spend the same
-    // balance. If order creation fails below, the claimed points are
-    // refunded.
+    // ── Redeem loyalty points (verified signed-in customers only) ──
     let pointsDiscount = 0
     let pointsRedeemed = 0
-    if (user_id && redeem_points && redeem_points > 0) {
+    if (userId && redeem_points && redeem_points > 0) {
       const { data: rateRow } = await supabaseAdmin
         .from('settings')
         .select('value')
         .eq('key', 'loyalty_kwd_per_point')
         .maybeSingle()
       const kwdPerPoint = Number(rateRow?.value) || 0.01
-
-      const { data: userRow } = await supabaseAdmin
-        .from('users')
-        .select('loyalty_points')
-        .eq('id', user_id)
-        .maybeSingle()
-      const balance = userRow?.loyalty_points ?? 0
-
       const maxAffordablePoints = Math.floor(Math.max(0, subtotal - discount) / kwdPerPoint)
-      pointsRedeemed = Math.max(0, Math.min(Math.floor(redeem_points), balance, maxAffordablePoints))
 
-      if (pointsRedeemed > 0) {
-        const { data: claimed } = await supabaseAdmin
-          .from('users')
-          .update({ loyalty_points: balance - pointsRedeemed })
-          .eq('id', user_id)
-          .gte('loyalty_points', pointsRedeemed)
-          .select('id')
-          .maybeSingle()
+      const { data: claimed, error: claimError } = await supabaseAdmin.rpc('claim_loyalty_points', {
+        p_user_id: userId,
+        p_requested: Math.max(0, Math.floor(redeem_points)),
+        p_maximum: maxAffordablePoints,
+      })
 
-        if (claimed) {
-          pointsDiscount = Math.round(pointsRedeemed * kwdPerPoint * 1000) / 1000
-        } else {
-          pointsRedeemed = 0
-        }
+      if (claimError) {
+        return NextResponse.json({ error: 'تعذّر استخدام نقاط الولاء' }, { status: 400 })
       }
+
+      pointsRedeemed = Number(claimed) || 0
+      pointsDiscount = Math.round(pointsRedeemed * kwdPerPoint * 1000) / 1000
     }
 
     // ── Re-validate shipping server-side ──
@@ -172,9 +170,10 @@ export async function POST(req: NextRequest) {
 
     const total = Math.max(0, subtotal - discount - pointsDiscount + shippingCost)
 
-    // Points earned on this order's net product spend (after coupon, before
-    // the points redemption/shipping noise), floored to whole points.
-    const pointsEarned = user_id ? Math.floor(Math.max(0, subtotal - discount)) : 0
+    // Earned points are recorded on the order but awarded only after verified
+    // online payment or after a COD order reaches delivered status.
+    const pointsEarned = userId ? Math.floor(Math.max(0, subtotal - discount)) : 0
+    const isOnlinePayment = payment_method === 'online'
 
     // Build order payload for atomic RPC
     const orderData: Record<string, unknown> = {
@@ -199,8 +198,12 @@ export async function POST(req: NextRequest) {
       payment_status: 'unpaid',
       loyalty_points_earned: pointsEarned,
       loyalty_points_redeemed: pointsRedeemed,
+      loyalty_points_awarded: false,
+      payment_expires_at: isOnlinePayment
+        ? new Date(Date.now() + 30 * 60 * 1000).toISOString()
+        : null,
     }
-    if (user_id) orderData.user_id = user_id
+    if (userId) orderData.user_id = userId
 
     const itemsPayload = items.map((item) => {
       const product = productMap.get(item.id)!
@@ -214,11 +217,7 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Atomically create order + items + decrement stock + increment coupon
-    // usage (single transaction — the coupon's usage-limit lock is held
-    // until the order either fully commits or rolls back, closing the
-    // race where two concurrent checkouts could both pass the earlier
-    // read-only validate_and_use_coupon check on a single-use coupon).
+    // Atomically create order + items + decrement stock + increment coupon usage.
     const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic', {
       p_order: orderData,
       p_items: itemsPayload,
@@ -228,8 +227,8 @@ export async function POST(req: NextRequest) {
     if (rpcError || !orderJson) {
       // Refund any points claimed above — the order that would have spent
       // them never committed.
-      if (pointsRedeemed > 0 && user_id) {
-        try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: user_id, p_delta: pointsRedeemed }) } catch { /* non-critical */ }
+      if (pointsRedeemed > 0 && userId) {
+        try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: userId, p_delta: pointsRedeemed }) } catch { /* non-critical */ }
       }
       if (rpcError?.message?.includes('COUPON_LIMIT_REACHED')) {
         return NextResponse.json({ error: 'تجاوز كود الخصم الحد الأقصى للاستخدام' }, { status: 400 })
@@ -241,11 +240,6 @@ export async function POST(req: NextRequest) {
     }
 
     const order = orderJson as Record<string, unknown>
-
-    // Award points earned on this order (non-critical, best-effort).
-    if (pointsEarned > 0 && user_id) {
-      try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: user_id, p_delta: pointsEarned }) } catch { /* non-critical */ }
-    }
 
     // Mark any pending abandoned-cart snapshot for this phone as recovered
     // (non-critical — best-effort, never blocks order confirmation)
