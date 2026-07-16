@@ -41,8 +41,7 @@ export async function GET(request: NextRequest) {
     }
 
     // A cancelled order has already had its stock restocked — reviving it
-    // via a stale payment link would confirm an order with no reserved
-    // inventory. The customer needs to place a new order instead.
+    // via a stale payment link would confirm an order with no reserved inventory.
     if (order.status === 'cancelled') {
       return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
     }
@@ -62,8 +61,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
     }
 
-    // Idempotent: a customer refreshing/revisiting this URL shouldn't re-notify admins.
+    // Idempotent: revisiting the callback may backfill an interrupted loyalty
+    // award, but cannot award twice because the RPC flips a guarded DB flag.
     if (order.payment_status === 'paid') {
+      await supabaseAdmin.rpc('award_order_loyalty_points', { p_order_id: order.id })
       return NextResponse.redirect(
         new URL(`/order-success?id=${order.id}&num=${encodeURIComponent(order.order_number)}&paid=true`, request.url)
       )
@@ -76,6 +77,7 @@ export async function GET(request: NextRequest) {
       .update({
         payment_status: 'paid',
         status: 'confirmed',
+        payment_expires_at: null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', order.id)
@@ -90,6 +92,11 @@ export async function GET(request: NextRequest) {
     if (!updated) {
       return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
     }
+
+    const { error: loyaltyError } = await supabaseAdmin.rpc('award_order_loyalty_points', {
+      p_order_id: order.id,
+    })
+    if (loyaltyError) console.error('Failed to award loyalty points:', loyaltyError)
 
     // Notify admins about the paid order (non-critical)
     try {
