@@ -20,6 +20,14 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-require-imports": "off",
     },
   },
+  {
+    // Tests capture context values via a module-level variable inside a
+    // throwaway <Capture/> component — fine outside production code.
+    files: ["**/*.test.{ts,tsx}"],
+    rules: {
+      "react-hooks/globals": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

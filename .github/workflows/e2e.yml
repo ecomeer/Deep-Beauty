@@ -1,0 +1,30 @@
+name: Preview E2E
+
+# Runs the Playwright smoke suite against each successful Vercel preview
+# deployment. Kept separate from ci.yml so unit tests stay hermetic.
+on:
+  deployment_status:
+
+jobs:
+  smoke:
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment != 'Production'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+        env:
+          E2E_BASE_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+          # Required while Vercel deployment protection is enabled on previews:
+          # create the secret under Vercel → Project → Deployment Protection →
+          # Protection Bypass for Automation, then add it to the repo secrets.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
