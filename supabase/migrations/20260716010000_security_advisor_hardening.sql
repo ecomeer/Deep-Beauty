@@ -147,4 +147,15 @@ CREATE POLICY "server_only_stock_notifications"
 DROP POLICY IF EXISTS "Public read product-images" ON storage.objects;
 DROP POLICY IF EXISTS "Service role upload product-images" ON storage.objects;
 
+-- ---------------------------------------------------------------------------
+-- 6. Cover foreign keys identified by the performance advisor. These indexes
+-- improve joins/deletes and do not change application behavior.
+-- ---------------------------------------------------------------------------
+CREATE INDEX IF NOT EXISTS idx_order_tracking_created_by
+  ON public.order_tracking(created_by);
+CREATE INDEX IF NOT EXISTS idx_reviews_order_id
+  ON public.reviews(order_id);
+CREATE INDEX IF NOT EXISTS idx_wishlists_product_id
+  ON public.wishlists(product_id);
+
 COMMIT;
