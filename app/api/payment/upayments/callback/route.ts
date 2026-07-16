@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getUPaymentsStatus } from '@/lib/upayments'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { buildPaidOrderPatch } from '@/lib/payment-order'
+import { sendAdminPushNotification } from '@/lib/push-notifications'
 
 const AMOUNT_EPSILON = 0.001 // KWD has 3 decimal places
 
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     const { data: order, error: fetchErr } = await supabaseAdmin
       .from('orders')
-      .select('id, order_number, total, status, payment_status')
+      .select('id, order_number, total, status, payment_status, paid_at, confirmed_at')
       .eq('id', status.orderId)
       .maybeSingle()
 
@@ -40,15 +42,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/payment-failed?reason=verification_failed', request.url))
     }
 
-    // A cancelled order has already had its stock restocked — reviving it
-    // via a stale payment link would confirm an order with no reserved
-    // inventory. The customer needs to place a new order instead.
     if (order.status === 'cancelled') {
       return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
     }
 
-    // Defense in depth: the paid amount and order number must match what
-    // we originally submitted for this order.
     const amountMatches = Math.abs(status.amount - Number(order.total)) <= AMOUNT_EPSILON
     const referenceMatches = !status.orderNumber || status.orderNumber === order.order_number
     if (!amountMatches || !referenceMatches) {
@@ -69,15 +66,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Re-guard against cancelled here too, in case the order was cancelled
-    // between the fetch above and this update.
+    const patch = buildPaidOrderPatch(order)
+    if (!patch) {
+      return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
+    }
+
     const { data: updated, error } = await supabaseAdmin
       .from('orders')
-      .update({
-        payment_status: 'paid',
-        status: 'confirmed',
-        updated_at: new Date().toISOString(),
-      })
+      .update(patch)
       .eq('id', order.id)
       .neq('status', 'cancelled')
       .select('id')
@@ -91,17 +87,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/payment-failed?reason=order_cancelled', request.url))
     }
 
-    // Notify admins about the paid order (non-critical)
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/push/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: AbortSignal.timeout(5000),
-        body: JSON.stringify({
-          title: 'طلب جديد مدفوع! 💳',
-          body: `طلب #${order.order_number} - المبلغ: ${order.total} د.ك`,
-          url: `/admin/orders/${order.id}`,
-        }),
+      await sendAdminPushNotification({
+        title: 'طلب جديد مدفوع! 💳',
+        body: `طلب #${order.order_number} - المبلغ: ${order.total} د.ك`,
+        url: `/admin/orders/${order.id}`,
       })
     } catch (notifError) {
       console.error('Failed to send push notification:', notifError)
