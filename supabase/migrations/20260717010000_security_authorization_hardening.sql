@@ -1,7 +1,7 @@
 -- Deep Beauty security hardening
 -- 1) Close direct role/permission/loyalty writes from browser sessions.
 -- 2) Restrict privileged RPCs to service_role.
--- 3) Make loyalty awards, cancellations, and stale-payment expiry atomic/idempotent.
+-- 3) Make checkout, loyalty awards, cancellations, and payment expiry atomic.
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Order lifecycle bookkeeping
@@ -19,8 +19,7 @@ WHERE user_id IS NOT NULL
   AND loyalty_points_earned > 0
   AND loyalty_points_awarded = false;
 
--- Give existing unpaid online reservations an expiry so cleanup can release
--- their stock/coupon/points effects after this migration is deployed.
+-- Existing unpaid online reservations become eligible for cleanup.
 UPDATE public.orders
 SET payment_expires_at = created_at + interval '30 minutes'
 WHERE payment_method = 'online'
@@ -42,8 +41,8 @@ DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
 DROP POLICY IF EXISTS "profiles: own upsert" ON public.profiles;
 DROP POLICY IF EXISTS "profiles: own update" ON public.profiles;
 
--- Profile changes are now performed by authenticated Next.js routes using the
--- service role and explicit field allowlists. Keep read-only self access.
+-- Profile changes are performed by authenticated Next.js routes through the
+-- service role and explicit field allowlists. Browser sessions keep self-read.
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
 CREATE POLICY "Users can view their own profile"
   ON public.users
@@ -58,14 +57,20 @@ CREATE POLICY "profiles: own read"
   TO authenticated
   USING ((SELECT auth.uid()) = id);
 
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER
+  ON TABLE public.users FROM anon, authenticated;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER
+  ON TABLE public.profiles FROM anon, authenticated;
+
+-- Defense in depth if direct write grants/policies are reintroduced later.
 CREATE OR REPLACE FUNCTION public.guard_users_privileged_fields()
 RETURNS trigger
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public, pg_temp
 AS $$
 BEGIN
-  IF current_user <> 'service_role' THEN
+  IF current_user NOT IN ('service_role', 'postgres', 'supabase_admin') THEN
     IF TG_OP = 'INSERT' THEN
       NEW.role := 'customer';
       NEW.is_active := true;
@@ -92,11 +97,11 @@ FOR EACH ROW EXECUTE FUNCTION public.guard_users_privileged_fields();
 CREATE OR REPLACE FUNCTION public.guard_profiles_role()
 RETURNS trigger
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public, pg_temp
 AS $$
 BEGIN
-  IF current_user <> 'service_role' THEN
+  IF current_user NOT IN ('service_role', 'postgres', 'supabase_admin') THEN
     IF TG_OP = 'INSERT' THEN
       NEW.role := 'customer';
     ELSIF NEW.role IS DISTINCT FROM OLD.role
@@ -114,10 +119,11 @@ CREATE TRIGGER guard_profiles_role_trigger
 BEFORE INSERT OR UPDATE ON public.profiles
 FOR EACH ROW EXECUTE FUNCTION public.guard_profiles_role();
 
--- The old policy authorized every signed-in user, not just admins. All admin
--- mutations already go through service-role API routes, so no direct write
--- policy is required here.
+-- The previous flash-sales policy authorized every signed-in customer.
+-- Admin mutations already use service-role API routes.
 DROP POLICY IF EXISTS admin_all_flash_sales ON public.flash_sales;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER
+  ON TABLE public.flash_sales FROM anon, authenticated;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Harden existing functions
@@ -146,8 +152,6 @@ ALTER FUNCTION public.get_admin_customers(text, integer, integer)
   SET search_path = public, pg_temp;
 ALTER FUNCTION public.get_bestseller_products(integer)
   SET search_path = public, pg_temp;
-ALTER FUNCTION public.create_order_atomic(jsonb, jsonb, text)
-  SET search_path = public, pg_temp;
 
 REVOKE EXECUTE ON FUNCTION public.decrement_stock(uuid, integer) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.increment_coupon_usage(text) FROM PUBLIC, anon, authenticated;
@@ -155,65 +159,170 @@ REVOKE EXECUTE ON FUNCTION public.increment_loyalty_points(uuid, integer) FROM P
 REVOKE EXECUTE ON FUNCTION public.validate_and_use_coupon(text, numeric) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.get_admin_customers(text, integer, integer) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.get_bestseller_products(integer) FROM PUBLIC, anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.create_order_atomic(jsonb, jsonb, text) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.restock_order_atomic(uuid) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.notify_order_status_change() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.guard_users_privileged_fields() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.guard_profiles_role() FROM PUBLIC, anon, authenticated;
-
+REVOKE EXECUTE ON FUNCTION public.is_admin() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Atomic loyalty claim
+-- Atomic checkout: coupon usage, loyalty redemption, order/items, and stock
 -- ─────────────────────────────────────────────────────────────────────────────
-CREATE OR REPLACE FUNCTION public.claim_loyalty_points(
-  p_user_id uuid,
-  p_requested integer,
-  p_maximum integer
+DROP FUNCTION IF EXISTS public.create_order_atomic(jsonb, jsonb, text);
+
+CREATE FUNCTION public.create_order_atomic(
+  p_order jsonb,
+  p_items jsonb,
+  p_coupon_code text,
+  p_requested_points integer,
+  p_kwd_per_point numeric
 )
-RETURNS integer
+RETURNS jsonb
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public, pg_temp
 AS $$
 DECLARE
+  v_order public.orders;
+  v_item jsonb;
+  v_stock integer;
+  v_coupon public.coupons;
+  v_user_id uuid;
   v_balance integer;
-  v_claimed integer;
+  v_claimed integer := 0;
+  v_maximum integer := 0;
+  v_base_total numeric;
+  v_points_discount numeric := 0;
+  v_product_spend numeric;
 BEGIN
-  IF p_user_id IS NULL OR p_requested <= 0 OR p_maximum <= 0 THEN
-    RETURN 0;
+  -- Lock and re-check the coupon inside the same transaction that consumes it.
+  IF p_coupon_code IS NOT NULL THEN
+    SELECT *
+    INTO v_coupon
+    FROM public.coupons
+    WHERE code = p_coupon_code
+    FOR UPDATE;
+
+    IF NOT FOUND OR v_coupon.is_active = false THEN
+      RAISE EXCEPTION 'INVALID_CODE';
+    END IF;
+    IF v_coupon.expires_at IS NOT NULL AND v_coupon.expires_at < now() THEN
+      RAISE EXCEPTION 'EXPIRED';
+    END IF;
+    IF v_coupon.usage_limit IS NOT NULL
+       AND v_coupon.usage_count >= v_coupon.usage_limit THEN
+      RAISE EXCEPTION 'COUPON_LIMIT_REACHED';
+    END IF;
+
+    UPDATE public.coupons
+    SET usage_count = usage_count + 1
+    WHERE code = p_coupon_code;
   END IF;
 
-  SELECT loyalty_points
-  INTO v_balance
-  FROM public.users
-  WHERE id = p_user_id
-  FOR UPDATE;
-
-  IF NOT FOUND THEN
-    RETURN 0;
-  END IF;
-
-  v_claimed := LEAST(
-    GREATEST(p_requested, 0),
-    GREATEST(p_maximum, 0),
-    GREATEST(COALESCE(v_balance, 0), 0)
+  -- Claim loyalty points while holding the user row lock. If any later order,
+  -- stock, or coupon operation fails, PostgreSQL rolls this deduction back.
+  v_user_id := NULLIF(p_order->>'user_id', '')::uuid;
+  v_base_total := COALESCE(NULLIF(p_order->>'total', '')::numeric, 0);
+  v_product_spend := GREATEST(
+    0,
+    COALESCE(NULLIF(p_order->>'subtotal', '')::numeric, 0)
+      - COALESCE(NULLIF(p_order->>'coupon_discount', '')::numeric, 0)
   );
 
-  IF v_claimed > 0 THEN
-    UPDATE public.users
-    SET loyalty_points = loyalty_points - v_claimed
-    WHERE id = p_user_id;
+  IF v_user_id IS NOT NULL
+     AND p_requested_points > 0
+     AND p_kwd_per_point > 0 THEN
+    SELECT loyalty_points
+    INTO v_balance
+    FROM public.users
+    WHERE id = v_user_id
+    FOR UPDATE;
+
+    IF FOUND THEN
+      v_maximum := FLOOR(v_product_spend / p_kwd_per_point)::integer;
+      v_claimed := LEAST(
+        GREATEST(p_requested_points, 0),
+        GREATEST(v_maximum, 0),
+        GREATEST(COALESCE(v_balance, 0), 0)
+      );
+
+      IF v_claimed > 0 THEN
+        UPDATE public.users
+        SET loyalty_points = loyalty_points - v_claimed
+        WHERE id = v_user_id;
+      END IF;
+    END IF;
   END IF;
 
-  RETURN v_claimed;
+  v_points_discount := ROUND(v_claimed * GREATEST(p_kwd_per_point, 0), 3);
+  p_order := jsonb_set(
+    p_order,
+    '{loyalty_points_redeemed}',
+    to_jsonb(v_claimed),
+    true
+  );
+  p_order := jsonb_set(
+    p_order,
+    '{total}',
+    to_jsonb(GREATEST(0, v_base_total - v_points_discount)),
+    true
+  );
+
+  INSERT INTO public.orders
+  SELECT * FROM jsonb_populate_record(NULL::public.orders, p_order)
+  RETURNING * INTO v_order;
+
+  -- Deterministic product lock order prevents cart-order deadlocks.
+  FOR v_item IN
+    SELECT value
+    FROM jsonb_array_elements(p_items)
+    ORDER BY value->>'product_id'
+  LOOP
+    SELECT stock_quantity
+    INTO v_stock
+    FROM public.products
+    WHERE id = (v_item->>'product_id')::uuid
+    FOR UPDATE;
+
+    IF v_stock IS NULL OR v_stock < (v_item->>'quantity')::integer THEN
+      RAISE EXCEPTION 'Insufficient stock for product %', v_item->>'product_name_ar';
+    END IF;
+
+    INSERT INTO public.order_items(
+      order_id,
+      product_id,
+      product_name_ar,
+      product_name_en,
+      quantity,
+      unit_price,
+      total_price
+    )
+    VALUES (
+      v_order.id,
+      (v_item->>'product_id')::uuid,
+      v_item->>'product_name_ar',
+      v_item->>'product_name_en',
+      (v_item->>'quantity')::integer,
+      (v_item->>'unit_price')::numeric,
+      (v_item->>'total_price')::numeric
+    );
+
+    UPDATE public.products
+    SET stock_quantity = stock_quantity - (v_item->>'quantity')::integer
+    WHERE id = (v_item->>'product_id')::uuid;
+  END LOOP;
+
+  RETURN to_jsonb(v_order);
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.claim_loyalty_points(uuid, integer, integer) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.claim_loyalty_points(uuid, integer, integer) TO service_role;
+REVOKE ALL ON FUNCTION public.create_order_atomic(jsonb, jsonb, text, integer, numeric)
+  FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.create_order_atomic(jsonb, jsonb, text, integer, numeric)
+  TO service_role;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Idempotent loyalty award after verified payment/delivery
