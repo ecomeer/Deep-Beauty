@@ -9,16 +9,21 @@ interface CartItem {
   quantity: number
 }
 
-// Vercel Cron (see vercel.json) hits this once daily — the Hobby plan
-// doesn't allow finer-grained cron schedules. Emails carts that are
-// between 1 and 24 hours old, still unrecovered, have an email on file,
-// and haven't already been reminded — a customer editing the checkout
-// form for hours shouldn't get a reminder mid-purchase, and a cart older
-// than a day is unlikely to convert from a nudge.
+// Vercel Cron (see vercel.json) performs two bounded maintenance jobs:
+// release expired unpaid online-payment reservations, then email eligible
+// abandoned carts. Both operations are idempotent.
 export async function GET(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET
   if (cronSecret && req.headers.get('authorization') !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { data: expiredData, error: expiryError } = await supabaseAdmin.rpc(
+    'expire_pending_online_orders',
+    { p_now: new Date().toISOString() }
+  )
+  if (expiryError) {
+    console.error('Failed to expire pending online orders:', expiryError)
   }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
@@ -55,5 +60,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ checked: carts?.length ?? 0, sent })
+  return NextResponse.json({
+    expiredPayments: Number(expiredData) || 0,
+    expiryWarning: Boolean(expiryError),
+    checked: carts?.length ?? 0,
+    sent,
+  })
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractOrderId } from './payment'
+import { extractInvoiceAmount, extractOrderId } from './payment'
 
 describe('extractOrderId', () => {
   it('prefers CustomerReference when present', () => {
@@ -30,5 +30,18 @@ describe('extractOrderId', () => {
   it('returns undefined when nothing usable is present', () => {
     expect(extractOrderId({})).toBeUndefined()
     expect(extractOrderId({ UserDefinedField: '' })).toBeUndefined()
+  })
+})
+
+describe('extractInvoiceAmount', () => {
+  it('accepts numeric and numeric-string invoice values', () => {
+    expect(extractInvoiceAmount({ InvoiceValue: 12.5 })).toBe(12.5)
+    expect(extractInvoiceAmount({ InvoiceValue: '12.500' })).toBe(12.5)
+  })
+
+  it('rejects blank, negative, and non-numeric values', () => {
+    expect(extractInvoiceAmount({ InvoiceValue: '' })).toBeUndefined()
+    expect(extractInvoiceAmount({ InvoiceValue: -1 })).toBeUndefined()
+    expect(extractInvoiceAmount({ InvoiceValue: 'not-a-number' })).toBeUndefined()
   })
 })

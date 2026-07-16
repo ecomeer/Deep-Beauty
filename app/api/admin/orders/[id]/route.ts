@@ -49,10 +49,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   if (body.payment_status !== undefined) updateFields.payment_status = body.payment_status
 
-  // When changing status, condition the update on the order still being in
-  // the state we just validated the transition from — Postgres serializes
-  // concurrent UPDATEs on the same row, so a second, racing PATCH to the
-  // same terminal status won't match and won't restock a second time.
+  // Condition the update on the state used for transition validation.
   let query = supabaseAdmin.from('orders').update(updateFields).eq('id', id)
   if (fromStatus) query = query.eq('status', fromStatus)
   const { data, error } = await query.select().maybeSingle()
@@ -60,23 +57,34 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   if (!data) return NextResponse.json({ error: 'تم تعديل حالة الطلب من مكان آخر — أعد المحاولة' }, { status: 409 })
 
-  let restockWarning = false
-  if (updateFields.status === 'cancelled') {
-    const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: id })
-    if (restockErr) {
-      // The status change itself already committed and must not be rolled
-      // back here — surface the restock failure instead of only logging it,
-      // so admins have a way to notice and reconcile stock manually.
-      console.error('Failed to restock cancelled order:', restockErr)
-      restockWarning = true
-    }
+  let reversalWarning = false
+  let loyaltyWarning = false
 
-    // Reverse this order's loyalty-points effect (non-critical, best-effort).
-    const pointsDelta = (data.loyalty_points_redeemed ?? 0) - (data.loyalty_points_earned ?? 0)
-    if (pointsDelta !== 0 && data.user_id) {
-      try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: data.user_id, p_delta: pointsDelta }) } catch { /* non-critical */ }
+  if (updateFields.status === 'cancelled') {
+    const { error: reverseError } = await supabaseAdmin.rpc('cancel_order_effects_atomic', {
+      p_order_id: id,
+    })
+    if (reverseError) {
+      console.error('Failed to reverse cancelled order effects:', reverseError)
+      reversalWarning = true
     }
   }
 
-  return NextResponse.json({ data, ...(restockWarning && { restockWarning: true }) })
+  // COD points are awarded only after the order is actually delivered. The
+  // database RPC is idempotent, so retries cannot duplicate the award.
+  if (updateFields.status === 'delivered') {
+    const { error: loyaltyError } = await supabaseAdmin.rpc('award_order_loyalty_points', {
+      p_order_id: id,
+    })
+    if (loyaltyError) {
+      console.error('Failed to award delivered-order loyalty points:', loyaltyError)
+      loyaltyWarning = true
+    }
+  }
+
+  return NextResponse.json({
+    data,
+    ...(reversalWarning && { reversalWarning: true }),
+    ...(loyaltyWarning && { loyaltyWarning: true }),
+  })
 }

@@ -13,7 +13,7 @@ export async function POST(
 
   const { data: order, error: fetchErr } = await supabaseAdmin
     .from('orders')
-    .select('id, status, user_id, payment_status, payment_method, loyalty_points_earned, loyalty_points_redeemed')
+    .select('id, status, user_id')
     .eq('id', id)
     .single()
 
@@ -26,11 +26,7 @@ export async function POST(
     )
   }
 
-  // Condition the update on the order still being pending (re-checked
-  // atomically here, not just in the read above) and check whether a row
-  // actually flipped — Postgres serializes concurrent UPDATEs on the same
-  // row, so only the first of two racing cancel requests will see `data`
-  // back and restock, closing a double-restock race.
+  // Only the first racing request can transition pending -> cancelled.
   const { data, error } = await supabaseAdmin
     .from('orders')
     .update({ status: 'cancelled', updated_at: new Date().toISOString() })
@@ -42,19 +38,14 @@ export async function POST(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data) return NextResponse.json({ error: 'لا يمكن إلغاء الطلب بعد تأكيده. تواصل معنا عبر واتساب' }, { status: 400 })
 
-  const { error: restockErr } = await supabaseAdmin.rpc('restock_order_atomic', { p_order_id: id })
-  if (restockErr) {
-    // The cancellation itself succeeded and must not be rolled back here —
-    // surface the restock failure so it isn't silently lost to server logs.
-    console.error('Failed to restock cancelled order:', restockErr)
-    return NextResponse.json({ ok: true, restockWarning: true })
-  }
-
-  // Reverse this order's loyalty-points effect: give back what it spent,
-  // take back what it earned (non-critical, best-effort).
-  const pointsDelta = (order.loyalty_points_redeemed ?? 0) - (order.loyalty_points_earned ?? 0)
-  if (pointsDelta !== 0 && order.user_id) {
-    try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: order.user_id, p_delta: pointsDelta }) } catch { /* non-critical */ }
+  // Restock, release coupon usage, refund redeemed points, and reverse only
+  // points that were actually awarded. The RPC is idempotent.
+  const { error: reverseError } = await supabaseAdmin.rpc('cancel_order_effects_atomic', {
+    p_order_id: id,
+  })
+  if (reverseError) {
+    console.error('Failed to reverse cancelled order effects:', reverseError)
+    return NextResponse.json({ ok: true, reversalWarning: true })
   }
 
   return NextResponse.json({ ok: true })

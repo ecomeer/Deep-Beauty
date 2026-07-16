@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { checkoutLimiter } from '@/lib/rate-limit'
 import { calculateShipping, ShippingZone } from '@/lib/shipping'
 import { GulfCountry } from '@/lib/currency'
 import { sendEmail, orderConfirmationEmail } from '@/lib/email'
+import { resolveCheckoutUserId } from '@/lib/checkout-identity'
 
 interface CheckoutItem {
   id: string
@@ -12,7 +14,6 @@ interface CheckoutItem {
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting — derive IP from forwarded headers
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       req.headers.get('x-real-ip') ||
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
       coupon_code,
       country_code,
       payment_method,
-      user_id,
+      user_id: browserSuppliedUserId,
       items,
       redeem_points,
     } = body as {
@@ -58,7 +59,6 @@ export async function POST(req: NextRequest) {
       redeem_points?: number
     }
 
-    // Validate required fields
     if (!customer_name?.trim()) return NextResponse.json({ error: 'الاسم مطلوب' }, { status: 400 })
     if (!customer_phone?.trim()) return NextResponse.json({ error: 'رقم الهاتف مطلوب' }, { status: 400 })
     if (!Array.isArray(items) || items.length === 0) return NextResponse.json({ error: 'السلة فارغة' }, { status: 400 })
@@ -69,7 +69,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── Re-validate prices server-side (never trust client totals) ──
+    // Ownership comes only from the verified session. An absent/invalid session
+    // is a normal guest checkout; body.user_id is never accepted as identity.
+    let authenticatedUserId: string | null = null
+    try {
+      const sessionClient = await createServerSupabaseClient()
+      const { data: { user } } = await sessionClient.auth.getUser()
+      authenticatedUserId = user?.id ?? null
+    } catch {
+      // Guest checkout.
+    }
+    const userId = resolveCheckoutUserId(authenticatedUserId, browserSuppliedUserId)
+
     const productIds = items.map((item) => item.id)
     const { data: dbProducts, error: dbErr } = await supabaseAdmin
       .from('products')
@@ -90,7 +101,6 @@ export async function POST(req: NextRequest) {
       subtotal += product.price * item.quantity
     }
 
-    // ── Re-validate coupon server-side ──
     let discount = 0
     let appliedCouponCode: string | null = null
     if (coupon_code) {
@@ -112,55 +122,24 @@ export async function POST(req: NextRequest) {
       }
 
       if (!couponData) return NextResponse.json({ error: 'كود الخصم غير صحيح' }, { status: 400 })
-
       const coupon = couponData as { code: string; discount: number }
       discount = coupon.discount
       appliedCouponCode = coupon.code
     }
 
-    // ── Redeem loyalty points (logged-in customers only) ──
-    // Points are claimed atomically here (conditional decrement) before the
-    // order exists, so two concurrent checkouts can't both spend the same
-    // balance. If order creation fails below, the claimed points are
-    // refunded.
-    let pointsDiscount = 0
-    let pointsRedeemed = 0
-    if (user_id && redeem_points && redeem_points > 0) {
+    let kwdPerPoint = 0.01
+    const requestedPoints = userId && redeem_points && redeem_points > 0
+      ? Math.max(0, Math.floor(redeem_points))
+      : 0
+    if (requestedPoints > 0) {
       const { data: rateRow } = await supabaseAdmin
         .from('settings')
         .select('value')
         .eq('key', 'loyalty_kwd_per_point')
         .maybeSingle()
-      const kwdPerPoint = Number(rateRow?.value) || 0.01
-
-      const { data: userRow } = await supabaseAdmin
-        .from('users')
-        .select('loyalty_points')
-        .eq('id', user_id)
-        .maybeSingle()
-      const balance = userRow?.loyalty_points ?? 0
-
-      const maxAffordablePoints = Math.floor(Math.max(0, subtotal - discount) / kwdPerPoint)
-      pointsRedeemed = Math.max(0, Math.min(Math.floor(redeem_points), balance, maxAffordablePoints))
-
-      if (pointsRedeemed > 0) {
-        const { data: claimed } = await supabaseAdmin
-          .from('users')
-          .update({ loyalty_points: balance - pointsRedeemed })
-          .eq('id', user_id)
-          .gte('loyalty_points', pointsRedeemed)
-          .select('id')
-          .maybeSingle()
-
-        if (claimed) {
-          pointsDiscount = Math.round(pointsRedeemed * kwdPerPoint * 1000) / 1000
-        } else {
-          pointsRedeemed = 0
-        }
-      }
+      kwdPerPoint = Number(rateRow?.value) || 0.01
     }
 
-    // ── Re-validate shipping server-side ──
     const { data: zones } = await supabaseAdmin
       .from('shipping_zones')
       .select('id,name_ar,name_en,countries,base_rate,free_shipping_threshold,estimated_days_min,estimated_days_max,is_active')
@@ -169,14 +148,14 @@ export async function POST(req: NextRequest) {
     const resolvedCountry = (country_code || 'KW') as GulfCountry
     const shippingResult = calculateShipping(resolvedCountry, subtotal, (zones || []) as unknown as ShippingZone[])
     const shippingCost = shippingResult.rate
+    const baseTotal = Math.max(0, subtotal - discount + shippingCost)
 
-    const total = Math.max(0, subtotal - discount - pointsDiscount + shippingCost)
+    const pointsEarned = userId ? Math.floor(Math.max(0, subtotal - discount)) : 0
+    const isOnlinePayment = payment_method === 'online'
 
-    // Points earned on this order's net product spend (after coupon, before
-    // the points redemption/shipping noise), floored to whole points.
-    const pointsEarned = user_id ? Math.floor(Math.max(0, subtotal - discount)) : 0
-
-    // Build order payload for atomic RPC
+    // The RPC receives the total before points. It locks the user's balance,
+    // determines the actual claim, adjusts total, creates the order/items,
+    // decrements stock, and increments coupon usage in one transaction.
     const orderData: Record<string, unknown> = {
       id: crypto.randomUUID(),
       order_number: orderNumber,
@@ -191,16 +170,20 @@ export async function POST(req: NextRequest) {
       notes: notes || null,
       subtotal,
       shipping_cost: shippingCost,
-      total,
+      total: baseTotal,
       coupon_code: appliedCouponCode,
       coupon_discount: discount,
       status: 'pending',
       payment_method,
       payment_status: 'unpaid',
       loyalty_points_earned: pointsEarned,
-      loyalty_points_redeemed: pointsRedeemed,
+      loyalty_points_redeemed: 0,
+      loyalty_points_awarded: false,
+      payment_expires_at: isOnlinePayment
+        ? new Date(Date.now() + 30 * 60 * 1000).toISOString()
+        : null,
     }
-    if (user_id) orderData.user_id = user_id
+    if (userId) orderData.user_id = userId
 
     const itemsPayload = items.map((item) => {
       const product = productMap.get(item.id)!
@@ -214,23 +197,15 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // Atomically create order + items + decrement stock + increment coupon
-    // usage (single transaction — the coupon's usage-limit lock is held
-    // until the order either fully commits or rolls back, closing the
-    // race where two concurrent checkouts could both pass the earlier
-    // read-only validate_and_use_coupon check on a single-use coupon).
-    const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic', {
+    const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('create_order_atomic_secure', {
       p_order: orderData,
       p_items: itemsPayload,
       p_coupon_code: appliedCouponCode,
+      p_requested_points: requestedPoints,
+      p_kwd_per_point: kwdPerPoint,
     })
 
     if (rpcError || !orderJson) {
-      // Refund any points claimed above — the order that would have spent
-      // them never committed.
-      if (pointsRedeemed > 0 && user_id) {
-        try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: user_id, p_delta: pointsRedeemed }) } catch { /* non-critical */ }
-      }
       if (rpcError?.message?.includes('COUPON_LIMIT_REACHED')) {
         return NextResponse.json({ error: 'تجاوز كود الخصم الحد الأقصى للاستخدام' }, { status: 400 })
       }
@@ -241,14 +216,8 @@ export async function POST(req: NextRequest) {
     }
 
     const order = orderJson as Record<string, unknown>
+    const finalTotal = Number(order.total) || 0
 
-    // Award points earned on this order (non-critical, best-effort).
-    if (pointsEarned > 0 && user_id) {
-      try { await supabaseAdmin.rpc('increment_loyalty_points', { p_user_id: user_id, p_delta: pointsEarned }) } catch { /* non-critical */ }
-    }
-
-    // Mark any pending abandoned-cart snapshot for this phone as recovered
-    // (non-critical — best-effort, never blocks order confirmation)
     try {
       await supabaseAdmin
         .from('abandoned_carts')
@@ -256,10 +225,9 @@ export async function POST(req: NextRequest) {
         .eq('customer_phone', customer_phone)
         .eq('recovered', false)
     } catch {
-      // Non-critical
+      // Non-critical.
     }
 
-    // Send push notification (fire and forget)
     try {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
       await fetch(`${siteUrl}/api/admin/push/send`, {
@@ -272,17 +240,16 @@ export async function POST(req: NextRequest) {
         }),
       })
     } catch {
-      // Non-critical
+      // Non-critical.
     }
 
-    // Order confirmation email to the customer (non-critical)
     if (customer_email) {
       try {
         const { subject, html } = orderConfirmationEmail(
           {
             order_number: orderNumber,
             customer_name,
-            total,
+            total: finalTotal,
             subtotal,
             shipping_cost: shippingCost,
             coupon_discount: discount,
@@ -292,7 +259,7 @@ export async function POST(req: NextRequest) {
         )
         await sendEmail({ to: customer_email, subject, html })
       } catch {
-        // Non-critical
+        // Non-critical.
       }
     }
 
