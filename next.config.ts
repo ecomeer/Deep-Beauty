@@ -57,6 +57,13 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Product image redirects are public and immutable for a given slug.
+        source: '/api/product-images/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=86400' },
+        ],
+      },
+      {
         // Public product/category catalog reads -- same response for
         // every visitor, safe to cache briefly.
         source: '/api/products/:path*',
