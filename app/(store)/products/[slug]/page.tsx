@@ -57,9 +57,9 @@ export default async function ProductPage({ params }: Props) {
 
   if (!data) notFound()
 
-  const absoluteImages = (data.images || [])
-    .map((image) => toAbsoluteUrl(image))
-    .filter((image): image is string => Boolean(image))
+  const absoluteImages = ((data.images || []) as string[])
+    .map((image: string) => toAbsoluteUrl(image))
+    .filter((image: string | null): image is string => Boolean(image))
 
   const jsonLd = {
     '@context': 'https://schema.org',
