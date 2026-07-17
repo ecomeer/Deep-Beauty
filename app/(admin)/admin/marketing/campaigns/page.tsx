@@ -67,9 +67,9 @@ export default function MarketingCampaigns() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'send' })
     })
-    if (!res.ok) toast.error('حدث خطأ أثناء الإرسال')
+    const data = await res.json()
+    if (!res.ok) toast.error(data.error || 'حدث خطأ أثناء الإرسال')
     else {
-      const data = await res.json()
       toast.success(`تم إرسال الحملة إلى ${data.sent_count} مستلم`)
       fetchCampaigns()
     }

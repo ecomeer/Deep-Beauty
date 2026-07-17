@@ -24,7 +24,6 @@ interface Order {
   total: number
   payment_method: string
   payment_status: string
-  shipping_address: string
   created_at: string
   order_items: Array<{
     quantity: number

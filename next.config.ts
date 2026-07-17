@@ -46,21 +46,41 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/api/products/bestsellers',
+        // Default: nothing under /api is cacheable unless explicitly
+        // allowlisted below. Most routes read the caller's session/cookies
+        // (admin data, orders, account, cart) -- a blanket public
+        // Cache-Control here previously applied to those too, which a CDN
+        // or browser honoring it could serve across different users.
+        source: '/api/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, no-cache, must-revalidate' },
+        ],
+      },
+      {
+        // Public product/category catalog reads -- same response for
+        // every visitor, safe to cache briefly.
+        source: '/api/products/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=600' },
         ],
       },
       {
-        source: '/api/:path*',
+        source: '/api/categories/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=600' },
+        ],
+      },
+      {
+        source: '/api/settings',
         headers: [
           { key: 'Cache-Control', value: 'public, s-maxage=60, stale-while-revalidate=120' },
         ],
       },
       {
-        source: '/api/auth/:path*',
+        // Approved reviews for a product -- identical for every visitor.
+        source: '/api/reviews',
         headers: [
-          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
+          { key: 'Cache-Control', value: 'public, s-maxage=60, stale-while-revalidate=120' },
         ],
       },
       {
