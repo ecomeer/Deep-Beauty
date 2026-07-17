@@ -35,7 +35,7 @@ const MARKETING_SECTIONS = [
 ]
 
 const CHANNELS = [
-  { icon: EnvelopeIcon, label: 'بريد إلكتروني', count: 'قريباً' },
+  { icon: EnvelopeIcon, label: 'بريد إلكتروني', count: 'مفعل' },
   { icon: DevicePhoneMobileIcon, label: 'رسائل SMS', count: 'قريباً' },
   { icon: BellIcon, label: 'إشعارات Push', count: 'مفعل' }
 ]
