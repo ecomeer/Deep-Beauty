@@ -5,6 +5,7 @@ import { UserPlusIcon, UsersIcon, CheckCircleIcon, XCircleIcon } from '@heroicon
 import toast from 'react-hot-toast'
 import { useAdminList } from '@/hooks/useAdminList'
 import { PERMISSIONS, PERMISSION_LABELS, type Permission } from '@/lib/admin-permissions'
+import { translateAuthError } from '@/lib/auth-errors'
 
 interface StaffMember {
   id: string
@@ -50,7 +51,7 @@ export default function AdminTeamPage() {
     setSaving(false)
     if (!res.ok) {
       const { error } = await res.json()
-      toast.error('حدث خطأ: ' + error)
+      toast.error(translateAuthError({ message: error }, 'حدث خطأ أثناء إضافة الموظف'))
       return
     }
     toast.success('تم إضافة الموظف')

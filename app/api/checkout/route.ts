@@ -183,6 +183,13 @@ export async function POST(req: NextRequest) {
       payment_expires_at: isOnlinePayment
         ? new Date(Date.now() + 30 * 60 * 1000).toISOString()
         : null,
+      // create_order_atomic_secure inserts via jsonb_populate_record, which
+      // sets any column absent from this payload to NULL -- not the
+      // column's `now()` DEFAULT. Without these, every order's
+      // created_at/updated_at were silently NULL (surfaced as "Jan 1 1970"
+      // on invoices).
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
     if (userId) orderData.user_id = userId
 
