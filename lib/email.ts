@@ -13,10 +13,17 @@ export interface SendEmailResult {
   error?: string
 }
 
+export interface EmailAttachment {
+  filename: string
+  content: Buffer
+}
+
 export async function sendEmail(params: {
   to: string
   subject: string
   html: string
+  replyTo?: string
+  attachments?: EmailAttachment[]
 }): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
@@ -33,7 +40,16 @@ export async function sendEmail(params: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from, to: params.to, subject: params.subject, html: params.html }),
+      body: JSON.stringify({
+        from,
+        to: params.to,
+        subject: params.subject,
+        html: params.html,
+        ...(params.replyTo ? { reply_to: params.replyTo } : {}),
+        ...(params.attachments?.length
+          ? { attachments: params.attachments.map((a) => ({ filename: a.filename, content: a.content.toString('base64') })) }
+          : {}),
+      }),
       signal: AbortSignal.timeout(10000),
     })
 
@@ -175,6 +191,22 @@ export function abandonedCartEmail(
   return {
     subject: 'نسيتِ شيئاً بسلتك 🌸 — Deep Beauty',
     html: emailShell('سلتك بانتظارك', body),
+  }
+}
+
+export function contactNotificationEmail(data: { name: string; email: string; message: string }): { subject: string; html: string } {
+  const body = `
+    <p>رسالة جديدة من نموذج "تواصلي معنا":</p>
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
+      <tr><td style="padding:6px 12px;font-weight:bold;width:100px;">الاسم</td><td style="padding:6px 12px;">${data.name}</td></tr>
+      <tr><td style="padding:6px 12px;font-weight:bold;">البريد</td><td style="padding:6px 12px;" dir="ltr">${data.email}</td></tr>
+    </table>
+    <div style="background:#FAF6F1;border-radius:8px;padding:14px 18px;white-space:pre-wrap;">${data.message}</div>
+    <p style="margin-top:16px;font-size:13px;color:#8a8a8a;">للرد، فقط اضغطي "رد" على هذا الإيميل.</p>
+  `
+  return {
+    subject: `رسالة جديدة من ${data.name} — نموذج التواصل`,
+    html: emailShell('رسالة تواصل جديدة', body),
   }
 }
 

@@ -56,6 +56,11 @@ export function abandonedCartLimiter(ip: string): boolean {
   return rateLimit(`abandoned-cart:${ip}`, 20, 5 * 60_000)
 }
 
+/** Pre-configured limiter: 5 contact-form submissions per 10 minutes per IP. */
+export function contactLimiter(ip: string): boolean {
+  return rateLimit(`contact:${ip}`, 5, 10 * 60_000)
+}
+
 /** Extracts the client IP from forwarded headers set by the hosting proxy. */
 export function getClientIp(req: { headers: { get(name: string): string | null } }): string {
   return (
