@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const orderIds = orders.map(o => o.id)
     const safeIds = orderIds.length ? orderIds : ['00000000-0000-0000-0000-000000000000']
 
-    const [{ data: topProducts }, { data: reviewsStats }] = await Promise.all([
+    const [{ data: topProducts }, { data: reviewsStatsData }] = await Promise.all([
       // Top selling products via those order IDs (order_items has no created_at)
       supabase
         .from('order_items')
@@ -55,9 +55,9 @@ export async function GET(request: NextRequest) {
         .in('order_id', safeIds)
         .order('quantity', { ascending: false })
         .limit(10),
-      supabase
-        .from('reviews')
-        .select('is_approved, rating'),
+      // Aggregated in SQL — see get_reviews_stats() — instead of pulling
+      // every review row into Node to count/average in JS.
+      supabase.rpc('get_reviews_stats'),
     ])
 
     const dailySales = orders.map(({ created_at, total, status }) => ({ created_at, total, status }))
@@ -82,29 +82,19 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => b.totalSpent - a.totalSpent)
       .slice(0, 10)
     
-    // Reviews stats
-    const reviews = reviewsStats ?? []
-    const pendingReviews = reviews.filter(r => !r.is_approved).length
-    const approvedReviews = reviews.filter(r => r.is_approved).length
-    const avgRating = reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-      : 0
-    const ratingDistribution = [5, 4, 3, 2, 1].map(star => ({
-      star,
-      count: reviews.filter(r => r.rating === star).length,
-    }))
+    const reviewsStats = (reviewsStatsData as {
+      total: number
+      pending: number
+      approved: number
+      averageRating: number
+      ratingDistribution: { star: number; count: number }[]
+    } | null) ?? { total: 0, pending: 0, approved: 0, averageRating: 0, ratingDistribution: [] }
 
     return NextResponse.json({
       topProducts: topProducts || [],
       dailySales: dailySales || [],
       topCustomers: topCustomersList,
-      reviewsStats: {
-        total: reviews.length,
-        pending: pendingReviews,
-        approved: approvedReviews,
-        averageRating: Number(avgRating.toFixed(1)),
-        ratingDistribution,
-      },
+      reviewsStats,
       period
     })
   } catch (error: unknown) {

@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
       { count: totalOrders },
       { count: todayOrders },
       { count: pendingOrders },
-      { data: salesData },
+      { data: totalSalesData },
       { count: activeProducts },
       { data: recentOrders },
       { data: lowStock },
@@ -23,14 +23,16 @@ export async function GET(req: NextRequest) {
       supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).gte('created_at', today.toISOString()),
       supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-      supabaseAdmin.from('orders').select('total').eq('payment_status', 'paid'),
+      // Aggregated in SQL — see get_total_paid_sales() — instead of pulling
+      // every paid order's `total` column into Node to sum in JS.
+      supabaseAdmin.rpc('get_total_paid_sales'),
       supabaseAdmin.from('products').select('*', { count: 'exact', head: true }).eq('is_active', true),
       supabaseAdmin.from('orders').select('id,order_number,customer_name,total,status,payment_method,created_at').order('created_at', { ascending: false }).limit(8),
       supabaseAdmin.from('products').select('id, name_ar, stock_quantity').lt('stock_quantity', 10).eq('is_active', true).order('stock_quantity', { ascending: true }).limit(5),
       supabaseAdmin.from('orders').select('created_at, total').gte('created_at', sevenDaysAgo.toISOString()),
     ])
 
-    const totalSales = salesData?.reduce((s, o) => s + Number(o.total), 0) ?? 0
+    const totalSales = Number(totalSalesData ?? 0)
 
     return NextResponse.json({
       stats: {
