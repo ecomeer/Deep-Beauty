@@ -15,7 +15,7 @@ export async function GET(
 
     const { data, error } = await supabase
       .from('order_tracking')
-      .select('id,order_id,status,note,location,created_at')
+      .select('id,order_id,status,status_label_ar,status_label_en,description_ar,description_en,location,created_at')
       .eq('order_id', id)
       .order('created_at', { ascending: false })
 
