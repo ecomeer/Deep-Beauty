@@ -227,6 +227,12 @@ export default function OrdersPage() {
                         >
                           تتبع الطلب
                         </Link>
+                        <a
+                          href={`/api/orders/${order.id}/invoice`}
+                          className="py-3 px-4 rounded-xl border border-gray-200 font-bold text-center hover:bg-gray-50 transition-colors"
+                        >
+                          ⬇️ الفاتورة
+                        </a>
                         {order.status === 'pending' && (
                           <button
                             onClick={async () => {

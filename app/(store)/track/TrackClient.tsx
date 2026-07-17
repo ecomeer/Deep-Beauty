@@ -193,6 +193,14 @@ export default function TrackClient() {
                 </div>
               </div>
             </div>
+            <div className="border-t pt-4 mt-4">
+              <a
+                href={`/api/orders/${order.id}/invoice?num=${encodeURIComponent(order.order_number)}`}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 font-bold text-sm"
+              >
+                ⬇️ تحميل الفاتورة
+              </a>
+            </div>
           </div>
 
           {/* Progress Steps */}

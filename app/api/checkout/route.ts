@@ -6,6 +6,7 @@ import { calculateShipping, ShippingZone } from '@/lib/shipping'
 import { GulfCountry } from '@/lib/currency'
 import { sendEmail, orderConfirmationEmail } from '@/lib/email'
 import { resolveCheckoutUserId } from '@/lib/checkout-identity'
+import { renderInvoicePdf, type InvoiceOrder, type InvoiceItem } from '@/lib/invoice-pdf'
 
 interface CheckoutItem {
   id: string
@@ -257,7 +258,43 @@ export async function POST(req: NextRequest) {
           },
           itemsPayload
         )
-        await sendEmail({ to: customer_email, subject, html })
+
+        let attachments: { filename: string; content: Buffer }[] | undefined
+        try {
+          const invoiceOrder: InvoiceOrder = {
+            id: String(order.id),
+            order_number: orderNumber,
+            customer_name,
+            customer_phone,
+            customer_email,
+            address_area,
+            address_block,
+            address_street,
+            address_house,
+            subtotal,
+            shipping_cost: shippingCost,
+            coupon_discount: discount,
+            coupon_code: appliedCouponCode,
+            total: finalTotal,
+            status: 'pending',
+            payment_method,
+            payment_status: 'unpaid',
+            created_at: new Date().toISOString(),
+          }
+          const invoiceItems: InvoiceItem[] = itemsPayload.map((item, i) => ({
+            id: String(i),
+            product_name_ar: item.product_name_ar,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            total_price: item.total_price,
+          }))
+          const pdf = await renderInvoicePdf(invoiceOrder, invoiceItems)
+          attachments = [{ filename: `invoice-${orderNumber}.pdf`, content: pdf }]
+        } catch (pdfErr) {
+          console.error('Invoice PDF generation failed (email sent without attachment):', pdfErr)
+        }
+
+        await sendEmail({ to: customer_email, subject, html, attachments })
       } catch {
         // Non-critical.
       }
