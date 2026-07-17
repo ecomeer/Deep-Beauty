@@ -1,5 +1,6 @@
 import Navbar from '@/components/store/Navbar'
 import StitchFooter from '@/components/store/StitchFooter'
+import WhatsAppButton from '@/components/store/WhatsAppButton'
 import Analytics from '@/components/store/Analytics'
 import { CartProvider } from '@/context/CartContext'
 import { WishlistProvider } from '@/context/WishlistContext'
@@ -12,6 +13,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   // Fetch active categories for footer links + admin-managed exchange rates
   let footerCategories: { id: string; name_ar: string; slug: string }[] = []
   let exchangeRates: ExchangeRates | undefined
+  let socialSettings: Record<string, string> = {}
   const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const sbKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (sbUrl && sbKey) {
@@ -19,7 +21,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       const supabase = createClient(sbUrl, sbKey, {
         auth: { persistSession: false, autoRefreshToken: false },
       })
-      const [{ data }, { data: rateRows }] = await Promise.all([
+      const [{ data }, { data: rateRows }, { data: socialRows }] = await Promise.all([
         supabase
           .from('categories')
           .select('id, name_ar, slug')
@@ -30,9 +32,14 @@ export default async function StoreLayout({ children }: { children: React.ReactN
           .from('settings')
           .select('key, value')
           .in('key', Object.keys(EXCHANGE_RATE_SETTING_KEYS)),
+        supabase
+          .from('settings')
+          .select('key, value')
+          .in('key', ['whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url']),
       ])
       footerCategories = data || []
       exchangeRates = parseExchangeRateSettings(rateRows)
+      socialSettings = Object.fromEntries((socialRows || []).map((r) => [r.key, r.value]))
     } catch {}
   }
 
@@ -58,7 +65,8 @@ export default async function StoreLayout({ children }: { children: React.ReactN
           <main id="main-content">
             {children}
           </main>
-          <StitchFooter categories={footerCategories} />
+          <StitchFooter categories={footerCategories} social={socialSettings} />
+          <WhatsAppButton whatsappNumber={socialSettings.whatsapp_number} />
         </CountryProvider>
       </WishlistProvider>
     </CartProvider>
