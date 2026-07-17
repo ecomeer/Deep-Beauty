@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import StitchHomeContent from '@/components/store/StitchHomeContent'
 import { Product, Category } from '@/types'
-import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
+import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
 
 interface Banner {
   id: string
@@ -40,7 +40,7 @@ export default async function HomePage() {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    const [productsRes, categoriesRes, bannersRes, settingRes, flashDiscount] = await withTimeout(
+    const [productsRes, categoriesRes, bannersRes, settingRes, flashSales] = await withTimeout(
       Promise.all([
         supabase
           .from('products')
@@ -65,14 +65,14 @@ export default async function HomePage() {
           .select('value')
           .eq('key', 'announcement_text')
           .maybeSingle(),
-        getActiveFlashDiscount(),
+        getActiveFlashSales(),
       ]),
       12000
     )
 
     featuredProducts = (productsRes.data || []).map((p) => ({
       ...p,
-      sale_price: applyDiscount(p.price, flashDiscount),
+      sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
     }))
     categories = categoriesRes.data || []
     banners = bannersRes.data || []

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
+import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,10 +26,10 @@ export async function GET(request: Request) {
       )
     }
 
-    const flashDiscount = await getActiveFlashDiscount()
-    const withSalePrice = (products || []).map((p: Record<string, unknown> & { price: number }) => ({
+    const flashSales = await getActiveFlashSales()
+    const withSalePrice = (products || []).map((p: Record<string, unknown> & { id: string; price: number; category?: string | null }) => ({
       ...p,
-      sale_price: applyDiscount(p.price, flashDiscount),
+      sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
     }))
 
     return NextResponse.json(

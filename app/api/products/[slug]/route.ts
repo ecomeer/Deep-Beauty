@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
+import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
 
 export async function GET(
   _req: NextRequest,
@@ -9,9 +9,9 @@ export async function GET(
   const { slug } = await params
 
   const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at'
-  const [productRes, flashDiscount] = await Promise.all([
+  const [productRes, flashSales] = await Promise.all([
     supabaseAdmin.from('products').select(productColumns).eq('slug', slug).eq('is_active', true).single(),
-    getActiveFlashDiscount(),
+    getActiveFlashSales(),
   ])
 
   if (productRes.error || !productRes.data)
@@ -43,10 +43,10 @@ export async function GET(
     relatedRows = [...relatedRows, ...(data || [])]
   }
 
-  const related = relatedRows.map((p) => ({ ...p, sale_price: applyDiscount(p.price, flashDiscount) }))
+  const related = relatedRows.map((p) => ({ ...p, sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)) }))
 
   return NextResponse.json({
-    product: { ...product, sale_price: applyDiscount(product.price, flashDiscount) },
+    product: { ...product, sale_price: applyDiscount(product.price, bestDiscountForProduct(product, flashSales)) },
     related,
   })
 }
