@@ -49,7 +49,7 @@ export default async function OrderInvoicePage({ params }: Props) {
           <Link href={`/admin/orders/${order.id}`} className="text-sm font-bold opacity-60 hover:opacity-100">
             ← عودة للطلب
           </Link>
-          <PrintButton />
+          <PrintButton orderId={order.id} />
         </div>
 
         <div className="invoice-print bg-white rounded-2xl shadow-sm border border-[var(--beige)] p-8" dir="rtl">

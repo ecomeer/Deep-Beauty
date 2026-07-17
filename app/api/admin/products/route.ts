@@ -6,15 +6,21 @@ import { escapeOrFilterValue } from '@/lib/utils'
 const PAGE_SIZE = 20
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req, 'products')
-  if (_authErr) return _authErr
+  // Read-only list: also usable by staff with only the 'marketing' permission
+  // (e.g. the flash-sales product picker), not just 'products'.
+  const productsErr = await requireAdmin(req, 'products')
+  if (productsErr) {
+    const marketingErr = await requireAdmin(req, 'marketing')
+    if (marketingErr) return productsErr
+  }
 
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search')?.trim()
   const category = searchParams.get('category')
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-  const from = (page - 1) * PAGE_SIZE
-  const to = from + PAGE_SIZE - 1
+  const pageSize = Math.min(200, Math.max(1, parseInt(searchParams.get('pageSize') || '', 10) || PAGE_SIZE))
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
 
   let query = supabaseAdmin
     .from('products')
@@ -37,8 +43,8 @@ export async function GET(req: NextRequest) {
     products: data || [],
     total: count ?? 0,
     page,
-    pageSize: PAGE_SIZE,
-    totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
+    pageSize,
+    totalPages: Math.ceil((count ?? 0) / pageSize),
   })
 }
 

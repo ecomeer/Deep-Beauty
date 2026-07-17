@@ -1,6 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
-import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
+import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
     const supabase = await createServerSupabaseClient()
 
-    const [{ data: products, error }, flashDiscount] = await Promise.all([
+    const [{ data: products, error }, flashSales] = await Promise.all([
       supabase
         .from('products')
         .select('id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at')
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(limit),
-      getActiveFlashDiscount(),
+      getActiveFlashSales(),
     ])
 
     if (error) {
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 
     const withSalePrice = (products || []).map(p => ({
       ...p,
-      sale_price: applyDiscount(p.price, flashDiscount),
+      sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
     }))
 
     return NextResponse.json(

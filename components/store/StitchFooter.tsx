@@ -50,12 +50,12 @@ const SUPPORT_LINKS = [
   { href: '/terms', label: 'شروط الخدمة' },
 ]
 
-const SOCIAL = [
-  { href: 'https://tiktok.com/@deepbeautykw',     label: 'تيك توك',  Icon: IconTikTok },
-  { href: 'https://instagram.com/deepbeautykw',   label: 'انستغرام', Icon: IconInstagram },
-  { href: 'https://snapchat.com/add/deepbeautykw',label: 'سناب شات', Icon: IconSnapchat },
-  { href: 'https://wa.me/96522289182',             label: 'واتساب',   Icon: IconWhatsApp },
-]
+const DEFAULT_SOCIAL = {
+  instagram_url: 'https://instagram.com/deepbeautykw',
+  tiktok_url: 'https://tiktok.com/@deepbeautykw',
+  snapchat_url: 'https://snapchat.com/add/deepbeautykw',
+  whatsapp_number: '96522289182',
+}
 
 interface FooterCategory {
   id: string
@@ -63,7 +63,19 @@ interface FooterCategory {
   slug: string
 }
 
-export default function StitchFooter({ categories = [] }: { categories?: FooterCategory[] }) {
+interface StitchFooterProps {
+  categories?: FooterCategory[]
+  social?: Partial<Record<'instagram_url' | 'tiktok_url' | 'snapchat_url' | 'whatsapp_number', string>>
+}
+
+export default function StitchFooter({ categories = [], social = {} }: StitchFooterProps) {
+  const resolved = { ...DEFAULT_SOCIAL, ...Object.fromEntries(Object.entries(social).filter(([, v]) => v)) }
+  const socialLinks = [
+    { href: resolved.tiktok_url, label: 'تيك توك', Icon: IconTikTok },
+    { href: resolved.instagram_url, label: 'انستغرام', Icon: IconInstagram },
+    { href: resolved.snapchat_url, label: 'سناب شات', Icon: IconSnapchat },
+    { href: `https://wa.me/${resolved.whatsapp_number.replace(/\D/g, '')}`, label: 'واتساب', Icon: IconWhatsApp },
+  ]
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -136,7 +148,7 @@ export default function StitchFooter({ categories = [] }: { categories?: FooterC
                 تابعينا
               </p>
               <div className="flex items-center gap-2">
-                {SOCIAL.map(({ href, label, Icon }) => (
+                {socialLinks.map(({ href, label, Icon }) => (
                   <a
                     key={label}
                     href={href}

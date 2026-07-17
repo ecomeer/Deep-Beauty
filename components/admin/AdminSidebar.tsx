@@ -25,6 +25,7 @@ import {
   ShoppingCartIcon,
   UserGroupIcon,
   PaperAirplaneIcon,
+  ChatBubbleLeftEllipsisIcon,
 } from '@heroicons/react/24/outline'
 import type { Permission } from '@/lib/admin-permissions'
 
@@ -66,6 +67,7 @@ const NAV_GROUPS: { label: string; links: { href: string; icon: React.ElementTyp
       { href: '/admin/marketing/coupons', icon: TagIcon,   label: 'الكوبونات',  permission: 'marketing' },
       { href: '/admin/abandoned-carts', icon: ShoppingCartIcon, label: 'السلات المهملة', permission: 'marketing' },
       { href: '/admin/newsletter', icon: EnvelopeIcon, label: 'المشتركون', permission: 'marketing' },
+      { href: '/admin/contact-messages', icon: ChatBubbleLeftEllipsisIcon, label: 'رسائل التواصل', permission: 'marketing' },
     ],
   },
   {

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
+import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
 import { escapeOrFilterValue } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
 interface ProductRow {
+  id: string
   category?: string | null
   price: number
   name_ar?: string
@@ -44,9 +45,9 @@ export async function GET(request: NextRequest) {
     }
 
     // FIXED: fetch flash discount in parallel with products query.
-    const [{ data: products, error }, flashDiscount] = await Promise.all([
+    const [{ data: products, error }, flashSales] = await Promise.all([
       query,
-      getActiveFlashDiscount(),
+      getActiveFlashSales(),
     ])
 
     if (error) {
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
 
     const withSalePrice = filtered.map((p: ProductRow) => ({
       ...p,
-      sale_price: applyDiscount(p.price, flashDiscount),
+      sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
     }))
 
     return NextResponse.json(

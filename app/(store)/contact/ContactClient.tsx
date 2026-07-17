@@ -47,11 +47,12 @@ export default function ContactClient() {
     if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return
     setStatus('sending')
     try {
-      await fetch('/api/newsletter', {
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, source: 'contact_form', meta: form }),
+        body: JSON.stringify(form),
       })
+      if (!res.ok) throw new Error('failed')
       setStatus('sent')
       setForm({ name: '', email: '', message: '' })
     } catch {

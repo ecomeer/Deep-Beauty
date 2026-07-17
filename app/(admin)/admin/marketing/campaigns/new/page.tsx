@@ -104,10 +104,11 @@ export default function NewCampaign() {
                 className="input-field"
               >
                 <option value="email">📧 بريد إلكتروني</option>
-                <option value="sms">📱 رسائل نصية</option>
-                <option value="push">🔔 إشعارات Push</option>
-                <option value="social">📱 وسائل التواصل</option>
+                <option value="sms" disabled>📱 رسائل نصية (قريباً)</option>
+                <option value="push" disabled>🔔 إشعارات Push (قريباً)</option>
+                <option value="social" disabled>📱 وسائل التواصل (قريباً)</option>
               </select>
+              <p className="text-xs opacity-50 mt-1">الإرسال الفعلي متاح حالياً للبريد الإلكتروني فقط</p>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5">الجمهور المستهدف *</label>
@@ -151,7 +152,7 @@ export default function NewCampaign() {
               required
             />
             <p className="text-xs opacity-50 mt-1">
-              يمكنك استخدام {'{name}'} للاسم و {'{order_number}'} لرقم الطلب
+              يمكنك استخدام {'{name}'} وسيتم استبدالها باسم كل مستلم
             </p>
           </div>
 

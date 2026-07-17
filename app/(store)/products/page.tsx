@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { Product, Category } from '@/types'
 import ProductsClientShell from '@/components/store/ProductsClientShell'
-import { getActiveFlashDiscount, applyDiscount } from '@/lib/flash-sale'
+import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
 import { resolveCategoryName } from '@/lib/categories'
 
 export const revalidate = 600 // revalidate every 10 minutes
@@ -38,7 +38,7 @@ export default async function ProductsPage({
 
   try {
     const supabase = supabaseAdmin
-    const [prodsRes, catsRes, flashDiscount] = await Promise.race([
+    const [prodsRes, catsRes, flashSales] = await Promise.race([
       Promise.all([
         supabase
           .from('products')
@@ -51,13 +51,13 @@ export default async function ProductsPage({
           .select('id,name_ar,name_en,slug,is_active,image_url')
           .eq('is_active', true)
           .order('name_ar'),
-        getActiveFlashDiscount(),
+        getActiveFlashSales(),
       ]),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
     ])
     products = (prodsRes.data || []).map((p) => ({
       ...p,
-      sale_price: applyDiscount(p.price, flashDiscount as number),
+      sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
     }))
     categories = catsRes.data || []
   } catch (e) {

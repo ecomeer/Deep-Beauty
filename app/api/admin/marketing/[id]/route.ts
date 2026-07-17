@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { sendEmail, newsletterEmail } from '@/lib/email'
+import { escapeHtml } from '@/lib/utils'
+
+const TYPE_LABELS_AR: Record<string, string> = {
+  sms: 'الرسائل النصية',
+  push: 'الإشعارات',
+  social: 'وسائل التواصل',
+}
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _authErr = await requireAdmin(req, 'marketing')
@@ -58,27 +66,81 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
       if (campaignError) return NextResponse.json({ error: campaignError.message }, { status: 500 })
 
-      // Get target audience
-      let query = supabaseAdmin.from('users').select('email, full_name')
-      if (campaign.target_audience !== 'all') {
-        query = query.eq('role', campaign.target_audience)
+      if (campaign.sent_at) {
+        return NextResponse.json({ error: 'تم إرسال هذه الحملة بالفعل' }, { status: 409 })
       }
-      const { data: users, error: usersError } = await query
 
-      if (usersError) return NextResponse.json({ error: usersError.message }, { status: 500 })
+      if (campaign.type !== 'email') {
+        return NextResponse.json(
+          { error: `إرسال حملات ${TYPE_LABELS_AR[campaign.type] || campaign.type} غير مدعوم بعد — البريد الإلكتروني فقط مفعّل حالياً` },
+          { status: 400 }
+        )
+      }
 
-      // Update sent count
+      const content = campaign.content as { subject?: string; body?: string } | null
+      if (!content?.subject?.trim() || !content?.body?.trim()) {
+        return NextResponse.json({ error: 'الحملة تفتقد لعنوان أو محتوى البريد' }, { status: 400 })
+      }
+
+      // Target audience: 'all'/'customers' = every customer; 'vip' = customers
+      // with loyalty points; 'new' = customers who signed up in the last 30 days.
+      let query = supabaseAdmin.from('users').select('email, name').eq('role', 'customer').not('email', 'is', null)
+      if (campaign.target_audience === 'vip') {
+        query = query.gt('loyalty_points', 0)
+      } else if (campaign.target_audience === 'new') {
+        const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+        query = query.gte('created_at', cutoff)
+      }
+
+      const { data: recipients, error: recipientsError } = await query
+      if (recipientsError) return NextResponse.json({ error: recipientsError.message }, { status: 500 })
+
+      const list = recipients || []
+      if (list.length === 0) {
+        return NextResponse.json({ error: 'لا يوجد مستلمون يطابقون الجمهور المستهدف' }, { status: 400 })
+      }
+
+      // Send in batches of 50, sequentially between batches, to respect rate
+      // limits. {name} is substituted per recipient (the only placeholder the
+      // campaign form advertises that applies to a broadcast — there's no
+      // single order to fill {order_number} with).
+      let sent = 0
+      let failed = 0
+      const BATCH_SIZE = 50
+      for (let i = 0; i < list.length; i += BATCH_SIZE) {
+        const batch = list.slice(i, i + BATCH_SIZE)
+        const results = await Promise.all(
+          batch.map((r) => {
+            const personalizedBody = content.body!.replaceAll('{name}', escapeHtml((r.name as string) || ''))
+            const { subject, html } = newsletterEmail(content.subject!, personalizedBody)
+            return sendEmail({ to: r.email as string, subject, html })
+          })
+        )
+        sent += results.filter((r) => r.sent).length
+        failed += results.filter((r) => !r.sent).length
+      }
+
+      if (sent === 0) {
+        return NextResponse.json(
+          { error: 'لم يُرسل أي بريد — تأكد من ضبط RESEND_API_KEY', sent_count: 0 },
+          { status: 502 }
+        )
+      }
+
+      // Only mark as sent once at least one email actually went out, so a
+      // fully-failed attempt can still be retried instead of being hidden
+      // behind sent_at.
       await supabaseAdmin
         .from('marketing_campaigns')
-        .update({ 
-          sent_count: users?.length || 0,
-          sent_at: new Date().toISOString()
+        .update({
+          sent_count: sent,
+          sent_at: new Date().toISOString(),
         })
         .eq('id', id)
 
-      return NextResponse.json({ 
-        message: `Campaign sent to ${users?.length || 0} users`,
-        sent_count: users?.length || 0
+      return NextResponse.json({
+        message: `تم إرسال الحملة إلى ${sent} مستلم${failed ? ` (فشل ${failed})` : ''}`,
+        sent_count: sent,
       })
     }
 

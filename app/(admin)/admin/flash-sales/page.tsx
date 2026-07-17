@@ -14,6 +14,18 @@ interface FlashSale {
   ends_at: string
   is_active: boolean
   apply_to: 'all' | 'category' | 'products'
+  category_name?: string | null
+  product_ids?: string[]
+}
+
+interface CategoryOption {
+  id: string
+  name_ar: string
+}
+
+interface ProductOption {
+  id: string
+  name_ar: string
 }
 
 function Countdown({ endsAt }: { endsAt: string }) {
@@ -42,18 +54,37 @@ export default function AdminFlashSales() {
     (json) => (json as { sales?: FlashSale[] }).sales || []
   )
   const [adding, setAdding] = useState(false)
+  const [categories, setCategories] = useState<CategoryOption[]>([])
+  const [products, setProducts] = useState<ProductOption[]>([])
+  const [productFilter, setProductFilter] = useState('')
   const [form, setForm] = useState({
     name_ar: '',
     discount_percentage: 10,
     starts_at: '',
     ends_at: '',
     apply_to: 'all' as 'all' | 'category' | 'products',
+    category_id: '',
+    product_ids: [] as string[],
   })
+
+  useEffect(() => {
+    fetch('/api/categories').then(r => r.json()).then(d => setCategories(d.categories || [])).catch(() => {})
+    fetch('/api/admin/products?pageSize=200').then(r => r.json()).then(d => setProducts(d.products || [])).catch(() => {})
+  }, [])
+
+  const toggleProduct = (id: string) => {
+    setForm(f => ({
+      ...f,
+      product_ids: f.product_ids.includes(id) ? f.product_ids.filter(p => p !== id) : [...f.product_ids, id],
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name_ar || !form.starts_at || !form.ends_at) return toast.error('أكمل جميع الحقول المطلوبة')
     if (new Date(form.ends_at) <= new Date(form.starts_at)) return toast.error('تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء')
+    if (form.apply_to === 'category' && !form.category_id) return toast.error('اختر الفئة')
+    if (form.apply_to === 'products' && form.product_ids.length === 0) return toast.error('اختر منتج واحد على الأقل')
 
     setAdding(true)
     const res = await fetch('/api/admin/flash-sales', {
@@ -71,7 +102,7 @@ export default function AdminFlashSales() {
       toast.error('حدث خطأ: ' + (d.error || ''))
     } else {
       toast.success('تم إنشاء عرض الفلاش بنجاح ⚡')
-      setForm({ name_ar: '', discount_percentage: 10, starts_at: '', ends_at: '', apply_to: 'all' })
+      setForm({ name_ar: '', discount_percentage: 10, starts_at: '', ends_at: '', apply_to: 'all', category_id: '', product_ids: [] })
       fetchSales()
     }
     setAdding(false)
@@ -145,6 +176,54 @@ export default function AdminFlashSales() {
                   <option value="products">منتجات محددة</option>
                 </select>
               </div>
+              {form.apply_to === 'category' && (
+                <div>
+                  <label htmlFor="flash-sale-category" className="block mb-1 font-medium">الفئة *</label>
+                  <select
+                    id="flash-sale-category"
+                    required
+                    value={form.category_id}
+                    onChange={e => setForm({ ...form, category_id: e.target.value })}
+                    className="input-field"
+                    title="اختر الفئة المستهدفة"
+                  >
+                    <option value="">اختر فئة...</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name_ar}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {form.apply_to === 'products' && (
+                <div>
+                  <p className="block mb-1 font-medium">
+                    المنتجات * {form.product_ids.length > 0 && <span className="opacity-60">({form.product_ids.length} محدد)</span>}
+                  </p>
+                  <label htmlFor="flash-sale-product-filter" className="sr-only">بحث عن منتج</label>
+                  <input
+                    id="flash-sale-product-filter"
+                    value={productFilter}
+                    onChange={e => setProductFilter(e.target.value)}
+                    className="input-field mb-2"
+                    placeholder="بحث عن منتج..."
+                  />
+                  <div className="max-h-48 overflow-y-auto border rounded-xl p-2 space-y-1" style={{ borderColor: 'var(--beige)' }}>
+                    {products
+                      .filter(p => p.name_ar.toLowerCase().includes(productFilter.toLowerCase()))
+                      .map(p => (
+                        <label key={p.id} className="flex items-center gap-2 text-sm p-1 hover:bg-[var(--off-white)] rounded cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={form.product_ids.includes(p.id)}
+                            onChange={() => toggleProduct(p.id)}
+                          />
+                          {p.name_ar}
+                        </label>
+                      ))}
+                    {products.length === 0 && <p className="text-xs opacity-50 p-2">لا توجد منتجات</p>}
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="block mb-1 font-medium">تاريخ البدء *</label>
                 <input
@@ -206,6 +285,7 @@ export default function AdminFlashSales() {
                   <tr>
                     <th>اسم العرض</th>
                     <th>الخصم</th>
+                    <th>يطبّق على</th>
                     <th>البدء</th>
                     <th>الانتهاء</th>
                     <th>الحالة</th>
@@ -214,13 +294,13 @@ export default function AdminFlashSales() {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan={6} className="p-0">
+                    <tr><td colSpan={7} className="p-0">
                       <div className="flex h-40 items-center justify-center">
                         <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
                       </div>
                     </td></tr>
                   ) : sales.length === 0 ? (
-                    <tr><td colSpan={6} className="p-0">
+                    <tr><td colSpan={7} className="p-0">
                       <div className="flex flex-col items-center justify-center py-16 gap-3">
                         <BoltIcon className="w-12 h-12 opacity-20" />
                         <p className="text-sm opacity-50">لا توجد عروض بعد</p>
@@ -231,6 +311,11 @@ export default function AdminFlashSales() {
                       <tr key={s.id}>
                         <td className="font-bold">{s.name_ar}</td>
                         <td><span className="badge badge-danger">{s.discount_percentage}%</span></td>
+                        <td className="text-xs">
+                          {s.apply_to === 'all' && 'كل المنتجات'}
+                          {s.apply_to === 'category' && (s.category_name || 'فئة محددة')}
+                          {s.apply_to === 'products' && `${s.product_ids?.length ?? 0} منتج محدد`}
+                        </td>
                         <td className="text-xs font-en" dir="ltr">{formatDateTime(s.starts_at)}</td>
                         <td className="text-xs font-en" dir="ltr">{formatDateTime(s.ends_at)}</td>
                         <td>
