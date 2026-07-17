@@ -10,6 +10,7 @@ export default function PrintButton({ orderId }: { orderId: string }) {
         ⬇️ تحميل PDF
       </a>
       <button
+        type="button"
         onClick={() => window.print()}
         className="px-6 py-2 text-sm rounded-xl border border-[var(--beige)] hover:bg-[var(--off-white)]"
       >

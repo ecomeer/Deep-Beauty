@@ -275,6 +275,7 @@ export async function POST(req: NextRequest) {
             shipping_cost: shippingCost,
             coupon_discount: discount,
             coupon_code: appliedCouponCode,
+            loyalty_points_redeemed: Number(order.loyalty_points_redeemed) || 0,
             total: finalTotal,
             status: 'pending',
             payment_method,

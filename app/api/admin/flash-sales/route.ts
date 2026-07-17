@@ -45,6 +45,9 @@ export async function POST(req: NextRequest) {
     if (apply_to === 'products' && (!Array.isArray(product_ids) || product_ids.length === 0)) {
       return NextResponse.json({ error: 'اختر منتج واحد على الأقل' }, { status: 400 })
     }
+    if (typeof discount_percentage !== 'number' || discount_percentage <= 0 || discount_percentage > 100) {
+      return NextResponse.json({ error: 'نسبة الخصم غير صالحة' }, { status: 400 })
+    }
 
     const { data, error } = await supabaseAdmin
       .from('flash_sales')

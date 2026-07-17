@@ -19,25 +19,40 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   // number; logged-in users can only view their own order.
   let order
   if (num) {
-    const { data } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from('orders')
       .select(ORDER_COLUMNS)
       .eq('id', id)
       .eq('order_number', num)
       .maybeSingle()
+    if (error) throw error
     order = data
   } else {
     const supabase = await createServerSupabaseClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) notFound()
 
-    const { data } = await supabaseAdmin
+    // Two structured queries instead of interpolating auth-derived values
+    // into a raw .or() filter string.
+    const byUserId = await supabaseAdmin
       .from('orders')
       .select(ORDER_COLUMNS)
       .eq('id', id)
-      .or(`user_id.eq.${user.id},customer_email.eq.${user.email}`)
+      .eq('user_id', user.id)
       .maybeSingle()
-    order = data
+    if (byUserId.error) throw byUserId.error
+    order = byUserId.data
+
+    if (!order && user.email) {
+      const byEmail = await supabaseAdmin
+        .from('orders')
+        .select(ORDER_COLUMNS)
+        .eq('id', id)
+        .eq('customer_email', user.email)
+        .maybeSingle()
+      if (byEmail.error) throw byEmail.error
+      order = byEmail.data
+    }
   }
 
   if (!order) notFound()

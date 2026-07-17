@@ -1,4 +1,4 @@
-import { STATUS_LABELS, toArabicPrice, formatDateTime } from '@/lib/utils'
+import { STATUS_LABELS, toArabicPrice, formatDateTime, escapeHtml } from '@/lib/utils'
 import { CONTACT_INFO } from '@/lib/contact'
 
 // Email delivery via the Resend REST API (no SDK dependency).
@@ -195,17 +195,20 @@ export function abandonedCartEmail(
 }
 
 export function contactNotificationEmail(data: { name: string; email: string; message: string }): { subject: string; html: string } {
+  const name = escapeHtml(data.name)
+  const email = escapeHtml(data.email)
+  const message = escapeHtml(data.message)
   const body = `
     <p>رسالة جديدة من نموذج "تواصلي معنا":</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
-      <tr><td style="padding:6px 12px;font-weight:bold;width:100px;">الاسم</td><td style="padding:6px 12px;">${data.name}</td></tr>
-      <tr><td style="padding:6px 12px;font-weight:bold;">البريد</td><td style="padding:6px 12px;" dir="ltr">${data.email}</td></tr>
+      <tr><td style="padding:6px 12px;font-weight:bold;width:100px;">الاسم</td><td style="padding:6px 12px;">${name}</td></tr>
+      <tr><td style="padding:6px 12px;font-weight:bold;">البريد</td><td style="padding:6px 12px;" dir="ltr">${email}</td></tr>
     </table>
-    <div style="background:#FAF6F1;border-radius:8px;padding:14px 18px;white-space:pre-wrap;">${data.message}</div>
+    <div style="background:#FAF6F1;border-radius:8px;padding:14px 18px;white-space:pre-wrap;">${message}</div>
     <p style="margin-top:16px;font-size:13px;color:#8a8a8a;">للرد، فقط اضغطي "رد" على هذا الإيميل.</p>
   `
   return {
-    subject: `رسالة جديدة من ${data.name} — نموذج التواصل`,
+    subject: `رسالة جديدة من ${name} — نموذج التواصل`,
     html: emailShell('رسالة تواصل جديدة', body),
   }
 }

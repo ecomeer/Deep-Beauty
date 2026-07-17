@@ -8,6 +8,21 @@ export function cn(...inputs: ClassValue[]) {
 export const toArabicPrice = (price: number): string =>
   price.toFixed(3).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[+d]) + ' د.ك'
 
+/** Strips characters unsafe for a Content-Disposition filename (quotes, path separators, control chars). */
+export function sanitizeFilenamePart(value: string): string {
+  return value.replace(/[^a-zA-Z0-9._-]/g, '')
+}
+
+/** Escapes text for safe interpolation into an HTML email/template body. */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 export const isKuwaitPhone = (phone: string): boolean =>
   /^(\+965|965|0)?[569]\d{7}$/.test(phone.replace(/\s/g, ''))
 

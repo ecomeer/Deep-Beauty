@@ -1,7 +1,7 @@
 'use client'
 
 export default function WhatsAppButton({ whatsappNumber }: { whatsappNumber?: string }) {
-  const number = whatsappNumber || '96522289182'
+  const number = (whatsappNumber || '96522289182').replace(/\D/g, '')
 
   return (
     <a

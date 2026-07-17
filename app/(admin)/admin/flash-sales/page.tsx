@@ -178,8 +178,9 @@ export default function AdminFlashSales() {
               </div>
               {form.apply_to === 'category' && (
                 <div>
-                  <label className="block mb-1 font-medium">الفئة *</label>
+                  <label htmlFor="flash-sale-category" className="block mb-1 font-medium">الفئة *</label>
                   <select
+                    id="flash-sale-category"
                     required
                     value={form.category_id}
                     onChange={e => setForm({ ...form, category_id: e.target.value })}
@@ -195,10 +196,12 @@ export default function AdminFlashSales() {
               )}
               {form.apply_to === 'products' && (
                 <div>
-                  <label className="block mb-1 font-medium">
+                  <p className="block mb-1 font-medium">
                     المنتجات * {form.product_ids.length > 0 && <span className="opacity-60">({form.product_ids.length} محدد)</span>}
-                  </label>
+                  </p>
+                  <label htmlFor="flash-sale-product-filter" className="sr-only">بحث عن منتج</label>
                   <input
+                    id="flash-sale-product-filter"
                     value={productFilter}
                     onChange={e => setProductFilter(e.target.value)}
                     className="input-field mb-2"

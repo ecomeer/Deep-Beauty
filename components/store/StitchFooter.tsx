@@ -74,7 +74,7 @@ export default function StitchFooter({ categories = [], social = {} }: StitchFoo
     { href: resolved.tiktok_url, label: 'تيك توك', Icon: IconTikTok },
     { href: resolved.instagram_url, label: 'انستغرام', Icon: IconInstagram },
     { href: resolved.snapchat_url, label: 'سناب شات', Icon: IconSnapchat },
-    { href: `https://wa.me/${resolved.whatsapp_number}`, label: 'واتساب', Icon: IconWhatsApp },
+    { href: `https://wa.me/${resolved.whatsapp_number.replace(/\D/g, '')}`, label: 'واتساب', Icon: IconWhatsApp },
   ]
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)

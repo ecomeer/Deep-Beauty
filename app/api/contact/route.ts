@@ -11,9 +11,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'طلبات كثيرة، يرجى الانتظار قليلاً' }, { status: 429 })
     }
 
-    const { name, email, message } = await req.json()
+    let body: unknown
+    try {
+      body = await req.json()
+    } catch {
+      return NextResponse.json({ error: 'بيانات غير صالحة' }, { status: 400 })
+    }
+    if (typeof body !== 'object' || body === null) {
+      return NextResponse.json({ error: 'بيانات غير صالحة' }, { status: 400 })
+    }
+    const { name, email, message } = body as Record<string, unknown>
+    if (typeof name !== 'string' || typeof email !== 'string' || typeof message !== 'string') {
+      return NextResponse.json({ error: 'بيانات غير صالحة' }, { status: 400 })
+    }
 
-    if (!name?.trim() || !email?.trim() || !message?.trim()) {
+    if (!name.trim() || !email.trim() || !message.trim()) {
       return NextResponse.json({ error: 'جميع الحقول مطلوبة' }, { status: 400 })
     }
     if (name.length > 200 || email.length > 200 || message.length > 5000) {

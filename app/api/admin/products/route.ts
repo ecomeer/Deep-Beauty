@@ -6,8 +6,13 @@ import { escapeOrFilterValue } from '@/lib/utils'
 const PAGE_SIZE = 20
 
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req, 'products')
-  if (_authErr) return _authErr
+  // Read-only list: also usable by staff with only the 'marketing' permission
+  // (e.g. the flash-sales product picker), not just 'products'.
+  const productsErr = await requireAdmin(req, 'products')
+  if (productsErr) {
+    const marketingErr = await requireAdmin(req, 'marketing')
+    if (marketingErr) return productsErr
+  }
 
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search')?.trim()

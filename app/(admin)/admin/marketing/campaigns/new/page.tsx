@@ -152,7 +152,7 @@ export default function NewCampaign() {
               required
             />
             <p className="text-xs opacity-50 mt-1">
-              يمكنك استخدام {'{name}'} للاسم و {'{order_number}'} لرقم الطلب
+              يمكنك استخدام {'{name}'} وسيتم استبدالها باسم كل مستلم
             </p>
           </div>
 

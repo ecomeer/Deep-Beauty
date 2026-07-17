@@ -22,10 +22,13 @@ export async function PATCH(req: NextRequest) {
   try {
     const { id, is_read } = await req.json()
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 })
+    if (typeof is_read !== 'boolean') {
+      return NextResponse.json({ error: 'is_read must be a boolean' }, { status: 400 })
+    }
 
     const { error } = await supabaseAdmin
       .from('contact_messages')
-      .update({ is_read: Boolean(is_read) })
+      .update({ is_read })
       .eq('id', id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

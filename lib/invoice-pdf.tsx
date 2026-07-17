@@ -30,6 +30,7 @@ export interface InvoiceOrder {
   shipping_cost: number
   coupon_discount?: number | null
   coupon_code?: string | null
+  loyalty_points_redeemed?: number | null
   total: number
   status: string
   payment_method: string
@@ -74,6 +75,14 @@ export async function renderInvoicePdf(order: InvoiceOrder, items: InvoiceItem[]
 
   const logoPath = path.join(process.cwd(), 'public/logo.png')
 
+  // create_order_atomic_secure deducts the redeemed-points value from
+  // (subtotal - coupon_discount + shipping_cost) to arrive at `total`.
+  // Derive that amount here so the line items add up to the printed total.
+  const preLoyaltyTotal = order.subtotal - (order.coupon_discount || 0) + order.shipping_cost
+  const loyaltyDiscount = order.loyalty_points_redeemed
+    ? Math.max(0, Math.round((preLoyaltyTotal - order.total) * 1000) / 1000)
+    : 0
+
   const doc = (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -104,7 +113,13 @@ export async function renderInvoicePdf(order: InvoiceOrder, items: InvoiceItem[]
             <Text style={styles.sectionLabel}>عنوان التوصيل</Text>
             <Text>{order.address_area || ''}</Text>
             {(order.address_block || order.address_street || order.address_house) && (
-              <Text>قطعة {order.address_block}، شارع {order.address_street}، منزل {order.address_house}</Text>
+              <Text>
+                {[
+                  order.address_block ? `قطعة ${order.address_block}` : null,
+                  order.address_street ? `شارع ${order.address_street}` : null,
+                  order.address_house ? `منزل ${order.address_house}` : null,
+                ].filter(Boolean).join('، ')}
+              </Text>
             )}
           </View>
         </View>
@@ -139,6 +154,12 @@ export async function renderInvoicePdf(order: InvoiceOrder, items: InvoiceItem[]
             <View style={styles.totalsRow}>
               <Text>الخصم {order.coupon_code ? `(${order.coupon_code})` : ''}</Text>
               <Text>- {toArabicPrice(order.coupon_discount)}</Text>
+            </View>
+          ) : null}
+          {loyaltyDiscount > 0 ? (
+            <View style={styles.totalsRow}>
+              <Text>خصم نقاط الولاء ({order.loyalty_points_redeemed} نقطة)</Text>
+              <Text>- {toArabicPrice(loyaltyDiscount)}</Text>
             </View>
           ) : null}
           <View style={[styles.totalsRow, styles.totalsBold]}>

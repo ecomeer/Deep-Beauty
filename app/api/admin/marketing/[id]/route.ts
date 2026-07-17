@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 import { sendEmail, newsletterEmail } from '@/lib/email'
+import { escapeHtml } from '@/lib/utils'
 
 const TYPE_LABELS_AR: Record<string, string> = {
   sms: 'الرسائل النصية',
@@ -65,6 +66,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
       if (campaignError) return NextResponse.json({ error: campaignError.message }, { status: 500 })
 
+      if (campaign.sent_at) {
+        return NextResponse.json({ error: 'تم إرسال هذه الحملة بالفعل' }, { status: 409 })
+      }
+
       if (campaign.type !== 'email') {
         return NextResponse.json(
           { error: `إرسال حملات ${TYPE_LABELS_AR[campaign.type] || campaign.type} غير مدعوم بعد — البريد الإلكتروني فقط مفعّل حالياً` },
@@ -91,21 +96,40 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       if (recipientsError) return NextResponse.json({ error: recipientsError.message }, { status: 500 })
 
       const list = recipients || []
-      const { subject, html } = newsletterEmail(content.subject, content.body)
+      if (list.length === 0) {
+        return NextResponse.json({ error: 'لا يوجد مستلمون يطابقون الجمهور المستهدف' }, { status: 400 })
+      }
 
-      // Send in batches of 50, sequentially between batches, to respect rate limits.
+      // Send in batches of 50, sequentially between batches, to respect rate
+      // limits. {name} is substituted per recipient (the only placeholder the
+      // campaign form advertises that applies to a broadcast — there's no
+      // single order to fill {order_number} with).
       let sent = 0
       let failed = 0
       const BATCH_SIZE = 50
       for (let i = 0; i < list.length; i += BATCH_SIZE) {
         const batch = list.slice(i, i + BATCH_SIZE)
         const results = await Promise.all(
-          batch.map((r) => sendEmail({ to: r.email as string, subject, html }))
+          batch.map((r) => {
+            const personalizedBody = content.body!.replaceAll('{name}', escapeHtml((r.name as string) || ''))
+            const { subject, html } = newsletterEmail(content.subject!, personalizedBody)
+            return sendEmail({ to: r.email as string, subject, html })
+          })
         )
         sent += results.filter((r) => r.sent).length
         failed += results.filter((r) => !r.sent).length
       }
 
+      if (sent === 0) {
+        return NextResponse.json(
+          { error: 'لم يُرسل أي بريد — تأكد من ضبط RESEND_API_KEY', sent_count: 0 },
+          { status: 502 }
+        )
+      }
+
+      // Only mark as sent once at least one email actually went out, so a
+      // fully-failed attempt can still be retried instead of being hidden
+      // behind sent_at.
       await supabaseAdmin
         .from('marketing_campaigns')
         .update({
@@ -113,13 +137,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           sent_at: new Date().toISOString(),
         })
         .eq('id', id)
-
-      if (list.length > 0 && sent === 0) {
-        return NextResponse.json(
-          { error: 'لم يُرسل أي بريد — تأكد من ضبط RESEND_API_KEY', sent_count: 0 },
-          { status: 502 }
-        )
-      }
 
       return NextResponse.json({
         message: `تم إرسال الحملة إلى ${sent} مستلم${failed ? ` (فشل ${failed})` : ''}`,

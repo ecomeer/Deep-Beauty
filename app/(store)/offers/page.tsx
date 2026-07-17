@@ -22,16 +22,17 @@ export default async function OffersPage() {
       .from('products')
       .select('id,name_ar,name_en,slug,category,price,compare_price,stock_quantity,images,is_active,is_featured,created_at,updated_at')
       .eq('is_active', true)
-      .not('compare_price', 'is', null)
-      .gt('compare_price', 0)
       .order('created_at', { ascending: false })
 
+    // A product qualifies as an "offer" either via a manually set
+    // compare_price or an active flash-sale discount (category/product
+    // targeted sales don't necessarily set compare_price).
     saleProducts = (data || [])
-      .filter((p) => p.compare_price > p.price)
       .map((p) => ({
         ...p,
         sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
       }))
+      .filter((p) => (p.compare_price && p.compare_price > p.price) || p.sale_price !== null)
   } catch (e) {
     console.error('Failed to fetch offers:', e)
   }

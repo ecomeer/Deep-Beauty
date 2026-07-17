@@ -13,13 +13,17 @@ export interface ActiveFlashSale {
  */
 export async function getActiveFlashSales(): Promise<ActiveFlashSale[]> {
   const now = new Date().toISOString()
-  const { data: sales } = await supabaseAdmin
+  const { data: sales, error: salesError } = await supabaseAdmin
     .from('flash_sales')
     .select('id, discount_percentage, apply_to, category_id, categories(name_ar, name_en)')
     .eq('is_active', true)
     .lte('starts_at', now)
     .gte('ends_at', now)
 
+  if (salesError) {
+    console.error('getActiveFlashSales: sales query failed', salesError)
+    return []
+  }
   if (!sales || sales.length === 0) return []
 
   const productSaleIds = sales
@@ -28,10 +32,14 @@ export async function getActiveFlashSales(): Promise<ActiveFlashSale[]> {
 
   const productIdsBySale: Record<string, string[]> = {}
   if (productSaleIds.length > 0) {
-    const { data: links } = await supabaseAdmin
+    const { data: links, error: linksError } = await supabaseAdmin
       .from('flash_sale_products')
       .select('flash_sale_id, product_id')
       .in('flash_sale_id', productSaleIds)
+
+    if (linksError) {
+      console.error('getActiveFlashSales: flash_sale_products query failed', linksError)
+    }
 
     for (const link of links || []) {
       const key = link.flash_sale_id as string

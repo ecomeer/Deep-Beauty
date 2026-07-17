@@ -3,6 +3,7 @@
 import { formatDateTime } from '@/lib/utils'
 import { EnvelopeOpenIcon, EnvelopeIcon as EnvelopeClosedIcon, ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline'
 import { useAdminList } from '@/hooks/useAdminList'
+import toast from 'react-hot-toast'
 
 interface ContactMessage {
   id: string
@@ -20,11 +21,15 @@ export default function AdminContactMessages() {
   )
 
   const toggleRead = async (id: string, current: boolean) => {
-    await fetch('/api/admin/contact-messages', {
+    const res = await fetch('/api/admin/contact-messages', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, is_read: !current }),
     })
+    if (!res.ok) {
+      toast.error('تعذّر تحديث حالة الرسالة')
+      return
+    }
     refetch()
   }
 
@@ -67,6 +72,7 @@ export default function AdminContactMessages() {
                     type="button"
                     onClick={() => toggleRead(m.id, m.is_read)}
                     title={m.is_read ? 'وضع كغير مقروءة' : 'وضع كمقروءة'}
+                    aria-label={m.is_read ? 'وضع كغير مقروءة' : 'وضع كمقروءة'}
                     className="text-gray-400 hover:text-primary transition-colors"
                   >
                     {m.is_read ? <EnvelopeOpenIcon className="w-5 h-5" /> : <EnvelopeClosedIcon className="w-5 h-5" />}
