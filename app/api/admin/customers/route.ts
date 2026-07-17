@@ -50,8 +50,10 @@ export async function POST(req: NextRequest) {
     // Creating a customer must create an Auth identity first. The trusted
     // auth.users trigger creates public.users with role=customer; request-body
     // role/permissions values are intentionally ignored.
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
     const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       data: { name, phone: phone || null },
+      redirectTo: `${siteUrl}/auth/callback?next=/account`,
     })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })

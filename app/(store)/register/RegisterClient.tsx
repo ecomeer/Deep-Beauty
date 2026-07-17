@@ -51,7 +51,10 @@ export default function RegisterClient() {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
-        options: { data: { name: form.name, phone: form.phone } },
+        options: {
+          data: { name: form.name, phone: form.phone },
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`,
+        },
       })
 
       if (authError) {
