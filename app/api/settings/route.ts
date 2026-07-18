@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 // Public settings endpoint — only returns non-sensitive settings for store display
 const PUBLIC_KEYS = [
   'announcement_text', 'whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url',
-  'loyalty_kwd_per_point',
+  'loyalty_kwd_per_point', 'instagram_images',
   'meta_pixel_id', 'snap_pixel_id', 'gtm_id',
 ]
 

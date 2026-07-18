@@ -36,11 +36,17 @@ interface Banner {
   link_url: string
 }
 
+interface InstagramImage {
+  image_url: string
+  link_url?: string
+}
+
 interface Props {
   featuredProducts: Product[]
   categories: Category[]
   banners?: Banner[]
   announcementText?: string
+  instagramImages?: InstagramImage[]
 }
 
 // ─── Trust features ────────────────────────────────────────────────────────
@@ -269,6 +275,7 @@ export default function StitchHomeContent({
   categories,
   banners = [],
   announcementText,
+  instagramImages = [],
 }: Props) {
   const { formatPrice } = useCountry()
   const [heroIndex, setHeroIndex] = useState(0)
@@ -867,17 +874,33 @@ export default function StitchHomeContent({
         </div>
 
         <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-3 px-4 lg:max-w-[var(--container-max)] lg:mx-auto">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {(instagramImages.length > 0
+            ? instagramImages
+            : Array.from({ length: 6 }, () => null)
+          ).map((item, i) => (
             <a
-              key={i}
-              href="https://www.instagram.com/deepbeautykw/"
+              key={item ? item.image_url : i}
+              href={item?.link_url || 'https://www.instagram.com/deepbeautykw/'}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`منشور إنستغرام ${i + 1}`}
               className="group relative aspect-square rounded-xl overflow-hidden bg-beige"
             >
-              <div className="w-full h-full flex items-center justify-center">
-                <SparklesIcon className="w-8 h-8 text-primary opacity-20" />
-              </div>
+              {item ? (
+                <Image
+                  src={item.image_url}
+                  alt={`منشور إنستغرام ${i + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 33vw, 200px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                  quality={75}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <SparklesIcon className="w-8 h-8 text-primary opacity-20" />
+                </div>
+              )}
               <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
                 <IconInstagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>

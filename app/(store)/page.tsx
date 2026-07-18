@@ -30,6 +30,7 @@ export default async function HomePage() {
   let featuredProducts: Product[] = []
   let categories: Category[] = []
   let banners: Banner[] = []
+  let instagramImages: { image_url: string; link_url?: string }[] = []
   let announcementText = '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك'
 
   const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -65,9 +66,8 @@ export default async function HomePage() {
           .order('sort_order', { ascending: true }),
         supabase
           .from('settings')
-          .select('value')
-          .eq('key', 'announcement_text')
-          .maybeSingle(),
+          .select('key, value')
+          .in('key', ['announcement_text', 'instagram_images']),
         getActiveFlashSales(),
       ]),
       12000
@@ -100,7 +100,18 @@ export default async function HomePage() {
     }))
     categories = categoriesRes.data || []
     banners = bannersRes.data || []
-    if (settingRes.data?.value) announcementText = settingRes.data.value
+    const settingRows: { key: string; value: string | null }[] = settingRes.data || []
+    const announcementRow = settingRows.find((r) => r.key === 'announcement_text')
+    if (announcementRow?.value) announcementText = announcementRow.value
+    try {
+      const parsed = JSON.parse(settingRows.find((r) => r.key === 'instagram_images')?.value || '[]') as { image_url?: unknown; link_url?: unknown }[]
+      if (Array.isArray(parsed)) {
+        instagramImages = parsed
+          .filter((it) => !!it && typeof it.image_url === 'string')
+          .map((it) => ({ image_url: it.image_url as string, link_url: typeof it.link_url === 'string' && it.link_url ? it.link_url : undefined }))
+          .slice(0, 6)
+      }
+    } catch { /* malformed setting - fall back to placeholders */ }
   } catch (e) {
     console.error('Failed to fetch home data:', e)
   }
@@ -159,6 +170,7 @@ export default async function HomePage() {
       />
       <StitchHomeContent
         featuredProducts={featuredProducts}
+        instagramImages={instagramImages}
         categories={categories}
         banners={banners}
         announcementText={announcementText}
