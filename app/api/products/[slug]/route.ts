@@ -24,11 +24,10 @@ export async function GET(
   const recommendations = await getProductRecommendations(product, 6)
 
   // `related` stays for backward compatibility with the existing product
-  // page UI: same-category first, then same-collection, then bestsellers,
-  // capped at 6 — each section already excludes the ones before it.
+  // page UI: same-category first, then bestsellers, capped at 6 — each
+  // section already excludes the ones before it.
   const related = [
     ...recommendations.same_category,
-    ...recommendations.same_collection,
     ...recommendations.best_sellers,
   ].slice(0, 6)
 
@@ -46,7 +45,6 @@ export async function GET(
     related: related.map(attachRating),
     recommendations: {
       same_category: recommendations.same_category.map(attachRating),
-      same_collection: recommendations.same_collection.map(attachRating),
       frequently_bought_together: recommendations.frequently_bought_together.map(attachRating),
       best_sellers: recommendations.best_sellers.map(attachRating),
       new_arrivals: recommendations.new_arrivals.map(attachRating),

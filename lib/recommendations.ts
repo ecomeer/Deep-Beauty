@@ -46,42 +46,6 @@ export async function getSameCategoryProducts(
   return withSalePrice((data || []) as RawProduct[], flashSales)
 }
 
-/** Other active, in-stock products that belong to any collection this product is in. */
-export async function getSameCollectionProducts(
-  productId: string,
-  excludeIds: string[],
-  limit = 6
-): Promise<Product[]> {
-  const { data: memberships } = await supabaseAdmin
-    .from('collection_products')
-    .select('collection_id')
-    .eq('product_id', productId)
-
-  const collectionIds = (memberships || []).map((m) => m.collection_id)
-  if (collectionIds.length === 0) return []
-
-  const { data: links } = await supabaseAdmin
-    .from('collection_products')
-    .select('product_id')
-    .in('collection_id', collectionIds)
-    .not('product_id', 'in', `(${excludeIds.join(',') || '00000000-0000-0000-0000-000000000000'})`)
-
-  const candidateIds = Array.from(new Set((links || []).map((l) => l.product_id)))
-  if (candidateIds.length === 0) return []
-
-  const [{ data }, flashSales] = await Promise.all([
-    supabaseAdmin
-      .from('products')
-      .select(PRODUCT_COLUMNS)
-      .in('id', candidateIds)
-      .match(ACTIVE_IN_STOCK)
-      .gt('stock_quantity', 0)
-      .limit(limit),
-    getActiveFlashSales(),
-  ])
-  return withSalePrice((data || []) as RawProduct[], flashSales)
-}
-
 /** Real order-history bestsellers, falling back to featured products (see get_bestseller_products RPC). */
 export async function getBestSellers(excludeIds: string[] = [], limit = 6): Promise<Product[]> {
   const [{ data }, flashSales] = await Promise.all([
@@ -147,7 +111,6 @@ export async function getProductRatings(productIds: string[]): Promise<Record<st
 
 export interface ProductRecommendations {
   same_category: Product[]
-  same_collection: Product[]
   frequently_bought_together: Product[]
   best_sellers: Product[]
   new_arrivals: Product[]
@@ -157,16 +120,16 @@ export interface ProductRecommendations {
  * Full sectioned recommendation set for a product detail page. Every
  * section already excludes the current product, and each subsequent
  * section also excludes anything already shown in an earlier section so
- * the same product doesn't repeat across rails.
+ * the same product doesn't repeat across rails. Bundle "collection"
+ * products live under the same category as any other product, so viewing
+ * one naturally surfaces the other bundles via same_category — no
+ * separate collection concept needed.
  */
 export async function getProductRecommendations(product: { id: string; category?: string | null }, limitPerSection = 6): Promise<ProductRecommendations> {
   const exclude = [product.id]
 
   const same_category = await getSameCategoryProducts(product.category, exclude, limitPerSection)
   exclude.push(...same_category.map((p) => p.id))
-
-  const same_collection = await getSameCollectionProducts(product.id, exclude, limitPerSection)
-  exclude.push(...same_collection.map((p) => p.id))
 
   const frequently_bought_together = await getFrequentlyBoughtTogether([product.id], exclude, 4, product.category)
   exclude.push(...frequently_bought_together.map((p) => p.id))
@@ -176,5 +139,5 @@ export async function getProductRecommendations(product: { id: string; category?
 
   const new_arrivals = await getNewArrivals(exclude, limitPerSection)
 
-  return { same_category, same_collection, frequently_bought_together, best_sellers, new_arrivals }
+  return { same_category, frequently_bought_together, best_sellers, new_arrivals }
 }

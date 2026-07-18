@@ -15,7 +15,6 @@ import {
   MegaphoneIcon,
   EnvelopeIcon,
   Squares2X2Icon,
-  RectangleGroupIcon,
   PhotoIcon,
   StarIcon,
   ChartBarIcon,
@@ -48,7 +47,6 @@ const NAV_GROUPS: { label: string; links: { href: string; icon: React.ElementTyp
     links: [
       { href: '/admin/products',   icon: ShoppingBagIcon, label: 'المنتجات', permission: 'products' },
       { href: '/admin/categories', icon: Squares2X2Icon,  label: 'الفئات',   permission: 'products' },
-      { href: '/admin/collections', icon: RectangleGroupIcon, label: 'المجموعات', permission: 'products' },
       { href: '/admin/banners',    icon: PhotoIcon,        label: 'البنرات',  permission: 'products' },
       { href: '/admin/reviews',    icon: StarIcon,         label: 'التقييمات', permission: 'reviews' },
     ],
