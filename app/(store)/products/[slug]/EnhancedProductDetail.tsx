@@ -38,7 +38,7 @@ const BASE_TRUST = [
 // ─── Loading Skeleton ──────────────────────────────────────────────────────
 function ProductSkeleton() {
   return (
-    <div className="min-h-screen bg-[var(--off-white)] pt-[var(--nav-height)]">
+    <div className="min-h-screen bg-surface pt-[var(--nav-height)]">
       <div className="max-w-[var(--container-max)] mx-auto px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <div className="skeleton aspect-square rounded-3xl" />
@@ -120,9 +120,9 @@ export default function EnhancedProductDetail() {
       duration: 2500,
       position: 'bottom-center',
       style: {
-        background: '#3a2a1e',
+        background: 'var(--on-surface)',
         color: 'white',
-        borderRadius: '12px',
+        borderRadius: 'var(--radius-md)',
       },
     })
     setTimeout(() => setAddingToCart(false), 1500)
@@ -183,9 +183,9 @@ export default function EnhancedProductDetail() {
   if (loading) return <ProductSkeleton />
 
   if (!product) return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-[var(--off-white)]" style={{ paddingTop: 'var(--nav-height)' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-surface pt-[var(--nav-height)]">
       <div className="text-6xl">🌸</div>
-      <h2 className="text-2xl font-bold text-[var(--text-dark)]">المنتج غير موجود</h2>
+      <h2 className="text-2xl font-bold text-on-surface">المنتج غير موجود</h2>
       <Link
         href="/products"
         className="px-6 py-3 rounded-xl text-white font-medium transition-opacity hover:opacity-90 bg-primary"
@@ -210,15 +210,14 @@ export default function EnhancedProductDetail() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--off-white)]"
-      style={{ paddingTop: 'var(--nav-height)' }}
+      className="min-h-screen bg-surface pt-[var(--nav-height)]"
     >
       {/* ─── Breadcrumb ─── */}
       <nav
         aria-label="مسار التنقل"
         className="max-w-[var(--container-max)] mx-auto px-4 sm:px-6 py-3"
       >
-        <ol className="flex items-center gap-2 text-xs text-[var(--on-surface-variant)] flex-wrap">
+        <ol className="flex items-center gap-2 text-xs text-on-surface-variant flex-wrap">
           {[
             { href: '/', label: 'الرئيسية' },
             { href: '/products', label: 'المنتجات' },
@@ -226,14 +225,14 @@ export default function EnhancedProductDetail() {
           ].map(({ href, label }, i) => (
             <li key={href} className="flex items-center gap-2">
               {i > 0 && <ArrowRightIcon className="w-3 h-3 rotate-180 opacity-60" aria-hidden="true" />}
-              <Link href={href} className="hover:text-[var(--primary)] transition-colors">
+              <Link href={href} className="hover:text-primary transition-colors">
                 {label}
               </Link>
             </li>
           ))}
           <li className="flex items-center gap-2">
             <ArrowRightIcon className="w-3 h-3 rotate-180 opacity-60" aria-hidden="true" />
-            <span className="text-[var(--text-dark)] font-medium truncate max-w-[200px]">
+            <span className="text-on-surface font-medium truncate max-w-[200px]">
               {product.name_ar}
             </span>
           </li>
@@ -253,8 +252,7 @@ export default function EnhancedProductDetail() {
           >
             {/* Main Image */}
             <div
-              className="relative rounded-3xl overflow-hidden aspect-square bg-gradient-to-br cursor-zoom-in select-none"
-              style={{ background: 'linear-gradient(135deg, var(--beige), var(--dark-beige))' }}
+              className="relative rounded-3xl overflow-hidden aspect-square bg-gradient-to-br cursor-zoom-in select-none beige-gradient"
               onClick={() => setIsZoomed(v => !v)}
               role="button"
               aria-label={isZoomed ? 'تصغير الصورة' : 'تكبير الصورة'}
@@ -279,7 +277,7 @@ export default function EnhancedProductDetail() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <SparklesIcon className="w-24 h-24 opacity-20 text-[var(--primary)]" />
+                      <SparklesIcon className="w-24 h-24 opacity-20 text-primary" />
                     </div>
                   )}
                 </motion.div>
@@ -310,15 +308,12 @@ export default function EnhancedProductDetail() {
                     onClick={() => { setSelectedImage(i); setIsZoomed(false) }}
                     aria-label={`صورة ${i + 1}`}
                     aria-pressed={selectedImage === i}
-                    className={`relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border-2 transition-all`}
-                    style={{
-                      borderColor: selectedImage === i ? 'var(--primary)' : 'transparent',
-                      boxShadow: selectedImage === i ? '0 0 0 3px rgba(139,94,60,0.2)' : 'none',
-                    }}
+                    className={`relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border-2 transition-all ${
+                      selectedImage === i ? 'border-primary ring-[3px] ring-primary/20' : 'border-transparent'
+                    }`}
                   >
                     <div
-                      className="absolute inset-0"
-                      style={{ background: 'linear-gradient(135deg, var(--beige), var(--dark-beige))' }}
+                      className="absolute inset-0 beige-gradient"
                     >
                       {img && (
                         <Image src={img} alt="" fill sizes="80px" className="object-cover" />
@@ -342,8 +337,7 @@ export default function EnhancedProductDetail() {
               {product.category && (
                 <Link
                   href={`/products?category=${encodeURIComponent(product.category)}`}
-                  className="px-3 py-1 rounded-full text-xs font-medium transition-colors"
-                  style={{ background: 'var(--beige)', color: 'var(--primary)' }}
+                  className="px-3 py-1 rounded-full text-xs font-medium transition-colors bg-beige text-primary"
                 >
                   {product.category}
                 </Link>
@@ -364,12 +358,12 @@ export default function EnhancedProductDetail() {
             {/* Title */}
             <div>
               <h1
-                className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-1 font-headline text-[var(--text-dark)]"
+                className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-1 font-headline text-on-surface"
               >
                 {product.name_ar}
               </h1>
               {product.name_en && (
-                <p className="text-sm font-medium text-[var(--on-surface-variant)]">
+                <p className="text-sm font-medium text-on-surface-variant">
                   {product.name_en}
                 </p>
               )}
@@ -382,8 +376,8 @@ export default function EnhancedProductDetail() {
                   <StarIcon key={i} className="w-4 h-4 text-amber-400" />
                 ))}
               </div>
-              <span className="text-sm font-medium text-[var(--text-dark)]">4.9</span>
-              <span className="text-sm text-[var(--on-surface-variant)]">(+١٢٠ تقييم)</span>
+              <span className="text-sm font-medium text-on-surface">4.9</span>
+              <span className="text-sm text-on-surface-variant">(+١٢٠ تقييم)</span>
             </div>
 
             {/* Price */}
@@ -408,21 +402,20 @@ export default function EnhancedProductDetail() {
 
             {/* Trust Features */}
             <div
-              className="grid grid-cols-3 gap-3 py-4 border-y"
-              style={{ borderColor: 'var(--beige)' }}
+              className="grid grid-cols-3 gap-3 py-4 border-y border-beige"
             >
               {TRUST.map((f, i) => (
                 <div key={i} className="text-center">
-                  <f.Icon className="w-5 h-5 mx-auto mb-1.5 text-[var(--primary)]" />
-                  <p className="text-xs font-semibold text-[var(--text-dark)]">{f.title}</p>
-                  <p className="text-[10px] text-[var(--on-surface-variant)] mt-0.5">{f.desc}</p>
+                  <f.Icon className="w-5 h-5 mx-auto mb-1.5 text-primary" />
+                  <p className="text-xs font-semibold text-on-surface">{f.title}</p>
+                  <p className="text-[10px] text-on-surface-variant mt-0.5">{f.desc}</p>
                 </div>
               ))}
             </div>
 
             {/* Short Description */}
             {product.description_ar && (
-              <p className="text-sm leading-relaxed text-[var(--on-surface-variant)]">
+              <p className="text-sm leading-relaxed text-on-surface-variant">
                 {product.description_ar.slice(0, 180)}
                 {product.description_ar.length > 180 && '...'}
               </p>
@@ -458,21 +451,20 @@ export default function EnhancedProductDetail() {
 
             {/* Quantity */}
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-[var(--text-dark)]">الكمية:</span>
+              <span className="text-sm font-medium text-on-surface">الكمية:</span>
               <div
-                className="inline-flex items-center rounded-xl border overflow-hidden"
-                style={{ borderColor: 'var(--dark-beige)' }}
+                className="inline-flex items-center rounded-xl border overflow-hidden border-dark-beige"
               >
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
                   disabled={quantity <= 1}
                   aria-label="تقليل الكمية"
-                  className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-[var(--beige)] disabled:opacity-30"
+                  className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-beige disabled:opacity-30"
                 >
-                  <MinusIcon className="w-4 h-4 text-[var(--text-dark)]" />
+                  <MinusIcon className="w-4 h-4 text-on-surface" />
                 </motion.button>
-                <span className="w-12 text-center font-bold text-[var(--text-dark)]">
+                <span className="w-12 text-center font-bold text-on-surface">
                   {quantity}
                 </span>
                 <motion.button
@@ -480,9 +472,9 @@ export default function EnhancedProductDetail() {
                   onClick={() => setQuantity(q => Math.min(product.stock_quantity, q + 1))}
                   disabled={quantity >= product.stock_quantity}
                   aria-label="زيادة الكمية"
-                  className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-[var(--beige)] disabled:opacity-30"
+                  className="w-10 h-10 flex items-center justify-center transition-colors hover:bg-beige disabled:opacity-30"
                 >
-                  <PlusIcon className="w-4 h-4 text-[var(--text-dark)]" />
+                  <PlusIcon className="w-4 h-4 text-on-surface" />
                 </motion.button>
               </div>
             </div>
@@ -531,12 +523,12 @@ export default function EnhancedProductDetail() {
                 className={`w-14 rounded-xl border-2 flex items-center justify-center transition-all ${
                   isWishlisted
                     ? 'border-rose-400 bg-rose-50'
-                    : 'border-[var(--beige)] hover:border-rose-300'
+                    : 'border-beige hover:border-rose-300'
                 }`}
               >
                 {isWishlisted
                   ? <HeartSolid className="w-6 h-6 text-rose-500" />
-                  : <HeartIcon className="w-6 h-6 text-[var(--on-surface-variant)]" />
+                  : <HeartIcon className="w-6 h-6 text-on-surface-variant" />
                 }
               </motion.button>
 
@@ -545,9 +537,9 @@ export default function EnhancedProductDetail() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="مشاركة المنتج"
-                className="w-14 rounded-xl border-2 border-[var(--beige)] flex items-center justify-center hover:border-[var(--primary)] transition-all"
+                className="w-14 rounded-xl border-2 border-beige flex items-center justify-center hover:border-primary transition-all"
               >
-                <ShareIcon className="w-6 h-6 text-[var(--on-surface-variant)]" />
+                <ShareIcon className="w-6 h-6 text-on-surface-variant" />
               </motion.button>
             </div>
 
@@ -585,8 +577,7 @@ export default function EnhancedProductDetail() {
         <div className="mt-12">
           {/* Tab Headers */}
           <div
-            className="flex border-b"
-            style={{ borderColor: 'var(--beige)' }}
+            className="flex border-b border-beige"
             role="tablist"
             aria-label="تفاصيل المنتج"
           >
@@ -599,8 +590,8 @@ export default function EnhancedProductDetail() {
                 onClick={() => setActiveTab(tab)}
                 className={`px-5 py-3.5 text-sm font-medium transition-all border-b-2 -mb-px ${
                   activeTab === tab
-                    ? 'border-[var(--primary)] text-[var(--primary)]'
-                    : 'border-transparent text-[var(--on-surface-variant)] hover:text-[var(--text-dark)]'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-on-surface-variant hover:text-on-surface'
                 }`}
               >
                 {label}
@@ -618,7 +609,7 @@ export default function EnhancedProductDetail() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
-              className="py-7 text-[var(--on-surface-variant)]"
+              className="py-7 text-on-surface-variant"
             >
               {activeTab === 'desc' && (
                 <div className="space-y-4 max-w-2xl">
@@ -628,7 +619,7 @@ export default function EnhancedProductDetail() {
                   <ul className="space-y-2 mt-4">
                     {['مناسب لجميع أنواع البشرة', 'خالٍ من البارابين والسلفات', 'لم يُختبر على الحيوانات', 'تغليف صديق للبيئة', 'مُختبر طبياً'].map(item => (
                       <li key={item} className="flex items-center gap-2.5 text-sm">
-                        <CheckIcon className="w-4 h-4 text-[var(--primary)] flex-shrink-0" />
+                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0" />
                         {item}
                       </li>
                     ))}
@@ -645,8 +636,7 @@ export default function EnhancedProductDetail() {
                     {['ماء', 'جلسرين', 'زيت الأرغان', 'فيتامين E', 'مستخلص الصبار', 'زيت جوز الهند', 'نياسيناميد'].map(ing => (
                       <span
                         key={ing}
-                        className="px-3 py-1.5 rounded-full text-xs font-medium"
-                        style={{ background: 'var(--beige)', color: 'var(--primary)' }}
+                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-beige text-primary"
                       >
                         {ing}
                       </span>
@@ -680,7 +670,7 @@ export default function EnhancedProductDetail() {
         </div>
 
         {/* ─── Reviews ─── */}
-        <div className="mt-8 border-t pt-12" style={{ borderColor: 'var(--beige)' }}>
+        <div className="mt-8 border-t pt-12 border-beige">
           <ProductReviews productId={product.id} />
         </div>
 

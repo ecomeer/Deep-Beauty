@@ -83,7 +83,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       </h2>
 
       {reviews.length > 0 && (
-        <div className="flex items-center gap-4 mb-8 p-4 rounded-xl bg-[var(--beige)]">
+        <div className="flex items-center gap-4 mb-8 p-4 rounded-xl bg-beige">
           <div className="text-4xl font-bold text-primary">
             {averageRating.toFixed(1)}
           </div>
@@ -103,8 +103,8 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
       {loading ? (
         <div className="animate-pulse space-y-4">
-          <div className="h-20 rounded-xl bg-[var(--beige)]" />
-          <div className="h-20 rounded-xl bg-[var(--beige)]" />
+          <div className="h-20 rounded-xl bg-beige" />
+          <div className="h-20 rounded-xl bg-beige" />
         </div>
       ) : reviews.length === 0 ? (
         <p className="text-center py-8 opacity-60">
@@ -115,7 +115,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="p-4 rounded-xl bg-[var(--off-white)]"
+              className="p-4 rounded-xl bg-surface"
             >
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex gap-0.5">
@@ -144,7 +144,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       )}
 
       {showForm && !submitted && (
-        <form onSubmit={handleSubmit} className="p-6 rounded-xl bg-[var(--off-white)]">
+        <form onSubmit={handleSubmit} className="p-6 rounded-xl bg-surface">
           <h3 className="font-bold mb-4">أضف تقييمك</h3>
 
           <div className="space-y-4">
@@ -213,7 +213,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       )}
 
       {submitted && (
-        <div className="p-6 rounded-xl text-center bg-[var(--beige)]">
+        <div className="p-6 rounded-xl text-center bg-beige">
           <p className="text-lg mb-2">✅ شكراً لك!</p>
           <p className="text-sm opacity-70">تم إرسال تقييمك وهو قيد المراجعة</p>
         </div>

@@ -76,7 +76,7 @@ export default function ProductsClientShell({
 
           {/* Search */}
           <div className="relative flex-1 min-w-[180px] max-w-xs">
-            <MagnifyingGlassIcon className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--on-surface-variant)]" />
+            <MagnifyingGlassIcon className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
             <input
               type="search"
               value={search}
@@ -147,7 +147,7 @@ export default function ProductsClientShell({
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="text-xs font-medium text-[var(--primary)] hover:underline flex-shrink-0 px-2"
+              className="text-xs font-medium text-primary hover:underline flex-shrink-0 px-2"
             >
               مسح الكل
             </button>
@@ -155,7 +155,7 @@ export default function ProductsClientShell({
 
           {/* Product Count */}
           <span
-            className="ms-auto text-xs font-medium flex-shrink-0 text-[var(--on-surface-variant)]"
+            className="ms-auto text-xs font-medium flex-shrink-0 text-on-surface-variant"
             aria-live="polite"
           >
             {filtered.length} منتج
@@ -218,13 +218,13 @@ export default function ProductsClientShell({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="text-center py-24 bg-white rounded-2xl shadow-sm border border-[var(--beige)]"
+            className="text-center py-24 bg-white rounded-2xl shadow-sm border border-beige"
           >
             <div className="text-6xl mb-4" aria-hidden="true">🌿</div>
-            <p className="text-xl font-bold mb-2 text-[var(--text-dark)]">
+            <p className="text-xl font-bold mb-2 text-on-surface">
               {search ? `لا نتائج لـ "${search}"` : 'لا توجد منتجات'}
             </p>
-            <p className="text-sm text-[var(--on-surface-variant)] mb-6">
+            <p className="text-sm text-on-surface-variant mb-6">
               {search ? 'جربي كلمة بحث مختلفة' : 'جربي فئة مختلفة'}
             </p>
             {hasActiveFilters && (

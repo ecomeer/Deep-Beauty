@@ -88,7 +88,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
 
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Image */}
-          <div className="relative aspect-square md:aspect-auto md:h-full" style={{ background: 'var(--beige)', minHeight: '300px' }}>
+          <div className="relative aspect-square md:aspect-auto md:h-full bg-beige min-h-[300px]">
             {product.images?.[0] ? (
               <Image
                 src={product.images[0]}
@@ -147,7 +147,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: Props) {
             {product.stock_quantity > 0 && (
               <div className="flex items-center gap-4 mb-6">
                 <span className="text-sm font-medium">الكمية:</span>
-                <div className="flex items-center gap-2 border rounded-xl p-1" style={{ borderColor: 'var(--dark-beige)' }}>
+                <div className="flex items-center gap-2 border rounded-xl p-1 border-dark-beige">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="w-8 h-8 rounded-lg hover:bg-gray-50 flex items-center justify-center"

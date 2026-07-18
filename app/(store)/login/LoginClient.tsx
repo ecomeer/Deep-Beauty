@@ -93,7 +93,7 @@ export default function LoginClient() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
                   placeholder="your@email.com"
                   dir="ltr"
                 />
@@ -112,7 +112,7 @@ export default function LoginClient() {
                   required
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
                   placeholder="••••••••"
                   dir="ltr"
                 />
@@ -128,7 +128,7 @@ export default function LoginClient() {
 
             {/* Forgot Password */}
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm text-[var(--primary)] hover:underline">
+              <Link href="/forgot-password" className="text-sm text-primary hover:underline">
                 نسيتِ كلمة المرور؟
               </Link>
             </div>
@@ -139,7 +139,7 @@ export default function LoginClient() {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-[var(--primary)] text-white rounded-xl font-bold hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -190,7 +190,7 @@ export default function LoginClient() {
             {/* Register Link */}
             <p className="text-center text-sm text-gray-600">
               ليس لديكِ حساب؟{' '}
-              <Link href="/register" className="text-[var(--primary)] font-bold hover:underline">
+              <Link href="/register" className="text-primary font-bold hover:underline">
                 سجلي الآن
               </Link>
             </p>

@@ -89,14 +89,14 @@ function SectionHeader({
   href?: string
   dark?: boolean
 }) {
-  const accent = dark ? 'text-[var(--primary-light)]' : 'text-primary'
+  const accent = dark ? 'text-primary-light' : 'text-primary'
   return (
     <div className="px-4 mb-5 flex items-center justify-between">
       <div className="text-right">
         <span className={`text-xs font-bold uppercase tracking-[0.14em] block mb-0.5 ${accent}`}>
           {eyebrow}
         </span>
-        <h2 className={`text-xl font-bold font-headline ${dark ? 'text-white' : 'text-[var(--text-dark)]'}`}>
+        <h2 className={`text-xl font-bold font-headline ${dark ? 'text-white' : 'text-on-surface'}`}>
           {title}
         </h2>
       </div>
@@ -158,7 +158,7 @@ function MobileProductCard({
         style={{ background: cardBg, border: cardBorder }}
       >
         {/* ── Image ── */}
-        <div className="relative aspect-square overflow-hidden bg-[var(--beige)]">
+        <div className="relative aspect-square overflow-hidden bg-beige">
           {product.images?.[0] ? (
             <Image
               src={product.images[0]}
@@ -171,7 +171,7 @@ function MobileProductCard({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <SparklesIcon className="w-10 h-10 opacity-20 text-[var(--primary)]" />
+              <SparklesIcon className="w-10 h-10 opacity-20 text-primary" />
             </div>
           )}
 
@@ -469,7 +469,7 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           3. TRUST BAR — REASSURANCE RIGHT AFTER HERO
       ═══════════════════════════════════════ */}
-      <section className="py-8 bg-white border-b border-[var(--beige)]">
+      <section className="py-8 bg-white border-b border-beige">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6">
           {TRUST.map(({ Icon, title, desc }, i) => (
             <FadeUp
@@ -479,12 +479,12 @@ export default function StitchHomeContent({
               className="flex flex-col items-center text-center gap-2"
             >
               <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[var(--beige)]"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-beige"
               >
-                <Icon className="w-6 h-6 text-[var(--primary)]" />
+                <Icon className="w-6 h-6 text-primary" />
               </div>
-              <p className="text-xs font-bold text-[var(--text-dark)]">{title}</p>
-              <p className="text-xs text-[var(--on-surface-variant)]">{desc}</p>
+              <p className="text-xs font-bold text-on-surface">{title}</p>
+              <p className="text-xs text-on-surface-variant">{desc}</p>
             </FadeUp>
           ))}
         </div>
@@ -515,7 +515,7 @@ export default function StitchHomeContent({
                 </div>
               ))}
             </div>
-            <span className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-full text-xs font-bold text-[var(--primary-dark)] bg-white shadow transition-transform group-hover:scale-105">
+            <span className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-full text-xs font-bold text-primary-dark bg-white shadow transition-transform group-hover:scale-105">
               تصفّحي العروض
               <ArrowLeftIcon className="w-3 h-3" />
             </span>
@@ -543,7 +543,7 @@ export default function StitchHomeContent({
                 <Link
                   href={`/products?category=${encodeURIComponent(cat.slug)}`}
                   aria-label={`تصفح فئة ${cat.name_ar}`}
-                  className="group block relative rounded-2xl overflow-hidden aspect-[3/4] bg-[var(--beige)]"
+                  className="group block relative rounded-2xl overflow-hidden aspect-[3/4] bg-beige"
                 >
                   {/* Image */}
                   {cat.image_url && (
@@ -599,8 +599,8 @@ export default function StitchHomeContent({
           <div
             className="mx-6 py-16 rounded-[2rem] flex flex-col items-center justify-center gap-3 bg-white"
           >
-            <ShoppingBagIcon className="w-12 h-12 text-[var(--primary)] opacity-20" />
-            <p className="text-sm text-[var(--on-surface-variant)]">المنتجات تُضاف قريباً ✨</p>
+            <ShoppingBagIcon className="w-12 h-12 text-primary opacity-20" />
+            <p className="text-sm text-on-surface-variant">المنتجات تُضاف قريباً ✨</p>
           </div>
         ) : (
           /* Slider with right-side edge fade */
@@ -635,12 +635,12 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           5.5. SKINCARE ROUTINE — 3 STEPS
       ═══════════════════════════════════════ */}
-      <section className="py-10 bg-white border-t border-[var(--beige)]">
+      <section className="py-10 bg-white border-t border-beige">
         <div className="px-6 mb-8 text-right">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ روتينك اليومي
           </span>
-          <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
+          <h2 className="text-xl font-bold font-headline text-on-surface">
             ٣ خطوات لبشرة مشرقة
           </h2>
         </div>
@@ -654,16 +654,16 @@ export default function StitchHomeContent({
               className="flex items-start gap-4 text-right"
             >
               <div className="relative flex-shrink-0">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[var(--beige)]">
-                  <Icon className="w-6 h-6 text-[var(--primary)]" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-beige">
+                  <Icon className="w-6 h-6 text-primary" />
                 </div>
                 <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shadow">
                   {step}
                 </span>
               </div>
               <div className="pt-1">
-                <p className="text-sm font-bold text-[var(--text-dark)] mb-1">{title}</p>
-                <p className="text-xs leading-relaxed text-[var(--on-surface-variant)]">{desc}</p>
+                <p className="text-sm font-bold text-on-surface mb-1">{title}</p>
+                <p className="text-xs leading-relaxed text-on-surface-variant">{desc}</p>
               </div>
             </FadeUp>
           ))}
@@ -672,7 +672,7 @@ export default function StitchHomeContent({
         <div className="px-6 mt-6">
           <Link
             href="/products"
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-primary border border-[var(--beige)] hover:bg-[var(--off-white)] transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-primary border border-beige hover:bg-surface transition-colors"
           >
             تسوّقي منتجات الروتين
             <ArrowLeftIcon className="w-3.5 h-3.5" />
@@ -698,7 +698,7 @@ export default function StitchHomeContent({
             {/* RIGHT col (RTL first): Text */}
             <div className="p-6 text-right flex flex-col justify-center gap-3">
               <span
-                className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--primary-light)]"
+                className="text-xs font-bold uppercase tracking-[0.16em] text-primary-light"
               >
                 ✦ عرض حصري
               </span>
@@ -770,7 +770,7 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           7.5. CERTIFICATIONS BAR
       ═══════════════════════════════════════ */}
-      <section className="py-8 bg-[var(--off-white)] border-y border-[var(--beige)]">
+      <section className="py-8 bg-surface border-y border-beige">
         <div className="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
           {CERTS.map(({ Icon, label }, i) => (
             <FadeUp
@@ -779,10 +779,10 @@ export default function StitchHomeContent({
               delay={i * 0.08}
               className="flex-shrink-0 snap-start flex items-center gap-2.5"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[var(--beige)]">
-                <Icon className="w-5 h-5 text-[var(--primary)]" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-beige">
+                <Icon className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-xs font-bold text-[var(--text-dark)] whitespace-nowrap">{label}</span>
+              <span className="text-xs font-bold text-on-surface whitespace-nowrap">{label}</span>
             </FadeUp>
           ))}
         </div>
@@ -796,10 +796,10 @@ export default function StitchHomeContent({
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ لماذا ديب بيوتي
           </span>
-          <h2 className="text-2xl font-bold font-headline text-[var(--text-dark)] mb-3">
+          <h2 className="text-2xl font-bold font-headline text-on-surface mb-3">
             جمال حقيقي من الأعماق
           </h2>
-          <p className="text-sm leading-relaxed text-[var(--on-surface-variant)] max-w-md">
+          <p className="text-sm leading-relaxed text-on-surface-variant max-w-md">
             نؤمن بأن العناية الحقيقية تبدأ من مكوّنات نقية ومعايير لا تقبل المساومة.
             كل منتج يمرّ برحلة بحث وتطوير دقيقة ليصل إليكِ بأعلى جودة.
           </p>
@@ -817,12 +817,12 @@ export default function StitchHomeContent({
               key={stat.label}
               duration={0.45}
               delay={i * 0.1}
-              className="text-center py-5 rounded-2xl border border-[var(--beige)] bg-[var(--off-white)]"
+              className="text-center py-5 rounded-2xl border border-beige bg-surface"
             >
               <span className="block text-2xl font-bold font-headline text-primary mb-1">
                 {stat.val}
               </span>
-              <span className="text-xs text-[var(--on-surface-variant)]">
+              <span className="text-xs text-on-surface-variant">
                 {stat.label}
               </span>
             </FadeUp>
@@ -836,13 +836,13 @@ export default function StitchHomeContent({
               key={title}
               duration={0.45}
               delay={i * 0.08}
-              className="p-4 rounded-2xl border border-[var(--beige)] bg-[var(--off-white)] text-right"
+              className="p-4 rounded-2xl border border-beige bg-surface text-right"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--beige)] mb-3">
-                <Icon className="w-5 h-5 text-[var(--primary)]" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-beige mb-3">
+                <Icon className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-sm font-bold text-[var(--text-dark)] mb-1">{title}</p>
-              <p className="text-xs leading-relaxed text-[var(--on-surface-variant)]">{desc}</p>
+              <p className="text-sm font-bold text-on-surface mb-1">{title}</p>
+              <p className="text-xs leading-relaxed text-on-surface-variant">{desc}</p>
             </FadeUp>
           ))}
         </div>
@@ -858,7 +858,7 @@ export default function StitchHomeContent({
           </Link>
           <Link
             href="/about"
-            className="inline-flex items-center px-5 py-3 rounded-full text-sm font-semibold text-[var(--text-dark)] transition-all border border-[var(--beige)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
+            className="inline-flex items-center px-5 py-3 rounded-full text-sm font-semibold text-on-surface transition-all border border-beige hover:border-primary hover:text-primary"
           >
             قصّتنا
           </Link>
@@ -868,15 +868,15 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           9. INSTAGRAM / SOCIAL PROOF
       ═══════════════════════════════════════ */}
-      <section className="py-10 bg-[var(--off-white)]">
+      <section className="py-10 bg-surface">
         <div className="px-6 mb-6 text-right">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ تابعينا
           </span>
-          <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
+          <h2 className="text-xl font-bold font-headline text-on-surface">
             الأكثر رواجاً على إنستغرام
           </h2>
-          <p className="text-xs mt-1.5 text-[var(--on-surface-variant)]">
+          <p className="text-xs mt-1.5 text-on-surface-variant">
             @deepbeautykw
           </p>
         </div>
@@ -888,10 +888,10 @@ export default function StitchHomeContent({
               href="https://www.instagram.com/deepbeautykw/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative aspect-square rounded-xl overflow-hidden bg-[var(--beige)]"
+              className="group relative aspect-square rounded-xl overflow-hidden bg-beige"
             >
               <div className="w-full h-full flex items-center justify-center">
-                <SparklesIcon className="w-8 h-8 text-[var(--primary)] opacity-20" />
+                <SparklesIcon className="w-8 h-8 text-primary opacity-20" />
               </div>
               <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
                 <IconInstagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -905,7 +905,7 @@ export default function StitchHomeContent({
             href="https://www.instagram.com/deepbeautykw/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-primary border border-[var(--beige)] hover:bg-white transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-primary border border-beige hover:bg-white transition-colors"
           >
             <IconInstagram className="w-4 h-4" />
             تابعينا على إنستغرام
@@ -964,7 +964,7 @@ export default function StitchHomeContent({
               <button
                 type="submit"
                 disabled={nlLoading}
-                className="px-5 py-3 rounded-xl text-sm font-bold text-white bg-primary hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
+                className="px-5 py-3 rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary-hover transition-colors disabled:opacity-50"
               >
                 {nlLoading ? '...' : 'اشتركي'}
               </button>

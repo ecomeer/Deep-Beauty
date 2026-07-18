@@ -54,7 +54,7 @@ export default function CountrySelector() {
               key={code}
               onClick={() => handleSelect(code as GulfCountry)}
               className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-right ${
-                selectedCountry === code ? 'bg-[var(--primary)]/5' : ''
+                selectedCountry === code ? 'bg-primary/5' : ''
               }`}
             >
               <img
@@ -63,7 +63,7 @@ export default function CountrySelector() {
                 className="w-8 h-5 object-cover rounded-sm flex-shrink-0"
               />
               <div className="flex-1 text-right">
-                <p className={`text-sm font-medium ${selectedCountry === code ? 'text-[var(--primary)]' : 'text-gray-800'}`}>
+                <p className={`text-sm font-medium ${selectedCountry === code ? 'text-primary' : 'text-gray-800'}`}>
                   {country.name_ar}
                 </p>
                 <p className="text-xs text-gray-500">
@@ -71,7 +71,7 @@ export default function CountrySelector() {
                 </p>
               </div>
               {selectedCountry === code && (
-                <div className="w-2 h-2 rounded-full bg-[var(--primary)]" />
+                <div className="w-2 h-2 rounded-full bg-primary" />
               )}
             </button>
           ))}

@@ -504,6 +504,10 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(135deg, var(--surface) 0%, var(--beige) 100%);
 }
 
+.beige-gradient {
+  background: linear-gradient(135deg, var(--beige), var(--dark-beige));
+}
+
 /* ==============================
    NAVBAR
 ============================== */

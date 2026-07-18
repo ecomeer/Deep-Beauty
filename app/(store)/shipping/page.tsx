@@ -8,7 +8,7 @@ export default function ShippingPage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-20">
       <h1
-        className="text-4xl font-bold mb-2 font-headline text-[var(--text-dark)]"
+        className="text-4xl font-bold mb-2 font-headline text-on-surface"
       >
         الشحن والاسترجاع
       </h1>
@@ -34,7 +34,7 @@ export default function ShippingPage() {
                 className="flex justify-between items-center px-5 py-3 rounded-xl"
                 style={{ background: 'white', border: '1px solid var(--beige)' }}
               >
-                <span className="font-bold text-[var(--text-dark)]">{row.country}</span>
+                <span className="font-bold text-on-surface">{row.country}</span>
                 <span>{row.time}</span>
                 <span className="text-primary">{row.price}</span>
               </div>

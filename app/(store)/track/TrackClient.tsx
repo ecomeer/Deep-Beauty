@@ -108,8 +108,8 @@ export default function TrackClient() {
     <div className="max-w-4xl mx-auto px-4 py-12">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-20 h-20 rounded-full bg-[var(--primary)]/10 flex items-center justify-center mx-auto mb-4">
-          <TruckIcon className="w-10 h-10 text-[var(--primary)]" />
+        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <TruckIcon className="w-10 h-10 text-primary" />
         </div>
         <h1 className="text-3xl font-bold mb-2 font-headline">
           تتبع طلبك
@@ -126,7 +126,7 @@ export default function TrackClient() {
               type="text"
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
               placeholder="مثال: DB-12345"
               dir="ltr"
             />
@@ -137,7 +137,7 @@ export default function TrackClient() {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
               placeholder="مثال: +965XXXXXXXX"
               dir="ltr"
             />
@@ -188,7 +188,7 @@ export default function TrackClient() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">الإجمالي</p>
-                  <p className="font-bold text-[var(--primary)]">{toArabicPrice(order.total)}</p>
+                  <p className="font-bold text-primary">{toArabicPrice(order.total)}</p>
                 </div>
               </div>
             </div>
@@ -209,7 +209,7 @@ export default function TrackClient() {
               {/* Progress Line */}
               <div className="absolute top-6 left-0 right-0 h-1 bg-gray-200 rounded-full">
                 <div 
-                  className="h-full bg-[var(--primary)] rounded-full transition-all duration-500"
+                  className="h-full bg-primary rounded-full transition-all duration-500"
                   style={{ width: `${(currentStep / (STATUS_STEPS.length - 1)) * 100}%` }}
                 />
               </div>
@@ -226,13 +226,13 @@ export default function TrackClient() {
                       <div 
                         className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all duration-300 ${
                           isCompleted 
-                            ? 'bg-[var(--primary)] text-white' 
+                            ? 'bg-primary text-white' 
                             : 'bg-gray-100 text-gray-400'
                         } ${isCurrent ? 'ring-4 ring-[var(--primary)]/20 scale-110' : ''}`}
                       >
                         <Icon className="w-6 h-6" />
                       </div>
-                      <span className={`text-xs font-medium ${isCompleted ? 'text-[var(--primary)]' : 'text-gray-400'}`}>
+                      <span className={`text-xs font-medium ${isCompleted ? 'text-primary' : 'text-gray-400'}`}>
                         {step.label}
                       </span>
                     </div>
@@ -253,8 +253,8 @@ export default function TrackClient() {
                     className={`flex gap-4 pb-4 ${index !== tracking.length - 1 ? 'border-b border-gray-100' : ''}`}
                   >
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
-                        <CheckCircleIcon className="w-5 h-5 text-[var(--primary)]" />
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <CheckCircleIcon className="w-5 h-5 text-primary" />
                       </div>
                     </div>
                     <div className="flex-1">
@@ -313,7 +313,7 @@ export default function TrackClient() {
       <div className="text-center mt-8">
         <Link 
           href="/"
-          className="inline-flex items-center gap-2 text-[var(--primary)] hover:underline"
+          className="inline-flex items-center gap-2 text-primary hover:underline"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           العودة للرئيسية

@@ -137,8 +137,8 @@ export default function EnhancedCartSidebar() {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#F5EBE0] flex items-center justify-center">
-                  <ShoppingBagIcon className="w-5 h-5 text-[var(--primary)]" />
+                <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center">
+                  <ShoppingBagIcon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">سلة التسوق</h2>
@@ -169,9 +169,9 @@ export default function EnhancedCartSidebar() {
                   <motion.div
                     animate={{ y: [0, -10, 0] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="w-24 h-24 rounded-full bg-[#F5EBE0] flex items-center justify-center"
+                    className="w-24 h-24 rounded-full bg-surface-container flex items-center justify-center"
                   >
-                    <ShoppingBagIcon className="w-12 h-12 text-[var(--primary)]/50" />
+                    <ShoppingBagIcon className="w-12 h-12 text-primary/50" />
                   </motion.div>
                   <div className="space-y-2">
                     <p className="text-xl font-bold text-gray-700">سلة التسوق فارغة</p>
@@ -214,8 +214,8 @@ export default function EnhancedCartSidebar() {
                               className="object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-[#F5EBE0] to-[#E8DED1]">
-                              <SparklesIcon className="w-8 h-8 text-[var(--primary)]/30" />
+                            <div className="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-surface-container to-beige">
+                              <SparklesIcon className="w-8 h-8 text-primary/30" />
                             </div>
                           )}
                         </Link>
@@ -227,11 +227,11 @@ export default function EnhancedCartSidebar() {
                             onClick={() => setIsOpen(false)}
                             className="block"
                           >
-                            <p className="font-semibold text-gray-900 truncate hover:text-[var(--primary)] transition-colors">
+                            <p className="font-semibold text-gray-900 truncate hover:text-primary transition-colors">
                               {item.name_ar}
                             </p>
                           </Link>
-                          <p className="text-sm text-[var(--primary)] font-medium mt-1" dir="ltr">
+                          <p className="text-sm text-primary font-medium mt-1" dir="ltr">
                             {formatPrice(item.price)}
                           </p>
                           
@@ -241,7 +241,7 @@ export default function EnhancedCartSidebar() {
                               whileTap={{ scale: 0.85 }}
                               onClick={() => item.quantity > 1 && updateQuantity(item.id, item.quantity - 1)}
                               disabled={item.quantity <= 1}
-                              className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors disabled:opacity-50"
+                              className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
                             >
                               <MinusIcon className="w-3 h-3" />
                             </motion.button>
@@ -249,7 +249,7 @@ export default function EnhancedCartSidebar() {
                             <motion.button
                               whileTap={{ scale: 0.85 }}
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
+                              className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
                             >
                               <PlusIcon className="w-3 h-3" />
                             </motion.button>
@@ -335,7 +335,7 @@ export default function EnhancedCartSidebar() {
                   </div>
                   <div className="flex justify-between text-lg font-bold pt-3 border-t border-gray-100">
                     <span>الإجمالي</span>
-                    <span className="text-[var(--primary)]" dir="ltr">{formatPrice(total)}</span>
+                    <span className="text-primary" dir="ltr">{formatPrice(total)}</span>
                   </div>
                 </div>
 
@@ -347,7 +347,7 @@ export default function EnhancedCartSidebar() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-4 bg-[var(--primary)] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[var(--primary-hover)] transition-colors shadow-lg hover:shadow-xl"
+                    className="w-full py-4 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary-hover transition-colors shadow-lg hover:shadow-xl"
                   >
                     إتمام الطلب
                     <ArrowRightIcon className="w-5 h-5" />

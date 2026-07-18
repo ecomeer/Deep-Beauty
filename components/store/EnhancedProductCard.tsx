@@ -166,7 +166,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
                 <p className="text-xs text-primary font-medium mb-1.5">{product.category}</p>
               )}
               <h3
-                className="font-bold text-base mb-1.5 leading-tight line-clamp-2 min-h-[2.5rem] font-headline text-[var(--text-dark)]"
+                className="font-bold text-base mb-1.5 leading-tight line-clamp-2 min-h-[2.5rem] font-headline text-on-surface"
               >
                 {product.name_ar}
               </h3>
@@ -195,7 +195,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : adding
                       ? 'bg-green-500 text-white'
-                      : 'bg-primary text-white hover:bg-[var(--primary-hover)]'
+                      : 'bg-primary text-white hover:bg-primary-hover'
                   }`}
                 >
                   {adding ? (
