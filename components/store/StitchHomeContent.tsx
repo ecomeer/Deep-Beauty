@@ -91,7 +91,7 @@ function SectionHeader({
 }) {
   const accent = dark ? 'text-primary-light' : 'text-primary'
   return (
-    <div className="px-4 mb-5 flex items-center justify-between">
+    <div className="px-4 md:px-8 mb-5 flex items-center justify-between lg:max-w-[var(--container-max)] lg:mx-auto">
       <div className="text-right">
         <span className={`text-xs font-bold uppercase tracking-[0.14em] block mb-0.5 ${accent}`}>
           {eyebrow}
@@ -148,14 +148,12 @@ function MobileProductCard({
     toast.success(isWishlisted ? 'أُزيل من المفضلة' : 'أُضيف للمفضلة ❤️', { position: 'bottom-center' })
   }
 
-  const cardBg    = darkMode ? 'rgba(255,255,255,0.06)' : 'white'
-  const cardBorder = darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid var(--beige)'
-
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <div
-        className="rounded-2xl overflow-hidden transition-all duration-300 group-hover:shadow-lg"
-        style={{ background: cardBg, border: cardBorder }}
+        className={`rounded-2xl overflow-hidden transition-all duration-300 group-hover:shadow-lg border ${
+          darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-beige'
+        }`}
       >
         {/* ── Image ── */}
         <div className="relative aspect-square overflow-hidden bg-beige">
@@ -205,10 +203,7 @@ function MobileProductCard({
 
         {/* ── Content ── */}
         <div className="p-3 text-right">
-          <h3
-            className="font-bold text-sm leading-snug line-clamp-2 mb-2"
-            style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : 'var(--text-dark)' }}
-          >
+          <h3 className={`font-bold text-sm leading-snug line-clamp-2 mb-2 ${darkMode ? 'text-white/90' : 'text-on-surface'}`}>
             {product.name_ar}
           </h3>
 
@@ -221,8 +216,7 @@ function MobileProductCard({
               )}
             </div>
             <span
-              className="text-sm font-bold"
-              style={{ color: darkMode ? 'var(--primary-light)' : 'var(--primary)' }}
+              className={`text-sm font-bold ${darkMode ? 'text-primary-light' : 'text-primary'}`}
               dir="ltr"
             >
               {formatPrice(displayPrice)}
@@ -234,7 +228,7 @@ function MobileProductCard({
             disabled={outOfStock || adding}
             aria-label={outOfStock ? 'نفذت الكمية' : `إضافة ${product.name_ar} للسلة`}
             className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all duration-200 disabled:cursor-not-allowed ${
-              outOfStock ? 'bg-[var(--dark-beige)]' : adding ? 'bg-green-500' : 'bg-primary'
+              outOfStock ? 'bg-dark-beige' : adding ? 'bg-green-500' : 'bg-primary'
             }`}
           >
             {adding
@@ -339,7 +333,7 @@ export default function StitchHomeContent({
   const activeCategories = categories.filter(c => c.is_active).slice(0, 6)
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--off-white)', paddingTop: 'var(--nav-height)' }}>
+    <div className="min-h-screen bg-surface pt-[var(--nav-height)]">
 
       {/* Visually hidden H1 for SEO */}
       <h1 className="sr-only">ديب بيوتي | متجر عناية فاخرة بالبشرة — منتجات طبيعية ١٠٠٪ من الكويت</h1>
@@ -352,8 +346,7 @@ export default function StitchHomeContent({
           role="banner"
           aria-live="polite"
           aria-atomic="true"
-          className="py-2.5 px-4 text-center text-xs tracking-widest font-bold text-white overflow-hidden"
-          style={{ background: 'linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-dark) 100%)' }}
+          className="py-2.5 px-4 text-center text-xs tracking-widest font-bold text-white overflow-hidden brand-gradient-x"
         >
           <span aria-hidden="true" className="opacity-60 mx-1">◆</span>
           <span className="mx-2">{announcementText}</span>
@@ -370,7 +363,7 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="px-3 pt-3 pb-2">
         <div
-          className="relative w-full rounded-[1.75rem] overflow-hidden aspect-[4/5] sm:aspect-[16/9]"
+          className="relative w-full rounded-[1.75rem] overflow-hidden aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] lg:max-w-[var(--container-max)] lg:mx-auto"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -378,8 +371,7 @@ export default function StitchHomeContent({
           {heroSlides.map((slide, i) => (
             <div
               key={i}
-              className="absolute inset-0 transition-opacity duration-500"
-              style={{ opacity: i === heroIndex ? 1 : 0, pointerEvents: i === heroIndex ? 'auto' : 'none' }}
+              className={`absolute inset-0 transition-opacity duration-500 ${i === heroIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             >
               {(slide as Banner | null)?.image_url ? (
                 <Image
@@ -392,32 +384,25 @@ export default function StitchHomeContent({
                   quality={85}
                 />
               ) : (
-                <div
-                  className="w-full h-full"
-                  style={{ background: 'linear-gradient(160deg, var(--beige) 0%, var(--dark-beige) 60%, var(--primary) 100%)' }}
-                />
+                <div className="w-full h-full hero-fallback-gradient" />
               )}
             </div>
           ))}
 
           {/* Gradient — stronger bottom veil */}
-          <div
-            className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to top, rgba(20,12,6,0.88) 0%, rgba(20,12,6,0.4) 45%, transparent 100%)' }}
-          />
+          <div className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none z-[1] hero-veil" />
 
           {/* Text overlay */}
           <div className="absolute bottom-10 right-4 left-4 z-[2] text-right">
-            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full" style={{ background: 'rgba(139,94,60,0.9)' }}>
+            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full bg-primary/90">
               <span className="text-xs font-bold tracking-[0.12em] uppercase text-white">✦ ديب بيوتي الكويت</span>
             </div>
             <h2
-              className="text-[2rem] sm:text-4xl font-bold text-white leading-[1.15] mb-2.5 font-headline"
-              style={{ textShadow: '0 2px 20px rgba(0,0,0,0.6)' }}
+              className="text-[2rem] sm:text-4xl lg:text-5xl font-bold text-white leading-[1.15] mb-2.5 font-headline text-shadow-strong"
             >
               {(heroSlides[heroIndex] as Banner | null)?.title_ar || 'جمالك يبدأ من الأعماق'}
             </h2>
-            <p className="text-[13px] text-white/80 mb-5 leading-relaxed max-w-[280px] mr-auto" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}>
+            <p className="text-[13px] sm:text-sm text-white/80 mb-5 leading-relaxed max-w-[280px] sm:max-w-sm mr-auto text-shadow-soft">
               {(heroSlides[heroIndex] as Banner | null)?.subtitle_ar || 'عناية فاخرة بالبشرة — منتجات طبيعية ١٠٠٪'}
             </p>
             <div className="flex items-center gap-2.5">
@@ -430,8 +415,7 @@ export default function StitchHomeContent({
               </Link>
               <Link
                 href="/about"
-                className="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
-                style={{ background: 'rgba(255,255,255,0.14)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.22)' }}
+                className="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-semibold text-white transition-all bg-white/15 backdrop-blur border border-white/20 hover:bg-white/25"
               >
                 من نحن
               </Link>
@@ -453,12 +437,9 @@ export default function StitchHomeContent({
                   aria-label={`الشريحة ${i + 1}${(slide as Banner | null)?.title_ar ? ': ' + (slide as Banner).title_ar : ''}`}
                   aria-selected={i === heroIndex}
                   aria-current={i === heroIndex ? 'true' : undefined}
-                  className="transition-all duration-300 bg-white rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-                  style={
-                    i === heroIndex
-                      ? { width: 20, height: 8, opacity: 1 }
-                      : { width: 8, height: 8, opacity: 0.4 }
-                  }
+                  className={`transition-all duration-300 bg-white rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white h-2 ${
+                    i === heroIndex ? 'w-5 opacity-100' : 'w-2 opacity-40'
+                  }`}
                 />
               ))}
             </div>
@@ -470,7 +451,7 @@ export default function StitchHomeContent({
           3. TRUST BAR — REASSURANCE RIGHT AFTER HERO
       ═══════════════════════════════════════ */}
       <section className="py-8 bg-white border-b border-beige">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 lg:max-w-[var(--container-max)] lg:mx-auto">
           {TRUST.map(({ Icon, title, desc }, i) => (
             <FadeUp
               key={title}
@@ -493,9 +474,9 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           3.5. OFFER COUNTDOWN TIMER
       ═══════════════════════════════════════ */}
-      <section className="px-4 py-6">
+      <section className="px-4 py-6 lg:max-w-[var(--container-max)] lg:mx-auto">
         <Link href="/offers" className="block group">
-          <div className="rounded-2xl p-5 text-center bg-gradient-to-r from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-dark)] shadow-lg">
+          <div className="rounded-2xl p-5 text-center bg-gradient-to-r from-primary-dark via-primary to-primary-dark shadow-lg">
             <div className="flex items-center justify-center gap-2 mb-2">
               <FireIcon className="w-5 h-5 text-amber-300" />
               <span className="text-xs font-bold uppercase tracking-widest text-white/80">عرض اليوم — ينتهي خلال</span>
@@ -531,14 +512,13 @@ export default function StitchHomeContent({
           <SectionHeader eyebrow="تسوّقي حسب الفئة" title="اكتشفي مجموعاتنا" linkLabel="الكل" />
 
           {/* Horizontal scroll — rectangular cards with image overlay */}
-          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 no-scrollbar lg:grid lg:grid-cols-6 lg:gap-5 lg:overflow-visible lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto">
             {activeCategories.map((cat, i) => (
               <FadeUp
                 key={cat.id}
                 duration={0.4}
                 delay={i * 0.07}
-                className="flex-shrink-0 snap-start"
-                style={{ width: '36vw', maxWidth: 148 }}
+                className="flex-shrink-0 snap-start w-[36vw] max-w-[148px] lg:w-auto lg:max-w-none"
               >
                 <Link
                   href={`/products?category=${encodeURIComponent(cat.slug)}`}
@@ -559,21 +539,18 @@ export default function StitchHomeContent({
                   )}
 
                   {/* Gradient overlay — always present for text readability */}
-                  <div
-                    className="absolute inset-0 transition-opacity duration-300"
-                    style={{ background: 'linear-gradient(to top, rgba(30,18,10,0.72) 0%, rgba(30,18,10,0.1) 55%, transparent 100%)' }}
-                  />
+                  <div className="absolute inset-0 transition-opacity duration-300 card-scrim" />
 
                   {/* Category label at bottom */}
                   <div className="absolute bottom-0 inset-x-0 p-3 text-right">
-                    <span className="text-white font-bold text-sm leading-tight block line-clamp-2" style={{ textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
+                    <span className="text-white font-bold text-sm leading-tight block line-clamp-2 text-shadow-soft">
                       {cat.name_ar}
                     </span>
                   </div>
 
                   {/* Hover glow border */}
                   <div
-                    className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-[var(--primary)] transition-all duration-300"
+                    className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-primary transition-all duration-300"
                   />
                 </Link>
               </FadeUp>
@@ -587,10 +564,7 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="py-8">
         {/* Accent line */}
-        <div
-          className="mx-4 mb-5 h-px"
-          style={{ background: 'linear-gradient(to left, var(--primary), transparent)' }}
-        />
+        <div className="mx-4 mb-5 h-px accent-line lg:max-w-[var(--container-max)] lg:mx-auto" />
 
         {/* Eyebrow + heading */}
         <SectionHeader eyebrow="✦ مختار بعناية" title="أبرز منتجاتنا" />
@@ -606,8 +580,7 @@ export default function StitchHomeContent({
           /* Slider with right-side edge fade */
           <div className="relative">
             <div
-              className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-1"
-              style={{ scrollbarWidth: 'none' }}
+              className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-1 no-scrollbar lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto"
               role="list"
               aria-label="المنتجات المختارة"
               tabIndex={0}
@@ -620,14 +593,13 @@ export default function StitchHomeContent({
               {featuredProducts.slice(0, 8).map((product) => (
                 <div
                   key={product.id}
-                  className="flex-shrink-0 snap-start"
-                  style={{ width: '42vw', maxWidth: '185px' }}
+                  className="flex-shrink-0 snap-start w-[42vw] max-w-[185px] lg:w-auto lg:max-w-none"
                 >
                   <MobileProductCard product={product} formatPrice={formatPrice} />
                 </div>
               ))}
             </div>
-            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none" style={{ background: 'linear-gradient(to left, var(--off-white), transparent)' }} />
+            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none edge-fade-surface lg:hidden" />
           </div>
         )}
       </section>
@@ -636,7 +608,7 @@ export default function StitchHomeContent({
           5.5. SKINCARE ROUTINE — 3 STEPS
       ═══════════════════════════════════════ */}
       <section className="py-10 bg-white border-t border-beige">
-        <div className="px-6 mb-8 text-right">
+        <div className="px-6 mb-8 text-right lg:max-w-[var(--container-max)] lg:mx-auto">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ روتينك اليومي
           </span>
@@ -645,7 +617,7 @@ export default function StitchHomeContent({
           </h2>
         </div>
 
-        <div className="flex flex-col gap-4 px-6">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-8 px-6 lg:max-w-[var(--container-max)] lg:mx-auto">
           {ROUTINE_STEPS.map(({ Icon, step, title, desc }, i) => (
             <FadeUp
               key={title}
@@ -669,7 +641,7 @@ export default function StitchHomeContent({
           ))}
         </div>
 
-        <div className="px-6 mt-6">
+        <div className="px-6 mt-6 lg:max-w-md lg:mx-auto">
           <Link
             href="/products"
             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-primary border border-beige hover:bg-surface transition-colors"
@@ -683,17 +655,12 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           6. MIDDLE BANNER — SPLIT CARD
       ═══════════════════════════════════════ */}
-      <section className="px-4 py-8">
+      <section className="px-4 py-8 lg:max-w-[var(--container-max)] lg:mx-auto">
         <Link href={midBannerLink} className="block group">
           <div
-            className="w-full rounded-[2rem] overflow-hidden transition-transform duration-300 group-hover:scale-[1.01]"
-            style={{
-              minHeight: '220px',
-              background: 'var(--text-dark)',
-              boxShadow: '0 16px 48px rgba(58,42,30,0.2)',
-              display: 'grid',
-              gridTemplateColumns: midBannerImg ? '1fr 1fr' : '1fr',
-            }}
+            className={`w-full min-h-[220px] rounded-[2rem] overflow-hidden transition-transform duration-300 group-hover:scale-[1.01] bg-on-surface shadow-xl grid ${
+              midBannerImg ? 'grid-cols-2' : 'grid-cols-1'
+            }`}
           >
             {/* RIGHT col (RTL first): Text */}
             <div className="p-6 text-right flex flex-col justify-center gap-3">
@@ -708,7 +675,7 @@ export default function StitchHomeContent({
               >
                 {midBannerTitle}
               </p>
-              <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              <p className="text-xs leading-relaxed text-white/55">
                 {midBannerSub}
               </p>
               <span
@@ -721,7 +688,7 @@ export default function StitchHomeContent({
 
             {/* LEFT col: Image (only renders when image exists) */}
             {midBannerImg && (
-              <div className="relative overflow-hidden rounded-l-[2rem]" style={{ minHeight: '220px' }}>
+              <div className="relative overflow-hidden rounded-l-[2rem] min-h-[220px]">
                 <Image
                   src={midBannerImg}
                   alt={midBannerTitle}
@@ -741,28 +708,28 @@ export default function StitchHomeContent({
           7. BESTSELLERS SLIDER — DARK BACKGROUND
       ═══════════════════════════════════════ */}
       {(bestsellersLoading || bestsellers.length > 0) && (
-        <section className="py-12 bg-[var(--text-dark)]">
+        <section className="py-12 bg-on-surface">
           {/* Eyebrow + heading */}
           <SectionHeader eyebrow="✦ الأعلى مبيعاً" title="الأكثر طلباً" dark />
 
           {/* Slider with edge fade */}
           <div className="relative">
-            <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-2" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-2 no-scrollbar lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto">
               {bestsellersLoading
                 ? Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex-shrink-0 snap-start animate-pulse" style={{ width: '42vw', maxWidth: '185px' }}>
-                      <div className="rounded-2xl aspect-square mb-2" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                      <div className="h-2.5 rounded w-3/4 mb-1.5" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                      <div className="h-2.5 rounded w-1/2" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    <div key={i} className="flex-shrink-0 snap-start animate-pulse w-[42vw] max-w-[185px] lg:w-auto lg:max-w-none">
+                      <div className="rounded-2xl aspect-square mb-2 bg-white/10" />
+                      <div className="h-2.5 rounded w-3/4 mb-1.5 bg-white/10" />
+                      <div className="h-2.5 rounded w-1/2 bg-white/10" />
                     </div>
                   ))
                 : bestsellers.map((product) => (
-                    <div key={product.id} className="flex-shrink-0 snap-start" style={{ width: '42vw', maxWidth: '185px' }}>
+                    <div key={product.id} className="flex-shrink-0 snap-start w-[42vw] max-w-[185px] lg:w-auto lg:max-w-none">
                       <MobileProductCard product={product} formatPrice={formatPrice} darkMode />
                     </div>
                   ))}
             </div>
-            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none" style={{ background: 'linear-gradient(to left, var(--text-dark), transparent)' }} />
+            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none edge-fade-dark lg:hidden" />
           </div>
         </section>
       )}
@@ -771,7 +738,7 @@ export default function StitchHomeContent({
           7.5. CERTIFICATIONS BAR
       ═══════════════════════════════════════ */}
       <section className="py-8 bg-surface border-y border-beige">
-        <div className="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory no-scrollbar lg:justify-center lg:overflow-visible">
           {CERTS.map(({ Icon, label }, i) => (
             <FadeUp
               key={label}
@@ -792,7 +759,7 @@ export default function StitchHomeContent({
           8. WHY DEEP BEAUTY — BRAND STORY CLOSER
       ═══════════════════════════════════════ */}
       <section className="py-14 bg-white">
-        <div className="px-6 mb-10 text-right">
+        <div className="px-6 mb-10 text-right lg:max-w-[var(--container-max)] lg:mx-auto">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ لماذا ديب بيوتي
           </span>
@@ -807,7 +774,7 @@ export default function StitchHomeContent({
         </div>
 
         {/* Stats counters */}
-        <div className="grid grid-cols-3 gap-3 px-6 mb-10">
+        <div className="grid grid-cols-3 gap-3 md:gap-5 px-6 mb-10 lg:max-w-[var(--container-max)] lg:mx-auto">
           {[
             { val: '٣+', label: 'سنوات خبرة' },
             { val: '١٠٠٪', label: 'مكونات طبيعية' },
@@ -830,7 +797,7 @@ export default function StitchHomeContent({
         </div>
 
         {/* Brand values grid */}
-        <div className="grid grid-cols-2 gap-3 px-6 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5 px-6 mb-10 lg:max-w-[var(--container-max)] lg:mx-auto">
           {TRUST.map(({ Icon, title, desc }, i) => (
             <FadeUp
               key={title}
@@ -869,7 +836,7 @@ export default function StitchHomeContent({
           9. INSTAGRAM / SOCIAL PROOF
       ═══════════════════════════════════════ */}
       <section className="py-10 bg-surface">
-        <div className="px-6 mb-6 text-right">
+        <div className="px-6 mb-6 text-right lg:max-w-[var(--container-max)] lg:mx-auto">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ تابعينا
           </span>
@@ -881,7 +848,7 @@ export default function StitchHomeContent({
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-1.5 px-4">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-3 px-4 lg:max-w-[var(--container-max)] lg:mx-auto">
           {Array.from({ length: 6 }).map((_, i) => (
             <a
               key={i}
@@ -916,7 +883,7 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           10. NEWSLETTER CTA
       ═══════════════════════════════════════ */}
-      <section className="py-12 bg-[var(--text-dark)]">
+      <section className="py-12 bg-on-surface">
         <div className="px-6 text-center">
           <PaperAirplaneIcon className="w-8 h-8 text-primary mx-auto mb-3 -rotate-45" />
           <h2 className="text-xl font-bold font-headline text-white mb-2">

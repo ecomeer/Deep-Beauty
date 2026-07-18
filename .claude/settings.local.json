@@ -16,7 +16,13 @@
       "mcp__Vercel__get_runtime_logs",
       "mcp__Supabase__get_logs",
       "mcp__Supabase__get_publishable_keys",
-      "mcp__Supabase__deploy_edge_function"
+      "mcp__Supabase__deploy_edge_function",
+      "Bash(git -C /home/user/Deep-Beauty branch --show-current)",
+      "Bash(xargs -I{} sh -c 'echo \"$\\(grep -c \"style={{\" {}\\) {}\"')",
+      "Bash(grep -rEo '#[0-9a-fA-F]{3,6}' --include='*.tsx' app components)",
+      "Bash(sort -t: -k2 -rn)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -)"
     ]
   }
 }

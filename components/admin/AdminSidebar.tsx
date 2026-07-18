@@ -109,8 +109,9 @@ function NavLink({
       <span className="flex-1 leading-none">{label}</span>
       {badge != null && badge > 0 && (
         <span
-          className="min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center"
-          style={{ background: isActive ? 'rgba(255,255,255,0.25)' : 'var(--primary)', color: 'white' }}
+          className={`min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center text-white ${
+            isActive ? 'bg-white/25' : 'bg-primary'
+          }`}
         >
           {badge > 99 ? '99+' : badge}
         </span>
@@ -168,8 +169,6 @@ export default function AdminSidebar() {
     router.push('/admin/login')
   }
 
-  const SIDEBAR_BG = '#2a1d13'
-
   // ── Sidebar Nav Content ─────────────────────────────────────────────────
   // Rendered via function call (not <Component/>) so React doesn't remount
   // the subtree on every render of AdminSidebar
@@ -192,13 +191,10 @@ export default function AdminSidebar() {
         </div>
 
         {/* Navigation Groups */}
-        <nav className="flex-1 overflow-y-auto px-1 pb-4" style={{ scrollbarWidth: 'none' }}>
+        <nav className="flex-1 overflow-y-auto px-1 pb-4 no-scrollbar">
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="mb-4">
-              <p
-                className="px-5 mb-1.5 text-[11px] font-bold uppercase tracking-[0.16em]"
-                style={{ color: 'rgba(255,255,255,0.3)' }}
-              >
+              <p className="px-5 mb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white/30">
                 {group.label}
               </p>
               {group.links.filter(canSee).map((link) => {
@@ -220,7 +216,7 @@ export default function AdminSidebar() {
         </nav>
 
         {/* Bottom actions */}
-        <div className="mx-2 mb-2 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="mx-2 mb-2 pt-3 border-t border-white/[0.08]">
           <Link
             href="/"
             target="_blank"
@@ -245,21 +241,18 @@ export default function AdminSidebar() {
     <>
       {/* ── Desktop Sidebar ───────────────────────────────────────────── */}
       <aside
-        className="hidden md:flex flex-col w-[230px] flex-shrink-0 min-h-screen py-5"
-        style={{ background: SIDEBAR_BG }}
+        className="hidden md:flex flex-col w-[230px] flex-shrink-0 min-h-screen py-5 bg-admin-sidebar"
       >
         {renderSidebarContent()}
       </aside>
 
       {/* ── Mobile Top Bar ────────────────────────────────────────────── */}
       <header
-        className="md:hidden fixed top-0 right-0 left-0 z-40 flex items-center justify-between px-4 py-3 shadow-lg"
-        style={{ background: SIDEBAR_BG }}
+        className="md:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 py-3 shadow-lg bg-admin-sidebar"
       >
         <button
           onClick={() => setDrawerOpen(true)}
-          className="p-2 rounded-xl transition-colors"
-          style={{ color: 'rgba(255,255,255,0.7)' }}
+          className="p-2 rounded-xl transition-colors text-white/70 hover:text-white"
           aria-label="فتح القائمة"
         >
           <Bars3Icon className="w-6 h-6" />
@@ -277,8 +270,7 @@ export default function AdminSidebar() {
         <Link
           href="/"
           target="_blank"
-          className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-          style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}
+          className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-white/[0.08] text-white/70 hover:text-white"
         >
           المتجر
         </Link>
@@ -289,13 +281,12 @@ export default function AdminSidebar() {
         <div className="md:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
           <div
-            className="relative w-[260px] max-w-[85vw] h-full flex flex-col py-5 shadow-2xl overflow-hidden"
-            style={{ background: SIDEBAR_BG }}
+            className="relative w-[260px] max-w-[85vw] h-full flex flex-col py-5 shadow-2xl overflow-hidden bg-admin-sidebar"
           >
             <button
               onClick={() => setDrawerOpen(false)}
-              className="absolute top-4 left-4 p-1.5 rounded-lg transition-colors"
-              style={{ color: 'rgba(255,255,255,0.5)' }}
+              className="absolute top-4 left-4 p-1.5 rounded-lg transition-colors text-white/50 hover:text-white"
+              aria-label="إغلاق القائمة"
             >
               <XMarkIcon className="w-5 h-5" />
             </button>
@@ -306,8 +297,7 @@ export default function AdminSidebar() {
 
       {/* ── Mobile Bottom Nav ─────────────────────────────────────────── */}
       <nav
-        className="md:hidden fixed bottom-0 right-0 left-0 z-40 flex items-center border-t safe-area-bottom"
-        style={{ background: SIDEBAR_BG, borderColor: 'rgba(255,255,255,0.08)' }}
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 flex items-center border-t safe-area-bottom bg-admin-sidebar border-white/[0.08]"
       >
         {BOTTOM_NAV.map((link) => {
           const isActive = pathname?.startsWith(link.href)
@@ -316,8 +306,9 @@ export default function AdminSidebar() {
             <Link
               key={link.href}
               href={link.href}
-              className="flex-1 flex flex-col items-center gap-1 py-3 transition-colors"
-              style={{ color: isActive ? 'var(--primary-light)' : 'rgba(255,255,255,0.4)' }}
+              className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
+                isActive ? 'text-primary-light' : 'text-white/40'
+              }`}
             >
               <Icon className="w-5 h-5" />
               <span className="text-[10px] font-medium">{link.label}</span>
@@ -326,8 +317,7 @@ export default function AdminSidebar() {
         })}
         <button
           onClick={() => setDrawerOpen(true)}
-          className="flex-1 flex flex-col items-center gap-1 py-3 relative"
-          style={{ color: 'rgba(255,255,255,0.4)' }}
+          className="flex-1 flex flex-col items-center gap-1 py-3 relative text-white/40"
         >
           <span className="relative">
             <Bars3Icon className="w-5 h-5" />

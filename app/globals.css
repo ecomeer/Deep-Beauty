@@ -17,6 +17,7 @@
   --color-primary-fixed: var(--primary-fixed);
   --color-beige: var(--beige);
   --color-dark-beige: var(--dark-beige);
+  --color-admin-sidebar: var(--admin-sidebar-bg);
   --color-outline: var(--outline);
   --color-outline-variant: var(--outline-variant);
   --color-background: var(--surface);
@@ -71,6 +72,7 @@
   --scrim:                 rgba(32, 27, 21, 0.5);
   --glass-surface:         rgba(255, 248, 244, 0.85);
   --glass-border:          rgba(236, 224, 215, 0.5);
+  --admin-sidebar-bg:      #2a1d13;
 
   /* Shadows */
   --shadow-sm:        0 1px 3px rgba(58,42,30,0.08);
@@ -507,6 +509,47 @@ h1, h2, h3, h4, h5, h6 {
 .beige-gradient {
   background: linear-gradient(135deg, var(--beige), var(--dark-beige));
 }
+
+/* Horizontal brand gradient (announcement bars, offer strips) */
+.brand-gradient-x {
+  background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-dark) 100%);
+}
+
+/* Hero fallback when no banner image exists */
+.hero-fallback-gradient {
+  background: linear-gradient(160deg, var(--beige) 0%, var(--dark-beige) 60%, var(--primary) 100%);
+}
+
+/* Dark veil behind hero copy for readability */
+.hero-veil {
+  background: linear-gradient(to top, rgba(20,12,6,0.88) 0%, rgba(20,12,6,0.4) 45%, transparent 100%);
+}
+
+/* Scrim behind card labels (category tiles) */
+.card-scrim {
+  background: linear-gradient(to top, rgba(30,18,10,0.72) 0%, rgba(30,18,10,0.1) 55%, transparent 100%);
+}
+
+/* Thin accent rule fading toward the inline end */
+.accent-line {
+  background: linear-gradient(to left, var(--primary), transparent);
+}
+
+/* Edge fade overlays for horizontal sliders */
+.edge-fade-surface {
+  background: linear-gradient(to left, var(--surface), transparent);
+}
+.edge-fade-dark {
+  background: linear-gradient(to left, var(--text-dark), transparent);
+}
+
+/* Text shadows for copy over imagery */
+.text-shadow-strong { text-shadow: 0 2px 20px rgba(0,0,0,0.6); }
+.text-shadow-soft   { text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
+
+/* Hide scrollbars on snap sliders */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
 /* ==============================
    NAVBAR

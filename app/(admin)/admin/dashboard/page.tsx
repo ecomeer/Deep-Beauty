@@ -42,22 +42,17 @@ function BarChart({ days, valueKey, color = 'var(--primary)' }: { days: DayData[
           <div key={day.label} className="flex-1 flex flex-col items-center gap-1 group relative">
             {/* Tooltip */}
             <div
-              className="absolute bottom-full mb-2 px-2 py-1 rounded-lg text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none bg-[var(--text-dark)]"
+              className="absolute bottom-full mb-2 px-2 py-1 rounded-lg text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none bg-on-surface"
             >
               {valueKey === 'revenue' ? toArabicPrice(day[valueKey]) : `${day[valueKey]} طلب`}
             </div>
             <div
-              className="w-full rounded-t-lg transition-all duration-300"
-              style={{
-                height: `${pct}%`,
-                background: isToday ? color : `${color}60`,
-                borderTop: `2px solid ${isToday ? color : 'transparent'}`,
-              }}
+              className={`w-full rounded-t-lg transition-all duration-300 ${
+                isToday ? 'bg-(--chart-color) border-t-2 border-(--chart-color)' : 'bg-(--chart-color)/40'
+              }`}
+              style={{ height: `${pct}%`, '--chart-color': color } as React.CSSProperties}
             />
-            <span
-              className="text-[9px] font-medium"
-              style={{ color: isToday ? 'var(--primary)' : 'rgba(0,0,0,0.3)' }}
-            >
+            <span className={`text-[9px] font-medium ${isToday ? 'text-primary' : 'text-black/30'}`}>
               {day.label}
             </span>
           </div>
@@ -75,8 +70,7 @@ function StatCard({
   iconBg: string; iconColor: string; href?: string; subtitle?: string; trend?: number
 }) {
   const inner = (
-    <div className="bg-white rounded-2xl p-5 border transition-all duration-200 hover:shadow-md group"
-      style={{ borderColor: 'var(--beige)' }}>
+    <div className="bg-white rounded-2xl p-5 border border-beige transition-all duration-200 hover:shadow-md group">
       <div className="flex items-start justify-between mb-4">
         <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
           <Icon className={`w-5 h-5 ${iconColor}`} />
@@ -92,7 +86,7 @@ function StatCard({
         )}
       </div>
       <p className="text-xs font-medium opacity-50 mb-1">{title}</p>
-      <p className="text-2xl font-bold text-[var(--text-dark)]">{value}</p>
+      <p className="text-2xl font-bold text-on-surface">{value}</p>
       {subtitle && <p className="text-xs opacity-40 mt-1">{subtitle}</p>}
       {href && (
         <p className="text-xs font-semibold mt-3 group-hover:underline text-primary">
@@ -133,7 +127,7 @@ export default function AdminDashboard() {
   if (loading) return (
     <div className="flex h-64 items-center justify-center">
       <div className="flex flex-col items-center gap-3">
-        <div className="animate-spin w-8 h-8 rounded-full border-[3px]" style={{ borderColor: 'var(--beige)', borderTopColor: 'var(--primary)' }} />
+        <div className="animate-spin w-8 h-8 rounded-full border-[3px] border-beige border-t-primary" />
         <p className="text-sm opacity-40">جارٍ التحميل...</p>
       </div>
     </div>
@@ -171,15 +165,14 @@ export default function AdminDashboard() {
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-dark)]">نظرة عامة</h1>
+          <h1 className="text-xl font-bold text-on-surface">نظرة عامة</h1>
           <p className="text-xs opacity-40 mt-0.5">{today}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {stats.pendingOrders > 0 && (
             <Link
               href="/admin/orders?status=pending"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-md transition-all hover:opacity-90 active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-bold shadow-md transition-all hover:opacity-90 active:scale-95 bg-gradient-to-bl from-red-500 to-red-600"
             >
               <ClockIcon className="w-4 h-4" />
               {stats.pendingOrders} طلب معلّق
@@ -187,8 +180,7 @@ export default function AdminDashboard() {
           )}
           <Link
             href="/admin/orders"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:opacity-80"
-            style={{ background: 'var(--beige)', color: 'var(--text-dark)' }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:opacity-80 bg-beige text-on-surface"
           >
             <InboxStackIcon className="w-4 h-4" />
             كل الطلبات
@@ -198,7 +190,7 @@ export default function AdminDashboard() {
 
       {/* ── Low Stock Alert ─────────────────────────────────────────────── */}
       {lowStock.length > 0 && (
-        <div className="rounded-2xl p-4 border-2" style={{ borderColor: '#fed7aa', background: '#fff7ed' }}>
+        <div className="rounded-2xl p-4 border-2 border-orange-200 bg-orange-50">
           <div className="flex items-center gap-2 mb-3">
             <ExclamationTriangleIcon className="w-5 h-5 text-orange-500" />
             <p className="text-sm font-bold text-orange-700">
@@ -267,16 +259,16 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* Orders Chart */}
-        <div className="bg-white rounded-2xl p-5 border" style={{ borderColor: 'var(--beige)' }}>
+        <div className="bg-white rounded-2xl p-5 border border-beige">
           <div className="flex items-start justify-between mb-1">
             <div>
               <p className="text-xs font-medium opacity-50">الطلبات — آخر ٧ أيام</p>
-              <p className="text-2xl font-bold mt-0.5 text-[var(--text-dark)]">
+              <p className="text-2xl font-bold mt-0.5 text-on-surface">
                 {weekOrders}
                 <span className="text-sm font-normal opacity-40 mr-1">طلب</span>
               </p>
             </div>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[var(--beige)]">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-beige">
               <ArrowTrendingUpIcon className="w-4.5 h-4.5 text-primary" />
             </div>
           </div>
@@ -284,15 +276,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* Revenue Chart */}
-        <div className="bg-white rounded-2xl p-5 border" style={{ borderColor: 'var(--beige)' }}>
+        <div className="bg-white rounded-2xl p-5 border border-beige">
           <div className="flex items-start justify-between mb-1">
             <div>
               <p className="text-xs font-medium opacity-50">الإيرادات — آخر ٧ أيام</p>
-              <p className="text-2xl font-bold mt-0.5 text-[var(--text-dark)]">
+              <p className="text-2xl font-bold mt-0.5 text-on-surface">
                 {toArabicPrice(weekRevenue)}
               </p>
             </div>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#ecfdf5' }}>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-50">
               <CurrencyDollarIcon className="w-4.5 h-4.5 text-emerald-600" />
             </div>
           </div>
@@ -304,9 +296,9 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
         {/* Recent Orders — 2/3 */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--beige)' }}>
-          <div className="px-5 py-4 border-b flex justify-between items-center" style={{ borderColor: 'var(--beige)' }}>
-            <h2 className="font-bold text-sm text-[var(--text-dark)]">أحدث الطلبات</h2>
+        <div className="lg:col-span-2 bg-white rounded-2xl border overflow-hidden border-beige">
+          <div className="px-5 py-4 border-b flex justify-between items-center border-beige">
+            <h2 className="font-bold text-sm text-on-surface">أحدث الطلبات</h2>
             <Link href="/admin/orders" className="text-xs font-semibold hover:opacity-70 transition-opacity text-primary">
               عرض الكل →
             </Link>
@@ -321,9 +313,9 @@ export default function AdminDashboard() {
             <>
               {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm bg-surface border-b border-beige">
                   <thead>
-                    <tr style={{ background: 'var(--off-white)', borderBottom: '1px solid var(--beige)' }}>
+                    <tr>
                       {['رقم الطلب', 'العميل', 'المبلغ', 'الحالة', 'التاريخ', ''].map(h => (
                         <th key={h} className="px-4 py-3 text-right text-xs font-bold opacity-50 first:pr-5 last:pl-5">{h}</th>
                       ))}
@@ -333,8 +325,9 @@ export default function AdminDashboard() {
                     {recentOrders.map((order, i) => (
                       <tr
                         key={order.id}
-                        className="transition-colors hover:bg-[var(--off-white)]"
-                        style={{ borderBottom: i < recentOrders.length - 1 ? '1px solid var(--beige)' : 'none' }}
+                        className={`transition-colors hover:bg-surface ${
+                          i < recentOrders.length - 1 ? 'border-b border-beige' : ''
+                        }`}
                       >
                         <td className="px-4 py-3.5 pr-5">
                           <span className="font-mono font-bold text-xs text-primary">
@@ -344,7 +337,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3.5">
                           <span className="font-medium">{order.customer_name}</span>
                         </td>
-                        <td className="px-4 py-3.5 font-bold text-[var(--text-dark)]">
+                        <td className="px-4 py-3.5 font-bold text-on-surface">
                           {toArabicPrice(order.total)}
                         </td>
                         <td className="px-4 py-3.5">
@@ -375,8 +368,7 @@ export default function AdminDashboard() {
                   <Link
                     key={order.id}
                     href={`/admin/orders/${order.id}`}
-                    className="block border rounded-xl p-4 hover:shadow-sm transition-shadow"
-                    style={{ borderColor: 'var(--beige)' }}
+                    className="block border rounded-xl p-4 hover:shadow-sm transition-shadow border-beige"
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -390,7 +382,7 @@ export default function AdminDashboard() {
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="font-bold text-sm text-[var(--text-dark)]">
+                      <span className="font-bold text-sm text-on-surface">
                         {toArabicPrice(order.total)}
                       </span>
                       <span className="text-xs opacity-40" dir="ltr">{formatDateTime(order.created_at)}</span>
@@ -403,8 +395,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Links — 1/3 */}
-        <div className="bg-white rounded-2xl border p-5" style={{ borderColor: 'var(--beige)' }}>
-          <h2 className="font-bold text-sm mb-4 text-[var(--text-dark)]">وصول سريع</h2>
+        <div className="bg-white rounded-2xl border p-5 border-beige">
+          <h2 className="font-bold text-sm mb-4 text-on-surface">وصول سريع</h2>
           <div className="space-y-1.5">
             {[
               { href: '/admin/products/new',  icon: ShoppingBagIcon, label: 'إضافة منتج جديد',     sub: 'أضف منتجاً للمتجر',          color: 'text-purple-600', bg: 'bg-purple-50' },
@@ -425,7 +417,7 @@ export default function AdminDashboard() {
                   <link.icon className={`w-4 h-4 ${link.color}`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-[var(--text-dark)]">{link.label}</p>
+                  <p className="text-xs font-bold text-on-surface">{link.label}</p>
                   <p className="text-[11px] opacity-40 truncate">{link.sub}</p>
                 </div>
               </Link>
@@ -444,7 +436,7 @@ export default function AdminDashboard() {
           iconColor="text-purple-600"
           href="/admin/products"
         />
-        <div className="bg-white rounded-2xl p-5 border col-span-1 lg:col-span-3" style={{ borderColor: 'var(--beige)' }}>
+        <div className="bg-white rounded-2xl p-5 border col-span-1 lg:col-span-3 border-beige">
           <div className="flex items-center gap-2 mb-3">
             <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
             <p className="text-xs font-bold opacity-50">حالة المتجر</p>

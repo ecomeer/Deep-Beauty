@@ -12,13 +12,18 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-[#faf7f4]" dir="rtl">
+    <div className="flex min-h-screen bg-surface" dir="rtl">
       <Toaster position="top-center" toastOptions={{
         style: {
           fontFamily: 'var(--font-almarai), sans-serif',
           direction: 'rtl',
-          borderRadius: '12px',
-        }
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--white)',
+          color: 'var(--on-surface)',
+          boxShadow: 'var(--shadow-lg)',
+          border: '1px solid var(--beige)',
+        },
+        success: { iconTheme: { primary: 'var(--primary)', secondary: 'var(--white)' } },
       }} />
       <AdminSidebar />
       <main className="flex-1 overflow-x-hidden px-4 md:px-6 pt-20 pb-24 md:pt-6 md:pb-10">
