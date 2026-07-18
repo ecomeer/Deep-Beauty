@@ -19,9 +19,10 @@ import { createClientSupabase } from '@/lib/supabase-client'
 import { translateAuthError } from '@/lib/auth-errors'
 
 export default function RegisterClient() {
+  const [mode, setMode] = useState<'password' | 'magic'>('password')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [step, setStep] = useState<'form' | 'success'>('form')
+  const [step, setStep] = useState<'form' | 'success' | 'magicSuccess'>('form')
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -30,6 +31,31 @@ export default function RegisterClient() {
     confirmPassword: ''
   })
   const [agreeTerms, setAgreeTerms] = useState(false)
+  const [magicForm, setMagicForm] = useState({ name: '', email: '' })
+
+  const handleMagicSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const supabase = createClientSupabase()
+      const { error } = await supabase.auth.signInWithOtp({
+        email: magicForm.email,
+        options: {
+          data: { name: magicForm.name },
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`,
+        },
+      })
+      if (error) {
+        toast.error(translateAuthError(error, 'حدث خطأ أثناء إنشاء الحساب'))
+        return
+      }
+      setStep('magicSuccess')
+    } catch {
+      toast.error('حدث خطأ أثناء إنشاء الحساب')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -108,6 +134,34 @@ export default function RegisterClient() {
     )
   }
 
+  if (step === 'magicSuccess') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-surface-container to-beige flex items-center justify-center p-4">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-white rounded-3xl shadow-xl p-12 text-center max-w-md"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', delay: 0.2 }}
+            className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center"
+          >
+            <CheckCircleIcon className="w-10 h-10 text-green-600" />
+          </motion.div>
+          <h2 className="text-2xl font-bold mb-2">تحققي من بريدك الإلكتروني</h2>
+          <p className="text-gray-500 mb-6">
+            أرسلنا رابط دخول إلى <span dir="ltr">{magicForm.email}</span> — افحصي بريدك (ومجلد السبام) واضغطي الرابط لإكمال إنشاء حسابك وتسجيل دخولك مباشرة، بدون كلمة مرور.
+          </p>
+          <Link href="/" className="btn-primary inline-block px-8 py-3">
+            العودة للرئيسية
+          </Link>
+        </motion.div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-4 py-8 pt-32">
       <motion.div
@@ -132,7 +186,84 @@ export default function RegisterClient() {
             <p className="text-white/80 text-sm">انضمي إلى عائلة Deep Beauty</p>
           </div>
 
-          {/* Form */}
+          {/* Mode toggle: full form (password) vs. magic link (no password) */}
+          <div className="flex gap-1 p-1.5 mx-8 mt-6 bg-gray-100 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setMode('password')}
+              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-colors ${mode === 'password' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}
+            >
+              بكلمة مرور
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('magic')}
+              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-colors ${mode === 'magic' ? 'bg-white text-primary shadow-sm' : 'text-gray-500'}`}
+            >
+              بدون كلمة مرور
+            </button>
+          </div>
+
+          {mode === 'magic' ? (
+            <form onSubmit={handleMagicSubmit} className="p-8 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الاسم الكامل *
+                </label>
+                <div className="relative">
+                  <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    autoComplete="name"
+                    required
+                    value={magicForm.name}
+                    onChange={(e) => setMagicForm({ ...magicForm, name: e.target.value })}
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+                    placeholder="الاسم الكامل"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  البريد الإلكتروني *
+                </label>
+                <div className="relative">
+                  <EnvelopeIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    spellCheck={false}
+                    required
+                    value={magicForm.email}
+                    onChange={(e) => setMagicForm({ ...magicForm, email: e.target.value })}
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+                    placeholder="your@email.com"
+                    dir="ltr"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-2">سننشئ حسابك ونرسل لك رابط دخول بدلاً من كلمة مرور</p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                ) : (
+                  'إرسال رابط إنشاء الحساب'
+                )}
+              </motion.button>
+              <p className="text-center text-sm text-gray-600">
+                لديكِ حساب بالفعل؟{' '}
+                <Link href="/login" className="text-primary font-bold hover:underline">
+                  سجلي دخولك
+                </Link>
+              </p>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit} className="p-8 space-y-4">
             {/* Name */}
             <div>
@@ -320,6 +451,7 @@ export default function RegisterClient() {
               </Link>
             </p>
           </form>
+          )}
         </div>
 
         {/* Back Link */}
