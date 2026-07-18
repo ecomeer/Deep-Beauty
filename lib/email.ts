@@ -85,21 +85,53 @@ interface OrderEmailItem {
   total_price: number
 }
 
-function emailShell(title: string, bodyHtml: string): string {
+// Site URL is only used to build an absolute logo <img> src — email clients
+// can't resolve a relative path. Falls back to a text wordmark when unset.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
+
+/** A CTA button as an HTML string — reused by every template that needs one. */
+function ctaButton(label: string, href: string): string {
+  return `<div style="text-align:center;margin:24px 0;">
+    <a href="${href}" style="display:inline-block;background:#8B6F5C;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:15px;">
+      ${label}
+    </a>
+  </div>`
+}
+
+function emailShell(title: string, bodyHtml: string, preheader?: string): string {
+  const logo = SITE_URL
+    ? `<img src="${SITE_URL}/logo.png" alt="Deep Beauty" width="44" height="44" style="display:block;margin:0 auto 8px;border-radius:10px;">`
+    : ''
   return `<!DOCTYPE html>
 <html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>${title}</title>
+</head>
 <body style="margin:0;padding:0;background:#F5EBE0;font-family:Tahoma,Arial,sans-serif;">
+  ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${preheader}</div>` : ''}
   <div style="max-width:560px;margin:0 auto;padding:24px 16px;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid #E8DED1;">
-      <div style="background:#8B6F5C;color:#fff;padding:20px 24px;text-align:center;">
-        <div style="font-size:22px;font-weight:bold;">Deep Beauty | ديب بيوتي</div>
-        <div style="font-size:14px;opacity:.85;margin-top:4px;">${title}</div>
+    <div style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid #E8DED1;box-shadow:0 2px 10px rgba(139,111,92,0.08);">
+      <div style="background:linear-gradient(135deg,#8B6F5C 0%,#6f5647 100%);color:#fff;padding:24px;text-align:center;">
+        ${logo}
+        <div style="font-size:20px;font-weight:bold;">Deep Beauty | ديب بيوتي</div>
+        <div style="font-size:14px;opacity:.85;margin-top:6px;">${title}</div>
       </div>
-      <div style="padding:24px;color:#3d3d3d;font-size:15px;line-height:1.8;">
+      <div style="padding:28px 24px;color:#3d3d3d;font-size:15px;line-height:1.8;">
         ${bodyHtml}
       </div>
-      <div style="padding:16px 24px;background:#FAF6F1;border-top:1px solid #E8DED1;font-size:12px;color:#8a8a8a;text-align:center;">
-        ${CONTACT_INFO.location} · ${CONTACT_INFO.phone} · ${CONTACT_INFO.email}
+      <div style="padding:20px 24px;background:#FAF6F1;border-top:1px solid #E8DED1;font-size:12px;color:#8a8a8a;text-align:center;line-height:1.9;">
+        <div>
+          <a href="${CONTACT_INFO.whatsappHref}" style="color:#8B6F5C;text-decoration:none;">واتساب</a>
+          &nbsp;·&nbsp;
+          <a href="${CONTACT_INFO.phoneHref}" style="color:#8B6F5C;text-decoration:none;" dir="ltr">${CONTACT_INFO.phone}</a>
+          &nbsp;·&nbsp;
+          <a href="${CONTACT_INFO.emailHref}" style="color:#8B6F5C;text-decoration:none;">${CONTACT_INFO.email}</a>
+        </div>
+        <div style="margin-top:4px;">${CONTACT_INFO.location} · ${CONTACT_INFO.hours}</div>
       </div>
     </div>
   </div>
@@ -145,7 +177,7 @@ export function orderConfirmationEmail(order: OrderEmailData, items: OrderEmailI
   `
   return {
     subject: `تأكيد طلبك ${order.order_number} — Deep Beauty`,
-    html: emailShell('تأكيد الطلب', body),
+    html: emailShell('تأكيد الطلب', body, `تم استلام طلبك ${order.order_number} وسنبدأ بتجهيزه فوراً`),
   }
 }
 
@@ -163,7 +195,7 @@ export function orderStatusEmail(order: OrderEmailData, message?: string): { sub
   `
   return {
     subject: `تحديث طلبك ${order.order_number}: ${statusLabel} — Deep Beauty`,
-    html: emailShell('تحديث حالة الطلب', body),
+    html: emailShell('تحديث حالة الطلب', body, `طلبك ${order.order_number} الآن: ${statusLabel}`),
   }
 }
 
@@ -182,15 +214,11 @@ export function abandonedCartEmail(
     <p>${greeting}</p>
     <p>لاحظنا إنك تركتِ بعض المنتجات بسلتك ولم تكملي الطلب:</p>
     <ul style="padding-right:20px;">${itemsList}</ul>
-    <p style="margin-top:16px;">
-      <a href="${checkoutUrl}" style="display:inline-block;background:#8B6F5C;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">
-        إكمال الطلب
-      </a>
-    </p>
+    ${ctaButton('إكمال الطلب', checkoutUrl)}
   `
   return {
     subject: 'نسيتِ شيئاً بسلتك 🌸 — Deep Beauty',
-    html: emailShell('سلتك بانتظارك', body),
+    html: emailShell('سلتك بانتظارك', body, 'منتجاتك بانتظارك — أكملي طلبك قبل نفاد الكمية'),
   }
 }
 
@@ -220,14 +248,31 @@ export function backInStockEmail(productName: string, productUrl: string): { sub
     <div style="background:#FAF6F1;border-radius:8px;padding:14px 18px;text-align:center;font-size:17px;font-weight:bold;color:#8B6F5C;margin:12px 0;">
       ${productName}
     </div>
-    <p style="margin-top:16px;">
-      <a href="${productUrl}" style="display:inline-block;background:#8B6F5C;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">
-        تسوقي الآن
-      </a>
-    </p>
+    ${ctaButton('تسوقي الآن', productUrl)}
   `
   return {
     subject: `${productName} متوفر الآن! — Deep Beauty`,
-    html: emailShell('المنتج متوفر الآن', body),
+    html: emailShell('المنتج متوفر الآن', body, `${productName} متوفر الآن بالمخزون — تسوقي قبل نفاد الكمية`),
+  }
+}
+
+export function welcomeEmail(name: string | null): { subject: string; html: string } {
+  const greeting = name ? `أهلاً بك ${name}!` : 'أهلاً بك!'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || ''
+  const body = `
+    <p style="font-size:17px;font-weight:bold;color:#8B6F5C;">${greeting} 🌸</p>
+    <p>سعيدون بانضمامك إلى عائلة Deep Beauty. حسابك جاهز الآن ويمكنك:</p>
+    <ul style="padding-right:20px;line-height:2;">
+      <li>متابعة طلباتك وتاريخ مشترياتك</li>
+      <li>حفظ عناوين التوصيل لتسريع الدفع</li>
+      <li>إضافة منتجاتك المفضلة إلى قائمة الأمنيات</li>
+      <li>الحصول على إشعار فوري عند توفر المنتجات النافدة</li>
+    </ul>
+    ${siteUrl ? ctaButton('ابدئي التسوق', siteUrl) : ''}
+    <p style="margin-top:16px;font-size:13px;color:#8a8a8a;">لأي استفسار، فريقنا على واتساب جاهز لمساعدتك.</p>
+  `
+  return {
+    subject: 'أهلاً بك في عائلة Deep Beauty! 🌸',
+    html: emailShell('أهلاً بك', body, 'حسابك جاهز الآن — تسوقي أحدث منتجات العناية والجمال'),
   }
 }

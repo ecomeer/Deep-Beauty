@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createWritableServerClient } from '@/lib/supabase-server'
+import { sendEmail, welcomeEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +24,15 @@ export async function POST(request: NextRequest) {
 
     // public.users is created by the trusted auth.users trigger. Do not let
     // a browser session insert role-bearing rows directly.
+    if (authData.user) {
+      try {
+        const { subject, html } = welcomeEmail(name)
+        await sendEmail({ to: email, subject, html })
+      } catch {
+        // Non-critical.
+      }
+    }
+
     return applyCookies(NextResponse.json({
       user: authData.user,
       message: 'تم التسجيل بنجاح',
