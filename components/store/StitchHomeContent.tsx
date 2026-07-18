@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Product, Category } from '@/types'
 import { useCountry } from '@/context/CountryContext'
 import FadeUp from '@/components/store/FadeUp'
+import RecentlyViewedSection from '@/components/store/RecentlyViewedSection'
 import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
 import {
@@ -418,7 +419,7 @@ export default function StitchHomeContent({
           <div className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none z-[1] hero-veil" />
 
           {/* Text overlay */}
-          <div className="absolute bottom-10 right-4 left-4 z-[2] text-right">
+          <div className="absolute bottom-10 lg:bottom-14 right-4 left-4 lg:right-10 lg:left-10 z-[2] text-right">
             <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full bg-primary/90">
               <span className="text-xs font-bold tracking-[0.12em] uppercase text-white">✦ ديب بيوتي الكويت</span>
             </div>
@@ -427,25 +428,47 @@ export default function StitchHomeContent({
             >
               {(heroSlides[heroIndex] as Banner | null)?.title_ar || 'جمالك يبدأ من الأعماق'}
             </h2>
-            <p className="text-[13px] sm:text-sm text-white/80 mb-5 leading-relaxed max-w-[280px] sm:max-w-sm mr-auto text-shadow-soft">
+            <p className="text-[13px] sm:text-sm text-white/80 mb-5 leading-relaxed max-w-[280px] sm:max-w-sm lg:max-w-md me-auto lg:text-base text-shadow-soft">
               {(heroSlides[heroIndex] as Banner | null)?.subtitle_ar || 'عناية فاخرة بالبشرة — منتجات طبيعية ١٠٠٪'}
             </p>
             <div className="flex items-center gap-2.5">
               <Link
                 href={(heroSlides[heroIndex] as Banner | null)?.link_url || '/products'}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white shadow-lg transition-all active:scale-95 bg-primary"
+                className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-7 lg:py-3 rounded-full text-sm lg:text-base font-bold text-white shadow-lg transition-all active:scale-95 bg-primary hover:bg-primary-hover"
               >
                 تسوّقي الآن
                 <ArrowLeftIcon className="w-3.5 h-3.5" />
               </Link>
               <Link
                 href="/about"
-                className="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-semibold text-white transition-all bg-white/15 backdrop-blur border border-white/20 hover:bg-white/25"
+                className="inline-flex items-center px-4 py-2.5 lg:px-6 lg:py-3 rounded-full text-sm lg:text-base font-semibold text-white transition-all bg-white/15 backdrop-blur border border-white/20 hover:bg-white/25"
               >
                 من نحن
               </Link>
             </div>
           </div>
+
+          {/* Desktop prev/next arrows */}
+          {heroSlides.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={goPrev}
+                aria-label="الشريحة السابقة"
+                className="hidden lg:flex absolute top-1/2 -translate-y-1/2 start-5 z-[3] w-11 h-11 items-center justify-center rounded-full bg-white/15 backdrop-blur border border-white/25 text-white hover:bg-white/30 transition-colors"
+              >
+                <ArrowLeftIcon className="w-5 h-5 rotate-180" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={goNext}
+                aria-label="الشريحة التالية"
+                className="hidden lg:flex absolute top-1/2 -translate-y-1/2 end-5 z-[3] w-11 h-11 items-center justify-center rounded-full bg-white/15 backdrop-blur border border-white/25 text-white hover:bg-white/30 transition-colors"
+              >
+                <ArrowLeftIcon className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </>
+          )}
 
           {/* Pagination dots — accessible with aria-current */}
           {heroSlides.length > 1 && (
@@ -795,7 +818,7 @@ export default function StitchHomeContent({
             نؤمن بأن العناية الحقيقية تبدأ من مكوّنات نقية ومعايير لا تقبل المساومة.
             كل منتج يمرّ برحلة بحث وتطوير دقيقة ليصل إليكِ بأعلى جودة.
           </p>
-          <div className="w-10 h-0.5 mt-4 mr-auto rounded-full bg-primary" />
+          <div className="w-10 h-0.5 mt-4 me-auto rounded-full bg-primary" />
         </div>
 
         {/* Stats counters */}
@@ -920,6 +943,11 @@ export default function StitchHomeContent({
           </a>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════
+          9.5. RECENTLY VIEWED
+      ═══════════════════════════════════════ */}
+      <RecentlyViewedSection />
 
       {/* ═══════════════════════════════════════
           10. NEWSLETTER CTA
