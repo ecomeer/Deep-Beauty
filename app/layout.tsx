@@ -93,9 +93,7 @@ export default async function RootLayout({
         <link rel="alternate" hrefLang="ar-KW" href="https://www.deepbeautykw.com/" />
         <link rel="alternate" hrefLang="ar" href="https://www.deepbeautykw.com/" />
         <link rel="alternate" hrefLang="x-default" href="https://www.deepbeautykw.com/" />
-        {/* preconnect */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* preconnect — fonts are self-hosted via next/font, so only third-party asset hosts need hints */}
         <link rel="dns-prefetch" href="https://flagcdn.com" />
       </head>
       <body suppressHydrationWarning>
