@@ -35,8 +35,10 @@ export default function CountrySelector() {
         aria-label="اختيار الدولة"
       >
         <img
-          src={`https://flagcdn.com/w40/${countryConfig.code.toLowerCase()}.png`}
+          src={`/flags/${countryConfig.code.toLowerCase()}.png`}
           alt={countryConfig.name_ar}
+          width={24}
+          height={16}
           className="w-6 h-4 object-cover rounded-sm"
         />
         <span className="text-sm font-medium hidden sm:block">{countryConfig.name_ar}</span>
@@ -58,8 +60,11 @@ export default function CountrySelector() {
               }`}
             >
               <img
-                src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
+                src={`/flags/${code.toLowerCase()}.png`}
                 alt={country.name_ar}
+                width={32}
+                height={20}
+                loading="lazy"
                 className="w-8 h-5 object-cover rounded-sm flex-shrink-0"
               />
               <div className="flex-1 text-right">
