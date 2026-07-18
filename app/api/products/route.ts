@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
+import { getProductRatings } from '@/lib/recommendations'
 import { escapeOrFilterValue } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -74,9 +75,13 @@ export async function GET(request: NextRequest) {
         })
       : (products || [])
 
+    const ratings = await getProductRatings(filtered.map((p: ProductRow) => p.id))
+
     const withSalePrice = filtered.map((p: ProductRow) => ({
       ...p,
       sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
+      rating: ratings[p.id]?.average_rating ?? null,
+      review_count: ratings[p.id]?.review_count ?? 0,
     }))
 
     return NextResponse.json(

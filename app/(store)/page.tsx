@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import StitchHomeContent from '@/components/store/StitchHomeContent'
 import { Product, Category } from '@/types'
 import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
+import { getProductRatings } from '@/lib/recommendations'
 
 interface Banner {
   id: string
@@ -89,9 +90,13 @@ export default async function HomePage() {
       productRows = [...productRows, ...extra]
     }
 
+    const ratings = await getProductRatings(productRows.map((p) => p.id)).catch(() => ({} as Record<string, { average_rating: number; review_count: number }>))
+
     featuredProducts = productRows.map((p) => ({
       ...p,
       sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
+      rating: ratings[p.id]?.average_rating ?? null,
+      review_count: ratings[p.id]?.review_count ?? 0,
     }))
     categories = categoriesRes.data || []
     banners = bannersRes.data || []

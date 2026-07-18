@@ -25,7 +25,7 @@ import {
   HandRaisedIcon,
   GlobeAltIcon,
 } from '@heroicons/react/24/outline'
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
+import { HeartIcon as HeartSolid, StarIcon } from '@heroicons/react/24/solid'
 import toast from 'react-hot-toast'
 
 interface Banner {
@@ -206,6 +206,24 @@ function MobileProductCard({
           <h3 className={`font-bold text-sm leading-snug line-clamp-2 mb-2 ${darkMode ? 'text-white/90' : 'text-on-surface'}`}>
             {product.name_ar}
           </h3>
+
+          {product.rating != null && (
+            <div
+              className="flex items-center gap-0.5 mb-1.5"
+              aria-label={`التقييم ${product.rating} من ٥ — ${product.review_count ?? 0} تقييم`}
+            >
+              {[1, 2, 3, 4, 5].map((s) => (
+                <StarIcon
+                  key={s}
+                  aria-hidden="true"
+                  className={`w-3 h-3 ${s <= Math.round(product.rating!) ? 'text-amber-400' : darkMode ? 'text-white/20' : 'text-gray-300'}`}
+                />
+              ))}
+              <span className={`text-[10px] tabular-nums ms-0.5 ${darkMode ? 'text-white/50' : 'text-gray-500'}`} dir="ltr">
+                {product.rating} ({product.review_count ?? 0})
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center justify-between gap-1 mb-2.5">
             <div className="flex items-baseline gap-1.5">
