@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
 
+type ProductRow = {
+  id: string
+  category: string | null
+  price: number
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -17,11 +23,11 @@ export async function GET(
   if (productRes.error || !productRes.data)
     return NextResponse.json({ error: 'Product not found' }, { status: 404 })
 
-  const product = productRes.data
+  const product = productRes.data as unknown as ProductRow
 
   // Prefer same category, then fill with others — query only the 6 rows needed
   // instead of pulling a batch and filtering in JS.
-  let relatedRows: typeof productRes.data[] = []
+  let relatedRows: ProductRow[] = []
   if (product.category) {
     const { data } = await supabaseAdmin
       .from('products')
@@ -30,7 +36,7 @@ export async function GET(
       .eq('category', product.category)
       .neq('id', product.id)
       .limit(6)
-    relatedRows = data || []
+    relatedRows = (data || []) as unknown as ProductRow[]
   }
   if (relatedRows.length < 6) {
     const excludeIds = [product.id, ...relatedRows.map((p) => p.id)]
@@ -40,7 +46,7 @@ export async function GET(
       .eq('is_active', true)
       .not('id', 'in', `(${excludeIds.join(',')})`)
       .limit(6 - relatedRows.length)
-    relatedRows = [...relatedRows, ...(data || [])]
+    relatedRows = [...relatedRows, ...((data || []) as unknown as ProductRow[])]
   }
 
   const related = relatedRows.map((p) => ({
