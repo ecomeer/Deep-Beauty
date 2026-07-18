@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
-
-type ProductRow = {
-  id: string
-  category: string | null
-  price: number
-}
+import { getProductRecommendations, getProductRatings } from '@/lib/recommendations'
+import { Product } from '@/types'
 
 export async function GET(
   _req: NextRequest,
@@ -23,42 +19,35 @@ export async function GET(
   if (productRes.error || !productRes.data)
     return NextResponse.json({ error: 'Product not found' }, { status: 404 })
 
-  const product = productRes.data as unknown as ProductRow
+  const product = productRes.data
 
-  // Prefer same category, then fill with others — query only the 6 rows needed
-  // instead of pulling a batch and filtering in JS.
-  let relatedRows: ProductRow[] = []
-  if (product.category) {
-    const { data } = await supabaseAdmin
-      .from('products')
-      .select(productColumns)
-      .eq('is_active', true)
-      .eq('category', product.category)
-      .neq('id', product.id)
-      .limit(6)
-    relatedRows = (data || []) as unknown as ProductRow[]
-  }
-  if (relatedRows.length < 6) {
-    const excludeIds = [product.id, ...relatedRows.map((p) => p.id)]
-    const { data } = await supabaseAdmin
-      .from('products')
-      .select(productColumns)
-      .eq('is_active', true)
-      .not('id', 'in', `(${excludeIds.join(',')})`)
-      .limit(6 - relatedRows.length)
-    relatedRows = [...relatedRows, ...((data || []) as unknown as ProductRow[])]
-  }
+  const recommendations = await getProductRecommendations(product, 6)
 
-  const related = relatedRows.map((p) => ({
+  // `related` stays for backward compatibility with the existing product
+  // page UI: same-category first, then bestsellers, capped at 6 — each
+  // section already excludes the ones before it.
+  const related = [
+    ...recommendations.same_category,
+    ...recommendations.best_sellers,
+  ].slice(0, 6)
+
+  const ratingSubjects = [product.id, ...related.map((p) => p.id), ...recommendations.frequently_bought_together.map((p) => p.id)]
+  const ratings = await getProductRatings(ratingSubjects)
+
+  const attachRating = <T extends { id: string }>(p: T): T & Pick<Product, 'rating' | 'review_count'> => ({
     ...p,
-    sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
-  }))
+    rating: ratings[p.id]?.average_rating ?? null,
+    review_count: ratings[p.id]?.review_count ?? 0,
+  })
 
   return NextResponse.json({
-    product: {
-      ...product,
-      sale_price: applyDiscount(product.price, bestDiscountForProduct(product, flashSales)),
+    product: attachRating({ ...product, sale_price: applyDiscount(product.price, bestDiscountForProduct(product, flashSales)) }),
+    related: related.map(attachRating),
+    recommendations: {
+      same_category: recommendations.same_category.map(attachRating),
+      frequently_bought_together: recommendations.frequently_bought_together.map(attachRating),
+      best_sellers: recommendations.best_sellers.map(attachRating),
+      new_arrivals: recommendations.new_arrivals.map(attachRating),
     },
-    related,
   })
 }
