@@ -158,12 +158,14 @@ function MobileProductCard({
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <div
-        className={`rounded-2xl overflow-hidden transition-all duration-300 group-hover:shadow-lg border ${
-          darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-beige'
+        className={`rounded-[1.25rem] overflow-hidden transition-all duration-300 group-hover:-translate-y-1 ${
+          darkMode
+            ? 'bg-white/[0.06] border border-white/10 group-hover:bg-white/10'
+            : 'bg-white shadow-sm group-hover:shadow-lg'
         }`}
       >
         {/* ── Image ── */}
-        <div className="relative aspect-square overflow-hidden bg-beige">
+        <div className={`relative aspect-square overflow-hidden ${darkMode ? 'bg-white/5' : 'bg-surface-container'}`}>
           {product.images?.[0] ? (
             <Image
               src={product.images[0]}
@@ -182,7 +184,7 @@ function MobileProductCard({
 
           {/* Discount badge */}
           {discount > 0 && (
-            <span className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full shadow">
+            <span className="absolute top-2.5 start-2.5 px-2 py-1 bg-primary-dark/95 text-primary-fixed text-[10px] font-bold rounded-full shadow-sm tracking-wide" dir="ltr">
               -{discount}٪
             </span>
           )}
@@ -191,11 +193,11 @@ function MobileProductCard({
           <button
             onClick={handleWishlist}
             aria-label={isWishlisted ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
-            className={`absolute top-2.5 left-2.5 w-8 h-8 rounded-full flex items-center justify-center shadow transition-colors duration-200 ${
-              isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/90 text-gray-400 hover:bg-rose-50 hover:text-rose-500'
+            className={`absolute top-2 end-2 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur shadow-sm transition-all duration-200 active:scale-90 ${
+              isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/85 text-on-surface-variant hover:text-rose-500'
             }`}
           >
-            {isWishlisted ? <HeartSolid className="w-3.5 h-3.5" /> : <HeartIcon className="w-3.5 h-3.5" />}
+            {isWishlisted ? <HeartSolid className="w-4 h-4" /> : <HeartIcon className="w-4 h-4" />}
           </button>
 
           {/* Out of stock */}
@@ -209,14 +211,10 @@ function MobileProductCard({
         </div>
 
         {/* ── Content ── */}
-        <div className="p-3 text-right">
-          <h3 className={`font-bold text-sm leading-snug line-clamp-2 mb-2 ${darkMode ? 'text-white/90' : 'text-on-surface'}`}>
-            {product.name_ar}
-          </h3>
-
+        <div className="p-3 pt-2.5 text-right">
           {product.rating != null && (
             <div
-              className="flex items-center gap-0.5 mb-1.5"
+              className="flex items-center gap-0.5 mb-1"
               aria-label={`التقييم ${product.rating} من ٥ — ${product.review_count ?? 0} تقييم`}
             >
               {[1, 2, 3, 4, 5].map((s) => (
@@ -227,33 +225,41 @@ function MobileProductCard({
                 />
               ))}
               <span className={`text-[10px] tabular-nums ms-0.5 ${darkMode ? 'text-white/50' : 'text-gray-500'}`} dir="ltr">
-                {product.rating} ({product.review_count ?? 0})
+                ({product.review_count ?? 0})
               </span>
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-1 mb-2.5">
-            <div className="flex items-baseline gap-1.5">
-              {comparePrice && comparePrice > displayPrice && (
-                <span className="text-[11px] text-gray-400 line-through" dir="ltr">
-                  {formatPrice(comparePrice)}
-                </span>
-              )}
-            </div>
+          <h3 className={`font-bold text-[13px] leading-snug line-clamp-2 min-h-[2.1rem] mb-1.5 ${darkMode ? 'text-white/90' : 'text-on-surface'}`}>
+            {product.name_ar}
+          </h3>
+
+          <div className="flex items-baseline gap-1.5 mb-2.5">
             <span
-              className={`text-sm font-bold ${darkMode ? 'text-primary-light' : 'text-primary'}`}
+              className={`text-[15px] font-bold ${darkMode ? 'text-primary-light' : 'text-primary'}`}
               dir="ltr"
             >
               {formatPrice(displayPrice)}
             </span>
+            {comparePrice && comparePrice > displayPrice && (
+              <span className={`text-[11px] line-through ${darkMode ? 'text-white/35' : 'text-gray-400'}`} dir="ltr">
+                {formatPrice(comparePrice)}
+              </span>
+            )}
           </div>
 
           <button
             onClick={handleAddToCart}
             disabled={outOfStock || adding}
             aria-label={outOfStock ? 'نفذت الكمية' : `إضافة ${product.name_ar} للسلة`}
-            className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all duration-200 disabled:cursor-not-allowed ${
-              outOfStock ? 'bg-dark-beige' : adding ? 'bg-green-500' : 'bg-primary'
+            className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed ${
+              outOfStock
+                ? 'bg-dark-beige/60 text-on-surface-variant'
+                : adding
+                ? 'bg-green-500 text-white'
+                : darkMode
+                ? 'bg-primary-light text-on-surface hover:bg-primary-fixed'
+                : 'bg-primary text-white hover:bg-primary-hover'
             }`}
           >
             {adding
@@ -632,30 +638,29 @@ export default function StitchHomeContent({
             <p className="text-sm text-on-surface-variant">المنتجات تُضاف قريباً ✨</p>
           </div>
         ) : (
-          /* Slider with right-side edge fade */
-          <div className="relative">
+          /* 2-col grid on mobile — shows more products without side-scrolling */
+          <>
             <div
-              className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-1 no-scrollbar lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto"
+              className="grid grid-cols-2 gap-3 px-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6 lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto"
               role="list"
               aria-label="المنتجات المختارة"
-              tabIndex={0}
-              onKeyDown={e => {
-                const el = e.currentTarget
-                if (e.key === 'ArrowLeft') { e.preventDefault(); el.scrollBy({ left: -200, behavior: 'smooth' }) }
-                if (e.key === 'ArrowRight') { e.preventDefault(); el.scrollBy({ left: 200, behavior: 'smooth' }) }
-              }}
             >
               {featuredProducts.slice(0, 8).map((product) => (
-                <div
-                  key={product.id}
-                  className="flex-shrink-0 snap-start w-[42vw] max-w-[185px] lg:w-auto lg:max-w-none"
-                >
+                <div key={product.id} role="listitem">
                   <MobileProductCard product={product} formatPrice={formatPrice} />
                 </div>
               ))}
             </div>
-            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none edge-fade-surface lg:hidden" />
-          </div>
+            <div className="px-4 mt-5 lg:hidden">
+              <Link
+                href="/products"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-sm font-bold text-primary border border-primary/30 hover:bg-primary hover:text-white transition-colors"
+              >
+                عرض كل المنتجات
+                <ArrowLeftIcon className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </>
         )}
       </section>
 
