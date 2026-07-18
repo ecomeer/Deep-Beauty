@@ -17,6 +17,7 @@ import dynamic from 'next/dynamic'
 import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
 import CountrySelector from './CountrySelector'
+import SearchSuggestions from './SearchSuggestions'
 
 // The cart drawer starts closed and isn't needed for first paint —
 // lazy-loading it keeps framer-motion out of the initial bundle.
@@ -219,6 +220,7 @@ export default function Navbar() {
                 }
               }}
               className="max-w-lg mx-auto relative"
+              role="search"
             >
               <MagnifyingGlassIcon className="absolute start-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
               <input
@@ -227,8 +229,10 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="ابحثي عن منتج…"
+                aria-label="البحث عن منتج"
                 className="w-full ps-11 pe-4 py-2.5 rounded-[2rem] text-sm outline-none border border-beige focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all bg-surface"
               />
+              <SearchSuggestions query={searchQuery} onNavigate={() => setSearchOpen(false)} />
             </form>
           </div>
         )}
@@ -263,6 +267,7 @@ export default function Navbar() {
                 }
               }}
               className="relative"
+              role="search"
             >
               <MagnifyingGlassIcon className="absolute start-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -270,8 +275,10 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="ابحثي عن منتج…"
+                aria-label="البحث عن منتج"
                 className="w-full ps-11 pe-4 py-2.5 rounded-[2rem] text-sm outline-none border border-beige focus:border-primary bg-surface transition-all"
               />
+              <SearchSuggestions query={searchQuery} onNavigate={() => setMobileOpen(false)} />
             </form>
           </div>
 

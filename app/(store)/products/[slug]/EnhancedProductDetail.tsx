@@ -25,6 +25,8 @@ import {
 import { HeartIcon as HeartSolid, StarIcon } from '@heroicons/react/24/solid'
 import RelatedProductsSection from '@/components/store/RelatedProductsSection'
 import ProductReviews from '@/components/store/ProductReviews'
+import RecentlyViewedSection from '@/components/store/RecentlyViewedSection'
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed'
 
 import toast from 'react-hot-toast'
 import { trackViewContent, trackAddToCart } from '@/lib/analytics'
@@ -79,6 +81,7 @@ export default function EnhancedProductDetail() {
   const [notifySubscribed, setNotifySubscribed] = useState(false)
 
   const isWishlisted = product ? isInWishlist(product.id) : false
+  const { record: recordRecentlyViewed } = useRecentlyViewed()
 
   const fetchProduct = useCallback(async () => {
     if (!slug) return
@@ -101,6 +104,18 @@ export default function EnhancedProductDetail() {
   useEffect(() => {
     fetchProduct()
   }, [fetchProduct])
+
+  useEffect(() => {
+    if (!product) return
+    recordRecentlyViewed({
+      id: product.id,
+      slug: product.slug,
+      name_ar: product.name_ar,
+      image: product.images?.[0] || '',
+      price: product.price,
+      sale_price: product.sale_price,
+    })
+  }, [product, recordRecentlyViewed])
 
   const handleAddToCart = () => {
     if (!product || product.stock_quantity === 0) return
@@ -678,6 +693,9 @@ export default function EnhancedProductDetail() {
         {related.length > 0 && (
           <RelatedProductsSection related={related} currentCategory={product.category} />
         )}
+
+        {/* ─── Recently Viewed ─── */}
+        <RecentlyViewedSection excludeIds={[product.id]} />
       </div>
     </div>
   )

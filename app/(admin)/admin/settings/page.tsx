@@ -20,6 +20,8 @@ interface Settings {
   snap_pixel_id: string
   gtm_id: string
   instagram_images: string
+  welcome_popup_enabled: string
+  welcome_coupon_code: string
 }
 
 const DEFAULTS: Settings = {
@@ -40,6 +42,8 @@ const DEFAULTS: Settings = {
   snap_pixel_id: '',
   gtm_id: '',
   instagram_images: '[]',
+  welcome_popup_enabled: 'true',
+  welcome_coupon_code: 'WELCOME10',
 }
 
 const EXCHANGE_RATE_FIELDS: Array<{ name: keyof Settings; label: string }> = [
@@ -155,6 +159,29 @@ export default function AdminSettings() {
           <div>
             <label className="block text-sm font-bold mb-1.5">نص الإعلان (الشريط العلوي)</label>
             <input name="announcement_text" value={settings.announcement_text} onChange={handleChange} className="input-field" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold mb-1.5">نافذة خصم أول طلب</label>
+              <select
+                name="welcome_popup_enabled"
+                value={settings.welcome_popup_enabled}
+                onChange={(e) => setSettings({ ...settings, welcome_popup_enabled: e.target.value })}
+                className="input-field"
+              >
+                <option value="true">مفعّلة</option>
+                <option value="false">معطّلة</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-1.5">كود خصم الترحيب</label>
+              <input name="welcome_coupon_code" value={settings.welcome_coupon_code} onChange={handleChange} className="input-field" dir="ltr" placeholder="WELCOME10" />
+            </div>
+          </div>
+
+          <div className="rounded-xl p-3 bg-blue-50 border border-blue-200 text-xs text-blue-700">
+            💡 تأكدي من إنشاء كوبون فعلي بنفس الكود من صفحة الكوبونات حتى يعمل الخصم عند الدفع.
           </div>
 
           <div className="rounded-xl p-3 bg-amber-50 border border-amber-200 text-xs text-amber-700">
