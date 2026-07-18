@@ -22,7 +22,11 @@
       "Bash(grep -rEo '#[0-9a-fA-F]{3,6}' --include='*.tsx' app components)",
       "Bash(sort -t: -k2 -rn)",
       "Bash(python3 -c ' *)",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(curl -sL https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md -o /tmp/claude-0/-home-user-Deep-Beauty/6c8550ce-436e-577a-913d-1ae1bcab8b7c/scratchpad/guidelines.md)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'تحديث أذونات الجلسة المحلية *)",
+      "Bash(git push *)"
     ]
   }
 }
