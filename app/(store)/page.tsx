@@ -40,11 +40,13 @@ export default async function HomePage() {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
+    const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at, updated_at'
+
     const [productsRes, categoriesRes, bannersRes, settingRes, flashSales] = await withTimeout(
       Promise.all([
         supabase
           .from('products')
-          .select('id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at, updated_at')
+          .select(productColumns)
           .eq('is_featured', true)
           .eq('is_active', true)
           .order('created_at', { ascending: false })
@@ -70,7 +72,24 @@ export default async function HomePage() {
       12000
     )
 
-    featuredProducts = (productsRes.data || []).map((p) => ({
+    let productRows = productsRes.data || []
+
+    // Featured curation is optional — if there aren't 8 featured products yet,
+    // backfill with the newest active products so the homepage never sits
+    // empty just because nobody flagged anything as "featured".
+    if (productRows.length < 8) {
+      const excludeIds = productRows.map((p) => p.id)
+      const { data: fallbackRows } = await supabase
+        .from('products')
+        .select(productColumns)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(8 - productRows.length + excludeIds.length)
+      const extra = (fallbackRows || []).filter((p) => !excludeIds.includes(p.id)).slice(0, 8 - productRows.length)
+      productRows = [...productRows, ...extra]
+    }
+
+    featuredProducts = productRows.map((p) => ({
       ...p,
       sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
     }))

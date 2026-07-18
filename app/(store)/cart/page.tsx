@@ -6,6 +6,7 @@ import { useCountry } from '@/context/CountryContext'
 import { TrashIcon, PlusIcon, MinusIcon, ShoppingBagIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import Image from 'next/image'
+import CartRecommendations from '@/components/store/CartRecommendations'
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal } = useCartContext()
@@ -140,6 +141,8 @@ export default function CartPage() {
             </Link>
           </div>
         </div>
+
+        <CartRecommendations cartProductIds={items.map((item) => item.id)} />
       </div>
     </div>
   )

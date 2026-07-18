@@ -22,6 +22,8 @@ export interface Product {
   ingredients_en?: string
   created_at: string
   updated_at: string
+  rating?: number | null
+  review_count?: number | null
 }
 
 export interface Category {
@@ -32,6 +34,32 @@ export interface Category {
   is_active: boolean
   image_url?: string
   product_count?: number
+}
+
+export interface Collection {
+  id: string
+  name_ar: string
+  name_en: string
+  slug: string
+  description_ar?: string | null
+  description_en?: string | null
+  image_url?: string | null
+  status: 'active' | 'inactive'
+  is_featured: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
+  deleted_at?: string | null
+  product_count?: number
+  products?: Product[]
+}
+
+export interface CollectionProduct {
+  id: string
+  collection_id: string
+  product_id: string
+  sort_order: number
+  created_at: string
 }
 
 export interface Order {

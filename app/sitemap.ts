@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${BASE_URL}/`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
     { url: `${BASE_URL}/products`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE_URL}/collections`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/faq`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${BASE_URL}/shipping`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
@@ -27,9 +28,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = createClient(sbUrl, sbKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
-    const [{ data: products }, { data: categories }] = await Promise.all([
+    const [{ data: products }, { data: categories }, { data: collections }] = await Promise.all([
       supabase.from('products').select('slug, updated_at').eq('is_active', true),
       supabase.from('categories').select('slug, updated_at').eq('is_active', true),
+      supabase.from('collections').select('slug, updated_at').eq('status', 'active').is('deleted_at', null),
     ])
 
     const productRoutes: MetadataRoute.Sitemap = (products ?? []).map((p: { slug: string; updated_at: string | null }) => ({
@@ -46,7 +48,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }))
 
-    dynamicRoutes = [...productRoutes, ...categoryRoutes]
+    const collectionRoutes: MetadataRoute.Sitemap = (collections ?? []).map((c: { slug: string; updated_at: string | null }) => ({
+      url: `${BASE_URL}/collections/${c.slug}`,
+      lastModified: c.updated_at ? new Date(c.updated_at) : now,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }))
+
+    dynamicRoutes = [...productRoutes, ...categoryRoutes, ...collectionRoutes]
   } catch (e) {
     console.error('sitemap: failed to fetch dynamic routes', e)
   }
