@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { CheckCircleIcon, PaperAirplaneIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline'
+import { CheckCircleIcon, PaperAirplaneIcon, EnvelopeIcon, PhoneIcon, LockClosedIcon, TruckIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import { CONTACT_INFO } from '@/lib/contact'
 import { PaymentIconsRow } from './PaymentIcons'
 
@@ -103,7 +103,7 @@ export default function StitchFooter({ categories = [], social = {} }: StitchFoo
   }
 
   return (
-    <footer className="bg-[var(--text-dark)] text-white/85">
+    <footer className="bg-on-surface text-white/85">
 
       {/* ─── Main Grid ─── */}
       <div className="max-w-[var(--container-max)] mx-auto px-5 md:px-8 pt-16 pb-10">
@@ -128,14 +128,14 @@ export default function StitchFooter({ categories = [], social = {} }: StitchFoo
             <div className="space-y-2.5 mb-6">
               <a
                 href={CONTACT_INFO.phoneHref}
-                className="flex items-center gap-2.5 text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
+                className="flex items-center gap-2.5 text-sm transition-colors text-white/60 hover:text-primary-light"
               >
                 <PhoneIcon className="w-4 h-4 flex-shrink-0" />
                 <span dir="ltr">{CONTACT_INFO.phone}</span>
               </a>
               <a
                 href={CONTACT_INFO.emailHref}
-                className="flex items-center gap-2.5 text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
+                className="flex items-center gap-2.5 text-sm transition-colors text-white/60 hover:text-primary-light"
               >
                 <EnvelopeIcon className="w-4 h-4 flex-shrink-0" />
                 <span dir="ltr">{CONTACT_INFO.email}</span>
@@ -174,7 +174,7 @@ export default function StitchFooter({ categories = [], social = {} }: StitchFoo
               <li>
                 <Link
                   href="/products"
-                  className="text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
+                  className="text-sm transition-colors text-white/60 hover:text-primary-light"
                 >
                   جميع المنتجات
                 </Link>
@@ -184,7 +184,7 @@ export default function StitchFooter({ categories = [], social = {} }: StitchFoo
                 <li key={cat.id}>
                   <Link
                     href={`/products?category=${encodeURIComponent(cat.slug)}`}
-                    className="text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
+                    className="text-sm transition-colors text-white/60 hover:text-primary-light"
                   >
                     {cat.name_ar}
                   </Link>
@@ -203,7 +203,7 @@ export default function StitchFooter({ categories = [], social = {} }: StitchFoo
                 <li key={href}>
                   <Link
                     href={href}
-                    className="text-sm transition-colors text-white/60 hover:text-[var(--primary-light)]"
+                    className="text-sm transition-colors text-white/60 hover:text-primary-light"
                   >
                     {label}
                   </Link>
@@ -244,7 +244,7 @@ export default function StitchFooter({ categories = [], social = {} }: StitchFoo
                   type="submit"
                   disabled={loading}
                   aria-label="اشتركي في النشرة"
-                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-50 bg-primary hover:bg-[var(--primary-hover)]"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-50 bg-primary hover:bg-primary-hover"
                 >
                   {loading ? (
                     <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -261,10 +261,15 @@ export default function StitchFooter({ categories = [], social = {} }: StitchFoo
             )}
 
             {/* Trust Badges */}
-            <div className="flex items-center gap-3 mt-5">
-              {['🔒 دفع آمن', '🚚 شحن سريع', '🌿 منتجات طبيعية'].map((badge) => (
-                <span key={badge} className="text-xs font-medium text-white/35">
-                  {badge}
+            <div className="flex items-center gap-4 mt-5">
+              {[
+                { Icon: LockClosedIcon, label: 'دفع آمن' },
+                { Icon: TruckIcon, label: 'شحن سريع' },
+                { Icon: SparklesIcon, label: 'منتجات طبيعية' },
+              ].map(({ Icon, label }) => (
+                <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/35">
+                  <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+                  {label}
                 </span>
               ))}
             </div>

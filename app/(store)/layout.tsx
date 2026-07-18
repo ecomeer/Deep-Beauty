@@ -57,8 +57,13 @@ export default async function StoreLayout({ children }: { children: React.ReactN
             style: {
               fontFamily: 'var(--font-almarai), sans-serif',
               direction: 'rtl',
-              borderRadius: '12px',
-            }
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--white)',
+              color: 'var(--on-surface)',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid var(--beige)',
+            },
+            success: { iconTheme: { primary: 'var(--primary)', secondary: 'var(--white)' } },
           }} />
           <Analytics />
           <Navbar />
