@@ -17,17 +17,6 @@ interface Props {
   currentCategory?: string
 }
 
-// Consistent star rating based on product id
-function getRating(productId: string): number {
-  const ratings = [4.7, 4.8, 4.9, 5.0, 4.8, 4.9]
-  let hash = 0
-  for (let i = 0; i < productId.length; i++) {
-    hash = ((hash << 5) - hash) + productId.charCodeAt(i)
-    hash = hash & hash
-  }
-  return ratings[Math.abs(hash) % ratings.length]
-}
-
 function RelatedCard({ product, index, currentCategory }: {
   product: Product
   index: number
@@ -39,7 +28,7 @@ function RelatedCard({ product, index, currentCategory }: {
   const [adding, setAdding] = useState(false)
   const isWishlisted = isInWishlist(product.id)
   const isSameCategory = product.category === currentCategory
-  const rating = getRating(product.id)
+  const rating = product.rating ?? null
   const displayPrice = product.sale_price ?? product.price
   const originalPrice = product.sale_price ? product.price : product.compare_price
   const discountPct = originalPrice ? Math.round((1 - displayPrice / originalPrice) * 100) : 0
@@ -154,16 +143,18 @@ function RelatedCard({ product, index, currentCategory }: {
 
           {/* Info */}
           <div className="p-3 space-y-1.5">
-            {/* Rating */}
-            <div className="flex items-center gap-1">
-              {[1,2,3,4,5].map(s => (
-                <StarIcon
-                  key={s}
-                  className={`w-3 h-3 ${s <= Math.round(rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`}
-                />
-              ))}
-              <span className="text-[10px] text-gray-500 mr-0.5">{rating}</span>
-            </div>
+            {/* Rating — only shown once the product has real approved reviews */}
+            {rating !== null && (
+              <div className="flex items-center gap-1">
+                {[1,2,3,4,5].map(s => (
+                  <StarIcon
+                    key={s}
+                    className={`w-3 h-3 ${s <= Math.round(rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`}
+                  />
+                ))}
+                <span className="text-[10px] text-gray-500 mr-0.5">{rating}</span>
+              </div>
+            )}
 
             {/* Name */}
             <p className="text-sm font-semibold leading-snug line-clamp-2 text-[var(--text-dark)]">

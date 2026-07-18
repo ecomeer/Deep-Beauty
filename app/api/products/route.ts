@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       { products: withSalePrice, total: withSalePrice.length },
-      { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300' } }
+      { headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' } }
     )
   } catch (err) {
     console.error('Products API exception:', err)

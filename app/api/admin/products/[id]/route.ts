@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 import { sendEmail, backInStockEmail } from '@/lib/email'
+import { revalidateProduct } from '@/lib/revalidate-storefront'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _authErr = await requireAdmin(req, 'products')
@@ -61,6 +62,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       )
     }
 
+    revalidateProduct(data?.slug)
     return NextResponse.json({ data })
   } catch (err) {
     console.error('PATCH error:', err)
@@ -92,7 +94,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const _authErr = await requireAdmin(req, 'products')
   if (_authErr) return _authErr
   const { id } = await params
+  const { data: existing } = await supabaseAdmin.from('products').select('slug').eq('id', id).maybeSingle()
   const { error } = await supabaseAdmin.from('products').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  revalidateProduct(existing?.slug)
   return NextResponse.json({ ok: true })
 }

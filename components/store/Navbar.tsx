@@ -24,7 +24,7 @@ const EnhancedCartSidebar = dynamic(() => import('./EnhancedCartSidebar'), { ssr
 
 const NAV_LINKS = [
   { href: '/', label: 'الرئيسية' },
-  { href: '/collections', label: 'المجموعات' },
+  { href: '/products?category=collections', label: 'المجموعات' },
   { href: '/products', label: 'المنتجات الفردية' },
   { href: '/offers', label: 'العروض' },
   { href: '/contact', label: 'تواصل معنا' },

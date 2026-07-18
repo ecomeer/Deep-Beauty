@@ -20,7 +20,7 @@ export async function GET() {
 
     return NextResponse.json(
       { categories: categories || [] },
-      { headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600' } }
+      { headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' } }
     )
   } catch (err) {
     console.error('Categories API exception:', err)

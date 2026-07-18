@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { revalidateStorefront } from '@/lib/revalidate-storefront'
 
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req, 'products')
@@ -31,5 +32,6 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  revalidateStorefront()
   return NextResponse.json({ data })
 }

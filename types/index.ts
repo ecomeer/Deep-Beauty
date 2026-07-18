@@ -22,6 +22,8 @@ export interface Product {
   ingredients_en?: string
   created_at: string
   updated_at: string
+  rating?: number | null
+  review_count?: number | null
 }
 
 export interface Category {

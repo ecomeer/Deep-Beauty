@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 import { escapeOrFilterValue } from '@/lib/utils'
+import { revalidateProduct } from '@/lib/revalidate-storefront'
 
 const PAGE_SIZE = 20
 
@@ -76,5 +77,6 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  revalidateProduct(data?.slug)
   return NextResponse.json({ data })
 }
