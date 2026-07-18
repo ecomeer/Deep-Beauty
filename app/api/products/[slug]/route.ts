@@ -10,7 +10,7 @@ export async function GET(
 ) {
   const { slug } = await params
 
-  const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at'
+  const productColumns = 'id, name_ar, name_en, slug, description_ar, description_en, ingredients_ar, ingredients_en, usage_ar, benefits_ar, seo_title, meta_description, image_alt, product_type, price, compare_price, images, category, stock_quantity, is_active, is_featured, created_at'
   const [productRes, flashSales] = await Promise.all([
     supabaseAdmin.from('products').select(productColumns).eq('slug', slug).eq('is_active', true).single(),
     getActiveFlashSales(),
