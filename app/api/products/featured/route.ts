@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
 import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
+import { getProductRatings } from '@/lib/recommendations'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,9 +28,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'فشل في جلب المنتجات المميزة' }, { status: 500 })
     }
 
+    const ratings = await getProductRatings((products || []).map(p => p.id))
+
     const withSalePrice = (products || []).map(p => ({
       ...p,
       sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
+      rating: ratings[p.id]?.average_rating ?? null,
+      review_count: ratings[p.id]?.review_count ?? 0,
     }))
 
     return NextResponse.json(

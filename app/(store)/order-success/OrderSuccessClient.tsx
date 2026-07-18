@@ -51,7 +51,7 @@ function OrderSuccessContent() {
   }, [orderId])
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-6 py-12 bg-[var(--off-white)]">
+    <div className="min-h-[80vh] flex items-center justify-center px-6 py-12 bg-surface">
       <div className="w-full max-w-lg">
         {/* Success Header */}
         <div className="text-center mb-8">
@@ -62,10 +62,10 @@ function OrderSuccessContent() {
             <div className="absolute -top-1 -right-1 text-2xl animate-bounce">🎉</div>
           </div>
 
-          <h1 className="text-4xl font-bold mb-3 font-headline text-[var(--text-dark)]">
+          <h1 className="text-4xl font-bold mb-3 font-headline text-on-surface">
             تم استلام طلبك بنجاح!
           </h1>
-          <p className="opacity-70 leading-7 text-[var(--text-dark)]">
+          <p className="opacity-70 leading-7 text-on-surface">
             شكراً لتسوقك من Deep Beauty. سنتواصل معك قريباً لتأكيد الطلب.
           </p>
         </div>
@@ -98,7 +98,7 @@ function OrderSuccessContent() {
         )}
 
         {/* Order Number */}
-        <div className="rounded-2xl p-5 mb-6 text-center bg-[var(--beige)]">
+        <div className="rounded-2xl p-5 mb-6 text-center bg-beige">
           <div className="text-sm opacity-60 mb-1">رقم الطلب</div>
           <div className="text-2xl font-bold" style={{ color: 'var(--primary)', direction: 'ltr' }}>{orderNum}</div>
           <div className="text-sm opacity-60 mt-2">⏱️ موعد التسليم المتوقع: ٢-٣ أيام عمل</div>
@@ -120,7 +120,7 @@ function OrderSuccessContent() {
           </div>
         ) : order && order.order_items?.length > 0 && (
           <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
-            <h2 className="text-lg font-bold mb-4 font-headline text-[var(--text-dark)]">
+            <h2 className="text-lg font-bold mb-4 font-headline text-on-surface">
               تفاصيل الطلب
             </h2>
             <div className="space-y-3 mb-4">

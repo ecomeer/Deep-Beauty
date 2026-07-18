@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Product, Category } from '@/types'
 import { useCountry } from '@/context/CountryContext'
 import FadeUp from '@/components/store/FadeUp'
+import RecentlyViewedSection from '@/components/store/RecentlyViewedSection'
 import { useCartContext } from '@/context/CartContext'
 import { useWishlistContext } from '@/context/WishlistContext'
 import {
@@ -25,7 +26,7 @@ import {
   HandRaisedIcon,
   GlobeAltIcon,
 } from '@heroicons/react/24/outline'
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
+import { HeartIcon as HeartSolid, StarIcon } from '@heroicons/react/24/solid'
 import toast from 'react-hot-toast'
 
 interface Banner {
@@ -41,6 +42,7 @@ interface Props {
   categories: Category[]
   banners?: Banner[]
   announcementText?: string
+  offersProducts?: Product[]
 }
 
 // ─── Trust features ────────────────────────────────────────────────────────
@@ -50,15 +52,6 @@ const TRUST = [
   { Icon: SparklesIcon,    title: 'جودة فاخرة',      desc: 'مصنوع بعناية واحترافية' },
   { Icon: CheckBadgeIcon,  title: 'ضمان الرضا',      desc: 'استبدال أو استرداد كامل' },
 ]
-
-// ─── Instagram icon (inline SVG) ──────────────────────────────────────────
-function IconInstagram({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-    </svg>
-  )
-}
 
 // ─── Certifications ───────────────────────────────────────────────────────
 const CERTS = [
@@ -89,14 +82,14 @@ function SectionHeader({
   href?: string
   dark?: boolean
 }) {
-  const accent = dark ? 'text-[var(--primary-light)]' : 'text-primary'
+  const accent = dark ? 'text-primary-light' : 'text-primary'
   return (
-    <div className="px-4 mb-5 flex items-center justify-between">
+    <div className="px-4 md:px-8 mb-5 flex items-center justify-between lg:max-w-[var(--container-max)] lg:mx-auto">
       <div className="text-right">
         <span className={`text-xs font-bold uppercase tracking-[0.14em] block mb-0.5 ${accent}`}>
           {eyebrow}
         </span>
-        <h2 className={`text-xl font-bold font-headline ${dark ? 'text-white' : 'text-[var(--text-dark)]'}`}>
+        <h2 className={`text-xl lg:text-3xl font-bold font-headline [text-wrap:balance] ${dark ? 'text-white' : 'text-on-surface'}`}>
           {title}
         </h2>
       </div>
@@ -148,17 +141,17 @@ function MobileProductCard({
     toast.success(isWishlisted ? 'أُزيل من المفضلة' : 'أُضيف للمفضلة ❤️', { position: 'bottom-center' })
   }
 
-  const cardBg    = darkMode ? 'rgba(255,255,255,0.06)' : 'white'
-  const cardBorder = darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid var(--beige)'
-
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <div
-        className="rounded-2xl overflow-hidden transition-all duration-300 group-hover:shadow-lg"
-        style={{ background: cardBg, border: cardBorder }}
+        className={`rounded-[1.25rem] overflow-hidden transition-all duration-300 group-hover:-translate-y-1 ${
+          darkMode
+            ? 'bg-white/[0.06] border border-white/10 group-hover:bg-white/10'
+            : 'bg-white shadow-sm group-hover:shadow-lg'
+        }`}
       >
         {/* ── Image ── */}
-        <div className="relative aspect-square overflow-hidden bg-[var(--beige)]">
+        <div className={`relative aspect-square overflow-hidden ${darkMode ? 'bg-white/5' : 'bg-surface-container'}`}>
           {product.images?.[0] ? (
             <Image
               src={product.images[0]}
@@ -171,13 +164,13 @@ function MobileProductCard({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <SparklesIcon className="w-10 h-10 opacity-20 text-[var(--primary)]" />
+              <SparklesIcon className="w-10 h-10 opacity-20 text-primary" />
             </div>
           )}
 
           {/* Discount badge */}
           {discount > 0 && (
-            <span className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full shadow">
+            <span className="absolute top-2.5 start-2.5 px-2 py-1 bg-primary-dark/95 text-primary-fixed text-[10px] font-bold rounded-full shadow-sm tracking-wide" dir="ltr">
               -{discount}٪
             </span>
           )}
@@ -186,11 +179,11 @@ function MobileProductCard({
           <button
             onClick={handleWishlist}
             aria-label={isWishlisted ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
-            className={`absolute top-2.5 left-2.5 w-8 h-8 rounded-full flex items-center justify-center shadow transition-colors duration-200 ${
-              isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/90 text-gray-400 hover:bg-rose-50 hover:text-rose-500'
+            className={`absolute top-2 end-2 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur shadow-sm transition-all duration-200 active:scale-90 ${
+              isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/85 text-on-surface-variant hover:text-rose-500'
             }`}
           >
-            {isWishlisted ? <HeartSolid className="w-3.5 h-3.5" /> : <HeartIcon className="w-3.5 h-3.5" />}
+            {isWishlisted ? <HeartSolid className="w-4 h-4" /> : <HeartIcon className="w-4 h-4" />}
           </button>
 
           {/* Out of stock */}
@@ -204,37 +197,55 @@ function MobileProductCard({
         </div>
 
         {/* ── Content ── */}
-        <div className="p-3 text-right">
-          <h3
-            className="font-bold text-sm leading-snug line-clamp-2 mb-2"
-            style={{ color: darkMode ? 'rgba(255,255,255,0.9)' : 'var(--text-dark)' }}
-          >
+        <div className="p-3 pt-2.5 text-right">
+          {product.rating != null && (
+            <div
+              className="flex items-center gap-0.5 mb-1"
+              aria-label={`التقييم ${product.rating} من ٥ — ${product.review_count ?? 0} تقييم`}
+            >
+              {[1, 2, 3, 4, 5].map((s) => (
+                <StarIcon
+                  key={s}
+                  aria-hidden="true"
+                  className={`w-3 h-3 ${s <= Math.round(product.rating!) ? 'text-amber-400' : darkMode ? 'text-white/20' : 'text-gray-300'}`}
+                />
+              ))}
+              <span className={`text-[10px] tabular-nums ms-0.5 ${darkMode ? 'text-white/50' : 'text-gray-500'}`} dir="ltr">
+                ({product.review_count ?? 0})
+              </span>
+            </div>
+          )}
+
+          <h3 className={`font-bold text-[13px] leading-snug line-clamp-2 min-h-[2.1rem] mb-1.5 ${darkMode ? 'text-white/90' : 'text-on-surface'}`}>
             {product.name_ar}
           </h3>
 
-          <div className="flex items-center justify-between gap-1 mb-2.5">
-            <div className="flex items-baseline gap-1.5">
-              {comparePrice && comparePrice > displayPrice && (
-                <span className="text-[11px] text-gray-400 line-through" dir="ltr">
-                  {formatPrice(comparePrice)}
-                </span>
-              )}
-            </div>
+          <div className="flex items-baseline gap-1.5 mb-2.5">
             <span
-              className="text-sm font-bold"
-              style={{ color: darkMode ? 'var(--primary-light)' : 'var(--primary)' }}
+              className={`text-[15px] font-bold ${darkMode ? 'text-primary-light' : 'text-primary'}`}
               dir="ltr"
             >
               {formatPrice(displayPrice)}
             </span>
+            {comparePrice && comparePrice > displayPrice && (
+              <span className={`text-[11px] line-through ${darkMode ? 'text-white/35' : 'text-gray-400'}`} dir="ltr">
+                {formatPrice(comparePrice)}
+              </span>
+            )}
           </div>
 
           <button
             onClick={handleAddToCart}
             disabled={outOfStock || adding}
             aria-label={outOfStock ? 'نفذت الكمية' : `إضافة ${product.name_ar} للسلة`}
-            className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all duration-200 disabled:cursor-not-allowed ${
-              outOfStock ? 'bg-[var(--dark-beige)]' : adding ? 'bg-green-500' : 'bg-primary'
+            className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed ${
+              outOfStock
+                ? 'bg-dark-beige/60 text-on-surface-variant'
+                : adding
+                ? 'bg-green-500 text-white'
+                : darkMode
+                ? 'bg-primary-light text-on-surface hover:bg-primary-fixed'
+                : 'bg-primary text-white hover:bg-primary-hover'
             }`}
           >
             {adding
@@ -257,6 +268,7 @@ export default function StitchHomeContent({
   categories,
   banners = [],
   announcementText,
+  offersProducts = [],
 }: Props) {
   const { formatPrice } = useCountry()
   const [heroIndex, setHeroIndex] = useState(0)
@@ -339,7 +351,7 @@ export default function StitchHomeContent({
   const activeCategories = categories.filter(c => c.is_active).slice(0, 6)
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--off-white)', paddingTop: 'var(--nav-height)' }}>
+    <div className="min-h-screen bg-surface pt-[var(--nav-height)]">
 
       {/* Visually hidden H1 for SEO */}
       <h1 className="sr-only">ديب بيوتي | متجر عناية فاخرة بالبشرة — منتجات طبيعية ١٠٠٪ من الكويت</h1>
@@ -352,8 +364,7 @@ export default function StitchHomeContent({
           role="banner"
           aria-live="polite"
           aria-atomic="true"
-          className="py-2.5 px-4 text-center text-xs tracking-widest font-bold text-white overflow-hidden"
-          style={{ background: 'linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-dark) 100%)' }}
+          className="py-2.5 px-4 text-center text-xs tracking-widest font-bold text-white overflow-hidden brand-gradient-x"
         >
           <span aria-hidden="true" className="opacity-60 mx-1">◆</span>
           <span className="mx-2">{announcementText}</span>
@@ -370,7 +381,7 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="px-3 pt-3 pb-2">
         <div
-          className="relative w-full rounded-[1.75rem] overflow-hidden aspect-[4/5] sm:aspect-[16/9]"
+          className="relative w-full rounded-[1.75rem] lg:rounded-[2.5rem] overflow-hidden aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] lg:max-w-[var(--container-max)] lg:mx-auto ring-1 ring-black/5 shadow-xl"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -378,8 +389,7 @@ export default function StitchHomeContent({
           {heroSlides.map((slide, i) => (
             <div
               key={i}
-              className="absolute inset-0 transition-opacity duration-500"
-              style={{ opacity: i === heroIndex ? 1 : 0, pointerEvents: i === heroIndex ? 'auto' : 'none' }}
+              className={`absolute inset-0 transition-opacity duration-500 ${i === heroIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             >
               {(slide as Banner | null)?.image_url ? (
                 <Image
@@ -392,51 +402,69 @@ export default function StitchHomeContent({
                   quality={85}
                 />
               ) : (
-                <div
-                  className="w-full h-full"
-                  style={{ background: 'linear-gradient(160deg, var(--beige) 0%, var(--dark-beige) 60%, var(--primary) 100%)' }}
-                />
+                <div className="w-full h-full hero-fallback-gradient" />
               )}
             </div>
           ))}
 
           {/* Gradient — stronger bottom veil */}
-          <div
-            className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none z-[1]"
-            style={{ background: 'linear-gradient(to top, rgba(20,12,6,0.88) 0%, rgba(20,12,6,0.4) 45%, transparent 100%)' }}
-          />
+          <div className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none z-[1] hero-veil" />
 
           {/* Text overlay */}
-          <div className="absolute bottom-10 right-4 left-4 z-[2] text-right">
-            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full" style={{ background: 'rgba(139,94,60,0.9)' }}>
-              <span className="text-xs font-bold tracking-[0.12em] uppercase text-white">✦ ديب بيوتي الكويت</span>
+          <div className="absolute bottom-10 lg:bottom-14 right-4 left-4 lg:right-10 lg:left-10 z-[2] text-right">
+            <div className="inline-flex items-center gap-2 mb-4 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/25">
+              <span aria-hidden="true" className="w-1 h-1 rounded-full bg-primary-fixed" />
+              <span className="font-en italic text-[11px] lg:text-xs tracking-[0.3em] uppercase text-white/90">Deep Beauty</span>
+              <span aria-hidden="true" className="w-px h-3 bg-white/30" />
+              <span className="text-[11px] lg:text-xs font-bold tracking-[0.1em] text-white/90">الكويت</span>
             </div>
             <h2
-              className="text-[2rem] sm:text-4xl font-bold text-white leading-[1.15] mb-2.5 font-headline"
-              style={{ textShadow: '0 2px 20px rgba(0,0,0,0.6)' }}
+              className="text-[2.1rem] sm:text-4xl lg:text-6xl font-bold text-white leading-[1.12] mb-3 font-headline text-shadow-strong [text-wrap:balance]"
             >
               {(heroSlides[heroIndex] as Banner | null)?.title_ar || 'جمالك يبدأ من الأعماق'}
             </h2>
-            <p className="text-[13px] text-white/80 mb-5 leading-relaxed max-w-[280px] mr-auto" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}>
+            <div aria-hidden="true" className="w-14 lg:w-20 h-0.5 rounded-full bg-primary-fixed/80 me-auto mb-3" />
+            <p className="text-[13px] sm:text-sm text-white/80 mb-5 leading-relaxed max-w-[280px] sm:max-w-sm lg:max-w-md me-auto lg:text-base text-shadow-soft">
               {(heroSlides[heroIndex] as Banner | null)?.subtitle_ar || 'عناية فاخرة بالبشرة — منتجات طبيعية ١٠٠٪'}
             </p>
             <div className="flex items-center gap-2.5">
               <Link
                 href={(heroSlides[heroIndex] as Banner | null)?.link_url || '/products'}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white shadow-lg transition-all active:scale-95 bg-primary"
+                className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-7 lg:py-3 rounded-full text-sm lg:text-base font-bold text-white shadow-lg transition-all active:scale-95 bg-primary hover:bg-primary-hover"
               >
                 تسوّقي الآن
                 <ArrowLeftIcon className="w-3.5 h-3.5" />
               </Link>
               <Link
                 href="/about"
-                className="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
-                style={{ background: 'rgba(255,255,255,0.14)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.22)' }}
+                className="inline-flex items-center px-4 py-2.5 lg:px-6 lg:py-3 rounded-full text-sm lg:text-base font-semibold text-white transition-all bg-white/15 backdrop-blur border border-white/20 hover:bg-white/25"
               >
                 من نحن
               </Link>
             </div>
           </div>
+
+          {/* Desktop prev/next arrows */}
+          {heroSlides.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={goPrev}
+                aria-label="الشريحة السابقة"
+                className="hidden lg:flex absolute top-1/2 -translate-y-1/2 start-5 z-[3] w-11 h-11 items-center justify-center rounded-full bg-white/15 backdrop-blur border border-white/25 text-white hover:bg-white/30 transition-colors"
+              >
+                <ArrowLeftIcon className="w-5 h-5 rotate-180" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={goNext}
+                aria-label="الشريحة التالية"
+                className="hidden lg:flex absolute top-1/2 -translate-y-1/2 end-5 z-[3] w-11 h-11 items-center justify-center rounded-full bg-white/15 backdrop-blur border border-white/25 text-white hover:bg-white/30 transition-colors"
+              >
+                <ArrowLeftIcon className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </>
+          )}
 
           {/* Pagination dots — accessible with aria-current */}
           {heroSlides.length > 1 && (
@@ -453,12 +481,9 @@ export default function StitchHomeContent({
                   aria-label={`الشريحة ${i + 1}${(slide as Banner | null)?.title_ar ? ': ' + (slide as Banner).title_ar : ''}`}
                   aria-selected={i === heroIndex}
                   aria-current={i === heroIndex ? 'true' : undefined}
-                  className="transition-all duration-300 bg-white rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-                  style={
-                    i === heroIndex
-                      ? { width: 20, height: 8, opacity: 1 }
-                      : { width: 8, height: 8, opacity: 0.4 }
-                  }
+                  className={`transition-all duration-300 bg-white rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white h-2 ${
+                    i === heroIndex ? 'w-5 opacity-100' : 'w-2 opacity-40'
+                  }`}
                 />
               ))}
             </div>
@@ -469,22 +494,20 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           3. TRUST BAR — REASSURANCE RIGHT AFTER HERO
       ═══════════════════════════════════════ */}
-      <section className="py-8 bg-white border-b border-[var(--beige)]">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6">
+      <section className="py-8 lg:py-10 bg-white border-b border-beige">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 lg:max-w-[var(--container-max)] lg:mx-auto lg:divide-x lg:divide-x-reverse lg:divide-beige lg:gap-0">
           {TRUST.map(({ Icon, title, desc }, i) => (
             <FadeUp
               key={title}
               duration={0.45}
               delay={i * 0.07}
-              className="flex flex-col items-center text-center gap-2"
+              className="flex flex-col items-center text-center gap-2 lg:px-6"
             >
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[var(--beige)]"
-              >
-                <Icon className="w-6 h-6 text-[var(--primary)]" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-beige ring-4 ring-surface">
+                <Icon className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-xs font-bold text-[var(--text-dark)]">{title}</p>
-              <p className="text-xs text-[var(--on-surface-variant)]">{desc}</p>
+              <p className="text-xs lg:text-sm font-bold text-on-surface">{title}</p>
+              <p className="text-xs text-on-surface-variant">{desc}</p>
             </FadeUp>
           ))}
         </div>
@@ -493,29 +516,34 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           3.5. OFFER COUNTDOWN TIMER
       ═══════════════════════════════════════ */}
-      <section className="px-4 py-6">
+      <section className="px-4 py-6 lg:max-w-[var(--container-max)] lg:mx-auto">
         <Link href="/offers" className="block group">
-          <div className="rounded-2xl p-5 text-center bg-gradient-to-r from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-dark)] shadow-lg">
-            <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="relative rounded-2xl lg:rounded-[2rem] p-5 lg:p-7 text-center bg-gradient-to-r from-primary-dark via-primary to-primary-dark shadow-lg overflow-hidden lg:flex lg:items-center lg:justify-between lg:text-right lg:gap-8 lg:px-10">
+            <div aria-hidden="true" className="absolute -top-10 -start-10 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
+            <div aria-hidden="true" className="absolute -bottom-12 -end-8 w-48 h-48 rounded-full bg-primary-fixed/10 blur-3xl" />
+            <div className="flex items-center justify-center gap-2 mb-2 lg:mb-0 relative">
               <FireIcon className="w-5 h-5 text-amber-300" />
-              <span className="text-xs font-bold uppercase tracking-widest text-white/80">عرض اليوم — ينتهي خلال</span>
-              <FireIcon className="w-5 h-5 text-amber-300" />
+              <span className="text-xs lg:text-sm font-bold uppercase tracking-widest text-white/85">عرض اليوم — ينتهي خلال</span>
+              <FireIcon className="w-5 h-5 text-amber-300 lg:hidden" />
             </div>
-            <div className="flex items-center justify-center gap-3" dir="ltr" suppressHydrationWarning>
+            <div className="flex items-center justify-center gap-1.5 relative" dir="ltr" suppressHydrationWarning>
               {[
                 { val: countdown.h, label: 'ساعة' },
                 { val: countdown.m, label: 'دقيقة' },
                 { val: countdown.s, label: 'ثانية' },
               ].map((t, i) => (
-                <div key={i} className="flex flex-col items-center">
-                  <span className="text-2xl font-bold font-headline text-white tabular-nums" suppressHydrationWarning>
-                    {t.val}
-                  </span>
-                  <span className="text-[10px] text-white/60">{t.label}</span>
+                <div key={i} className="flex items-center gap-1.5">
+                  {i > 0 && <span aria-hidden="true" className="text-xl lg:text-2xl font-headline text-white/40 -mt-4">:</span>}
+                  <div className="flex flex-col items-center min-w-[3.25rem] lg:min-w-[3.75rem] py-2 px-1 rounded-xl bg-white/10 backdrop-blur border border-white/15">
+                    <span className="text-2xl lg:text-3xl font-bold font-headline text-white tabular-nums leading-none" suppressHydrationWarning>
+                      {t.val}
+                    </span>
+                    <span className="text-[10px] text-white/60 mt-1">{t.label}</span>
+                  </div>
                 </div>
               ))}
             </div>
-            <span className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-full text-xs font-bold text-[var(--primary-dark)] bg-white shadow transition-transform group-hover:scale-105">
+            <span className="inline-flex items-center gap-1.5 mt-3 lg:mt-0 px-4 py-2 lg:px-6 lg:py-2.5 rounded-full text-xs lg:text-sm font-bold text-primary-dark bg-white shadow transition-transform group-hover:scale-105 relative">
               تصفّحي العروض
               <ArrowLeftIcon className="w-3 h-3" />
             </span>
@@ -531,19 +559,18 @@ export default function StitchHomeContent({
           <SectionHeader eyebrow="تسوّقي حسب الفئة" title="اكتشفي مجموعاتنا" linkLabel="الكل" />
 
           {/* Horizontal scroll — rectangular cards with image overlay */}
-          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 no-scrollbar lg:grid lg:grid-cols-6 lg:gap-5 lg:overflow-visible lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto">
             {activeCategories.map((cat, i) => (
               <FadeUp
                 key={cat.id}
                 duration={0.4}
                 delay={i * 0.07}
-                className="flex-shrink-0 snap-start"
-                style={{ width: '36vw', maxWidth: 148 }}
+                className="flex-shrink-0 snap-start w-[36vw] max-w-[148px] lg:w-auto lg:max-w-none"
               >
                 <Link
                   href={`/products?category=${encodeURIComponent(cat.slug)}`}
                   aria-label={`تصفح فئة ${cat.name_ar}`}
-                  className="group block relative rounded-2xl overflow-hidden aspect-[3/4] bg-[var(--beige)]"
+                  className="group block relative rounded-2xl overflow-hidden aspect-[3/4] bg-beige"
                 >
                   {/* Image */}
                   {cat.image_url && (
@@ -559,21 +586,18 @@ export default function StitchHomeContent({
                   )}
 
                   {/* Gradient overlay — always present for text readability */}
-                  <div
-                    className="absolute inset-0 transition-opacity duration-300"
-                    style={{ background: 'linear-gradient(to top, rgba(30,18,10,0.72) 0%, rgba(30,18,10,0.1) 55%, transparent 100%)' }}
-                  />
+                  <div className="absolute inset-0 transition-opacity duration-300 card-scrim" />
 
                   {/* Category label at bottom */}
                   <div className="absolute bottom-0 inset-x-0 p-3 text-right">
-                    <span className="text-white font-bold text-sm leading-tight block line-clamp-2" style={{ textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
+                    <span className="text-white font-bold text-sm leading-tight block line-clamp-2 text-shadow-soft">
                       {cat.name_ar}
                     </span>
                   </div>
 
                   {/* Hover glow border */}
                   <div
-                    className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-[var(--primary)] transition-all duration-300"
+                    className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-primary transition-all duration-300"
                   />
                 </Link>
               </FadeUp>
@@ -587,65 +611,91 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="py-8">
         {/* Accent line */}
-        <div
-          className="mx-4 mb-5 h-px"
-          style={{ background: 'linear-gradient(to left, var(--primary), transparent)' }}
-        />
+        <div className="mx-4 mb-5 h-px accent-line lg:max-w-[var(--container-max)] lg:mx-auto" />
 
         {/* Eyebrow + heading */}
-        <SectionHeader eyebrow="✦ مختار بعناية" title="أبرز منتجاتنا" />
+        <SectionHeader eyebrow="✦ تشكيلة مختارة" title="منتجات حصرية" />
 
         {featuredProducts.length === 0 ? (
           <div
             className="mx-6 py-16 rounded-[2rem] flex flex-col items-center justify-center gap-3 bg-white"
           >
-            <ShoppingBagIcon className="w-12 h-12 text-[var(--primary)] opacity-20" />
-            <p className="text-sm text-[var(--on-surface-variant)]">المنتجات تُضاف قريباً ✨</p>
+            <ShoppingBagIcon className="w-12 h-12 text-primary opacity-20" />
+            <p className="text-sm text-on-surface-variant">المنتجات تُضاف قريباً ✨</p>
           </div>
         ) : (
-          /* Slider with right-side edge fade */
-          <div className="relative">
+          /* 2-col grid on mobile — shows more products without side-scrolling */
+          <>
             <div
-              className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-1"
-              style={{ scrollbarWidth: 'none' }}
+              className="grid grid-cols-2 gap-3 px-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6 lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto"
               role="list"
               aria-label="المنتجات المختارة"
-              tabIndex={0}
-              onKeyDown={e => {
-                const el = e.currentTarget
-                if (e.key === 'ArrowLeft') { e.preventDefault(); el.scrollBy({ left: -200, behavior: 'smooth' }) }
-                if (e.key === 'ArrowRight') { e.preventDefault(); el.scrollBy({ left: 200, behavior: 'smooth' }) }
-              }}
             >
               {featuredProducts.slice(0, 8).map((product) => (
-                <div
-                  key={product.id}
-                  className="flex-shrink-0 snap-start"
-                  style={{ width: '42vw', maxWidth: '185px' }}
-                >
+                <div key={product.id} role="listitem">
                   <MobileProductCard product={product} formatPrice={formatPrice} />
                 </div>
               ))}
             </div>
-            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none" style={{ background: 'linear-gradient(to left, var(--off-white), transparent)' }} />
-          </div>
+            <div className="px-4 mt-5 lg:hidden">
+              <Link
+                href="/products"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-sm font-bold text-primary border border-primary/30 hover:bg-primary hover:text-white transition-colors"
+              >
+                عرض كل المنتجات
+                <ArrowLeftIcon className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </>
         )}
       </section>
 
       {/* ═══════════════════════════════════════
+          5.2. EXCLUSIVE OFFERS COLLECTION
+      ═══════════════════════════════════════ */}
+      {offersProducts.length > 0 && (
+        <section className="py-10 hero-gradient border-y border-beige">
+          <div className="px-4 md:px-8 mb-5 flex items-center justify-between lg:max-w-[var(--container-max)] lg:mx-auto">
+            <div className="text-right">
+              <span className="text-xs font-bold uppercase tracking-[0.14em] block mb-0.5 text-primary">
+                ✦ خصومات لفترة محدودة
+              </span>
+              <h2 className="text-xl lg:text-3xl font-bold font-headline [text-wrap:balance] text-on-surface">
+                مجموعة العروض الحصرية
+              </h2>
+            </div>
+            <Link href="/offers" className="flex items-center gap-1 text-xs font-semibold text-primary">
+              كل العروض <ArrowLeftIcon className="w-3 h-3" />
+            </Link>
+          </div>
+
+          <div className="relative">
+            <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-2 no-scrollbar lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto">
+              {offersProducts.map((product) => (
+                <div key={product.id} className="flex-shrink-0 snap-start w-[42vw] max-w-[185px] lg:w-auto lg:max-w-none">
+                  <MobileProductCard product={product} formatPrice={formatPrice} />
+                </div>
+              ))}
+            </div>
+            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none edge-fade-surface lg:hidden" />
+          </div>
+        </section>
+      )}
+
+      {/* ═══════════════════════════════════════
           5.5. SKINCARE ROUTINE — 3 STEPS
       ═══════════════════════════════════════ */}
-      <section className="py-10 bg-white border-t border-[var(--beige)]">
-        <div className="px-6 mb-8 text-right">
+      <section className="py-10 bg-white border-t border-beige">
+        <div className="px-6 mb-8 text-right lg:max-w-[var(--container-max)] lg:mx-auto">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ روتينك اليومي
           </span>
-          <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
+          <h2 className="text-xl lg:text-3xl font-bold font-headline text-on-surface">
             ٣ خطوات لبشرة مشرقة
           </h2>
         </div>
 
-        <div className="flex flex-col gap-4 px-6">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-8 px-6 lg:max-w-[var(--container-max)] lg:mx-auto">
           {ROUTINE_STEPS.map(({ Icon, step, title, desc }, i) => (
             <FadeUp
               key={title}
@@ -654,25 +704,25 @@ export default function StitchHomeContent({
               className="flex items-start gap-4 text-right"
             >
               <div className="relative flex-shrink-0">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[var(--beige)]">
-                  <Icon className="w-6 h-6 text-[var(--primary)]" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-beige">
+                  <Icon className="w-6 h-6 text-primary" />
                 </div>
                 <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shadow">
                   {step}
                 </span>
               </div>
               <div className="pt-1">
-                <p className="text-sm font-bold text-[var(--text-dark)] mb-1">{title}</p>
-                <p className="text-xs leading-relaxed text-[var(--on-surface-variant)]">{desc}</p>
+                <p className="text-sm font-bold text-on-surface mb-1">{title}</p>
+                <p className="text-xs leading-relaxed text-on-surface-variant">{desc}</p>
               </div>
             </FadeUp>
           ))}
         </div>
 
-        <div className="px-6 mt-6">
+        <div className="px-6 mt-6 lg:max-w-md lg:mx-auto">
           <Link
             href="/products"
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-primary border border-[var(--beige)] hover:bg-[var(--off-white)] transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-primary border border-beige hover:bg-surface transition-colors"
           >
             تسوّقي منتجات الروتين
             <ArrowLeftIcon className="w-3.5 h-3.5" />
@@ -683,32 +733,25 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           6. MIDDLE BANNER — SPLIT CARD
       ═══════════════════════════════════════ */}
-      <section className="px-4 py-8">
+      <section className="px-4 py-8 lg:max-w-[var(--container-max)] lg:mx-auto">
         <Link href={midBannerLink} className="block group">
           <div
-            className="w-full rounded-[2rem] overflow-hidden transition-transform duration-300 group-hover:scale-[1.01]"
-            style={{
-              minHeight: '220px',
-              background: 'var(--text-dark)',
-              boxShadow: '0 16px 48px rgba(58,42,30,0.2)',
-              display: 'grid',
-              gridTemplateColumns: midBannerImg ? '1fr 1fr' : '1fr',
-            }}
+            className={`w-full min-h-[220px] lg:min-h-[320px] rounded-[2rem] overflow-hidden transition-transform duration-300 group-hover:scale-[1.01] bg-on-surface shadow-xl grid ${
+              midBannerImg ? 'grid-cols-2' : 'grid-cols-1'
+            }`}
           >
             {/* RIGHT col (RTL first): Text */}
             <div className="p-6 text-right flex flex-col justify-center gap-3">
               <span
-                className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--primary-light)]"
+                className="text-xs font-bold uppercase tracking-[0.16em] text-primary-light"
               >
                 ✦ عرض حصري
               </span>
               <div className="w-10 h-0.5 self-end rounded-full bg-primary" />
-              <p
-                className="text-2xl font-bold text-white leading-snug font-headline"
-              >
+              <p className="text-2xl lg:text-4xl font-bold text-white leading-snug font-headline [text-wrap:balance]">
                 {midBannerTitle}
               </p>
-              <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              <p className="text-xs leading-relaxed text-white/55">
                 {midBannerSub}
               </p>
               <span
@@ -721,7 +764,7 @@ export default function StitchHomeContent({
 
             {/* LEFT col: Image (only renders when image exists) */}
             {midBannerImg && (
-              <div className="relative overflow-hidden rounded-l-[2rem]" style={{ minHeight: '220px' }}>
+              <div className="relative overflow-hidden rounded-l-[2rem] min-h-[220px]">
                 <Image
                   src={midBannerImg}
                   alt={midBannerTitle}
@@ -741,28 +784,28 @@ export default function StitchHomeContent({
           7. BESTSELLERS SLIDER — DARK BACKGROUND
       ═══════════════════════════════════════ */}
       {(bestsellersLoading || bestsellers.length > 0) && (
-        <section className="py-12 bg-[var(--text-dark)]">
+        <section className="py-12 bg-on-surface">
           {/* Eyebrow + heading */}
           <SectionHeader eyebrow="✦ الأعلى مبيعاً" title="الأكثر طلباً" dark />
 
           {/* Slider with edge fade */}
           <div className="relative">
-            <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-2" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-2 no-scrollbar lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto">
               {bestsellersLoading
                 ? Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex-shrink-0 snap-start animate-pulse" style={{ width: '42vw', maxWidth: '185px' }}>
-                      <div className="rounded-2xl aspect-square mb-2" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                      <div className="h-2.5 rounded w-3/4 mb-1.5" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                      <div className="h-2.5 rounded w-1/2" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    <div key={i} className="flex-shrink-0 snap-start animate-pulse w-[42vw] max-w-[185px] lg:w-auto lg:max-w-none">
+                      <div className="rounded-2xl aspect-square mb-2 bg-white/10" />
+                      <div className="h-2.5 rounded w-3/4 mb-1.5 bg-white/10" />
+                      <div className="h-2.5 rounded w-1/2 bg-white/10" />
                     </div>
                   ))
                 : bestsellers.map((product) => (
-                    <div key={product.id} className="flex-shrink-0 snap-start" style={{ width: '42vw', maxWidth: '185px' }}>
+                    <div key={product.id} className="flex-shrink-0 snap-start w-[42vw] max-w-[185px] lg:w-auto lg:max-w-none">
                       <MobileProductCard product={product} formatPrice={formatPrice} darkMode />
                     </div>
                   ))}
             </div>
-            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none" style={{ background: 'linear-gradient(to left, var(--text-dark), transparent)' }} />
+            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none edge-fade-dark lg:hidden" />
           </div>
         </section>
       )}
@@ -770,8 +813,8 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           7.5. CERTIFICATIONS BAR
       ═══════════════════════════════════════ */}
-      <section className="py-8 bg-[var(--off-white)] border-y border-[var(--beige)]">
-        <div className="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
+      <section className="py-8 bg-surface border-y border-beige">
+        <div className="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory no-scrollbar lg:justify-center lg:overflow-visible">
           {CERTS.map(({ Icon, label }, i) => (
             <FadeUp
               key={label}
@@ -779,10 +822,10 @@ export default function StitchHomeContent({
               delay={i * 0.08}
               className="flex-shrink-0 snap-start flex items-center gap-2.5"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-[var(--beige)]">
-                <Icon className="w-5 h-5 text-[var(--primary)]" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-beige">
+                <Icon className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-xs font-bold text-[var(--text-dark)] whitespace-nowrap">{label}</span>
+              <span className="text-xs font-bold text-on-surface whitespace-nowrap">{label}</span>
             </FadeUp>
           ))}
         </div>
@@ -792,22 +835,22 @@ export default function StitchHomeContent({
           8. WHY DEEP BEAUTY — BRAND STORY CLOSER
       ═══════════════════════════════════════ */}
       <section className="py-14 bg-white">
-        <div className="px-6 mb-10 text-right">
+        <div className="px-6 mb-10 text-right lg:max-w-[var(--container-max)] lg:mx-auto">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ لماذا ديب بيوتي
           </span>
-          <h2 className="text-2xl font-bold font-headline text-[var(--text-dark)] mb-3">
+          <h2 className="text-2xl lg:text-4xl font-bold font-headline text-on-surface mb-3">
             جمال حقيقي من الأعماق
           </h2>
-          <p className="text-sm leading-relaxed text-[var(--on-surface-variant)] max-w-md">
+          <p className="text-sm leading-relaxed text-on-surface-variant max-w-md">
             نؤمن بأن العناية الحقيقية تبدأ من مكوّنات نقية ومعايير لا تقبل المساومة.
             كل منتج يمرّ برحلة بحث وتطوير دقيقة ليصل إليكِ بأعلى جودة.
           </p>
-          <div className="w-10 h-0.5 mt-4 mr-auto rounded-full bg-primary" />
+          <div className="w-10 h-0.5 mt-4 me-auto rounded-full bg-primary" />
         </div>
 
         {/* Stats counters */}
-        <div className="grid grid-cols-3 gap-3 px-6 mb-10">
+        <div className="grid grid-cols-3 gap-3 md:gap-5 px-6 mb-10 lg:max-w-[var(--container-max)] lg:mx-auto">
           {[
             { val: '٣+', label: 'سنوات خبرة' },
             { val: '١٠٠٪', label: 'مكونات طبيعية' },
@@ -817,12 +860,12 @@ export default function StitchHomeContent({
               key={stat.label}
               duration={0.45}
               delay={i * 0.1}
-              className="text-center py-5 rounded-2xl border border-[var(--beige)] bg-[var(--off-white)]"
+              className="text-center py-5 rounded-2xl border border-beige bg-surface"
             >
               <span className="block text-2xl font-bold font-headline text-primary mb-1">
                 {stat.val}
               </span>
-              <span className="text-xs text-[var(--on-surface-variant)]">
+              <span className="text-xs text-on-surface-variant">
                 {stat.label}
               </span>
             </FadeUp>
@@ -830,19 +873,19 @@ export default function StitchHomeContent({
         </div>
 
         {/* Brand values grid */}
-        <div className="grid grid-cols-2 gap-3 px-6 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5 px-6 mb-10 lg:max-w-[var(--container-max)] lg:mx-auto">
           {TRUST.map(({ Icon, title, desc }, i) => (
             <FadeUp
               key={title}
               duration={0.45}
               delay={i * 0.08}
-              className="p-4 rounded-2xl border border-[var(--beige)] bg-[var(--off-white)] text-right"
+              className="p-4 rounded-2xl border border-beige bg-surface text-right"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--beige)] mb-3">
-                <Icon className="w-5 h-5 text-[var(--primary)]" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-beige mb-3">
+                <Icon className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-sm font-bold text-[var(--text-dark)] mb-1">{title}</p>
-              <p className="text-xs leading-relaxed text-[var(--on-surface-variant)]">{desc}</p>
+              <p className="text-sm font-bold text-on-surface mb-1">{title}</p>
+              <p className="text-xs leading-relaxed text-on-surface-variant">{desc}</p>
             </FadeUp>
           ))}
         </div>
@@ -858,7 +901,7 @@ export default function StitchHomeContent({
           </Link>
           <Link
             href="/about"
-            className="inline-flex items-center px-5 py-3 rounded-full text-sm font-semibold text-[var(--text-dark)] transition-all border border-[var(--beige)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
+            className="inline-flex items-center px-5 py-3 rounded-full text-sm font-semibold text-on-surface transition-all border border-beige hover:border-primary hover:text-primary"
           >
             قصّتنا
           </Link>
@@ -866,60 +909,17 @@ export default function StitchHomeContent({
       </section>
 
       {/* ═══════════════════════════════════════
-          9. INSTAGRAM / SOCIAL PROOF
+          9.5. RECENTLY VIEWED
       ═══════════════════════════════════════ */}
-      <section className="py-10 bg-[var(--off-white)]">
-        <div className="px-6 mb-6 text-right">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
-            ✦ تابعينا
-          </span>
-          <h2 className="text-xl font-bold font-headline text-[var(--text-dark)]">
-            الأكثر رواجاً على إنستغرام
-          </h2>
-          <p className="text-xs mt-1.5 text-[var(--on-surface-variant)]">
-            @deepbeautykw
-          </p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-1.5 px-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <a
-              key={i}
-              href="https://www.instagram.com/deepbeautykw/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative aspect-square rounded-xl overflow-hidden bg-[var(--beige)]"
-            >
-              <div className="w-full h-full flex items-center justify-center">
-                <SparklesIcon className="w-8 h-8 text-[var(--primary)] opacity-20" />
-              </div>
-              <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
-                <IconInstagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </a>
-          ))}
-        </div>
-
-        <div className="px-6 mt-5 text-center">
-          <a
-            href="https://www.instagram.com/deepbeautykw/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-primary border border-[var(--beige)] hover:bg-white transition-colors"
-          >
-            <IconInstagram className="w-4 h-4" />
-            تابعينا على إنستغرام
-          </a>
-        </div>
-      </section>
+      <RecentlyViewedSection />
 
       {/* ═══════════════════════════════════════
           10. NEWSLETTER CTA
       ═══════════════════════════════════════ */}
-      <section className="py-12 bg-[var(--text-dark)]">
+      <section className="py-12 bg-on-surface">
         <div className="px-6 text-center">
           <PaperAirplaneIcon className="w-8 h-8 text-primary mx-auto mb-3 -rotate-45" />
-          <h2 className="text-xl font-bold font-headline text-white mb-2">
+          <h2 className="text-xl lg:text-3xl font-bold font-headline text-white mb-2">
             احصلي على خصم ١٠٪ على أول طلب
           </h2>
           <p className="text-xs text-white/55 mb-6 max-w-xs mx-auto">
@@ -964,9 +964,9 @@ export default function StitchHomeContent({
               <button
                 type="submit"
                 disabled={nlLoading}
-                className="px-5 py-3 rounded-xl text-sm font-bold text-white bg-primary hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
+                className="px-5 py-3 rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary-hover transition-colors disabled:opacity-50"
               >
-                {nlLoading ? '...' : 'اشتركي'}
+                {nlLoading ? 'جارٍ الاشتراك…' : 'اشتركي'}
               </button>
             </form>
           )}

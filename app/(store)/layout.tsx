@@ -1,6 +1,7 @@
 import Navbar from '@/components/store/Navbar'
 import StitchFooter from '@/components/store/StitchFooter'
 import WhatsAppButton from '@/components/store/WhatsAppButton'
+import WelcomePopup from '@/components/store/WelcomePopup'
 import Analytics from '@/components/store/Analytics'
 import { CartProvider } from '@/context/CartContext'
 import { WishlistProvider } from '@/context/WishlistContext'
@@ -35,7 +36,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         supabase
           .from('settings')
           .select('key, value')
-          .in('key', ['whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url']),
+          .in('key', ['whatsapp_number', 'instagram_url', 'tiktok_url', 'snapchat_url', 'welcome_popup_enabled', 'welcome_coupon_code']),
       ])
       footerCategories = data || []
       exchangeRates = parseExchangeRateSettings(rateRows)
@@ -57,8 +58,13 @@ export default async function StoreLayout({ children }: { children: React.ReactN
             style: {
               fontFamily: 'var(--font-almarai), sans-serif',
               direction: 'rtl',
-              borderRadius: '12px',
-            }
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--white)',
+              color: 'var(--on-surface)',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid var(--beige)',
+            },
+            success: { iconTheme: { primary: 'var(--primary)', secondary: 'var(--white)' } },
           }} />
           <Analytics />
           <Navbar />
@@ -67,6 +73,9 @@ export default async function StoreLayout({ children }: { children: React.ReactN
           </main>
           <StitchFooter categories={footerCategories} social={socialSettings} />
           <WhatsAppButton whatsappNumber={socialSettings.whatsapp_number} />
+          {socialSettings.welcome_popup_enabled !== 'false' && (
+            <WelcomePopup couponCode={socialSettings.welcome_coupon_code} />
+          )}
         </CountryProvider>
       </WishlistProvider>
     </CartProvider>

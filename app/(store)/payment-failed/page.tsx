@@ -26,7 +26,7 @@ export default function PaymentFailedPage() {
           <ExclamationCircleIcon className="w-10 h-10 text-red-600" />
         </div>
 
-        <h1 className="text-2xl font-bold mb-3 text-[var(--text-dark)]">
+        <h1 className="text-2xl font-bold mb-3 text-on-surface">
           فشلت عملية الدفع
         </h1>
 
@@ -54,7 +54,7 @@ export default function PaymentFailedPage() {
         </div>
 
         <div className="mt-8 p-4 rounded-xl bg-gray-50 text-right">
-          <p className="text-sm font-medium mb-2 text-[var(--text-dark)]">
+          <p className="text-sm font-medium mb-2 text-on-surface">
             هل تحتاج مساعدة؟
           </p>
           <p className="text-xs text-gray-600">

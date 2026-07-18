@@ -67,16 +67,17 @@ export default function AccountSettingsPage() {
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/account" className="w-9 h-9 rounded-xl bg-white flex items-center justify-center" style={{ border: '1px solid var(--beige)' }}>
-            <ArrowRightIcon className="w-4 h-4 text-[var(--text-dark)]" />
+            <ArrowRightIcon className="w-4 h-4 text-on-surface" />
           </Link>
-          <h1 className="font-bold text-lg text-[var(--text-dark)]">الإعدادات</h1>
+          <h1 className="font-bold text-lg text-on-surface">الإعدادات</h1>
         </div>
 
         <form onSubmit={handleSave} className="bg-white rounded-2xl p-5 space-y-4" style={{ border: '1px solid var(--beige)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">الاسم الكامل</label>
+            <label className="block text-sm font-medium mb-1.5 text-on-surface">الاسم الكامل</label>
             <input
               type="text"
+              autoComplete="name"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               className="w-full px-4 py-3 rounded-xl text-sm outline-none"
@@ -86,21 +87,25 @@ export default function AccountSettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">البريد الإلكتروني</label>
+            <label className="block text-sm font-medium mb-1.5 text-on-surface">البريد الإلكتروني</label>
             <input
               type="email"
+              autoComplete="email"
+              spellCheck={false}
               value={user.email}
               disabled
               className="w-full px-4 py-3 rounded-xl text-sm outline-none opacity-60 cursor-not-allowed"
               style={{ border: '1.5px solid var(--beige)', background: 'var(--off-white)', color: 'var(--text-dark)' }}
             />
-            <p className="text-xs mt-1 text-[var(--on-surface-variant)]">لا يمكن تغيير البريد الإلكتروني</p>
+            <p className="text-xs mt-1 text-on-surface-variant">لا يمكن تغيير البريد الإلكتروني</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">رقم الهاتف</label>
+            <label className="block text-sm font-medium mb-1.5 text-on-surface">رقم الهاتف</label>
             <input
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={form.phone}
               onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
               className="w-full px-4 py-3 rounded-xl text-sm outline-none"

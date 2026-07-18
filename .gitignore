@@ -81,3 +81,7 @@ tsconfig.tsbuildinfo
 Deep-Beauty/
 .vercel
 .env*.local
+
+# playwright
+/test-results/
+/playwright-report/

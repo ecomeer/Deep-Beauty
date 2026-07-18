@@ -38,16 +38,16 @@ export default async function OffersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--off-white)]">
+    <div className="min-h-screen bg-surface">
 
       {/* Hero */}
-      <div className="pt-32 pb-14 px-6 text-center bg-[var(--beige)]">
+      <div className="pt-32 pb-14 px-6 text-center bg-beige">
         <h1
-          className="text-4xl md:text-5xl font-bold mb-3 font-headline text-[var(--text-dark)]"
+          className="text-4xl md:text-5xl font-bold mb-3 font-headline text-on-surface"
         >
           العروض
         </h1>
-        <p className="text-sm md:text-base opacity-70 max-w-md mx-auto text-[var(--text-dark)]">
+        <p className="text-sm md:text-base opacity-70 max-w-md mx-auto text-on-surface">
           أسعار مخفضة على منتجات مختارة — لفترة محدودة
         </p>
       </div>
@@ -56,8 +56,8 @@ export default async function OffersPage() {
         {saleProducts.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-3xl border" style={{ borderColor: 'var(--dark-beige)' }}>
             <div className="text-6xl mb-4" aria-hidden="true">🏷️</div>
-            <p className="text-xl font-bold mb-2 text-[var(--text-dark)]">لا توجد عروض حالياً</p>
-            <p className="text-sm opacity-60 mb-8 text-[var(--text-dark)]">تابعينا لمعرفة أحدث العروض</p>
+            <p className="text-xl font-bold mb-2 text-on-surface">لا توجد عروض حالياً</p>
+            <p className="text-sm opacity-60 mb-8 text-on-surface">تابعينا لمعرفة أحدث العروض</p>
             <Link
               href="/products"
               className="inline-block px-8 py-3 rounded-2xl text-sm font-semibold text-white transition-opacity hover:opacity-90 bg-primary"

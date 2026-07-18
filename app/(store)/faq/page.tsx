@@ -45,7 +45,7 @@ export default function FAQPage() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-20">
       <h1
-        className="text-4xl font-bold mb-2 font-headline text-[var(--text-dark)]"
+        className="text-4xl font-bold mb-2 font-headline text-on-surface"
       >
         الأسئلة الشائعة
       </h1>
@@ -61,7 +61,7 @@ export default function FAQPage() {
             <h2 className="font-bold mb-2 text-base text-primary">
               {faq.q}
             </h2>
-            <p className="text-sm leading-7 opacity-80 text-[var(--text-dark)]">
+            <p className="text-sm leading-7 opacity-80 text-on-surface">
               {faq.a}
             </p>
           </div>
@@ -69,9 +69,9 @@ export default function FAQPage() {
       </div>
 
       <div
-        className="mt-12 rounded-2xl p-6 text-center bg-[var(--beige)]"
+        className="mt-12 rounded-2xl p-6 text-center bg-beige"
       >
-        <p className="text-sm mb-3 text-[var(--text-dark)]">
+        <p className="text-sm mb-3 text-on-surface">
           لم تجد إجابة لسؤالك؟
         </p>
         <a

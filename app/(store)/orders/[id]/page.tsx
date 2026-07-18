@@ -87,7 +87,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
         <div className="flex flex-wrap gap-3">
           <Link href="/orders" className="btn-outline px-4 py-2">العودة للطلبات</Link>
           <Link href={`/track?order=${order.order_number}`} className="btn-primary px-4 py-2">تتبع الطلب</Link>
-          <a href={invoiceHref} className="px-4 py-2 rounded-xl border border-[var(--beige)] hover:bg-[var(--off-white)] font-bold text-sm flex items-center">
+          <a href={invoiceHref} className="px-4 py-2 rounded-xl border border-beige hover:bg-surface font-bold text-sm flex items-center">
             ⬇️ تحميل الفاتورة
           </a>
         </div>

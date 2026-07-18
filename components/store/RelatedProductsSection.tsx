@@ -76,7 +76,7 @@ function RelatedCard({ product, index, currentCategory }: {
       className="flex-shrink-0 w-56 sm:w-64"
     >
       <Link href={`/products/${product.slug}`} className="block group">
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-[var(--beige)]">
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-beige">
 
           {/* Image */}
           <div className="relative overflow-hidden" style={{ aspectRatio: '4/3', background: 'linear-gradient(135deg, var(--beige), var(--dark-beige))' }}>
@@ -157,11 +157,11 @@ function RelatedCard({ product, index, currentCategory }: {
             )}
 
             {/* Name */}
-            <p className="text-sm font-semibold leading-snug line-clamp-2 text-[var(--text-dark)]">
+            <p className="text-sm font-semibold leading-snug line-clamp-2 text-on-surface">
               {product.name_ar}
             </p>
             {product.name_en && (
-              <p className="text-[10px] text-[var(--on-surface-variant)]">
+              <p className="text-[10px] text-on-surface-variant">
                 {product.name_en}
               </p>
             )}
@@ -213,7 +213,7 @@ export default function RelatedProductsSection({ related, currentCategory }: Pro
             قد يعجبك أيضاً
           </p>
           <h2
-            className="text-3xl md:text-4xl font-bold leading-tight font-headline text-[var(--text-dark)]"
+            className="text-3xl md:text-4xl font-bold leading-tight font-headline text-on-surface"
           >
             منتجات مشابهة
           </h2>
@@ -226,25 +226,25 @@ export default function RelatedProductsSection({ related, currentCategory }: Pro
               onClick={() => scroll('right')}
               disabled={!canScrollLeft}
               aria-label="السابق"
-              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all disabled:opacity-30 hover:bg-[var(--beige)]"
+              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all disabled:opacity-30 hover:bg-beige"
               style={{ borderColor: 'var(--dark-beige)' }}
             >
-              <ChevronRightIcon className="w-4 h-4 text-[var(--text-dark)]" />
+              <ChevronRightIcon className="w-4 h-4 text-on-surface" />
             </button>
             <button
               onClick={() => scroll('left')}
               disabled={!canScrollRight}
               aria-label="التالي"
-              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all disabled:opacity-30 hover:bg-[var(--beige)]"
+              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all disabled:opacity-30 hover:bg-beige"
               style={{ borderColor: 'var(--dark-beige)' }}
             >
-              <ChevronLeftIcon className="w-4 h-4 text-[var(--text-dark)]" />
+              <ChevronLeftIcon className="w-4 h-4 text-on-surface" />
             </button>
           </div>
 
           <Link
             href="/products"
-            className="hidden sm:inline-flex items-center gap-1 text-sm font-medium py-2 px-4 rounded-xl border transition-all hover:bg-[var(--beige)]"
+            className="hidden sm:inline-flex items-center gap-1 text-sm font-medium py-2 px-4 rounded-xl border transition-all hover:bg-beige"
             style={{ color: 'var(--primary)', borderColor: 'var(--dark-beige)' }}
           >
             عرض الكل

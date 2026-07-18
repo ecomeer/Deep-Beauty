@@ -13,7 +13,7 @@ import {
   SparklesIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline'
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
+import { HeartIcon as HeartSolid, StarIcon } from '@heroicons/react/24/solid'
 import { useState, lazy, Suspense } from 'react'
 import toast from 'react-hot-toast'
 
@@ -165,8 +165,25 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
               {product.category && (
                 <p className="text-xs text-primary font-medium mb-1.5">{product.category}</p>
               )}
+              {product.rating != null && (
+                <div
+                  className="flex items-center gap-1 mb-1.5"
+                  aria-label={`التقييم ${product.rating} من ٥ — ${product.review_count ?? 0} تقييم`}
+                >
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <StarIcon
+                      key={s}
+                      aria-hidden="true"
+                      className={`w-3.5 h-3.5 ${s <= Math.round(product.rating!) ? 'text-amber-400' : 'text-gray-300'}`}
+                    />
+                  ))}
+                  <span className="text-[11px] text-gray-500 tabular-nums ms-0.5" dir="ltr">
+                    {product.rating} ({product.review_count ?? 0})
+                  </span>
+                </div>
+              )}
               <h3
-                className="font-bold text-base mb-1.5 leading-tight line-clamp-2 min-h-[2.5rem] font-headline text-[var(--text-dark)]"
+                className="font-bold text-base mb-1.5 leading-tight line-clamp-2 min-h-[2.5rem] font-headline text-on-surface"
               >
                 {product.name_ar}
               </h3>
@@ -195,7 +212,7 @@ export default function EnhancedProductCard({ product, salePercentage, index = 0
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : adding
                       ? 'bg-green-500 text-white'
-                      : 'bg-primary text-white hover:bg-[var(--primary-hover)]'
+                      : 'bg-primary text-white hover:bg-primary-hover'
                   }`}
                 >
                   {adding ? (

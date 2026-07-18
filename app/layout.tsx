@@ -85,7 +85,7 @@ export default async function RootLayout({
     <html lang="ar" dir="rtl" className={`${cormorant.variable} ${almarai.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#8B5E3C" />
+        <meta name="theme-color" content="#faf7f4" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
@@ -93,10 +93,6 @@ export default async function RootLayout({
         <link rel="alternate" hrefLang="ar-KW" href="https://www.deepbeautykw.com/" />
         <link rel="alternate" hrefLang="ar" href="https://www.deepbeautykw.com/" />
         <link rel="alternate" hrefLang="x-default" href="https://www.deepbeautykw.com/" />
-        {/* preconnect */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://flagcdn.com" />
       </head>
       <body suppressHydrationWarning>
         <Pixels metaPixelId={metaPixelId} snapPixelId={snapPixelId} gtmId={gtmId} />

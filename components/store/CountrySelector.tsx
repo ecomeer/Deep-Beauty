@@ -35,8 +35,10 @@ export default function CountrySelector() {
         aria-label="اختيار الدولة"
       >
         <img
-          src={`https://flagcdn.com/w40/${countryConfig.code.toLowerCase()}.png`}
+          src={`/flags/${countryConfig.code.toLowerCase()}.png`}
           alt={countryConfig.name_ar}
+          width={24}
+          height={16}
           className="w-6 h-4 object-cover rounded-sm"
         />
         <span className="text-sm font-medium hidden sm:block">{countryConfig.name_ar}</span>
@@ -54,16 +56,19 @@ export default function CountrySelector() {
               key={code}
               onClick={() => handleSelect(code as GulfCountry)}
               className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-right ${
-                selectedCountry === code ? 'bg-[var(--primary)]/5' : ''
+                selectedCountry === code ? 'bg-primary/5' : ''
               }`}
             >
               <img
-                src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
+                src={`/flags/${code.toLowerCase()}.png`}
                 alt={country.name_ar}
+                width={32}
+                height={20}
+                loading="lazy"
                 className="w-8 h-5 object-cover rounded-sm flex-shrink-0"
               />
               <div className="flex-1 text-right">
-                <p className={`text-sm font-medium ${selectedCountry === code ? 'text-[var(--primary)]' : 'text-gray-800'}`}>
+                <p className={`text-sm font-medium ${selectedCountry === code ? 'text-primary' : 'text-gray-800'}`}>
                   {country.name_ar}
                 </p>
                 <p className="text-xs text-gray-500">
@@ -71,7 +76,7 @@ export default function CountrySelector() {
                 </p>
               </div>
               {selectedCountry === code && (
-                <div className="w-2 h-2 rounded-full bg-[var(--primary)]" />
+                <div className="w-2 h-2 rounded-full bg-primary" />
               )}
             </button>
           ))}

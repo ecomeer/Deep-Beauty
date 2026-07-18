@@ -64,7 +64,7 @@ export default function AboutPage() {
             </span>
 
             <h1
-              className="text-6xl md:text-7xl font-headline font-bold leading-tight text-[var(--text-dark)]"
+              className="text-6xl md:text-7xl font-headline font-bold leading-tight text-on-surface"
             >
               جمال من<br />
               <em className="not-italic text-primary">عمق الطبيعة</em>
@@ -138,7 +138,7 @@ export default function AboutPage() {
               >
                 01 — فلسفتنا
               </span>
-              <h2 className="text-4xl font-headline leading-snug text-[var(--text-dark)]">
+              <h2 className="text-4xl font-headline leading-snug text-on-surface">
                 التناغم بين<br />الطبيعة والعلم
               </h2>
             </div>
@@ -160,11 +160,11 @@ export default function AboutPage() {
                 ].map(({ Icon, title, desc }) => (
                   <div key={title} className="space-y-4">
                     <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--beige)]"
+                      className="w-11 h-11 rounded-xl flex items-center justify-center bg-beige"
                     >
                       <Icon className="w-5 h-5 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold text-[var(--text-dark)]">{title}</h3>
+                    <h3 className="text-lg font-bold text-on-surface">{title}</h3>
                     <p className="text-sm leading-7" style={{ color: '#51443c' }}>{desc}</p>
                   </div>
                 ))}
@@ -200,7 +200,7 @@ export default function AboutPage() {
             >
               02 — النقاء أولاً
             </span>
-            <h2 className="text-4xl md:text-5xl font-headline text-[var(--text-dark)]">
+            <h2 className="text-4xl md:text-5xl font-headline text-on-surface">
               مكونات من رحم الأرض
             </h2>
           </div>
@@ -249,10 +249,10 @@ export default function AboutPage() {
 
             {/* Plant extracts — wide */}
             <div
-              className="col-span-2 rounded-2xl flex flex-col sm:flex-row items-center overflow-hidden bg-[var(--beige)]"
+              className="col-span-2 rounded-2xl flex flex-col sm:flex-row items-center overflow-hidden bg-beige"
             >
               <div className="p-7 flex-1">
-                <h4 className="font-bold text-lg mb-2 text-[var(--text-dark)]">مستخلصات نباتية</h4>
+                <h4 className="font-bold text-lg mb-2 text-on-surface">مستخلصات نباتية</h4>
                 <p className="text-sm leading-6" style={{ color: '#51443c' }}>
                   نبحث في أرجاء العالم عن أقوى النباتات لننقل طاقتها الكاملة إلى بشرتك.
                 </p>
@@ -281,7 +281,7 @@ export default function AboutPage() {
             >
               03 — قصتنا
             </span>
-            <h2 className="text-4xl font-headline leading-snug text-[var(--text-dark)]">
+            <h2 className="text-4xl font-headline leading-snug text-on-surface">
               بدأت الرحلة بحلم بسيط
             </h2>
             <div className="space-y-5 text-sm leading-8" style={{ color: '#51443c' }}>
@@ -355,7 +355,7 @@ export default function AboutPage() {
             >
               04 — مبادئنا
             </span>
-            <h2 className="text-4xl font-headline text-[var(--text-dark)]">ما نؤمن به</h2>
+            <h2 className="text-4xl font-headline text-on-surface">ما نؤمن به</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -366,11 +366,11 @@ export default function AboutPage() {
                 style={{ borderColor: 'var(--beige)' }}
               >
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-[var(--beige)]"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-beige"
                 >
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-bold text-base text-[var(--text-dark)]">{title}</h3>
+                <h3 className="font-bold text-base text-on-surface">{title}</h3>
                 <p className="text-xs leading-6" style={{ color: '#51443c' }}>{desc}</p>
               </div>
             ))}
@@ -385,12 +385,12 @@ export default function AboutPage() {
         <div className="max-w-xl mx-auto space-y-8">
           {/* Decorative divider */}
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="h-px w-16 bg-[var(--beige)]" />
+            <div className="h-px w-16 bg-beige" />
             <SparklesIcon className="w-4 h-4 text-primary" />
-            <div className="h-px w-16 bg-[var(--beige)]" />
+            <div className="h-px w-16 bg-beige" />
           </div>
 
-          <h2 className="text-4xl font-headline leading-snug text-[var(--text-dark)]">
+          <h2 className="text-4xl font-headline leading-snug text-on-surface">
             انضمي إلى مجتمع<br />
             <em className="not-italic text-primary">ديب بيوتي</em> اليوم
           </h2>
@@ -406,7 +406,7 @@ export default function AboutPage() {
             </Link>
             <Link
               href="/track"
-              className="inline-flex items-center justify-center px-8 py-4 rounded-xl font-bold transition-all border-2 hover:bg-[var(--beige)]"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-xl font-bold transition-all border-2 hover:bg-beige"
               style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}
             >
               تتبعي طلبك

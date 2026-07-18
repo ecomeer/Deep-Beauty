@@ -76,7 +76,7 @@ export default function ContactClient() {
             تواصلي معنا
           </span>
           <h1
-            className="text-4xl md:text-5xl font-bold mb-4 font-headline text-[var(--text-dark)]"
+            className="text-4xl md:text-5xl font-bold mb-4 font-headline text-on-surface"
           >
             نحن هنا لمساعدتك
           </h1>
@@ -96,7 +96,7 @@ export default function ContactClient() {
                 style={{ background: 'white', border: '1px solid var(--beige)' }}
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--beige)]"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-beige"
                 >
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
@@ -120,7 +120,7 @@ export default function ContactClient() {
 
             {/* Social */}
             <div
-              className="p-5 rounded-2xl bg-[var(--beige)]"
+              className="p-5 rounded-2xl bg-beige"
             >
               <p className="text-xs font-semibold uppercase tracking-wider opacity-60 mb-3">
                 تابعينا
@@ -159,7 +159,7 @@ export default function ContactClient() {
               <ChatBubbleLeftEllipsisIcon
                 className="w-6 h-6 text-primary"
               />
-              <h2 className="text-xl font-bold text-[var(--text-dark)]">
+              <h2 className="text-xl font-bold text-on-surface">
                 أرسلي رسالة
               </h2>
             </div>
@@ -167,11 +167,11 @@ export default function ContactClient() {
             {status === 'sent' ? (
               <div className="text-center py-16">
                 <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[var(--beige)]"
+                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-beige"
                 >
                   <PaperAirplaneIcon className="w-7 h-7 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold mb-2 text-[var(--text-dark)]">
+                <h3 className="text-lg font-bold mb-2 text-on-surface">
                   تم إرسال رسالتك!
                 </h3>
                 <p className="text-sm opacity-60">سنتواصل معك قريباً إن شاء الله.</p>

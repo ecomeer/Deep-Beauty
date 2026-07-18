@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import StitchHomeContent from '@/components/store/StitchHomeContent'
 import { Product, Category } from '@/types'
 import { getActiveFlashSales, bestDiscountForProduct, applyDiscount } from '@/lib/flash-sale'
+import { getProductRatings } from '@/lib/recommendations'
 
 interface Banner {
   id: string
@@ -29,6 +30,7 @@ export default async function HomePage() {
   let featuredProducts: Product[] = []
   let categories: Category[] = []
   let banners: Banner[] = []
+  let offersProducts: Product[] = []
   let announcementText = '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك'
 
   const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -64,9 +66,8 @@ export default async function HomePage() {
           .order('sort_order', { ascending: true }),
         supabase
           .from('settings')
-          .select('value')
-          .eq('key', 'announcement_text')
-          .maybeSingle(),
+          .select('key, value')
+          .in('key', ['announcement_text']),
         getActiveFlashSales(),
       ]),
       12000
@@ -89,13 +90,42 @@ export default async function HomePage() {
       productRows = [...productRows, ...extra]
     }
 
+    // Exclusive-offers rail: newest actives that carry a real discount
+    const { data: offerPool } = await supabase
+      .from('products')
+      .select(productColumns)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(24)
+
+    const discounted = (offerPool || [])
+      .map((p) => ({
+        ...p,
+        sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
+      }))
+      .filter((p) => (p.sale_price != null && p.sale_price < p.price) || (p.compare_price != null && p.compare_price > p.price))
+      .slice(0, 8)
+
+    const ratingIds = [...new Set([...productRows.map((p) => p.id), ...discounted.map((p) => p.id)])]
+    const ratings = await getProductRatings(ratingIds).catch(() => ({} as Record<string, { average_rating: number; review_count: number }>))
+
+    offersProducts = discounted.map((p) => ({
+      ...p,
+      rating: ratings[p.id]?.average_rating ?? null,
+      review_count: ratings[p.id]?.review_count ?? 0,
+    })) as Product[]
+
     featuredProducts = productRows.map((p) => ({
       ...p,
       sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
+      rating: ratings[p.id]?.average_rating ?? null,
+      review_count: ratings[p.id]?.review_count ?? 0,
     }))
     categories = categoriesRes.data || []
     banners = bannersRes.data || []
-    if (settingRes.data?.value) announcementText = settingRes.data.value
+    const settingRows: { key: string; value: string | null }[] = settingRes.data || []
+    const announcementRow = settingRows.find((r) => r.key === 'announcement_text')
+    if (announcementRow?.value) announcementText = announcementRow.value
   } catch (e) {
     console.error('Failed to fetch home data:', e)
   }
@@ -154,6 +184,7 @@ export default async function HomePage() {
       />
       <StitchHomeContent
         featuredProducts={featuredProducts}
+        offersProducts={offersProducts}
         categories={categories}
         banners={banners}
         announcementText={announcementText}

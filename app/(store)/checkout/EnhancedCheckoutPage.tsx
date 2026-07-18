@@ -406,12 +406,12 @@ export default function EnhancedCheckoutPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5 font-headline text-[var(--text-dark)]">
+                <h2 className="text-xl font-bold mb-5 font-headline text-on-surface">
                   المعلومات الشخصية
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
-                    <label htmlFor="field-name" className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">
+                    <label htmlFor="field-name" className="block text-sm font-medium mb-1.5 text-on-surface">
                       الاسم الكامل *
                     </label>
                     <input
@@ -426,7 +426,7 @@ export default function EnhancedCheckoutPage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="field-phone" className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">
+                    <label htmlFor="field-phone" className="block text-sm font-medium mb-1.5 text-on-surface">
                       رقم الهاتف *
                     </label>
                     <input
@@ -447,13 +447,14 @@ export default function EnhancedCheckoutPage() {
                     <p className="text-xs text-gray-500 mt-1">سيتم التواصل معك على هذا الرقم</p>
                   </div>
                   <div>
-                    <label htmlFor="field-email" className="block text-sm font-medium mb-1.5 text-[var(--text-dark)]">
+                    <label htmlFor="field-email" className="block text-sm font-medium mb-1.5 text-on-surface">
                       البريد الإلكتروني {createAccount && <span className="text-red-500">*</span>}
                     </label>
                     <input
                       id="field-email"
                       name="customer_email"
                       type="email"
+                      spellCheck={false}
                       autoComplete="email"
                       value={form.customer_email}
                       onChange={handleChange}
@@ -467,7 +468,7 @@ export default function EnhancedCheckoutPage() {
 
                 {/* Optional Account Creation */}
                 {!isLoggedIn && (
-                  <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--beige)' }}>
+                  <div className="mt-6 pt-6 border-t border-beige">
                     <label className="flex items-start gap-3 cursor-pointer group">
                       <div className="relative">
                         <input 
@@ -479,11 +480,11 @@ export default function EnhancedCheckoutPage() {
                               setAccountPassword('')
                             }
                           }} 
-                          className="w-5 h-5 rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)] cursor-pointer"
+                          className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-[var(--primary)] cursor-pointer"
                         />
                       </div>
                       <div className="flex-1">
-                        <span className="font-medium text-gray-900 group-hover:text-[var(--primary)] transition-colors">
+                        <span className="font-medium text-gray-900 group-hover:text-primary transition-colors">
                           إنشاء حساب (اختياري)
                         </span>
                         <p className="text-sm text-gray-500 mt-1">
@@ -500,8 +501,8 @@ export default function EnhancedCheckoutPage() {
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden"
                         >
-                          <div className="mt-4 p-4 bg-[#F5EBE0]/30 rounded-xl">
-                            <label className="block text-sm font-medium mb-2 text-[var(--text-dark)]">
+                          <div className="mt-4 p-4 bg-surface-container/60 rounded-xl">
+                            <label className="block text-sm font-medium mb-2 text-on-surface">
                               <LockClosedIcon className="w-4 h-4 inline ml-1" />
                               كلمة المرور *
                             </label>
@@ -543,7 +544,7 @@ export default function EnhancedCheckoutPage() {
                 transition={{ delay: 0.1 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5 font-headline text-[var(--text-dark)]">
+                <h2 className="text-xl font-bold mb-5 font-headline text-on-surface">
                   عنوان التوصيل
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -572,7 +573,7 @@ export default function EnhancedCheckoutPage() {
                   </div>
                   <div>
                     <label htmlFor="field-notes" className="block text-sm font-medium mb-1.5">ملاحظات إضافية</label>
-                    <input id="field-notes" name="notes" value={form.notes} onChange={handleChange} className="input-field" placeholder="أي تفاصيل إضافية..." />
+                    <input id="field-notes" name="notes" value={form.notes} onChange={handleChange} className="input-field" placeholder="أي تفاصيل إضافية…" />
                   </div>
                 </div>
               </motion.div>
@@ -584,14 +585,14 @@ export default function EnhancedCheckoutPage() {
                 transition={{ delay: 0.2 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5 font-headline text-[var(--text-dark)]">
+                <h2 className="text-xl font-bold mb-5 font-headline text-on-surface">
                   طريقة الدفع
                 </h2>
                 <div className="space-y-3">
                   <label
                     className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       paymentMethod === 'cod'
-                        ? 'border-[var(--primary)] bg-[rgba(139,94,60,0.05)]'
+                        ? 'border-primary bg-[rgba(139,94,60,0.05)]'
                         : 'border-gray-200'
                     }`}
                   >
@@ -604,7 +605,7 @@ export default function EnhancedCheckoutPage() {
                       className="accent-[var(--primary)]"
                     />
                     <div className="flex-1">
-                      <div className="font-bold text-sm mb-1 text-[var(--text-dark)]">
+                      <div className="font-bold text-sm mb-1 text-on-surface">
                         الدفع عند الاستلام
                       </div>
                       <div className="text-xs opacity-60">ادفع كاش أو KNET عند استلام طلبك</div>
@@ -613,7 +614,7 @@ export default function EnhancedCheckoutPage() {
                   <label
                     className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       paymentMethod === 'online'
-                        ? 'border-[var(--primary)] bg-[rgba(139,94,60,0.05)]'
+                        ? 'border-primary bg-[rgba(139,94,60,0.05)]'
                         : 'border-gray-200'
                     }`}
                   >
@@ -626,7 +627,7 @@ export default function EnhancedCheckoutPage() {
                       className="accent-[var(--primary)]"
                     />
                     <div className="flex-1">
-                      <div className="font-bold text-sm mb-2 text-[var(--text-dark)]">
+                      <div className="font-bold text-sm mb-2 text-on-surface">
                         الدفع الإلكتروني
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -649,7 +650,7 @@ export default function EnhancedCheckoutPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="bg-white rounded-2xl p-6 shadow-sm"
               >
-                <h2 className="text-xl font-bold mb-5 font-headline text-[var(--text-dark)]">
+                <h2 className="text-xl font-bold mb-5 font-headline text-on-surface">
                   ملخص الطلب
                 </h2>
                 
@@ -664,9 +665,9 @@ export default function EnhancedCheckoutPage() {
                 </div>
 
                 {/* Coupon */}
-                <div className="border-t pt-4 mb-4" style={{ borderColor: 'var(--beige)' }}>
+                <div className="border-t pt-4 mb-4 border-beige">
                   {couponApplied ? (
-                    <div className="flex items-center justify-between p-3 rounded-xl text-sm" style={{ background: 'rgba(34,197,94,0.1)', color: '#16a34a' }}>
+                    <div className="flex items-center justify-between p-3 rounded-xl text-sm bg-green-500/10 text-green-600">
                       <span>✅ كود {couponApplied} — خصم {formatPrice(couponDiscount)}</span>
                       <button 
                         type="button" 
@@ -691,7 +692,7 @@ export default function EnhancedCheckoutPage() {
                         disabled={couponLoading} 
                         className="btn-outline px-3 py-2 text-sm flex-shrink-0"
                       >
-                        {couponLoading ? '...' : 'تطبيق'}
+                        {couponLoading ? 'جارٍ التحقق…' : 'تطبيق'}
                       </button>
                     </div>
                   )}
@@ -699,7 +700,7 @@ export default function EnhancedCheckoutPage() {
 
                 {/* Loyalty points redemption */}
                 {isLoggedIn && pointsBalance > 0 && (
-                  <div className="border-t pt-4 mb-4" style={{ borderColor: 'var(--beige)' }}>
+                  <div className="border-t pt-4 mb-4 border-beige">
                     <label className="flex items-center justify-between gap-3 cursor-pointer">
                       <span className="text-sm">
                         استخدام نقاطي ({pointsBalance} نقطة{maxRedeemablePoints > 0 ? ` — خصم ${formatPrice(maxRedeemablePoints * kwdPerPoint)}` : ''})
@@ -715,7 +716,7 @@ export default function EnhancedCheckoutPage() {
                 )}
 
                 {/* Totals */}
-                <div className="space-y-2 text-sm border-t pt-4" style={{ borderColor: 'var(--beige)' }}>
+                <div className="space-y-2 text-sm border-t pt-4 border-beige">
                   <div className="flex justify-between">
                     <span className="opacity-60">المجموع</span>
                     <span dir="ltr">{formatPrice(subtotal)}</span>
@@ -738,7 +739,7 @@ export default function EnhancedCheckoutPage() {
                       <span dir="ltr">- {formatPrice(pointsDiscount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t" style={{ borderColor: 'var(--beige)', color: 'var(--text-dark)' }}>
+                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-beige border-beige text-on-surface">
                     <span>الإجمالي</span>
                     <span className="text-primary" dir="ltr">{formatPrice(Math.max(0, total))}</span>
                   </div>
@@ -752,9 +753,9 @@ export default function EnhancedCheckoutPage() {
                     onChange={(e) => setAgreed(e.target.checked)} 
                     className="mt-0.5 w-5 h-5 accent-[var(--primary)] rounded" 
                   />
-                  <span className="text-sm opacity-70 text-[var(--text-dark)]">
-                    أوافق على <Link href="/terms" className="text-[var(--primary)] hover:underline">الشروط والأحكام</Link> و
-                    <Link href="/privacy" className="text-[var(--primary)] hover:underline">سياسة الخصوصية</Link>
+                  <span className="text-sm opacity-70 text-on-surface">
+                    أوافق على <Link href="/terms" className="text-primary hover:underline">الشروط والأحكام</Link> و
+                    <Link href="/privacy" className="text-primary hover:underline">سياسة الخصوصية</Link>
                   </span>
                 </label>
 

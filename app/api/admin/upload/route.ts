@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const file = form.get('file') as File | null
     const rawFolder = (form.get('folder') as string) || 'misc'
     // Whitelist allowed folders — prevent path traversal
-    const ALLOWED_FOLDERS = ['products', 'banners', 'categories', 'misc']
+    const ALLOWED_FOLDERS = ['products', 'banners', 'categories', 'instagram', 'misc']
     const folder = ALLOWED_FOLDERS.includes(rawFolder) ? rawFolder : 'misc'
 
     if (!file) {
