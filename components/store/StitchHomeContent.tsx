@@ -103,7 +103,7 @@ function SectionHeader({
         <span className={`text-xs font-bold uppercase tracking-[0.14em] block mb-0.5 ${accent}`}>
           {eyebrow}
         </span>
-        <h2 className={`text-xl font-bold font-headline ${dark ? 'text-white' : 'text-on-surface'}`}>
+        <h2 className={`text-xl lg:text-3xl font-bold font-headline [text-wrap:balance] ${dark ? 'text-white' : 'text-on-surface'}`}>
           {title}
         </h2>
       </div>
@@ -389,7 +389,7 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="px-3 pt-3 pb-2">
         <div
-          className="relative w-full rounded-[1.75rem] overflow-hidden aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] lg:max-w-[var(--container-max)] lg:mx-auto"
+          className="relative w-full rounded-[1.75rem] lg:rounded-[2.5rem] overflow-hidden aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] lg:max-w-[var(--container-max)] lg:mx-auto ring-1 ring-black/5 shadow-xl"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -420,14 +420,18 @@ export default function StitchHomeContent({
 
           {/* Text overlay */}
           <div className="absolute bottom-10 lg:bottom-14 right-4 left-4 lg:right-10 lg:left-10 z-[2] text-right">
-            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full bg-primary/90">
-              <span className="text-xs font-bold tracking-[0.12em] uppercase text-white">✦ ديب بيوتي الكويت</span>
+            <div className="inline-flex items-center gap-2 mb-4 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/25">
+              <span aria-hidden="true" className="w-1 h-1 rounded-full bg-primary-fixed" />
+              <span className="font-en italic text-[11px] lg:text-xs tracking-[0.3em] uppercase text-white/90">Deep Beauty</span>
+              <span aria-hidden="true" className="w-px h-3 bg-white/30" />
+              <span className="text-[11px] lg:text-xs font-bold tracking-[0.1em] text-white/90">الكويت</span>
             </div>
             <h2
-              className="text-[2rem] sm:text-4xl lg:text-5xl font-bold text-white leading-[1.15] mb-2.5 font-headline text-shadow-strong"
+              className="text-[2.1rem] sm:text-4xl lg:text-6xl font-bold text-white leading-[1.12] mb-3 font-headline text-shadow-strong [text-wrap:balance]"
             >
               {(heroSlides[heroIndex] as Banner | null)?.title_ar || 'جمالك يبدأ من الأعماق'}
             </h2>
+            <div aria-hidden="true" className="w-14 lg:w-20 h-0.5 rounded-full bg-primary-fixed/80 me-auto mb-3" />
             <p className="text-[13px] sm:text-sm text-white/80 mb-5 leading-relaxed max-w-[280px] sm:max-w-sm lg:max-w-md me-auto lg:text-base text-shadow-soft">
               {(heroSlides[heroIndex] as Banner | null)?.subtitle_ar || 'عناية فاخرة بالبشرة — منتجات طبيعية ١٠٠٪'}
             </p>
@@ -498,21 +502,19 @@ export default function StitchHomeContent({
       {/* ═══════════════════════════════════════
           3. TRUST BAR — REASSURANCE RIGHT AFTER HERO
       ═══════════════════════════════════════ */}
-      <section className="py-8 bg-white border-b border-beige">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 lg:max-w-[var(--container-max)] lg:mx-auto">
+      <section className="py-8 lg:py-10 bg-white border-b border-beige">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 lg:max-w-[var(--container-max)] lg:mx-auto lg:divide-x lg:divide-x-reverse lg:divide-beige lg:gap-0">
           {TRUST.map(({ Icon, title, desc }, i) => (
             <FadeUp
               key={title}
               duration={0.45}
               delay={i * 0.07}
-              className="flex flex-col items-center text-center gap-2"
+              className="flex flex-col items-center text-center gap-2 lg:px-6"
             >
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center bg-beige"
-              >
-                <Icon className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-beige ring-4 ring-surface">
+                <Icon className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-xs font-bold text-on-surface">{title}</p>
+              <p className="text-xs lg:text-sm font-bold text-on-surface">{title}</p>
               <p className="text-xs text-on-surface-variant">{desc}</p>
             </FadeUp>
           ))}
@@ -524,27 +526,32 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="px-4 py-6 lg:max-w-[var(--container-max)] lg:mx-auto">
         <Link href="/offers" className="block group">
-          <div className="rounded-2xl p-5 text-center bg-gradient-to-r from-primary-dark via-primary to-primary-dark shadow-lg">
-            <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="relative rounded-2xl lg:rounded-[2rem] p-5 lg:p-7 text-center bg-gradient-to-r from-primary-dark via-primary to-primary-dark shadow-lg overflow-hidden lg:flex lg:items-center lg:justify-between lg:text-right lg:gap-8 lg:px-10">
+            <div aria-hidden="true" className="absolute -top-10 -start-10 w-40 h-40 rounded-full bg-white/5 blur-2xl" />
+            <div aria-hidden="true" className="absolute -bottom-12 -end-8 w-48 h-48 rounded-full bg-primary-fixed/10 blur-3xl" />
+            <div className="flex items-center justify-center gap-2 mb-2 lg:mb-0 relative">
               <FireIcon className="w-5 h-5 text-amber-300" />
-              <span className="text-xs font-bold uppercase tracking-widest text-white/80">عرض اليوم — ينتهي خلال</span>
-              <FireIcon className="w-5 h-5 text-amber-300" />
+              <span className="text-xs lg:text-sm font-bold uppercase tracking-widest text-white/85">عرض اليوم — ينتهي خلال</span>
+              <FireIcon className="w-5 h-5 text-amber-300 lg:hidden" />
             </div>
-            <div className="flex items-center justify-center gap-3" dir="ltr" suppressHydrationWarning>
+            <div className="flex items-center justify-center gap-1.5 relative" dir="ltr" suppressHydrationWarning>
               {[
                 { val: countdown.h, label: 'ساعة' },
                 { val: countdown.m, label: 'دقيقة' },
                 { val: countdown.s, label: 'ثانية' },
               ].map((t, i) => (
-                <div key={i} className="flex flex-col items-center">
-                  <span className="text-2xl font-bold font-headline text-white tabular-nums" suppressHydrationWarning>
-                    {t.val}
-                  </span>
-                  <span className="text-[10px] text-white/60">{t.label}</span>
+                <div key={i} className="flex items-center gap-1.5">
+                  {i > 0 && <span aria-hidden="true" className="text-xl lg:text-2xl font-headline text-white/40 -mt-4">:</span>}
+                  <div className="flex flex-col items-center min-w-[3.25rem] lg:min-w-[3.75rem] py-2 px-1 rounded-xl bg-white/10 backdrop-blur border border-white/15">
+                    <span className="text-2xl lg:text-3xl font-bold font-headline text-white tabular-nums leading-none" suppressHydrationWarning>
+                      {t.val}
+                    </span>
+                    <span className="text-[10px] text-white/60 mt-1">{t.label}</span>
+                  </div>
                 </div>
               ))}
             </div>
-            <span className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-full text-xs font-bold text-primary-dark bg-white shadow transition-transform group-hover:scale-105">
+            <span className="inline-flex items-center gap-1.5 mt-3 lg:mt-0 px-4 py-2 lg:px-6 lg:py-2.5 rounded-full text-xs lg:text-sm font-bold text-primary-dark bg-white shadow transition-transform group-hover:scale-105 relative">
               تصفّحي العروض
               <ArrowLeftIcon className="w-3 h-3" />
             </span>
@@ -660,7 +667,7 @@ export default function StitchHomeContent({
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ روتينك اليومي
           </span>
-          <h2 className="text-xl font-bold font-headline text-on-surface">
+          <h2 className="text-xl lg:text-3xl font-bold font-headline text-on-surface">
             ٣ خطوات لبشرة مشرقة
           </h2>
         </div>
@@ -706,7 +713,7 @@ export default function StitchHomeContent({
       <section className="px-4 py-8 lg:max-w-[var(--container-max)] lg:mx-auto">
         <Link href={midBannerLink} className="block group">
           <div
-            className={`w-full min-h-[220px] rounded-[2rem] overflow-hidden transition-transform duration-300 group-hover:scale-[1.01] bg-on-surface shadow-xl grid ${
+            className={`w-full min-h-[220px] lg:min-h-[320px] rounded-[2rem] overflow-hidden transition-transform duration-300 group-hover:scale-[1.01] bg-on-surface shadow-xl grid ${
               midBannerImg ? 'grid-cols-2' : 'grid-cols-1'
             }`}
           >
@@ -718,9 +725,7 @@ export default function StitchHomeContent({
                 ✦ عرض حصري
               </span>
               <div className="w-10 h-0.5 self-end rounded-full bg-primary" />
-              <p
-                className="text-2xl font-bold text-white leading-snug font-headline"
-              >
+              <p className="text-2xl lg:text-4xl font-bold text-white leading-snug font-headline [text-wrap:balance]">
                 {midBannerTitle}
               </p>
               <p className="text-xs leading-relaxed text-white/55">
@@ -811,7 +816,7 @@ export default function StitchHomeContent({
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ لماذا ديب بيوتي
           </span>
-          <h2 className="text-2xl font-bold font-headline text-on-surface mb-3">
+          <h2 className="text-2xl lg:text-4xl font-bold font-headline text-on-surface mb-3">
             جمال حقيقي من الأعماق
           </h2>
           <p className="text-sm leading-relaxed text-on-surface-variant max-w-md">
@@ -888,7 +893,7 @@ export default function StitchHomeContent({
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
             ✦ تابعينا
           </span>
-          <h2 className="text-xl font-bold font-headline text-on-surface">
+          <h2 className="text-xl lg:text-3xl font-bold font-headline text-on-surface">
             الأكثر رواجاً على إنستغرام
           </h2>
           <p className="text-xs mt-1.5 text-on-surface-variant">
@@ -955,7 +960,7 @@ export default function StitchHomeContent({
       <section className="py-12 bg-on-surface">
         <div className="px-6 text-center">
           <PaperAirplaneIcon className="w-8 h-8 text-primary mx-auto mb-3 -rotate-45" />
-          <h2 className="text-xl font-bold font-headline text-white mb-2">
+          <h2 className="text-xl lg:text-3xl font-bold font-headline text-white mb-2">
             احصلي على خصم ١٠٪ على أول طلب
           </h2>
           <p className="text-xs text-white/55 mb-6 max-w-xs mx-auto">
