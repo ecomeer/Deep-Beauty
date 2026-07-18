@@ -30,7 +30,7 @@ export default async function HomePage() {
   let featuredProducts: Product[] = []
   let categories: Category[] = []
   let banners: Banner[] = []
-  let instagramImages: { image_url: string; link_url?: string }[] = []
+  let offersProducts: Product[] = []
   let announcementText = '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك'
 
   const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -67,7 +67,7 @@ export default async function HomePage() {
         supabase
           .from('settings')
           .select('key, value')
-          .in('key', ['announcement_text', 'instagram_images']),
+          .in('key', ['announcement_text']),
         getActiveFlashSales(),
       ]),
       12000
@@ -90,7 +90,30 @@ export default async function HomePage() {
       productRows = [...productRows, ...extra]
     }
 
-    const ratings = await getProductRatings(productRows.map((p) => p.id)).catch(() => ({} as Record<string, { average_rating: number; review_count: number }>))
+    // Exclusive-offers rail: newest actives that carry a real discount
+    const { data: offerPool } = await supabase
+      .from('products')
+      .select(productColumns)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(24)
+
+    const discounted = (offerPool || [])
+      .map((p) => ({
+        ...p,
+        sale_price: applyDiscount(p.price, bestDiscountForProduct(p, flashSales)),
+      }))
+      .filter((p) => (p.sale_price != null && p.sale_price < p.price) || (p.compare_price != null && p.compare_price > p.price))
+      .slice(0, 8)
+
+    const ratingIds = [...new Set([...productRows.map((p) => p.id), ...discounted.map((p) => p.id)])]
+    const ratings = await getProductRatings(ratingIds).catch(() => ({} as Record<string, { average_rating: number; review_count: number }>))
+
+    offersProducts = discounted.map((p) => ({
+      ...p,
+      rating: ratings[p.id]?.average_rating ?? null,
+      review_count: ratings[p.id]?.review_count ?? 0,
+    })) as Product[]
 
     featuredProducts = productRows.map((p) => ({
       ...p,
@@ -103,15 +126,6 @@ export default async function HomePage() {
     const settingRows: { key: string; value: string | null }[] = settingRes.data || []
     const announcementRow = settingRows.find((r) => r.key === 'announcement_text')
     if (announcementRow?.value) announcementText = announcementRow.value
-    try {
-      const parsed = JSON.parse(settingRows.find((r) => r.key === 'instagram_images')?.value || '[]') as { image_url?: unknown; link_url?: unknown }[]
-      if (Array.isArray(parsed)) {
-        instagramImages = parsed
-          .filter((it) => !!it && typeof it.image_url === 'string')
-          .map((it) => ({ image_url: it.image_url as string, link_url: typeof it.link_url === 'string' && it.link_url ? it.link_url : undefined }))
-          .slice(0, 6)
-      }
-    } catch { /* malformed setting - fall back to placeholders */ }
   } catch (e) {
     console.error('Failed to fetch home data:', e)
   }
@@ -170,7 +184,7 @@ export default async function HomePage() {
       />
       <StitchHomeContent
         featuredProducts={featuredProducts}
-        instagramImages={instagramImages}
+        offersProducts={offersProducts}
         categories={categories}
         banners={banners}
         announcementText={announcementText}

@@ -37,17 +37,12 @@ interface Banner {
   link_url: string
 }
 
-interface InstagramImage {
-  image_url: string
-  link_url?: string
-}
-
 interface Props {
   featuredProducts: Product[]
   categories: Category[]
   banners?: Banner[]
   announcementText?: string
-  instagramImages?: InstagramImage[]
+  offersProducts?: Product[]
 }
 
 // ─── Trust features ────────────────────────────────────────────────────────
@@ -57,15 +52,6 @@ const TRUST = [
   { Icon: SparklesIcon,    title: 'جودة فاخرة',      desc: 'مصنوع بعناية واحترافية' },
   { Icon: CheckBadgeIcon,  title: 'ضمان الرضا',      desc: 'استبدال أو استرداد كامل' },
 ]
-
-// ─── Instagram icon (inline SVG) ──────────────────────────────────────────
-function IconInstagram({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-    </svg>
-  )
-}
 
 // ─── Certifications ───────────────────────────────────────────────────────
 const CERTS = [
@@ -282,7 +268,7 @@ export default function StitchHomeContent({
   categories,
   banners = [],
   announcementText,
-  instagramImages = [],
+  offersProducts = [],
 }: Props) {
   const { formatPrice } = useCountry()
   const [heroIndex, setHeroIndex] = useState(0)
@@ -628,7 +614,7 @@ export default function StitchHomeContent({
         <div className="mx-4 mb-5 h-px accent-line lg:max-w-[var(--container-max)] lg:mx-auto" />
 
         {/* Eyebrow + heading */}
-        <SectionHeader eyebrow="✦ مختار بعناية" title="أبرز منتجاتنا" />
+        <SectionHeader eyebrow="✦ تشكيلة مختارة" title="منتجات حصرية" />
 
         {featuredProducts.length === 0 ? (
           <div
@@ -663,6 +649,38 @@ export default function StitchHomeContent({
           </>
         )}
       </section>
+
+      {/* ═══════════════════════════════════════
+          5.2. EXCLUSIVE OFFERS COLLECTION
+      ═══════════════════════════════════════ */}
+      {offersProducts.length > 0 && (
+        <section className="py-10 hero-gradient border-y border-beige">
+          <div className="px-4 md:px-8 mb-5 flex items-center justify-between lg:max-w-[var(--container-max)] lg:mx-auto">
+            <div className="text-right">
+              <span className="text-xs font-bold uppercase tracking-[0.14em] block mb-0.5 text-primary">
+                ✦ خصومات لفترة محدودة
+              </span>
+              <h2 className="text-xl lg:text-3xl font-bold font-headline [text-wrap:balance] text-on-surface">
+                مجموعة العروض الحصرية
+              </h2>
+            </div>
+            <Link href="/offers" className="flex items-center gap-1 text-xs font-semibold text-primary">
+              كل العروض <ArrowLeftIcon className="w-3 h-3" />
+            </Link>
+          </div>
+
+          <div className="relative">
+            <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 pb-2 no-scrollbar lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:px-8 lg:max-w-[var(--container-max)] lg:mx-auto">
+              {offersProducts.map((product) => (
+                <div key={product.id} className="flex-shrink-0 snap-start w-[42vw] max-w-[185px] lg:w-auto lg:max-w-none">
+                  <MobileProductCard product={product} formatPrice={formatPrice} />
+                </div>
+              ))}
+            </div>
+            <div className="absolute inset-y-0 left-0 w-10 pointer-events-none edge-fade-surface lg:hidden" />
+          </div>
+        </section>
+      )}
 
       {/* ═══════════════════════════════════════
           5.5. SKINCARE ROUTINE — 3 STEPS
@@ -887,70 +905,6 @@ export default function StitchHomeContent({
           >
             قصّتنا
           </Link>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════
-          9. INSTAGRAM / SOCIAL PROOF
-      ═══════════════════════════════════════ */}
-      <section className="py-10 bg-surface">
-        <div className="px-6 mb-6 text-right lg:max-w-[var(--container-max)] lg:mx-auto">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary block mb-2">
-            ✦ تابعينا
-          </span>
-          <h2 className="text-xl lg:text-3xl font-bold font-headline text-on-surface">
-            الأكثر رواجاً على إنستغرام
-          </h2>
-          <p className="text-xs mt-1.5 text-on-surface-variant">
-            @deepbeautykw
-          </p>
-        </div>
-
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-3 px-4 lg:max-w-[var(--container-max)] lg:mx-auto">
-          {(instagramImages.length > 0
-            ? instagramImages
-            : Array.from({ length: 6 }, () => null)
-          ).map((item, i) => (
-            <a
-              key={item ? item.image_url : i}
-              href={item?.link_url || 'https://www.instagram.com/deepbeautykw/'}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`منشور إنستغرام ${i + 1}`}
-              className="group relative aspect-square rounded-xl overflow-hidden bg-beige"
-            >
-              {item ? (
-                <Image
-                  src={item.image_url}
-                  alt={`منشور إنستغرام ${i + 1}`}
-                  fill
-                  sizes="(max-width: 768px) 33vw, 200px"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                  quality={75}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <SparklesIcon className="w-8 h-8 text-primary opacity-20" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
-                <IconInstagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </a>
-          ))}
-        </div>
-
-        <div className="px-6 mt-5 text-center">
-          <a
-            href="https://www.instagram.com/deepbeautykw/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-primary border border-beige hover:bg-white transition-colors"
-          >
-            <IconInstagram className="w-4 h-4" />
-            تابعينا على إنستغرام
-          </a>
         </div>
       </section>
 
