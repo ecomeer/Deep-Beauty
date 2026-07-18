@@ -188,7 +188,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 required
                 rows={4}
                 className="input-field w-full"
-                placeholder="شارك تجربتك مع المنتج..."
+                placeholder="شارك تجربتك مع المنتج…"
               />
             </div>
 
@@ -205,7 +205,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 disabled={submitting}
                 className="btn-primary flex-1"
               >
-                {submitting ? '...' : 'إرسال'}
+                {submitting ? 'جارٍ الإرسال…' : 'إرسال'}
               </button>
             </div>
           </div>

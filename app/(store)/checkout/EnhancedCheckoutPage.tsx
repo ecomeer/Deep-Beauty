@@ -454,6 +454,7 @@ export default function EnhancedCheckoutPage() {
                       id="field-email"
                       name="customer_email"
                       type="email"
+                      spellCheck={false}
                       autoComplete="email"
                       value={form.customer_email}
                       onChange={handleChange}
@@ -572,7 +573,7 @@ export default function EnhancedCheckoutPage() {
                   </div>
                   <div>
                     <label htmlFor="field-notes" className="block text-sm font-medium mb-1.5">ملاحظات إضافية</label>
-                    <input id="field-notes" name="notes" value={form.notes} onChange={handleChange} className="input-field" placeholder="أي تفاصيل إضافية..." />
+                    <input id="field-notes" name="notes" value={form.notes} onChange={handleChange} className="input-field" placeholder="أي تفاصيل إضافية…" />
                   </div>
                 </div>
               </motion.div>
@@ -691,7 +692,7 @@ export default function EnhancedCheckoutPage() {
                         disabled={couponLoading} 
                         className="btn-outline px-3 py-2 text-sm flex-shrink-0"
                       >
-                        {couponLoading ? '...' : 'تطبيق'}
+                        {couponLoading ? 'جارٍ التحقق…' : 'تطبيق'}
                       </button>
                     </div>
                   )}

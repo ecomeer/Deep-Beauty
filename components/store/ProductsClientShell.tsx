@@ -81,7 +81,7 @@ export default function ProductsClientShell({
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="ابحثي عن منتج..."
+              placeholder="ابحثي عن منتج…"
               aria-label="البحث في المنتجات"
               className="w-full pr-10 pl-4 py-2.5 rounded-xl text-sm outline-none border transition-all bg-white"
               style={{ borderColor: 'var(--dark-beige)', color: 'var(--text-dark)' }}

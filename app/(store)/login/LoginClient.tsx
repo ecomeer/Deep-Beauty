@@ -90,6 +90,8 @@ export default function LoginClient() {
                 <EnvelopeIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="email"
+                  autoComplete="email"
+                  spellCheck={false}
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -109,6 +111,7 @@ export default function LoginClient() {
                 <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   required
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}

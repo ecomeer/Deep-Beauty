@@ -143,6 +143,7 @@ export default function RegisterClient() {
                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
+                  autoComplete="name"
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -161,6 +162,8 @@ export default function RegisterClient() {
                 <EnvelopeIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="email"
+                  autoComplete="email"
+                  spellCheck={false}
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -180,6 +183,8 @@ export default function RegisterClient() {
                 <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
@@ -198,6 +203,7 @@ export default function RegisterClient() {
                 <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
                   required
                   minLength={8}
                   value={form.password}

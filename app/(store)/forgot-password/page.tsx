@@ -98,6 +98,8 @@ export default function ForgotPasswordPage() {
                     <input
                       id="reset-email"
                       type="email"
+                      autoComplete="email"
+                      spellCheck={false}
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}

@@ -933,7 +933,7 @@ export default function StitchHomeContent({
                 disabled={nlLoading}
                 className="px-5 py-3 rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary-hover transition-colors disabled:opacity-50"
               >
-                {nlLoading ? '...' : 'اشتركي'}
+                {nlLoading ? 'جارٍ الاشتراك…' : 'اشتركي'}
               </button>
             </form>
           )}

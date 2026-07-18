@@ -90,10 +90,11 @@
   --radius-2xl: 2rem;     /* 32px */
 
   /* Transitions */
-  --transition-fast:   all 0.15s ease;
-  --transition-base:   all 0.25s ease;
-  --transition-slow:   all 0.4s ease;
-  --transition-spring: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-props:  color, background-color, border-color, box-shadow, transform, opacity;
+  --transition-fast:   var(--transition-props) 0.15s ease;
+  --transition-base:   var(--transition-props) 0.25s ease;
+  --transition-slow:   var(--transition-props) 0.4s ease;
+  --transition-spring: var(--transition-props) 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Spacing */
   --section-y: 6rem;
@@ -105,6 +106,13 @@
   box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: var(--dark-beige) var(--surface);
+}
+
+a, button, [role="button"], input, select, textarea {
+  touch-action: manipulation;
+}
+a, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -138,7 +146,7 @@ h1, h2, h3, h4, h5, h6 {
    BUTTONS
 ============================== */
 .btn-primary {
-  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer;
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 cursor-pointer;
   background-color: var(--primary);
   color: white;
 }
@@ -156,7 +164,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-outline {
-  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer border-2;
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 cursor-pointer border-2;
   border-color: var(--primary);
   color: var(--primary);
   background: transparent;
@@ -167,7 +175,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-ghost {
-  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer;
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 cursor-pointer;
   color: var(--primary);
   background: transparent;
 }
@@ -177,7 +185,7 @@ h1, h2, h3, h4, h5, h6 {
    CARDS
 ============================== */
 .card {
-  @apply rounded-2xl overflow-hidden shadow-sm transition-all duration-300;
+  @apply rounded-2xl overflow-hidden shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-300;
   background: white;
 }
 .card:hover {
@@ -186,7 +194,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .product-card {
-  @apply rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer;
+  @apply rounded-2xl overflow-hidden transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-300 cursor-pointer;
   background: white;
   border: 1px solid transparent;
 }
@@ -267,7 +275,7 @@ h1, h2, h3, h4, h5, h6 {
    INPUTS
 ============================== */
 .input-field {
-  @apply w-full px-4 py-3 rounded-xl border text-sm transition-all duration-200 outline-none;
+  @apply w-full px-4 py-3 rounded-xl border text-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 outline-none;
   border-color: var(--dark-beige);
   background: white;
   color: var(--on-surface);
@@ -292,6 +300,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   color: var(--on-surface);
   text-align: center;
+  text-wrap: balance;
 }
 .section-title--sm {
   font-size: clamp(1.5rem, 3vw, 2rem);
@@ -343,7 +352,7 @@ h1, h2, h3, h4, h5, h6 {
   flex-shrink: 0;
 }
 .admin-nav-link {
-  @apply flex items-center gap-3 px-5 py-3 rounded-xl mx-3 mb-1 transition-all duration-200 text-sm font-medium cursor-pointer;
+  @apply flex items-center gap-3 px-5 py-3 rounded-xl mx-3 mb-1 transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 text-sm font-medium cursor-pointer;
   color: rgba(255,255,255,0.7);
 }
 .admin-nav-link:hover {
@@ -362,7 +371,7 @@ h1, h2, h3, h4, h5, h6 {
   @apply p-6 rounded-2xl;
   background: white;
   border: 1px solid var(--beige);
-  transition: all 0.3s;
+  transition: box-shadow 0.3s, transform 0.3s;
 }
 .stats-card:hover {
   box-shadow: var(--shadow-lg);
@@ -426,6 +435,7 @@ h1, h2, h3, h4, h5, h6 {
   background: white;
   z-index: 51;
   overflow-y: auto;
+  overscroll-behavior: contain;
   animation: slideIn 0.3s ease-out;
   box-shadow: -10px 0 60px rgba(0,0,0,0.15);
 }
@@ -486,6 +496,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   padding: 1rem;
   animation: fadeIn 0.3s ease;
+  overscroll-behavior: contain;
 }
 
 /* ==============================
@@ -598,6 +609,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .mobile-menu {
+  overscroll-behavior: contain;
   background: white;
   border-top: 1px solid var(--beige);
   padding: 1rem;

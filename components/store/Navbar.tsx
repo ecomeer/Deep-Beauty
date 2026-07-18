@@ -226,7 +226,7 @@ export default function Navbar() {
                 autoFocus
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحثي عن منتج..."
+                placeholder="ابحثي عن منتج…"
                 className="w-full ps-11 pe-4 py-2.5 rounded-[2rem] text-sm outline-none border border-beige focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all bg-surface"
               />
             </form>
@@ -269,7 +269,7 @@ export default function Navbar() {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحثي عن منتج..."
+                placeholder="ابحثي عن منتج…"
                 className="w-full ps-11 pe-4 py-2.5 rounded-[2rem] text-sm outline-none border border-beige focus:border-primary bg-surface transition-all"
               />
             </form>

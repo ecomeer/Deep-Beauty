@@ -417,7 +417,7 @@ export default function EnhancedProductDetail() {
             {product.description_ar && (
               <p className="text-sm leading-relaxed text-on-surface-variant">
                 {product.description_ar.slice(0, 180)}
-                {product.description_ar.length > 180 && '...'}
+                {product.description_ar.length > 180 && '…'}
               </p>
             )}
 
@@ -565,7 +565,7 @@ export default function EnhancedProductDetail() {
                     disabled={notifySubmitting}
                     className="btn-outline px-4 py-2 text-sm whitespace-nowrap disabled:opacity-50"
                   >
-                    {notifySubmitting ? '...' : 'أعلميني عند التوفر'}
+                    {notifySubmitting ? 'جارٍ الاشتراك…' : 'أعلميني عند التوفر'}
                   </button>
                 </form>
               )

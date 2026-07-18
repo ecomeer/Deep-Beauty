@@ -135,6 +135,8 @@ export default function TrackClient() {
             <label className="block text-sm font-medium mb-1">رقم الهاتف</label>
             <input
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"

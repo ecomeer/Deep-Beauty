@@ -77,6 +77,7 @@ export default function AccountSettingsPage() {
             <label className="block text-sm font-medium mb-1.5 text-on-surface">الاسم الكامل</label>
             <input
               type="text"
+              autoComplete="name"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               className="w-full px-4 py-3 rounded-xl text-sm outline-none"
@@ -89,6 +90,8 @@ export default function AccountSettingsPage() {
             <label className="block text-sm font-medium mb-1.5 text-on-surface">البريد الإلكتروني</label>
             <input
               type="email"
+              autoComplete="email"
+              spellCheck={false}
               value={user.email}
               disabled
               className="w-full px-4 py-3 rounded-xl text-sm outline-none opacity-60 cursor-not-allowed"
@@ -101,6 +104,8 @@ export default function AccountSettingsPage() {
             <label className="block text-sm font-medium mb-1.5 text-on-surface">رقم الهاتف</label>
             <input
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               value={form.phone}
               onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
               className="w-full px-4 py-3 rounded-xl text-sm outline-none"
