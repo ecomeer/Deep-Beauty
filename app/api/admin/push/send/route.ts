@@ -3,7 +3,9 @@ import { requireAdmin } from '@/lib/auth-admin'
 import { sendAdminPushNotification } from '@/lib/push-notifications'
 
 export async function POST(req: NextRequest) {
-  const _authErr = await requireAdmin(req)
+  // Broadcasting admin push notifications is a marketing capability — don't
+  // leave it reachable by any staff account regardless of permissions.
+  const _authErr = await requireAdmin(req, 'marketing')
   if (_authErr) return _authErr
   try {
     const { title, body, url = '/admin/orders' } = await req.json()

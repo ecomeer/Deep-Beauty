@@ -26,6 +26,7 @@ import {
   UserGroupIcon,
   PaperAirplaneIcon,
   ChatBubbleLeftEllipsisIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline'
 import type { Permission } from '@/lib/admin-permissions'
 
@@ -76,6 +77,7 @@ const NAV_GROUPS: { label: string; links: { href: string; icon: React.ElementTyp
       { href: '/admin/shipping', icon: TruckIcon,       label: 'الشحن',       permission: 'settings' },
       { href: '/admin/settings', icon: Cog6ToothIcon,   label: 'الإعدادات',   permission: 'settings' },
       { href: '/admin/team',     icon: UserGroupIcon,   label: 'الفريق',      adminOnly: true },
+      { href: '/admin/activity', icon: ClipboardDocumentListIcon, label: 'سجل النشاط', adminOnly: true },
     ],
   },
 ]

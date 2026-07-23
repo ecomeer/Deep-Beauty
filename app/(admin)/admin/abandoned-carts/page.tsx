@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { ShoppingCartIcon, ChatBubbleLeftRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { useAdminList } from '@/hooks/useAdminList'
@@ -29,10 +30,12 @@ function recoveryMessage(cart: AbandonedCart): string {
 }
 
 export default function AdminAbandonedCarts() {
-  const { items: carts, setItems: setCarts, loading } = useAdminList<AbandonedCart>(
-    '/api/admin/abandoned-carts',
+  const [page, setPage] = useState(1)
+  const { items: carts, raw, setItems: setCarts, loading } = useAdminList<AbandonedCart>(
+    `/api/admin/abandoned-carts?page=${page}`,
     (json) => (json as { carts?: AbandonedCart[] }).carts || []
   )
+  const totalPages = (raw as { totalPages?: number } | null)?.totalPages ?? 1
 
   async function dismiss(id: string) {
     const res = await fetch(`/api/admin/abandoned-carts/${id}`, { method: 'PATCH' })
@@ -101,6 +104,26 @@ export default function AdminAbandonedCarts() {
               </a>
             </div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            type="button"
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >السابق</button>
+          <span className="text-sm opacity-60">صفحة {page} من {totalPages}</span>
+          <button
+            type="button"
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >التالي</button>
         </div>
       )}
     </div>

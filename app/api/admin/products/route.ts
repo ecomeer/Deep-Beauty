@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 import { escapeOrFilterValue } from '@/lib/utils'
 import { revalidateProduct } from '@/lib/revalidate-storefront'
+import { logActivity } from '@/lib/activity-log'
 
 const PAGE_SIZE = 20
 
@@ -89,5 +90,6 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   revalidateProduct(data?.slug)
+  await logActivity(req, { action: 'create', entity: 'product', entity_id: data?.id, meta: { name_ar: data?.name_ar } })
   return NextResponse.json({ data })
 }

@@ -59,22 +59,24 @@ export default function AdminCoupons() {
     setSelectedIds(prev => prev.size === coupons.length ? new Set() : new Set(coupons.map(c => c.id)))
   }
 
-  async function bulkSetActive(isActive: boolean) {
+  async function bulkAction(action: 'activate' | 'deactivate' | 'delete') {
     if (selectedIds.size === 0) return
+    if (action === 'delete' && !confirm(`هل أنت متأكد من حذف ${selectedIds.size} كوبون؟`)) return
     setBulkApplying(true)
-    const results = await Promise.all(
-      Array.from(selectedIds).map(id =>
-        fetch(`/api/admin/coupons/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ is_active: isActive }),
-        })
-      )
-    )
+    const ids = Array.from(selectedIds)
+    const res = await fetch('/api/admin/coupons/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, action }),
+    })
     setBulkApplying(false)
-    if (results.some(r => !r.ok)) toast.error('فشل تحديث بعض الكوبونات')
-    else toast.success('تم التحديث')
-    setCoupons(prev => prev.map(c => selectedIds.has(c.id) ? { ...c, is_active: isActive } : c))
+    if (!res.ok) { toast.error('حدث خطأ أثناء العملية'); return }
+    toast.success(action === 'delete' ? 'تم الحذف' : 'تم التحديث')
+    if (action === 'delete') {
+      setCoupons(prev => prev.filter(c => !selectedIds.has(c.id)))
+    } else {
+      setCoupons(prev => prev.map(c => selectedIds.has(c.id) ? { ...c, is_active: action === 'activate' } : c))
+    }
     setSelectedIds(new Set())
   }
 
@@ -98,8 +100,9 @@ export default function AdminCoupons() {
         {selectedIds.size > 0 && (
           <div className="flex flex-wrap items-center gap-3 p-3 border-b bg-amber-50" style={{ borderColor: 'var(--beige)' }}>
             <span className="text-sm font-bold">{selectedIds.size} محدد</span>
-            <button type="button" onClick={() => bulkSetActive(true)} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تفعيل</button>
-            <button type="button" onClick={() => bulkSetActive(false)} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تعطيل</button>
+            <button type="button" onClick={() => bulkAction('activate')} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تفعيل</button>
+            <button type="button" onClick={() => bulkAction('deactivate')} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تعطيل</button>
+            <button type="button" onClick={() => bulkAction('delete')} disabled={bulkApplying} className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50">حذف</button>
             <button type="button" onClick={() => setSelectedIds(new Set())} className="text-xs text-gray-500 hover:text-gray-700">إلغاء التحديد</button>
           </div>
         )}
@@ -165,9 +168,14 @@ export default function AdminCoupons() {
                         </button>
                       </td>
                       <td>
-                        <button type="button" onClick={() => deleteCoupon(coupon.id)} title="حذف الكوبون" aria-label="حذف الكوبون" className="text-red-400 hover:text-red-600 text-xs">
-                          حذف
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <Link href={`/admin/marketing/coupons/${coupon.id}`} title="تعديل الكوبون" aria-label="تعديل الكوبون" className="text-blue-500 hover:text-blue-700 text-xs">
+                            تعديل
+                          </Link>
+                          <button type="button" onClick={() => deleteCoupon(coupon.id)} title="حذف الكوبون" aria-label="حذف الكوبون" className="text-red-400 hover:text-red-600 text-xs">
+                            حذف
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -202,6 +210,9 @@ export default function AdminCoupons() {
                     >
                       {coupon.is_active ? 'فعّال' : 'معطّل'}
                     </button>
+                    <Link href={`/admin/marketing/coupons/${coupon.id}`} title="تعديل الكوبون" aria-label="تعديل الكوبون" className="p-2 rounded-lg hover:bg-blue-50 text-blue-500 text-xs">
+                      تعديل
+                    </Link>
                     <button type="button" onClick={() => deleteCoupon(coupon.id)} title="حذف الكوبون" aria-label="حذف الكوبون" className="p-2 rounded-lg hover:bg-red-50 text-red-500 text-xs">
                       حذف
                     </button>

@@ -92,21 +92,21 @@ export default function AdminOrders() {
     if (!bulkStatus || selectedIds.size === 0) return
     if (bulkStatus === 'cancelled' && !confirm(`هل أنت متأكد من إلغاء ${selectedIds.size} طلب؟`)) return
     setBulkApplying(true)
-    const results = await Promise.all(
-      Array.from(selectedIds).map(id =>
-        fetch(`/api/admin/orders/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: bulkStatus }),
-        }).then(r => r.ok)
-      )
-    )
-    const failed = results.filter(ok => !ok).length
+    const res = await fetch('/api/admin/orders/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: Array.from(selectedIds), status: bulkStatus }),
+    })
     setBulkApplying(false)
     setSelectedIds(new Set())
     setBulkStatus('')
-    if (failed > 0) toast.error(`فشل تحديث ${failed} طلب — قد يكون الانتقال غير مسموح لبعضها`)
-    else toast.success('تم تحديث الطلبات المحددة')
+    if (!res.ok) {
+      toast.error('حدث خطأ أثناء تحديث الطلبات')
+    } else {
+      const data = await res.json()
+      if (data.failed > 0) toast.error(`فشل تحديث ${data.failed} طلب — قد يكون الانتقال غير مسموح لبعضها`)
+      else toast.success('تم تحديث الطلبات المحددة')
+    }
     fetchOrders()
   }
 

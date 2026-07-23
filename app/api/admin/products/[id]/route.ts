@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 import { sendEmail, backInStockEmail } from '@/lib/email'
 import { revalidateProduct } from '@/lib/revalidate-storefront'
+import { logActivity } from '@/lib/activity-log'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _authErr = await requireAdmin(req, 'products')
@@ -63,6 +64,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     revalidateProduct(data?.slug)
+    await logActivity(req, { action: 'update', entity: 'product', entity_id: id, meta: { fields: Object.keys(updateFields) } })
     return NextResponse.json({ data })
   } catch (err) {
     console.error('PATCH error:', err)
@@ -98,5 +100,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { error } = await supabaseAdmin.from('products').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   revalidateProduct(existing?.slug)
+  await logActivity(req, { action: 'delete', entity: 'product', entity_id: id })
   return NextResponse.json({ ok: true })
 }

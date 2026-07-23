@@ -4,8 +4,10 @@ import { requireAdmin } from '@/lib/auth-admin'
 
 const PAGE_SIZE = 50
 
+// Read-only admin audit trail. Full-admin only (pass 'staff' so scoped staff
+// accounts can't read the activity of others).
 export async function GET(req: NextRequest) {
-  const _authErr = await requireAdmin(req, 'marketing')
+  const _authErr = await requireAdmin(req, 'staff')
   if (_authErr) return _authErr
 
   const { searchParams } = new URL(req.url)
@@ -14,15 +16,14 @@ export async function GET(req: NextRequest) {
   const to = from + PAGE_SIZE - 1
 
   const { data, error, count } = await supabaseAdmin
-    .from('abandoned_carts')
-    .select('id, customer_name, customer_phone, customer_email, items, subtotal, recovered, created_at, updated_at', { count: 'exact' })
-    .eq('recovered', false)
-    .order('updated_at', { ascending: false })
+    .from('admin_activity_log')
+    .select('id, actor_email, action, entity, entity_id, meta, created_at', { count: 'exact' })
+    .order('created_at', { ascending: false })
     .range(from, to)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({
-    carts: data ?? [],
+    activity: data || [],
     total: count ?? 0,
     page,
     totalPages: Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE)),

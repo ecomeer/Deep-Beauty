@@ -72,34 +72,19 @@ export default function AdminProducts() {
     setSelectedIds(prev => prev.size === filtered.length ? new Set() : new Set(filtered.map(p => p.id)))
   }
 
-  async function bulkSetActive(isActive: boolean) {
+  async function bulkAction(action: 'activate' | 'deactivate' | 'delete') {
     if (selectedIds.size === 0) return
+    if (action === 'delete' && !confirm(`هل أنت متأكد من حذف ${selectedIds.size} منتج؟`)) return
     setBulkApplying(true)
-    await Promise.all(
-      Array.from(selectedIds).map(id =>
-        fetch(`/api/admin/products/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ is_active: isActive }),
-        })
-      )
-    )
+    const res = await fetch('/api/admin/products/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: Array.from(selectedIds), action }),
+    })
     setBulkApplying(false)
     setSelectedIds(new Set())
-    toast.success('تم التحديث')
-    fetchProducts()
-  }
-
-  async function bulkDelete() {
-    if (selectedIds.size === 0) return
-    if (!confirm(`هل أنت متأكد من حذف ${selectedIds.size} منتج؟`)) return
-    setBulkApplying(true)
-    await Promise.all(
-      Array.from(selectedIds).map(id => fetch(`/api/admin/products/${id}`, { method: 'DELETE' }))
-    )
-    setBulkApplying(false)
-    setSelectedIds(new Set())
-    toast.success('تم الحذف')
+    if (!res.ok) { toast.error('حدث خطأ أثناء العملية'); return }
+    toast.success(action === 'delete' ? 'تم الحذف' : 'تم التحديث')
     fetchProducts()
   }
 
@@ -196,9 +181,9 @@ export default function AdminProducts() {
         {selectedIds.size > 0 && (
           <div className="flex flex-wrap items-center gap-3 p-3 border-b bg-amber-50" style={{ borderColor: 'var(--beige)' }}>
             <span className="text-sm font-bold">{selectedIds.size} محدد</span>
-            <button type="button" onClick={() => bulkSetActive(true)} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تفعيل</button>
-            <button type="button" onClick={() => bulkSetActive(false)} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تعطيل</button>
-            <button type="button" onClick={bulkDelete} disabled={bulkApplying} className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50">حذف</button>
+            <button type="button" onClick={() => bulkAction('activate')} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تفعيل</button>
+            <button type="button" onClick={() => bulkAction('deactivate')} disabled={bulkApplying} className="btn-outline text-xs px-3 py-1.5 disabled:opacity-50">تعطيل</button>
+            <button type="button" onClick={() => bulkAction('delete')} disabled={bulkApplying} className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50">حذف</button>
             <button type="button" onClick={() => setSelectedIds(new Set())} className="text-xs text-gray-500 hover:text-gray-700">إلغاء التحديد</button>
           </div>
         )}

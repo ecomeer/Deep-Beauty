@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { formatDateTime } from '@/lib/utils'
-import { TrashIcon, BoltIcon } from '@heroicons/react/24/outline'
+import { TrashIcon, BoltIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { useAdminList } from '@/hooks/useAdminList'
 
@@ -14,8 +14,16 @@ interface FlashSale {
   ends_at: string
   is_active: boolean
   apply_to: 'all' | 'category' | 'products'
+  category_id?: string | null
   category_name?: string | null
   product_ids?: string[]
+}
+
+// datetime-local wants `YYYY-MM-DDTHH:mm` in local time.
+function toLocalInput(iso: string): string {
+  const d = new Date(iso)
+  const off = d.getTimezoneOffset()
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16)
 }
 
 interface CategoryOption {
@@ -54,10 +62,11 @@ export default function AdminFlashSales() {
     (json) => (json as { sales?: FlashSale[] }).sales || []
   )
   const [adding, setAdding] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [categories, setCategories] = useState<CategoryOption[]>([])
   const [products, setProducts] = useState<ProductOption[]>([])
   const [productFilter, setProductFilter] = useState('')
-  const [form, setForm] = useState({
+  const EMPTY_FORM = {
     name_ar: '',
     discount_percentage: 10,
     starts_at: '',
@@ -65,12 +74,46 @@ export default function AdminFlashSales() {
     apply_to: 'all' as 'all' | 'category' | 'products',
     category_id: '',
     product_ids: [] as string[],
-  })
+  }
+  const [form, setForm] = useState(EMPTY_FORM)
 
   useEffect(() => {
     fetch('/api/categories').then(r => r.json()).then(d => setCategories(d.categories || [])).catch(() => {})
-    fetch('/api/admin/products?pageSize=200').then(r => r.json()).then(d => setProducts(d.products || [])).catch(() => {})
   }, [])
+
+  // Typeahead: fetch matching products server-side as the picker filter
+  // changes, instead of loading 200 products up front on every mount.
+  useEffect(() => {
+    if (form.apply_to !== 'products') return
+    const q = productFilter.trim()
+    const url = q
+      ? `/api/admin/products?pageSize=50&search=${encodeURIComponent(q)}`
+      : '/api/admin/products?pageSize=50'
+    const t = setTimeout(() => {
+      fetch(url).then(r => r.json()).then(d => setProducts(d.products || [])).catch(() => {})
+    }, 250)
+    return () => clearTimeout(t)
+  }, [productFilter, form.apply_to])
+
+  function startEdit(sale: FlashSale) {
+    setEditingId(sale.id)
+    setForm({
+      name_ar: sale.name_ar,
+      discount_percentage: sale.discount_percentage,
+      starts_at: toLocalInput(sale.starts_at),
+      ends_at: toLocalInput(sale.ends_at),
+      apply_to: sale.apply_to,
+      category_id: sale.category_id ?? '',
+      product_ids: sale.product_ids ?? [],
+    })
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function resetForm() {
+    setForm(EMPTY_FORM)
+    setEditingId(null)
+    setProductFilter('')
+  }
 
   const toggleProduct = (id: string) => {
     setForm(f => ({
@@ -87,22 +130,25 @@ export default function AdminFlashSales() {
     if (form.apply_to === 'products' && form.product_ids.length === 0) return toast.error('اختر منتج واحد على الأقل')
 
     setAdding(true)
+    const payload = {
+      ...form,
+      category_id: form.apply_to === 'category' ? form.category_id : null,
+      starts_at: new Date(form.starts_at).toISOString(),
+      ends_at: new Date(form.ends_at).toISOString(),
+      product_ids: form.apply_to === 'products' ? form.product_ids : [],
+      ...(editingId ? { id: editingId } : { is_active: true }),
+    }
     const res = await fetch('/api/admin/flash-sales', {
-      method: 'POST',
+      method: editingId ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...form,
-        is_active: true,
-        starts_at: new Date(form.starts_at).toISOString(),
-        ends_at: new Date(form.ends_at).toISOString(),
-      }),
+      body: JSON.stringify(payload),
     })
     if (!res.ok) {
       const d = await res.json()
       toast.error('حدث خطأ: ' + (d.error || ''))
     } else {
-      toast.success('تم إنشاء عرض الفلاش بنجاح ⚡')
-      setForm({ name_ar: '', discount_percentage: 10, starts_at: '', ends_at: '', apply_to: 'all', category_id: '', product_ids: [] })
+      toast.success(editingId ? 'تم تحديث العرض ⚡' : 'تم إنشاء عرض الفلاش بنجاح ⚡')
+      resetForm()
       fetchSales()
     }
     setAdding(false)
@@ -137,7 +183,7 @@ export default function AdminFlashSales() {
         {/* Form */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl shadow-sm border p-6" style={{ borderColor: 'var(--beige)' }}>
-            <h2 className="text-lg font-bold mb-4">إنشاء عرض جديد</h2>
+            <h2 className="text-lg font-bold mb-4">{editingId ? 'تعديل العرض' : 'إنشاء عرض جديد'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4 text-sm">
               <div>
                 <label className="block mb-1 font-medium">اسم العرض (عربي) *</label>
@@ -248,9 +294,14 @@ export default function AdminFlashSales() {
                   title="تاريخ ووقت انتهاء العرض"
                 />
               </div>
-              <button disabled={adding} type="submit" className="btn-primary w-full py-3 flex justify-center gap-2">
-                <BoltIcon className="w-5 h-5" /> {adding ? 'جاري الإنشاء...' : 'إنشاء العرض'}
-              </button>
+              <div className="flex gap-2">
+                <button disabled={adding} type="submit" className="btn-primary flex-1 py-3 flex justify-center gap-2">
+                  <BoltIcon className="w-5 h-5" /> {adding ? 'جاري الحفظ...' : editingId ? 'حفظ التعديلات' : 'إنشاء العرض'}
+                </button>
+                {editingId && (
+                  <button type="button" onClick={resetForm} className="btn-outline px-4 py-3">إلغاء</button>
+                )}
+              </div>
             </form>
           </div>
         </div>
@@ -328,9 +379,14 @@ export default function AdminFlashSales() {
                           </button>
                         </td>
                         <td>
-                          <button type="button" onClick={() => handleDelete(s.id)} title="حذف العرض" className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button type="button" onClick={() => startEdit(s)} title="تعديل العرض" aria-label="تعديل العرض" className="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors">
+                              <PencilSquareIcon className="w-4 h-4" />
+                            </button>
+                            <button type="button" onClick={() => handleDelete(s.id)} title="حذف العرض" aria-label="حذف العرض" className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

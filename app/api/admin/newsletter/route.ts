@@ -7,10 +7,11 @@ export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req, 'customers')
   if (_authErr) return _authErr
   const { searchParams } = new URL(req.url)
+  const exportAll = searchParams.get('all') === '1'
   const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '50')
+  const limit = exportAll ? 100000 : parseInt(searchParams.get('limit') || '50')
   const search = searchParams.get('search') || ''
-  const offset = (page - 1) * limit
+  const offset = exportAll ? 0 : (page - 1) * limit
 
   let query = supabaseAdmin
     .from('newsletter_subscribers')

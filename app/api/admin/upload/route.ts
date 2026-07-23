@@ -6,7 +6,9 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'im
 const MAX_SIZE_MB = 5
 
 export async function POST(req: NextRequest) {
-  const authErr = await requireAdmin(req)
+  // Uploads back the product/category/banner forms — scope to the 'products'
+  // capability instead of any authenticated staff.
+  const authErr = await requireAdmin(req, 'products')
   if (authErr) return authErr
 
   try {
