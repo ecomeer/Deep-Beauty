@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ShoppingCartIcon, ChatBubbleLeftRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { useAdminList } from '@/hooks/useAdminList'
-import { toArabicPrice, formatDateTime } from '@/lib/utils'
+import { toArabicPrice, formatDateTime, toWhatsAppPhone } from '@/lib/utils'
 
 interface CartItem {
   id: string
@@ -95,7 +95,7 @@ export default function AdminAbandonedCarts() {
               </div>
 
               <a
-                href={`https://wa.me/965${cart.customer_phone.replace(/\D/g, '').slice(-8)}?text=${encodeURIComponent(recoveryMessage(cart))}`}
+                href={`https://wa.me/${toWhatsAppPhone(cart.customer_phone)}?text=${encodeURIComponent(recoveryMessage(cart))}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary text-xs px-4 py-2 inline-flex items-center gap-2"
