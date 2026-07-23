@@ -309,10 +309,6 @@ export default function StitchHomeContent({
   const midBannerSub   = midBanner?.subtitle_ar || 'اكتشفي أحدث إضافاتنا'
   const midBannerLink  = midBanner?.link_url    || '/products'
   const midBannerImg   = midBanner?.image_url   || null
-  // If this banner has an image but no text, show it as a pure clickable image
-  // (no "عرض حصري" copy or button), matching image-only banners in the hero.
-  const midBannerHasText  = !!(midBanner?.title_ar?.trim() || midBanner?.subtitle_ar?.trim())
-  const midBannerImageOnly = !!midBannerImg && !midBannerHasText
 
   useEffect(() => {
     const featuredIds = new Set(featuredProducts.slice(0, 8).map(p => p.id))
@@ -756,19 +752,6 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="px-4 py-8 lg:max-w-[var(--container-max)] lg:mx-auto">
         <Link href={midBannerLink} className="block group">
-          {midBannerImageOnly ? (
-            <div className="relative w-full min-h-[220px] lg:min-h-[320px] rounded-[2rem] overflow-hidden shadow-xl transition-transform duration-300 group-hover:scale-[1.01]">
-              <Image
-                src={midBannerImg!}
-                alt="بنر"
-                fill
-                sizes="100vw"
-                className="object-cover"
-                loading="lazy"
-                quality={80}
-              />
-            </div>
-          ) : (
           <div
             className={`w-full min-h-[220px] lg:min-h-[320px] rounded-[2rem] overflow-hidden transition-transform duration-300 group-hover:scale-[1.01] bg-on-surface shadow-xl grid ${
               midBannerImg ? 'grid-cols-2' : 'grid-cols-1'
@@ -811,7 +794,6 @@ export default function StitchHomeContent({
               </div>
             )}
           </div>
-          )}
         </Link>
       </section>
 
