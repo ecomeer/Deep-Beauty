@@ -63,7 +63,7 @@ export default function AdminBanners() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.title_ar || !form.image_url) return toast.error('العنوان والصورة مطلوبان')
+    if (!form.image_url) return toast.error('الصورة مطلوبة')
     setSaving(true)
     const existing = editingId ? banners.find(b => b.id === editingId) : null
     const maxOrder = banners.length > 0 ? Math.max(...banners.map(b => b.sort_order)) + 1 : 0
@@ -154,28 +154,29 @@ export default function AdminBanners() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">العنوان الرئيسي *</label>
+                <label className="block text-sm font-medium mb-1.5">العنوان الرئيسي (اختياري)</label>
                 <input
-                  required value={form.title_ar}
+                  value={form.title_ar}
                   onChange={e => setForm(f => ({ ...f, title_ar: e.target.value }))}
-                  className="input-field" placeholder="مثال: عروض الصيف الذهبية"
+                  className="input-field" placeholder="اتركه فارغاً لعرض الصورة فقط"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">العنوان الفرعي</label>
+                <label className="block text-sm font-medium mb-1.5">العنوان الفرعي (اختياري)</label>
                 <input
                   value={form.subtitle_ar}
                   onChange={e => setForm(f => ({ ...f, subtitle_ar: e.target.value }))}
-                  className="input-field" placeholder="مثال: خصم حتى ٣٠٪"
+                  className="input-field" placeholder="اتركه فارغاً لعرض الصورة فقط"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">رابط الزر</label>
+                <label className="block text-sm font-medium mb-1.5">الرابط عند الضغط على البنر</label>
                 <input
                   value={form.link_url}
                   onChange={e => setForm(f => ({ ...f, link_url: e.target.value }))}
-                  className="input-field" dir="ltr" placeholder="/products"
+                  className="input-field" dir="ltr" placeholder="/products أو رابط خارجي"
                 />
+                <p className="text-xs opacity-50 mt-1">عند ترك العنوانين فارغين، تظهر الصورة فقط للعملاء والضغط على أي مكان يفتح هذا الرابط.</p>
               </div>
             </div>
 
@@ -233,7 +234,9 @@ export default function AdminBanners() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-sm truncate text-[var(--text-dark)]">{banner.title_ar}</h3>
+                  <h3 className="font-bold text-sm truncate text-[var(--text-dark)]">
+                    {banner.title_ar || <span className="opacity-40 font-normal">بنر صورة فقط (بدون نص)</span>}
+                  </h3>
                   {banner.subtitle_ar && <p className="text-xs opacity-60 mt-0.5 truncate">{banner.subtitle_ar}</p>}
                   <p className="text-xs opacity-40 mt-1 font-en" dir="ltr">{banner.link_url}</p>
                 </div>
