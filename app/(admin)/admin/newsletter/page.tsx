@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { formatDateTime } from '@/lib/utils'
+import { toCsv, downloadCsv } from '@/lib/csv'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon, TrashIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { useAdminList } from '@/hooks/useAdminList'
@@ -28,16 +29,14 @@ export default function AdminNewsletter() {
   }
 
   function exportCSV() {
-    const headers = ['البريد الإلكتروني', 'تاريخ الاشتراك']
-    const rows = filtered.map(s => [s.email, formatDateTime(s.created_at)])
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `newsletter-${new Date().toISOString().slice(0, 10)}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    // Use the shared RFC-4180 CSV helper so commas/quotes in emails can't
+    // corrupt the file or enable CSV injection.
+    const rows = filtered.map(s => ({ email: s.email, subscribed_at: formatDateTime(s.created_at) }))
+    const csv = toCsv(rows, [
+      { key: 'email', label: 'البريد الإلكتروني' },
+      { key: 'subscribed_at', label: 'تاريخ الاشتراك' },
+    ])
+    downloadCsv(`newsletter-${new Date().toISOString().slice(0, 10)}.csv`, csv)
   }
 
   const filtered = subscribers.filter(s => s.email.toLowerCase().includes(search.toLowerCase()))

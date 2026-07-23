@@ -18,9 +18,15 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search')?.trim()
   const category = searchParams.get('category')
+  const stock = searchParams.get('stock') // 'low' | 'out'
+  // Export mode returns the whole filtered set (capped) for CSV, bypassing
+  // page-size so the export isn't limited to the currently loaded page.
+  const exportAll = searchParams.get('all') === '1'
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-  const pageSize = Math.min(200, Math.max(1, parseInt(searchParams.get('pageSize') || '', 10) || PAGE_SIZE))
-  const from = (page - 1) * pageSize
+  const pageSize = exportAll
+    ? 5000
+    : Math.min(200, Math.max(1, parseInt(searchParams.get('pageSize') || '', 10) || PAGE_SIZE))
+  const from = exportAll ? 0 : (page - 1) * pageSize
   const to = from + pageSize - 1
 
   let query = supabaseAdmin
@@ -34,6 +40,11 @@ export async function GET(req: NextRequest) {
   }
   if (category) {
     query = query.eq('category', category)
+  }
+  if (stock === 'out') {
+    query = query.eq('stock_quantity', 0)
+  } else if (stock === 'low') {
+    query = query.gt('stock_quantity', 0).lt('stock_quantity', 10)
   }
 
   query = query.range(from, to)

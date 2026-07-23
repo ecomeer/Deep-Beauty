@@ -26,6 +26,7 @@ export default function AdminProducts() {
   const params = new URLSearchParams({ page: String(page) })
   if (submittedSearch) params.set('search', submittedSearch)
   if (categoryFilter !== 'all') params.set('category', categoryFilter)
+  if (stockFilter !== 'all') params.set('stock', stockFilter)
 
   const { items: products, raw, loading, refetch: fetchProducts } = useAdminList<Product>(
     `/api/admin/products?${params}`,
@@ -102,15 +103,21 @@ export default function AdminProducts() {
     fetchProducts()
   }
 
-  // Stock filter is client-side on current page
-  const filtered = products.filter(p => {
-    if (stockFilter === 'out') return p.stock_quantity === 0
-    if (stockFilter === 'low') return p.stock_quantity > 0 && p.stock_quantity < 10
-    return true
-  })
+  // Stock filtering now happens server-side (see the `stock` param above), so
+  // `filtered` is just the current page as returned by the API.
+  const filtered = products
 
-  function exportCSV() {
-    const csv = toCsv(filtered, [
+  async function exportCSV() {
+    // Export the whole filtered dataset, not just the loaded page.
+    const exportParams = new URLSearchParams({ all: '1' })
+    if (submittedSearch) exportParams.set('search', submittedSearch)
+    if (categoryFilter !== 'all') exportParams.set('category', categoryFilter)
+    if (stockFilter !== 'all') exportParams.set('stock', stockFilter)
+    const res = await fetch(`/api/admin/products?${exportParams}`)
+    if (!res.ok) { toast.error('تعذر تصدير المنتجات'); return }
+    const json = await res.json()
+    const rows = (json.products as Product[]) || []
+    const csv = toCsv(rows, [
       { key: 'name_ar', label: 'الاسم' },
       { key: 'category', label: 'الفئة' },
       { key: 'price', label: 'السعر' },
@@ -178,9 +185,9 @@ export default function AdminProducts() {
 
             {/* Stock filter */}
             <div className="flex gap-1.5">
-              <button type="button" onClick={() => setStockFilter('all')} className={`badge ${stockFilter === 'all' ? 'badge-primary' : 'badge-gray'} cursor-pointer`}>كل المخزون</button>
-              <button type="button" onClick={() => setStockFilter('low')} className={`badge ${stockFilter === 'low' ? 'bg-orange-100 text-orange-700' : 'badge-gray'} cursor-pointer`}>مخزون منخفض</button>
-              <button type="button" onClick={() => setStockFilter('out')} className={`badge ${stockFilter === 'out' ? 'badge-danger' : 'badge-gray'} cursor-pointer`}>نفذ المخزون</button>
+              <button type="button" onClick={() => { setStockFilter('all'); setPage(1) }} className={`badge ${stockFilter === 'all' ? 'badge-primary' : 'badge-gray'} cursor-pointer`}>كل المخزون</button>
+              <button type="button" onClick={() => { setStockFilter('low'); setPage(1) }} className={`badge ${stockFilter === 'low' ? 'bg-orange-100 text-orange-700' : 'badge-gray'} cursor-pointer`}>مخزون منخفض</button>
+              <button type="button" onClick={() => { setStockFilter('out'); setPage(1) }} className={`badge ${stockFilter === 'out' ? 'badge-danger' : 'badge-gray'} cursor-pointer`}>نفذ المخزون</button>
             </div>
           </div>
         </div>

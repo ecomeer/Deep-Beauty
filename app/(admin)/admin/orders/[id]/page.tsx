@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toArabicPrice, toWhatsAppPhone, STATUS_COLORS, STATUS_LABELS, formatDateTime } from '@/lib/utils'
-import { STATUS_CUSTOMER_MESSAGES } from '@/lib/order-status'
+import { STATUS_CUSTOMER_MESSAGES, ORDER_STATUSES, STATUS_LABELS as CANONICAL_STATUS_LABELS } from '@/lib/order-status'
 import toast from 'react-hot-toast'
 import { 
   CheckCircleIcon, 
@@ -139,6 +139,9 @@ export default function AdminOrderDetail() {
 
   const updateStatus = async (newStatus: string) => {
     if (!order) return
+    // Cancelling is destructive (reverses stock/coupons/points) and auto-opens
+    // WhatsApp to notify the customer — confirm first.
+    if (newStatus === 'cancelled' && !confirm('هل أنت متأكد من إلغاء هذا الطلب؟ سيتم إشعار العميل.')) return
     const res = await fetch(`/api/admin/orders/${order.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -260,13 +263,9 @@ export default function AdminOrderDetail() {
                       required
                     >
                       <option value="">اختر الحالة</option>
-                      <option value="pending">قيد الانتظار</option>
-                      <option value="confirmed">تم التأكيد</option>
-                      <option value="preparing">جاري التحضير</option>
-                      <option value="shipped">تم الشحن</option>
-                      <option value="out_for_delivery">في الطريق للتوصيل</option>
-                      <option value="delivered">تم التوصيل</option>
-                      <option value="cancelled">تم الإلغاء</option>
+                      {ORDER_STATUSES.map((s) => (
+                        <option key={s} value={s}>{CANONICAL_STATUS_LABELS[s]}</option>
+                      ))}
                     </select>
                   </div>
                   <div>

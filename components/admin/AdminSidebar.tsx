@@ -149,6 +149,14 @@ export default function AdminSidebar() {
     return !link.permission || permissions.includes(link.permission)
   }
 
+  // Highlight exactly one nav item: the most specific href that prefixes the
+  // current path. `startsWith` alone lit up parent routes (e.g. /admin/marketing
+  // stayed active on /admin/marketing/campaigns) — pick the longest match.
+  const allNavHrefs = NAV_GROUPS.flatMap((g) => g.links.map((l) => l.href))
+  const activeHref = allNavHrefs
+    .filter((h) => pathname === h || !!pathname?.startsWith(h + '/'))
+    .sort((a, b) => b.length - a.length)[0]
+
   // Fetch badge counts once on mount, then every 2 minutes — NOT on every navigation
   useEffect(() => {
     const load = () => {
@@ -192,27 +200,41 @@ export default function AdminSidebar() {
 
         {/* Navigation Groups */}
         <nav className="flex-1 overflow-y-auto px-1 pb-4 no-scrollbar">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label} className="mb-4">
-              <p className="px-5 mb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white/30">
-                {group.label}
-              </p>
-              {group.links.filter(canSee).map((link) => {
-                const badgeVal = link.badgeKey ? badges[link.badgeKey as keyof Badges] : undefined
-                return (
-                  <NavLink
-                    key={link.href}
-                    href={link.href}
-                    icon={link.icon}
-                    label={link.label}
-                    isActive={!!pathname?.startsWith(link.href)}
-                    badge={badgeVal}
-                    onClick={onLinkClick}
-                  />
-                )
-              })}
-            </div>
-          ))}
+          {(() => {
+            // Dedupe by href across groups (newsletter is intentionally listed
+            // under both Customers and Marketing so scoped staff see it, but a
+            // full admin should see it only once — keep the first visible one).
+            const seen = new Set<string>()
+            return NAV_GROUPS.map((group) => {
+              const links = group.links.filter(canSee).filter((link) => {
+                if (seen.has(link.href)) return false
+                seen.add(link.href)
+                return true
+              })
+              if (links.length === 0) return null
+              return (
+                <div key={group.label} className="mb-4">
+                  <p className="px-5 mb-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white/30">
+                    {group.label}
+                  </p>
+                  {links.map((link) => {
+                    const badgeVal = link.badgeKey ? badges[link.badgeKey as keyof Badges] : undefined
+                    return (
+                      <NavLink
+                        key={link.href}
+                        href={link.href}
+                        icon={link.icon}
+                        label={link.label}
+                        isActive={link.href === activeHref}
+                        badge={badgeVal}
+                        onClick={onLinkClick}
+                      />
+                    )
+                  })}
+                </div>
+              )
+            })
+          })()}
         </nav>
 
         {/* Bottom actions */}
