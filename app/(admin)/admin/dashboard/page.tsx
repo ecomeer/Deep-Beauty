@@ -7,7 +7,7 @@ import {
   ShoppingBagIcon, CurrencyDollarIcon, InboxStackIcon, TagIcon,
   ExclamationCircleIcon, ExclamationTriangleIcon, StarIcon,
   ChartBarIcon, UsersIcon, ArrowTrendingUpIcon, ClockIcon,
-  ArrowTrendingDownIcon, CheckCircleIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -64,10 +64,10 @@ function BarChart({ days, valueKey, color = 'var(--primary)' }: { days: DayData[
 
 // ─── Stat Card ──────────────────────────────────────────────────────────────
 function StatCard({
-  title, value, icon: Icon, iconBg, iconColor, href, subtitle, trend,
+  title, value, icon: Icon, iconBg, iconColor, href, subtitle,
 }: {
   title: string; value: string | number; icon: React.ElementType
-  iconBg: string; iconColor: string; href?: string; subtitle?: string; trend?: number
+  iconBg: string; iconColor: string; href?: string; subtitle?: string
 }) {
   const inner = (
     <div className="bg-white rounded-2xl p-5 border border-beige transition-all duration-200 hover:shadow-md group">
@@ -75,15 +75,6 @@ function StatCard({
         <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
           <Icon className={`w-5 h-5 ${iconColor}`} />
         </div>
-        {trend !== undefined && (
-          <div className={`flex items-center gap-0.5 text-xs font-bold ${trend >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-            {trend >= 0
-              ? <ArrowTrendingUpIcon className="w-3.5 h-3.5" />
-              : <ArrowTrendingDownIcon className="w-3.5 h-3.5" />
-            }
-            <span>{Math.abs(trend)}%</span>
-          </div>
-        )}
       </div>
       <p className="text-xs font-medium opacity-50 mb-1">{title}</p>
       <p className="text-2xl font-bold text-on-surface">{value}</p>

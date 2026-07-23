@@ -19,10 +19,20 @@ export function isEmailAllowListed(email: string | null | undefined): boolean {
 export function hasAdminMetadata(
   user: Pick<User, 'app_metadata' | 'user_metadata'> | null | undefined
 ): boolean {
-  return user?.app_metadata?.role === 'admin' || user?.user_metadata?.role === 'admin'
+  // SECURITY: only `app_metadata` is server-managed and NOT writable by the
+  // user. `user_metadata` is self-writable through the browser anon key
+  // (supabase.auth.updateUser({ data: { role: 'admin' } })), so trusting it
+  // here would let any customer promote themselves to admin. Never read
+  // `user_metadata.role` for authorization.
+  return user?.app_metadata?.role === 'admin'
 }
 
-// DEV PREVIEW BYPASS — only when explicitly set in .env.local
+// DEV PREVIEW BYPASS — local development only. Gated by NODE_ENV so a
+// misconfigured production deploy can never disable admin auth, even if the
+// env var leaks into the client bundle. Prefer the server-only DEV_BYPASS var;
+// NEXT_PUBLIC_DEV_BYPASS is still honored for back-compat but only outside
+// production.
 export function isDevBypass(): boolean {
-  return process.env.NEXT_PUBLIC_DEV_BYPASS === 'true'
+  if (process.env.NODE_ENV === 'production') return false
+  return process.env.DEV_BYPASS === 'true' || process.env.NEXT_PUBLIC_DEV_BYPASS === 'true'
 }

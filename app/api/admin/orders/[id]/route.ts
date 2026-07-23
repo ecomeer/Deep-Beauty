@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 import { VALID_TRANSITIONS, type OrderStatus } from '@/lib/order-status'
+import { logActivity } from '@/lib/activity-log'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _authErr = await requireAdmin(req, 'orders')
@@ -80,6 +81,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       console.error('Failed to award delivered-order loyalty points:', loyaltyError)
       loyaltyWarning = true
     }
+  }
+
+  if (updateFields.status) {
+    await logActivity(req, { action: 'status_change', entity: 'order', entity_id: id, meta: { from: fromStatus, to: updateFields.status } })
   }
 
   return NextResponse.json({

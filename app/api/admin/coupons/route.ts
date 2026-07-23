@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { logActivity } from '@/lib/activity-log'
 
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req, 'marketing')
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    await logActivity(req, { action: 'create', entity: 'coupon', entity_id: data?.id, meta: { code: data?.code } })
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

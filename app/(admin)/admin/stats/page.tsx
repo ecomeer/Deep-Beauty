@@ -11,9 +11,9 @@ import toast from 'react-hot-toast'
 interface Stats {
   topProducts: Array<{
     product_id: string
-    products: { name_ar: string; images: string[] }
+    products: { name_ar: string; images: string[] } | null
     quantity: number
-    unit_price: number
+    revenue: number
   }>
   dailySales: Array<{
     created_at: string
@@ -26,6 +26,7 @@ interface Stats {
     totalSpent: number
     ordersCount: number
   }>
+  activeCustomers: number
   reviewsStats: {
     total: number
     pending: number
@@ -133,7 +134,7 @@ export default function StatsPage() {
             </div>
             <p className="text-sm text-gray-500">العملاء النشطين</p>
           </div>
-          <p className="text-2xl font-bold">{stats?.topCustomers?.length || 0}</p>
+          <p className="text-2xl font-bold">{stats?.activeCustomers ?? 0}</p>
         </div>
       </div>
 
@@ -164,7 +165,7 @@ export default function StatsPage() {
                     <p className="font-medium text-sm truncate">{item.products?.name_ar}</p>
                     <p className="text-xs text-gray-500">{item.quantity} مباع</p>
                   </div>
-                  <p className="font-bold text-sm">{toArabicPrice(Number(item.unit_price) * item.quantity)}</p>
+                  <p className="font-bold text-sm">{toArabicPrice(item.revenue)}</p>
                 </div>
               ))}
             </div>

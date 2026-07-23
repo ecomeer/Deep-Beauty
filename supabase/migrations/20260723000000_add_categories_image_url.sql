@@ -1,0 +1,13 @@
+-- Schema drift fix: categories.image_url
+--
+-- The admin categories API selects and writes `image_url`
+-- (app/api/admin/categories/route.ts, .../[id]/route.ts) and the storefront
+-- renders it (app/(store)/products/page.tsx, components/store/StitchHomeContent.tsx),
+-- but no migration ever created the column. On a database built purely from the
+-- ordered migrations, the category list query fails at runtime with
+-- `column categories.image_url does not exist`, breaking both the admin
+-- categories page and the storefront /products category rail.
+--
+-- Same class of drift as the columns repaired in
+-- 20260717110000_fix_order_timestamps_and_schema_drift.sql. Idempotent.
+ALTER TABLE public.categories ADD COLUMN IF NOT EXISTS image_url text;

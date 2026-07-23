@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toArabicPrice, STATUS_COLORS, STATUS_LABELS, formatDate, formatDateTime } from '@/lib/utils'
 import { ORDER_STATUSES } from '@/lib/order-status'
 import { toCsv, downloadCsv } from '@/lib/csv'
@@ -23,6 +23,7 @@ interface OrderRow {
 export default function AdminOrders() {
   const [orders, setOrders] = useState<OrderRow[]>([])
   const [search, setSearch] = useState('')
+  const [submittedSearch, setSubmittedSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFrom, setDateFrom] = useState('')
@@ -34,29 +35,37 @@ export default function AdminOrders() {
   const [bulkStatus, setBulkStatus] = useState('')
   const [bulkApplying, setBulkApplying] = useState(false)
 
-  async function fetchOrders() {
-    setLoading(true)
+  // Build the query params from committed filter state (not the live search
+  // box) so the fetch is driven purely by state — no manual double-fetch.
+  const buildParams = useCallback(() => {
     const params = new URLSearchParams({ page: String(page) })
     if (statusFilter !== 'all') params.set('status', statusFilter)
-    if (search) params.set('search', search)
-    const res = await fetch(`/api/admin/orders?${params}`)
+    if (submittedSearch) params.set('search', submittedSearch)
+    if (dateFrom) params.set('from', dateFrom)
+    if (dateTo) params.set('to', dateTo)
+    return params
+  }, [page, statusFilter, submittedSearch, dateFrom, dateTo])
+
+  const fetchOrders = useCallback(async () => {
+    setLoading(true)
+    const res = await fetch(`/api/admin/orders?${buildParams()}`)
     const data = await res.json()
     setOrders(data.orders || [])
     setTotalPages(data.totalPages ?? 1)
     setTotal(data.total ?? 0)
     setLoading(false)
-  }
+  }, [buildParams])
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchOrders() }, [page, statusFilter])
+  useEffect(() => { fetchOrders() }, [fetchOrders])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setPage(1)
-    fetchOrders()
+    setSubmittedSearch(search)
   }
 
   const updateStatus = async (id: string, newStatus: string) => {
+    if (newStatus === 'cancelled' && !confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) return
     const res = await fetch(`/api/admin/orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -81,36 +90,39 @@ export default function AdminOrders() {
 
   async function applyBulkStatus() {
     if (!bulkStatus || selectedIds.size === 0) return
+    if (bulkStatus === 'cancelled' && !confirm(`هل أنت متأكد من إلغاء ${selectedIds.size} طلب؟`)) return
     setBulkApplying(true)
-    const results = await Promise.all(
-      Array.from(selectedIds).map(id =>
-        fetch(`/api/admin/orders/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: bulkStatus }),
-        }).then(r => r.ok)
-      )
-    )
-    const failed = results.filter(ok => !ok).length
+    const res = await fetch('/api/admin/orders/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: Array.from(selectedIds), status: bulkStatus }),
+    })
     setBulkApplying(false)
     setSelectedIds(new Set())
     setBulkStatus('')
-    if (failed > 0) toast.error(`فشل تحديث ${failed} طلب — قد يكون الانتقال غير مسموح لبعضها`)
-    else toast.success('تم تحديث الطلبات المحددة')
+    if (!res.ok) {
+      toast.error('حدث خطأ أثناء تحديث الطلبات')
+    } else {
+      const data = await res.json()
+      if (data.failed > 0) toast.error(`فشل تحديث ${data.failed} طلب — قد يكون الانتقال غير مسموح لبعضها`)
+      else toast.success('تم تحديث الطلبات المحددة')
+    }
     fetchOrders()
   }
 
-  // Date filter is client-side on current page only
-  const filtered = orders.filter(o => {
-    if (!dateFrom && !dateTo) return true
-    const d = new Date(o.created_at)
-    if (dateFrom && d < new Date(dateFrom)) return false
-    if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false
-    return true
-  })
+  // Date filtering now happens server-side (see `from`/`to` params), so
+  // `filtered` is just the current page as returned by the API.
+  const filtered = orders
 
-  function exportCSV() {
-    const rows = filtered.map(o => ({
+  async function exportCSV() {
+    // Export the whole filtered dataset, not just the loaded page.
+    const exportParams = buildParams()
+    exportParams.set('all', '1')
+    exportParams.delete('page')
+    const res = await fetch(`/api/admin/orders?${exportParams}`)
+    if (!res.ok) { toast.error('تعذر تصدير الطلبات'); return }
+    const json = await res.json()
+    const rows = ((json.orders as OrderRow[]) || []).map(o => ({
       order_number: o.order_number,
       date: formatDate(o.created_at),
       customer_name: o.customer_name,
@@ -188,7 +200,7 @@ export default function AdminOrders() {
               <input
                 type="date"
                 value={dateFrom}
-                onChange={e => setDateFrom(e.target.value)}
+                onChange={e => { setDateFrom(e.target.value); setPage(1) }}
                 className="input-field py-2 text-sm w-36"
                 dir="ltr"
                 title="من تاريخ"
@@ -197,7 +209,7 @@ export default function AdminOrders() {
               <input
                 type="date"
                 value={dateTo}
-                onChange={e => setDateTo(e.target.value)}
+                onChange={e => { setDateTo(e.target.value); setPage(1) }}
                 className="input-field py-2 text-sm w-36"
                 dir="ltr"
                 title="إلى تاريخ"
@@ -205,7 +217,7 @@ export default function AdminOrders() {
               {(dateFrom || dateTo) && (
                 <button
                   type="button"
-                  onClick={() => { setDateFrom(''); setDateTo('') }}
+                  onClick={() => { setDateFrom(''); setDateTo(''); setPage(1) }}
                   className="text-xs text-red-400 hover:text-red-600"
                 >
                   مسح

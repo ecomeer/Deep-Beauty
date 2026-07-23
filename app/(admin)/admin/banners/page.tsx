@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { TrashIcon, PhotoIcon, ChevronUpIcon, ChevronDownIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { TrashIcon, PhotoIcon, ChevronUpIcon, ChevronDownIcon, PlusIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { useAdminList } from '@/hooks/useAdminList'
 
@@ -24,8 +24,26 @@ export default function AdminBanners() {
   )
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  function startEdit(banner: Banner) {
+    setEditingId(banner.id)
+    setForm({
+      title_ar: banner.title_ar,
+      subtitle_ar: banner.subtitle_ar ?? '',
+      image_url: banner.image_url,
+      link_url: banner.link_url,
+    })
+    setShowForm(true)
+  }
+
+  function resetForm() {
+    setForm(EMPTY_FORM)
+    setEditingId(null)
+    setShowForm(false)
+  }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -51,28 +69,32 @@ export default function AdminBanners() {
     e.preventDefault()
     if (!form.title_ar || !form.image_url) return toast.error('العنوان والصورة مطلوبان')
     setSaving(true)
+    const existing = editingId ? banners.find(b => b.id === editingId) : null
     const maxOrder = banners.length > 0 ? Math.max(...banners.map(b => b.sort_order)) + 1 : 0
-    const res = await fetch('/api/admin/banners', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title_ar: form.title_ar.trim(),
-        subtitle_ar: form.subtitle_ar.trim() || null,
-        image_url: form.image_url,
-        link_url: form.link_url || '/products',
-        is_active: true,
-        sort_order: maxOrder,
-      }),
-    })
+    const payload = {
+      title_ar: form.title_ar.trim(),
+      subtitle_ar: form.subtitle_ar.trim() || null,
+      image_url: form.image_url,
+      link_url: form.link_url || '/products',
+      is_active: existing ? existing.is_active : true,
+      sort_order: existing ? existing.sort_order : maxOrder,
+    }
+    const res = await fetch(
+      editingId ? `/api/admin/banners/${editingId}` : '/api/admin/banners',
+      {
+        method: editingId ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    )
     setSaving(false)
     if (!res.ok) {
       const { error } = await res.json()
       toast.error('حدث خطأ: ' + error)
       return
     }
-    toast.success('تم إضافة البنر')
-    setForm(EMPTY_FORM)
-    setShowForm(false)
+    toast.success(editingId ? 'تم تحديث البنر' : 'تم إضافة البنر')
+    resetForm()
     fetchBanners()
   }
 
@@ -124,15 +146,15 @@ export default function AdminBanners() {
           <h1 className="text-2xl font-bold text-[var(--text-dark)]">البنرات الإعلانية</h1>
           <p className="text-sm opacity-60">إدارة صور الهيرو والبنرات الترويجية ({banners.length})</p>
         </div>
-        <button type="button" onClick={() => setShowForm(!showForm)} className="btn-primary px-5 py-2.5 text-sm flex items-center gap-2">
+        <button type="button" onClick={() => showForm ? resetForm() : setShowForm(true)} className="btn-primary px-5 py-2.5 text-sm flex items-center gap-2">
           <PlusIcon className="w-4 h-4" /> {showForm ? 'إلغاء' : 'بنر جديد'}
         </button>
       </div>
 
-      {/* Add Form */}
+      {/* Add / Edit Form */}
       {showForm && (
         <div className="bg-white rounded-2xl shadow-sm border p-6 mb-8" style={{ borderColor: 'var(--beige)' }}>
-          <h2 className="text-base font-bold mb-5 text-[var(--text-dark)]">إضافة بنر جديد</h2>
+          <h2 className="text-base font-bold mb-5 text-[var(--text-dark)]">{editingId ? 'تعديل البنر' : 'إضافة بنر جديد'}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -185,9 +207,9 @@ export default function AdminBanners() {
 
             <div className="flex gap-3">
               <button type="submit" disabled={saving || uploading} className="btn-primary px-6 py-2.5 text-sm disabled:opacity-50">
-                {saving ? 'جاري الحفظ...' : 'حفظ البنر'}
+                {saving ? 'جاري الحفظ...' : editingId ? 'حفظ التعديلات' : 'حفظ البنر'}
               </button>
-              <button type="button" onClick={() => { setShowForm(false); setForm(EMPTY_FORM) }} className="btn-outline px-6 py-2.5 text-sm">إلغاء</button>
+              <button type="button" onClick={resetForm} className="btn-outline px-6 py-2.5 text-sm">إلغاء</button>
             </div>
           </form>
         </div>
@@ -253,6 +275,17 @@ export default function AdminBanners() {
                     className={`badge cursor-pointer hover:opacity-80 ${banner.is_active ? 'badge-success' : 'badge-gray'}`}
                   >
                     {banner.is_active ? 'نشط' : 'معطل'}
+                  </button>
+
+                  {/* Edit */}
+                  <button
+                    type="button"
+                    onClick={() => startEdit(banner)}
+                    title="تعديل البنر"
+                    aria-label="تعديل البنر"
+                    className="p-2 rounded-lg hover:bg-blue-50 text-blue-400 hover:text-blue-600 transition-colors"
+                  >
+                    <PencilSquareIcon className="w-4 h-4" />
                   </button>
 
                   {/* Delete */}

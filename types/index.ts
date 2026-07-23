@@ -106,35 +106,33 @@ export interface Subscriber {
   id: string
   email: string
   name?: string
-  source: string
   is_active: boolean
-  subscribed_at: string
+  created_at: string
 }
 
 export interface AbandonedCart {
   id: string
-  phone?: string
-  email?: string
-  cart_data?: CartItem[]
-  total_value?: number
-  reminder_sent: boolean
-  reminder_sent_at?: string
+  customer_name?: string
+  customer_phone?: string
+  customer_email?: string
+  items?: CartItem[]
+  subtotal?: number
   recovered: boolean
+  reminded_at?: string | null
   created_at: string
 }
 
 export interface MarketingCampaign {
   id: string
-  name: string
-  type: 'whatsapp' | 'email' | 'sms' | 'popup'
-  subject?: string
-  message_ar: string
-  message_en?: string
+  title: string
+  description?: string
+  type: 'email' | 'sms' | 'push' | 'social'
   target_audience: string
-  status: 'draft' | 'scheduled' | 'sent' | 'cancelled'
-  scheduled_at?: string
-  sent_at?: string
-  recipients_count: number
+  content: Record<string, unknown>
+  scheduled_at?: string | null
+  is_active: boolean
+  sent_count: number
+  sent_at?: string | null
   created_at: string
 }
 
@@ -149,10 +147,8 @@ export interface CartItem {
 }
 
 export interface Setting {
-  id: string
   key: string
   value?: string
-  updated_at: string
 }
 
 export interface Review {
@@ -164,4 +160,5 @@ export interface Review {
   is_approved: boolean
   order_id?: string
   created_at: string
+  updated_at?: string
 }

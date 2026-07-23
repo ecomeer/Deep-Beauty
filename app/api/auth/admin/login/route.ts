@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createWritableServerClient } from '@/lib/supabase-server'
 import { getAllowedAdminEmails } from '@/lib/admin-config'
+import { authLimiter, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+    }
+
+    if (!authLimiter(getClientIp(request), 'admin-login')) {
+      return NextResponse.json(
+        { error: 'محاولات كثيرة جداً. حاول مرة أخرى بعد قليل' },
+        { status: 429 }
+      )
     }
 
     const { email, password } = await request.json()
@@ -44,9 +52,15 @@ export async function POST(request: NextRequest) {
 
     const hasAdminMeta = data.user.app_metadata?.role === 'admin'
     const allowedEmails = getAllowedAdminEmails()
-    const emailInAllowList = allowedEmails.length === 0 || allowedEmails.includes(normalizedEmail)
+    // SECURITY: fail closed. An empty allowlist must NOT grant admin to every
+    // authenticated user — that turns a single missing env var into a full
+    // takeover. A user may sign in as admin only if they carry a server-set
+    // admin grant already (app_metadata or an existing users.role='admin'
+    // record) OR their email is explicitly allowlisted.
+    const emailInAllowList = allowedEmails.includes(normalizedEmail)
+    const isExistingDbAdmin = existingUser?.role === 'admin' && existingUser.is_active !== false
 
-    if (!hasAdminMeta && !emailInAllowList) {
+    if (!hasAdminMeta && !emailInAllowList && !isExistingDbAdmin) {
       await supabase.auth.signOut()
       return NextResponse.json({ error: 'هذا الحساب لا يملك صلاحية الدخول إلى لوحة التحكم' }, { status: 403 })
     }

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { formatDateTime } from '@/lib/utils'
 import { EnvelopeOpenIcon, EnvelopeIcon as EnvelopeClosedIcon, ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline'
 import { useAdminList } from '@/hooks/useAdminList'
@@ -15,10 +16,12 @@ interface ContactMessage {
 }
 
 export default function AdminContactMessages() {
-  const { items: messages, loading, refetch } = useAdminList<ContactMessage>(
-    '/api/admin/contact-messages',
+  const [page, setPage] = useState(1)
+  const { items: messages, raw, loading, refetch } = useAdminList<ContactMessage>(
+    `/api/admin/contact-messages?page=${page}`,
     (json) => (json as { messages?: ContactMessage[] }).messages || []
   )
+  const totalPages = (raw as { totalPages?: number } | null)?.totalPages ?? 1
 
   const toggleRead = async (id: string, current: boolean) => {
     const res = await fetch('/api/admin/contact-messages', {
@@ -82,6 +85,26 @@ export default function AdminContactMessages() {
               <p className="text-sm opacity-80 whitespace-pre-wrap">{m.message}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            type="button"
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >السابق</button>
+          <span className="text-sm opacity-60">صفحة {page} من {totalPages}</span>
+          <button
+            type="button"
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="px-4 py-2 rounded-xl border text-sm font-medium disabled:opacity-40 hover:bg-gray-50 transition-colors"
+            style={{ borderColor: 'var(--beige)' }}
+          >التالي</button>
         </div>
       )}
     </div>

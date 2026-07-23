@@ -9,25 +9,28 @@ export async function GET(req: NextRequest) {
   if (authError) return authError
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  // Export mode returns the whole filtered set (capped) for CSV.
+  const exportAll = searchParams.get('all') === '1'
+  const page = exportAll ? 1 : Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const pageSize = exportAll ? 100000 : PAGE_SIZE
 
   const { data, error } = await supabaseAdmin.rpc('get_admin_customers', {
     p_search: search || null,
     p_page: page,
-    p_page_size: PAGE_SIZE,
+    p_page_size: pageSize,
   })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   const result = data as { customers: unknown[]; total: number } | null
   const total = result?.total ?? 0
-  const totalPages = Math.ceil(total / PAGE_SIZE)
+  const totalPages = Math.ceil(total / pageSize)
 
   return NextResponse.json({
     customers: result?.customers ?? [],
     total,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
     totalPages,
   })
 }

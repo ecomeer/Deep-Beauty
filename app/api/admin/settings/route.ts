@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { revalidateStorefront } from '@/lib/revalidate-storefront'
+import { logActivity } from '@/lib/activity-log'
 
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req, 'settings')
@@ -30,6 +32,8 @@ export async function POST(req: NextRequest) {
       .upsert(rows, { onConflict: 'key' })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    revalidateStorefront()
+    await logActivity(req, { action: 'update', entity: 'setting', meta: { keys: rows.map(r => r.key) } })
     return NextResponse.json({ ok: true })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })

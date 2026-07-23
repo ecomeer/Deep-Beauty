@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { toArabicPrice, formatDateTime } from '@/lib/utils'
+import { toArabicPrice, formatDateTime, toWhatsAppPhone } from '@/lib/utils'
 import { toCsv, downloadCsv } from '@/lib/csv'
 import { MagnifyingGlassIcon, ArrowDownTrayIcon, UsersIcon } from '@heroicons/react/24/outline'
 import { useAdminList } from '@/hooks/useAdminList'
+import toast from 'react-hot-toast'
 
 interface Customer {
   full_name: string
@@ -37,8 +38,15 @@ export default function AdminCustomers() {
     setSubmittedSearch(search)
   }
 
-  function exportCSV() {
-    const csv = toCsv(customers, [
+  async function exportCSV() {
+    // Export the whole filtered dataset, not just the loaded page.
+    const exportParams = new URLSearchParams({ all: '1' })
+    if (submittedSearch) exportParams.set('search', submittedSearch)
+    const res = await fetch(`/api/admin/customers?${exportParams}`)
+    if (!res.ok) { toast.error('تعذر تصدير العملاء'); return }
+    const json = await res.json()
+    const rows = (json.customers as Customer[]) || []
+    const csv = toCsv(rows, [
       { key: 'full_name', label: 'الاسم' },
       { key: 'phone', label: 'الهاتف' },
       { key: 'email', label: 'البريد' },
@@ -114,7 +122,7 @@ export default function AdminCustomers() {
                       <td className="text-xs" dir="ltr">{formatDateTime(c.last_order_at)}</td>
                       <td>
                         {c.phone ? (
-                          <a href={`https://wa.me/965${c.phone}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200">واتساب</a>
+                          <a href={`https://wa.me/${toWhatsAppPhone(c.phone)}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200">واتساب</a>
                         ) : '-'}
                       </td>
                     </tr>
@@ -134,7 +142,7 @@ export default function AdminCustomers() {
                       <p className="text-xs opacity-60 font-en truncate">{c.email || '-'}</p>
                     </div>
                     {c.phone && (
-                      <a href={`https://wa.me/965${c.phone}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200 flex-shrink-0">واتساب</a>
+                      <a href={`https://wa.me/${toWhatsAppPhone(c.phone)}`} target="_blank" className="badge badge-success cursor-pointer hover:bg-green-200 flex-shrink-0">واتساب</a>
                     )}
                   </div>
                   <div className="flex justify-between items-center text-sm mt-3">
