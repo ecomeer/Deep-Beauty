@@ -309,6 +309,10 @@ export default function StitchHomeContent({
   const midBannerSub   = midBanner?.subtitle_ar || 'اكتشفي أحدث إضافاتنا'
   const midBannerLink  = midBanner?.link_url    || '/products'
   const midBannerImg   = midBanner?.image_url   || null
+  // If this banner has an image but no text, show it as a pure clickable image
+  // (no "عرض حصري" copy or button), matching image-only banners in the hero.
+  const midBannerHasText  = !!(midBanner?.title_ar?.trim() || midBanner?.subtitle_ar?.trim())
+  const midBannerImageOnly = !!midBannerImg && !midBannerHasText
 
   useEffect(() => {
     const featuredIds = new Set(featuredProducts.slice(0, 8).map(p => p.id))
@@ -324,6 +328,14 @@ export default function StitchHomeContent({
   }, [featuredProducts])
 
   const heroSlides = banners.length > 0 ? banners : [null]
+
+  // A banner with no title AND no subtitle is shown as a pure clickable image
+  // (no text overlay, no buttons). When there are no banners at all we still
+  // show the default marketing hero with fallback copy.
+  const currentHeroSlide = heroSlides[heroIndex] as Banner | null
+  const heroHasText = !!(currentHeroSlide?.title_ar?.trim() || currentHeroSlide?.subtitle_ar?.trim())
+  const showHeroOverlay = banners.length === 0 || heroHasText
+  const heroLink = currentHeroSlide?.link_url || '/products'
 
   // Auto-advance every 4s
   useEffect(() => {
@@ -394,7 +406,7 @@ export default function StitchHomeContent({
               {(slide as Banner | null)?.image_url ? (
                 <Image
                   src={(slide as Banner).image_url}
-                  alt={(slide as Banner).title_ar}
+                  alt={(slide as Banner).title_ar || 'بنر'}
                   fill
                   sizes="100vw"
                   className="object-cover"
@@ -407,10 +419,18 @@ export default function StitchHomeContent({
             </div>
           ))}
 
-          {/* Gradient — stronger bottom veil */}
-          <div className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none z-[1] hero-veil" />
+          {/* Image-only banner: the whole area links to the banner's URL. */}
+          {!showHeroOverlay && (
+            <Link href={heroLink} aria-label="فتح رابط البنر" className="absolute inset-0 z-[2]" />
+          )}
+
+          {/* Gradient — stronger bottom veil (only under text) */}
+          {showHeroOverlay && (
+            <div className="absolute inset-x-0 bottom-0 h-3/4 pointer-events-none z-[1] hero-veil" />
+          )}
 
           {/* Text overlay */}
+          {showHeroOverlay && (
           <div className="absolute bottom-10 lg:bottom-14 right-4 left-4 lg:right-10 lg:left-10 z-[2] text-right">
             <div className="inline-flex items-center gap-2 mb-4 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/25">
               <span aria-hidden="true" className="w-1 h-1 rounded-full bg-primary-fixed" />
@@ -443,6 +463,7 @@ export default function StitchHomeContent({
               </Link>
             </div>
           </div>
+          )}
 
           {/* Desktop prev/next arrows */}
           {heroSlides.length > 1 && (
@@ -735,6 +756,19 @@ export default function StitchHomeContent({
       ═══════════════════════════════════════ */}
       <section className="px-4 py-8 lg:max-w-[var(--container-max)] lg:mx-auto">
         <Link href={midBannerLink} className="block group">
+          {midBannerImageOnly ? (
+            <div className="relative w-full min-h-[220px] lg:min-h-[320px] rounded-[2rem] overflow-hidden shadow-xl transition-transform duration-300 group-hover:scale-[1.01]">
+              <Image
+                src={midBannerImg!}
+                alt="بنر"
+                fill
+                sizes="100vw"
+                className="object-cover"
+                loading="lazy"
+                quality={80}
+              />
+            </div>
+          ) : (
           <div
             className={`w-full min-h-[220px] lg:min-h-[320px] rounded-[2rem] overflow-hidden transition-transform duration-300 group-hover:scale-[1.01] bg-on-surface shadow-xl grid ${
               midBannerImg ? 'grid-cols-2' : 'grid-cols-1'
@@ -777,6 +811,7 @@ export default function StitchHomeContent({
               </div>
             )}
           </div>
+          )}
         </Link>
       </section>
 

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabaseAdmin
     .from('banners')
     .insert({
-      title_ar: body.title_ar,
+      title_ar: body.title_ar || '',
       subtitle_ar: body.subtitle_ar || null,
       image_url: body.image_url,
       link_url: body.link_url || '/products',

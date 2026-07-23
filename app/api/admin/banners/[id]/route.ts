@@ -12,7 +12,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { data, error } = await supabaseAdmin
     .from('banners')
     .update({
-      title_ar: body.title_ar,
+      title_ar: body.title_ar || '',
       subtitle_ar: body.subtitle_ar || null,
       image_url: body.image_url,
       link_url: body.link_url || '/products',
