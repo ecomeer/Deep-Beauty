@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import toast from 'react-hot-toast'
+import { uploadAdminImage } from '@/lib/upload-image'
 
 interface Settings {
   store_name: string
@@ -103,13 +104,8 @@ export default function AdminSettings() {
     if (!file || igImages.length >= 6) return
     setIgUploading(true)
     try {
-      const fd = new FormData()
-      fd.append('file', file)
-      fd.append('folder', 'instagram')
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
-      const json = await res.json()
-      if (!res.ok || !json.url) throw new Error(json.error || 'فشل الرفع')
-      setIgImages([...igImages, { image_url: json.url }])
+      const url = await uploadAdminImage(file, 'instagram')
+      setIgImages([...igImages, { image_url: url }])
       toast.success('تم رفع الصورة — لا تنسي حفظ الإعدادات')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'فشل رفع الصورة')

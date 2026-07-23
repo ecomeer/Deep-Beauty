@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { slugify } from '@/lib/utils'
 import { Category } from '@/types'
+import { uploadAdminImage } from '@/lib/upload-image'
 import toast from 'react-hot-toast'
 
 export default function ProductForm() {
@@ -112,13 +113,12 @@ export default function ProductForm() {
     setUploading(true)
     const uploaded: string[] = []
     for (const file of Array.from(files)) {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('folder', 'products')
-      const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData })
-      if (!uploadRes.ok) { toast.error(`فشل رفع ${file.name}`); continue }
-      const { url } = await uploadRes.json()
-      uploaded.push(url)
+      try {
+        const url = await uploadAdminImage(file, 'products')
+        uploaded.push(url)
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : `فشل رفع ${file.name}`)
+      }
     }
     if (uploaded.length > 0) {
       setForm(f => ({ ...f, images: [...f.images, ...uploaded] }))

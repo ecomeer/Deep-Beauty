@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { TrashIcon, PhotoIcon, ChevronUpIcon, ChevronDownIcon, PlusIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { useAdminList } from '@/hooks/useAdminList'
+import { uploadAdminImage } from '@/lib/upload-image'
 
 interface Banner {
   id: string
@@ -49,17 +50,12 @@ export default function AdminBanners() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('folder', 'banners')
-    const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData })
-    if (!uploadRes.ok) {
-      const { error } = await uploadRes.json()
-      toast.error('فشل رفع الصورة: ' + error)
-    } else {
-      const { url } = await uploadRes.json()
+    try {
+      const url = await uploadAdminImage(file, 'banners')
       setForm(f => ({ ...f, image_url: url }))
       toast.success('تم رفع الصورة')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'فشل رفع الصورة')
     }
     setUploading(false)
     e.target.value = ''

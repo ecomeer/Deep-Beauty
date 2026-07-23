@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { Category } from '@/types'
 import { useAdminList } from '@/hooks/useAdminList'
+import { uploadAdminImage } from '@/lib/upload-image'
 import { PlusIcon, TrashIcon, PhotoIcon, PencilSquareIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -28,17 +29,12 @@ export default function AdminCategories() {
   const editInputRef = useRef<HTMLInputElement>(null)
 
   async function uploadImage(file: File): Promise<string | null> {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('folder', `categories`)
-    const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}))
-      toast.error(data.error || 'فشل رفع الصورة')
+    try {
+      return await uploadAdminImage(file, 'categories')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'فشل رفع الصورة')
       return null
     }
-    const { url } = await res.json()
-    return url
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
