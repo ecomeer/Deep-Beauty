@@ -3,7 +3,10 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
-const MAX_SIZE_MB = 5
+// Kept under Vercel's ~4.5MB serverless request-body limit so a legitimately
+// sized upload is never rejected at the platform edge with a raw 413. The
+// client (lib/upload-image.ts) compresses larger images before sending.
+const MAX_SIZE_MB = 4
 
 export async function POST(req: NextRequest) {
   // Uploads back the product/category/banner forms — scope to the 'products'
