@@ -157,6 +157,21 @@ export default function AdminOrderDetail() {
     }
   }
 
+  const confirmPayment = async () => {
+    if (!order || !confirm('تأكيد استلام مبلغ هذا الطلب وتغيير حالة الدفع إلى «مدفوع»؟')) return
+    const res = await fetch(`/api/admin/orders/${order.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payment_status: 'paid' }),
+    })
+    if (!res.ok) {
+      toast.error('تعذر تحديث حالة الدفع')
+      return
+    }
+    toast.success('تم تأكيد استلام الدفع')
+    setOrder({ ...order, payment_status: 'paid' })
+  }
+
   if (loading) return (
     <div className="flex h-40 items-center justify-center">
       <div className="animate-spin w-8 h-8 rounded-full border-4" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
@@ -414,8 +429,17 @@ export default function AdminOrderDetail() {
                {order.payment_method === 'cod' ? '💵 دفع عند الاستلام کـاش' : '💳 دفع إلكتروني'}
              </div>
              <div className={`mt-2 badge ${order.payment_status === 'paid' ? 'badge-success' : 'badge-gray'}`}>
-                {order.payment_status === 'paid' ? 'مدفوع' : 'غير مدفوع'}
+                {order.payment_status === 'paid' ? 'مدفوع' : order.payment_status === 'refunded' ? 'مسترد' : 'غير مدفوع'}
              </div>
+             {order.payment_status === 'unpaid' && (
+               <button
+                 type="button"
+                 onClick={confirmPayment}
+                 className="mt-4 w-full rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+               >
+                 تأكيد استلام الدفع
+               </button>
+             )}
           </div>
 
         </div>

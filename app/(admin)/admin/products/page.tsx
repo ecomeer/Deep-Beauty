@@ -117,7 +117,7 @@ export default function AdminProducts() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-dark)]">إدارة المنتجات</h1>
-          <p className="text-sm opacity-60">عرض وإضافة وتعديل المنتجات ({total})</p>
+          <p className="text-sm opacity-60">عرض وإضافة وتعديل المنتجات ({loading ? '…' : total})</p>
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={exportCSV} className="btn-outline py-2 px-4 flex items-center gap-2">

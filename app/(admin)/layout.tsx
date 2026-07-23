@@ -26,7 +26,7 @@ export default function AdminLayout({
         success: { iconTheme: { primary: 'var(--primary)', secondary: 'var(--white)' } },
       }} />
       <AdminSidebar />
-      <main className="flex-1 overflow-x-hidden px-4 md:px-6 pt-20 pb-24 md:pt-6 md:pb-10">
+      <main className="flex-1 overflow-x-hidden px-4 md:px-6 pt-20 pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:pt-6 md:pb-10">
         <div className="flex justify-end mb-4">
           <PwaProvider />
         </div>

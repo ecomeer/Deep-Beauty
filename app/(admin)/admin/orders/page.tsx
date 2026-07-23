@@ -157,7 +157,7 @@ export default function AdminOrders() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-dark)]">إدارة الطلبات</h1>
-          <p className="text-sm opacity-60">تتبع طلبات العملاء وتحديث حالتها ({total})</p>
+          <p className="text-sm opacity-60">تتبع طلبات العملاء وتحديث حالتها ({loading ? '…' : total})</p>
         </div>
         <button type="button" onClick={exportCSV} className="btn-outline px-4 py-2 text-sm flex items-center gap-2">
           <ArrowDownTrayIcon className="w-4 h-4" /> تصدير CSV
@@ -195,30 +195,34 @@ export default function AdminOrders() {
               </div>
               <button type="submit" className="btn-primary py-2 px-3 text-sm">بحث</button>
             </form>
-            <div className="flex items-center gap-2">
-              <span className="text-xs opacity-60">من</span>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={e => { setDateFrom(e.target.value); setPage(1) }}
-                className="input-field py-2 text-sm w-36"
-                dir="ltr"
-                title="من تاريخ"
-              />
-              <span className="text-xs opacity-60">إلى</span>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={e => { setDateTo(e.target.value); setPage(1) }}
-                className="input-field py-2 text-sm w-36"
-                dir="ltr"
-                title="إلى تاريخ"
-              />
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-end">
+              <label className="min-w-0 text-xs opacity-70">
+                <span className="mb-1 block">من تاريخ</span>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={e => { setDateFrom(e.target.value); setPage(1) }}
+                  className="input-field w-full min-w-0 py-2 text-sm sm:w-36"
+                  dir="ltr"
+                  title="من تاريخ"
+                />
+              </label>
+              <label className="min-w-0 text-xs opacity-70">
+                <span className="mb-1 block">إلى تاريخ</span>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={e => { setDateTo(e.target.value); setPage(1) }}
+                  className="input-field w-full min-w-0 py-2 text-sm sm:w-36"
+                  dir="ltr"
+                  title="إلى تاريخ"
+                />
+              </label>
               {(dateFrom || dateTo) && (
                 <button
                   type="button"
                   onClick={() => { setDateFrom(''); setDateTo(''); setPage(1) }}
-                  className="text-xs text-red-400 hover:text-red-600"
+                  className="col-span-2 text-xs text-red-400 hover:text-red-600 sm:col-span-1 sm:pb-2"
                 >
                   مسح
                 </button>
