@@ -47,10 +47,10 @@ interface Props {
 
 // ─── Trust features ────────────────────────────────────────────────────────
 const TRUST = [
-  { Icon: TruckIcon,       title: 'توصيل سريع',      desc: 'خلال ٢٤ ساعة في الكويت' },
+  { Icon: TruckIcon,       title: 'توصيل سريع',      desc: 'خلال ١–٢ يوم عمل في الكويت' },
   { Icon: ShieldCheckIcon, title: '١٠٠٪ طبيعي',      desc: 'مكوّنات نقية آمنة' },
   { Icon: SparklesIcon,    title: 'جودة فاخرة',      desc: 'مصنوع بعناية واحترافية' },
-  { Icon: CheckBadgeIcon,  title: 'ضمان الرضا',      desc: 'استبدال أو استرداد كامل' },
+  { Icon: CheckBadgeIcon,  title: 'استرجاع مرن',     desc: 'وفق سياسة الاسترجاع' },
 ]
 
 // ─── Certifications ───────────────────────────────────────────────────────

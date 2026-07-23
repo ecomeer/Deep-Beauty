@@ -83,6 +83,12 @@ export async function POST(req: NextRequest) {
       description_en: body.description_en || null,
       ingredients_ar: body.ingredients_ar || null,
       ingredients_en: body.ingredients_en || null,
+      usage_ar: body.usage_ar || null,
+      benefits_ar: body.benefits_ar || null,
+      seo_title: body.seo_title || null,
+      meta_description: body.meta_description || null,
+      image_alt: body.image_alt || null,
+      product_type: body.product_type || 'product',
       images: body.images || [],
     })
     .select()

@@ -186,12 +186,15 @@ export default function ContactClient() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-xs font-semibold mb-2 opacity-60">
+                    <label htmlFor="contact-name" className="block text-xs font-semibold mb-2 opacity-60">
                       الاسم <span className="text-primary">*</span>
                     </label>
                     <input
+                      id="contact-name"
+                      name="name"
                       type="text"
                       required
+                      autoComplete="name"
                       value={form.name}
                       onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                       placeholder="اسمك الكريم"
@@ -206,12 +209,15 @@ export default function ContactClient() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-2 opacity-60">
+                    <label htmlFor="contact-email" className="block text-xs font-semibold mb-2 opacity-60">
                       البريد الإلكتروني <span className="text-primary">*</span>
                     </label>
                     <input
+                      id="contact-email"
+                      name="email"
                       type="email"
                       required
+                      autoComplete="email"
                       value={form.email}
                       onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                       placeholder="example@email.com"
@@ -229,10 +235,12 @@ export default function ContactClient() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-2 opacity-60">
+                  <label htmlFor="contact-message" className="block text-xs font-semibold mb-2 opacity-60">
                     الرسالة <span className="text-primary">*</span>
                   </label>
                   <textarea
+                    id="contact-message"
+                    name="message"
                     required
                     rows={5}
                     value={form.message}

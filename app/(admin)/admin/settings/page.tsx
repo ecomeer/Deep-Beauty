@@ -31,7 +31,7 @@ const DEFAULTS: Settings = {
   instagram_url: 'https://instagram.com/deepbeautykw',
   tiktok_url: '',
   snapchat_url: '',
-  announcement_text: '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك',
+  announcement_text: '🚚 شحن مجاني لجميع الطلبات داخل الكويت',
   // Fallback values mirror EXCHANGE_RATES in lib/currency.ts
   exchange_rate_sar: '12.25',
   exchange_rate_aed: '11.95',

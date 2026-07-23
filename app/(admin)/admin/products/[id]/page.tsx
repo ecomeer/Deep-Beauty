@@ -21,6 +21,9 @@ export default function ProductForm() {
     is_active: true, is_featured: false,
     description_ar: '', description_en: '',
     ingredients_ar: '', ingredients_en: '',
+    usage_ar: '', benefits_ar: '',
+    seo_title: '', meta_description: '', image_alt: '',
+    product_type: 'product',
     images: [] as string[]
   })
 
@@ -48,6 +51,12 @@ export default function ProductForm() {
         description_en: data.description_en || '',
         ingredients_ar: data.ingredients_ar || '',
         ingredients_en: data.ingredients_en || '',
+        usage_ar: data.usage_ar || '',
+        benefits_ar: data.benefits_ar || '',
+        seo_title: data.seo_title || '',
+        meta_description: data.meta_description || '',
+        image_alt: data.image_alt || '',
+        product_type: data.product_type || 'product',
         images: data.images || []
       })
     }
@@ -219,6 +228,40 @@ export default function ProductForm() {
             <div>
               <label className="block text-sm font-medium mb-1.5">المكونات (إنجليزي)</label>
               <textarea name="ingredients_en" value={form.ingredients_en} onChange={handleChange} className="input-field min-h-[80px]" dir="ltr" placeholder="Ingredients list in English..." />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">طريقة الاستخدام (عربي)</label>
+              <textarea name="usage_ar" value={form.usage_ar} onChange={handleChange} className="input-field min-h-[80px]" placeholder="تعليمات الاستخدام الخاصة بهذا المنتج..." />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">الفوائد (عربي)</label>
+              <textarea name="benefits_ar" value={form.benefits_ar} onChange={handleChange} className="input-field min-h-[80px]" placeholder="افصلي الفوائد بعلامة | أو بسطر جديد" />
+            </div>
+          </div>
+        </div>
+
+        {/* Search and accessibility */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-[var(--beige)]">
+          <h2 className="text-lg font-bold mb-4 border-b pb-2">البحث والوصولية</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1.5">عنوان محركات البحث</label>
+              <input name="seo_title" value={form.seo_title} onChange={handleChange} className="input-field" placeholder="عنوان مختصر ودقيق للمنتج" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">وصف محركات البحث</label>
+              <textarea name="meta_description" value={form.meta_description} onChange={handleChange} className="input-field min-h-[80px]" placeholder="وصف يظهر في نتائج البحث..." />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">وصف الصورة الرئيسية</label>
+              <input name="image_alt" value={form.image_alt} onChange={handleChange} className="input-field" placeholder="وصف واضح للصورة لقارئات الشاشة" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">نوع العنصر</label>
+              <select name="product_type" value={form.product_type} onChange={handleChange} className="input-field">
+                <option value="product">منتج</option>
+                <option value="bundle">مجموعة</option>
+              </select>
             </div>
           </div>
         </div>

@@ -76,11 +76,13 @@ export async function GET(
   const items = order.order_items || []
   const pdf = await renderInvoicePdf(order, items)
   const safeFilename = sanitizeFilenamePart(order.order_number) || order.id
+  const disposition = req.nextUrl.searchParams.get('download') === '1' ? 'attachment' : 'inline'
 
   return new NextResponse(new Uint8Array(pdf), {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="invoice-${safeFilename}.pdf"`,
+      'Content-Disposition': `${disposition}; filename="invoice-${safeFilename}.pdf"`,
+      'Cache-Control': 'private, no-store',
     },
   })
 }

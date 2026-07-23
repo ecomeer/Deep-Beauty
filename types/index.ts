@@ -20,6 +20,12 @@ export interface Product {
   weight_grams?: number
   ingredients_ar?: string
   ingredients_en?: string
+  usage_ar?: string
+  benefits_ar?: string
+  seo_title?: string
+  meta_description?: string
+  image_alt?: string
+  product_type?: 'product' | 'bundle' | string
   created_at: string
   updated_at: string
   rating?: number | null

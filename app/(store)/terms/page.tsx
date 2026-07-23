@@ -10,7 +10,7 @@ export default function TermsPage() {
       <h1 className="text-4xl font-bold mb-2 font-headline text-on-surface">
         الشروط والأحكام
       </h1>
-      <p className="text-sm opacity-50 mb-10">آخر تحديث: أبريل 2025</p>
+      <p className="text-sm opacity-50 mb-10">آخر تحديث: يوليو 2026</p>
 
       <div className="space-y-8 text-sm leading-8 opacity-80">
         <section>
@@ -30,7 +30,7 @@ export default function TermsPage() {
 
         <section>
           <h2 className="text-xl font-bold mb-3 text-primary">٤. الشحن والتوصيل</h2>
-          <p>نوصل داخل الكويت فقط خلال ٢–٥ أيام عمل. قد تتأخر الشحنات في أوقات الذروة أو الإجازات الرسمية. نبذل قصارى جهدنا لضمان وصول طلبك في الوقت المحدد.</p>
+          <p>نوصل داخل الكويت خلال ١–٢ يوم عمل، وإلى دول الخليج خلال ٣–٥ أيام عمل. قد تتأخر الشحنات في أوقات الذروة أو الإجازات الرسمية. نبذل قصارى جهدنا لضمان وصول طلبك في الوقت المحدد.</p>
         </section>
 
         <section>
@@ -40,7 +40,7 @@ export default function TermsPage() {
 
         <section>
           <h2 className="text-xl font-bold mb-3 text-primary">٦. تواصل معنا</h2>
-          <p>لأي استفسار حول هذه الشروط، تواصل معنا عبر واتساب أو البريد الإلكتروني: <a href="mailto:contact@deepbeauty.kw" className="text-primary">contact@deepbeauty.kw</a></p>
+          <p>لأي استفسار حول هذه الشروط، تواصل معنا عبر واتساب أو البريد الإلكتروني: <a href="mailto:contact@deepbeautykw.com" className="text-primary">contact@deepbeautykw.com</a></p>
         </section>
       </div>
     </main>

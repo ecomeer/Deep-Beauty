@@ -25,18 +25,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const updateFields: Record<string, string> = {}
   let fromStatus: OrderStatus | undefined
+  let fromPaymentStatus: string | undefined
+
+  if (body.status === undefined && body.payment_status === undefined) {
+    return NextResponse.json({ error: 'No changes provided' }, { status: 400 })
+  }
+
+  const { data: current } = await supabaseAdmin
+    .from('orders')
+    .select('status,payment_method,payment_status')
+    .eq('id', id)
+    .single()
+
+  if (!current) {
+    return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 })
+  }
+
+  fromPaymentStatus = current.payment_status
 
   if (body.status !== undefined) {
-    const { data: current } = await supabaseAdmin
-      .from('orders')
-      .select('status')
-      .eq('id', id)
-      .single()
-
-    if (!current) {
-      return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 })
-    }
-
     fromStatus = current.status as OrderStatus
     const allowed = VALID_TRANSITIONS[fromStatus] ?? []
     if (!allowed.includes(body.status)) {
@@ -46,9 +53,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       )
     }
     updateFields.status = body.status
+
+    // Keep the API response consistent with the database trigger and make the
+    // business rule explicit to callers: delivered COD means cash collected.
+    if (
+      body.status === 'delivered' &&
+      current.payment_method === 'cod' &&
+      current.payment_status === 'unpaid'
+    ) {
+      updateFields.payment_status = 'paid'
+    }
   }
 
-  if (body.payment_status !== undefined) updateFields.payment_status = body.payment_status
+  if (body.payment_status !== undefined) {
+    const allowedPaymentStatuses = ['unpaid', 'paid', 'refunded']
+    if (!allowedPaymentStatuses.includes(body.payment_status)) {
+      return NextResponse.json({ error: 'Invalid payment status' }, { status: 400 })
+    }
+    updateFields.payment_status = body.payment_status
+  }
 
   // Condition the update on the state used for transition validation.
   let query = supabaseAdmin.from('orders').update(updateFields).eq('id', id)
@@ -85,6 +108,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   if (updateFields.status) {
     await logActivity(req, { action: 'status_change', entity: 'order', entity_id: id, meta: { from: fromStatus, to: updateFields.status } })
+  }
+  if (updateFields.payment_status && updateFields.payment_status !== fromPaymentStatus) {
+    await logActivity(req, {
+      action: 'payment_status_change',
+      entity: 'order',
+      entity_id: id,
+      meta: { from: fromPaymentStatus, to: updateFields.payment_status },
+    })
   }
 
   return NextResponse.json({

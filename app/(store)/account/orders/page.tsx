@@ -1,24 +1,25 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import {
-  ChevronLeftIcon,
-  TruckIcon,
+  ArrowPathIcon,
   CheckCircleIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
   ClockIcon,
-  XCircleIcon,
-  EyeIcon,
-  ShoppingBagIcon,
   CubeIcon,
-  NoSymbolIcon
+  DocumentTextIcon,
+  NoSymbolIcon,
+  ShoppingBagIcon,
+  TruckIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
-import { STATUS_COLORS, formatDate } from '@/lib/utils'
-import { ACTIVE_ORDER_STATUSES, type OrderStatus } from '@/lib/order-status'
+import { formatDate, STATUS_COLORS, STATUS_LABELS, toArabicPrice } from '@/lib/utils'
+import type { OrderStatus } from '@/lib/order-status'
 
 interface Order {
   id: string
@@ -29,13 +30,23 @@ interface Order {
   item_count: number
   items: Array<{
     name: string
-    image: string
+    image: string | null
+    slug: string | null
     quantity: number
     price: number
   }>
 }
 
-const STATUS_ICONS = {
+type Filter = 'all' | 'active' | 'completed' | 'cancelled'
+
+const FILTERS: Array<{ key: Filter; label: string }> = [
+  { key: 'all', label: 'كل الطلبات' },
+  { key: 'active', label: 'قيد التنفيذ' },
+  { key: 'completed', label: 'المكتملة' },
+  { key: 'cancelled', label: 'الملغاة' },
+]
+
+const STATUS_ICONS: Record<OrderStatus, typeof ClockIcon> = {
   pending: ClockIcon,
   confirmed: CheckCircleIcon,
   processing: CubeIcon,
@@ -48,23 +59,25 @@ export default function OrdersPage() {
   const router = useRouter()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'cancelled'>('all')
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [error, setError] = useState(false)
+  const [filter, setFilter] = useState<Filter>('all')
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [cancellingId, setCancellingId] = useState<string | null>(null)
 
   const fetchOrders = useCallback(async () => {
+    setLoading(true)
+    setError(false)
     try {
-      const res = await fetch(`/api/account/orders?filter=${filter}`)
-      if (!res.ok) {
-        if (res.status === 401) {
-          router.push('/login')
-          return
-        }
-        throw new Error('Failed to fetch orders')
+      const res = await fetch(`/api/account/orders?filter=${filter}`, { cache: 'no-store' })
+      if (res.status === 401) {
+        router.replace('/login')
+        return
       }
+      if (!res.ok) throw new Error('Failed to fetch orders')
       const data = await res.json()
       setOrders(data.orders || [])
     } catch {
-      toast.error('حدث خطأ أثناء تحميل الطلبات')
+      setError(true)
     } finally {
       setLoading(false)
     }
@@ -74,199 +87,183 @@ export default function OrdersPage() {
     fetchOrders()
   }, [fetchOrders])
 
-  const filteredOrders = orders.filter(order => {
-    if (filter === 'active') return ACTIVE_ORDER_STATUSES.includes(order.status)
-    if (filter === 'completed') return order.status === 'delivered'
-    if (filter === 'cancelled') return order.status === 'cancelled'
-    return true
-  })
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-      </div>
-    )
+  async function cancelOrder(order: Order) {
+    if (!confirm('هل أنتِ متأكدة من إلغاء هذا الطلب؟')) return
+    setCancellingId(order.id)
+    try {
+      const response = await fetch(`/api/account/orders/${order.id}/cancel`, { method: 'POST' })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'تعذر إلغاء الطلب')
+      setOrders((current) => current.map((item) => (
+        item.id === order.id ? { ...item, status: 'cancelled' } : item
+      )))
+      toast.success('تم إلغاء الطلب')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'تعذر إلغاء الطلب')
+    } finally {
+      setCancellingId(null)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
-            <Link href="/account" className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-              <ChevronLeftIcon className="w-5 h-5" />
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold">طلباتي</h1>
-              <p className="text-gray-500 text-sm mt-1">سجل طلباتك وتابع حالتها</p>
-            </div>
+    <main className="min-h-screen bg-surface pb-16 pt-[var(--nav-height)]">
+      <header className="border-b border-outline-variant/50 bg-white">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4 sm:py-6">
+          <Link
+            href="/account"
+            aria-label="العودة إلى حسابي"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-outline-variant/60 transition-colors hover:bg-surface"
+          >
+            <ChevronLeftIcon className="h-5 w-5" />
+          </Link>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-on-surface sm:text-2xl">طلباتي</h1>
+            <p className="mt-0.5 text-xs text-on-surface-variant sm:text-sm">تفاصيل الطلبات، التتبع والفواتير</p>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {[
-            { key: 'all', label: 'الكل' },
-            { key: 'active', label: 'النشطة' },
-            { key: 'completed', label: 'المكتملة' },
-            { key: 'cancelled', label: 'الملغاة' }
-          ].map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key as typeof filter)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                filter === f.key
-                  ? 'bg-primary text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+      <div className="mx-auto max-w-3xl px-4 py-5 sm:py-8">
+        <div className="-mx-4 mb-5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-max gap-2" role="group" aria-label="تصفية الطلبات">
+            {FILTERS.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                aria-pressed={filter === item.key}
+                onClick={() => setFilter(item.key)}
+                className={`min-h-10 whitespace-nowrap rounded-full px-4 text-sm font-bold transition-colors ${
+                  filter === item.key
+                    ? 'bg-primary text-white'
+                    : 'border border-outline-variant/50 bg-white text-on-surface-variant'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Orders List */}
-        {filteredOrders.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-sm p-12 text-center"
-          >
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
-              <ShoppingBagIcon className="w-10 h-10 text-gray-400" />
+        {loading ? (
+          <div className="space-y-3" aria-label="جارٍ تحميل الطلبات">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="h-32 animate-pulse rounded-2xl border border-outline-variant/30 bg-white" />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="rounded-2xl border border-red-200 bg-white p-8 text-center">
+            <p className="font-bold text-on-surface">تعذر تحميل الطلبات</p>
+            <p className="mt-1 text-sm text-on-surface-variant">تحققي من الاتصال ثم حاولي مرة أخرى.</p>
+            <button type="button" onClick={fetchOrders} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white">
+              <ArrowPathIcon className="h-4 w-4" />
+              إعادة المحاولة
+            </button>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="rounded-2xl border border-outline-variant/40 bg-white p-8 text-center sm:p-12">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface">
+              <ShoppingBagIcon className="h-8 w-8 text-on-surface-variant" />
             </div>
-            <h3 className="text-xl font-bold mb-2">لا توجد طلبات</h3>
-            <p className="text-gray-500 mb-6">ابدئي رحلة التسوق واكتشفي منتجاتنا المميزة</p>
-            <Link href="/products" className="btn-primary inline-block px-8 py-3">
-              تصفح المنتجات
-            </Link>
-          </motion.div>
+            <h2 className="text-lg font-bold text-on-surface">لا توجد طلبات هنا</h2>
+            <p className="mt-1 text-sm text-on-surface-variant">ستظهر طلباتك في هذه الصفحة فور إتمام الشراء.</p>
+            <Link href="/products" className="mt-5 inline-block rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white">تصفح المنتجات</Link>
+          </div>
         ) : (
-          <div className="space-y-4">
-            {filteredOrders.map((order, index) => {
-              const StatusIcon = STATUS_ICONS[order.status]
-
+          <div className="space-y-3">
+            {orders.map((order) => {
+              const StatusIcon = STATUS_ICONS[order.status] || ClockIcon
+              const expanded = expandedId === order.id
               return (
-                <motion.div
-                  key={order.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl shadow-sm overflow-hidden"
-                >
-                  {/* Order Header */}
-                  <div className="p-6 border-b">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-xl ${STATUS_COLORS[order.status]} flex items-center justify-center`}>
-                          <StatusIcon className="w-6 h-6" />
+                <article key={order.id} className="overflow-hidden rounded-2xl border border-outline-variant/40 bg-white shadow-sm">
+                  <div className="p-4 sm:p-5">
+                    <div className="flex items-start gap-3">
+                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${STATUS_COLORS[order.status]}`}>
+                        <StatusIcon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                          <div>
+                            <p className="font-bold text-on-surface" dir="ltr">{order.order_number}</p>
+                            <p className="mt-0.5 text-xs text-on-surface-variant">{formatDate(order.created_at)}</p>
+                          </div>
+                          <p className="font-bold text-on-surface" dir="ltr">{toArabicPrice(Number(order.total))}</p>
                         </div>
-                        <div>
-                          <p className="font-bold text-lg">{order.order_number}</p>
-                          <p className="text-sm text-gray-500">{formatDate(order.created_at)}</p>
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                          <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_COLORS[order.status]}`}>
+                            {STATUS_LABELS[order.status] || order.status}
+                          </span>
+                          <span className="text-xs text-on-surface-variant">{order.item_count} {order.item_count === 1 ? 'منتج' : 'منتجات'}</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="font-bold text-lg">{order.total} د.ك</p>
-                          <p className="text-sm text-gray-500">{order.item_count} منتج</p>
-                        </div>
-                        <button
-                          onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
-                          className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-                        >
-                          <EyeIcon className="w-5 h-5 text-gray-400" />
-                        </button>
-                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <Link href={`/orders/${order.id}`} className="flex min-h-11 items-center justify-center rounded-xl bg-primary px-3 text-sm font-bold text-white">
+                        عرض الطلب
+                      </Link>
+                      <button
+                        type="button"
+                        aria-expanded={expanded}
+                        aria-controls={`order-items-${order.id}`}
+                        onClick={() => setExpandedId(expanded ? null : order.id)}
+                        className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-outline-variant/70 px-3 text-sm font-bold text-on-surface"
+                      >
+                        المنتجات
+                        <ChevronDownIcon className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                      </button>
                     </div>
                   </div>
 
-                  {/* Order Details (Expandable) */}
-                  {selectedOrder?.id === order.id && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="bg-gray-50 p-6"
-                    >
-                      <h4 className="font-bold mb-4">تفاصيل الطلب</h4>
-                      <div className="space-y-3">
-                        {order.items?.map((item, i) => (
-                          <div key={i} className="flex items-center gap-3 bg-white p-3 rounded-xl">
-                            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                  {expanded && (
+                    <div id={`order-items-${order.id}`} className="border-t border-outline-variant/40 bg-surface/60 p-4 sm:p-5">
+                      <div className="space-y-2">
+                        {order.items.map((item, index) => (
+                          <div key={`${order.id}-${index}`} className="flex items-center gap-3 rounded-xl bg-white p-3">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface">
                               {item.image ? (
-                                <Image
-                                  // FIXED: replaced <img> with Next.js <Image> for optimization.
-                                  src={item.image}
-                                  alt={item.name}
-                                  width={48}
-                                  height={48}
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
+                                <Image src={item.image} alt={item.name || 'منتج'} width={48} height={48} className="h-full w-full object-contain" />
                               ) : (
-                                <CubeIcon className="w-6 h-6 text-gray-400" />
+                                <CubeIcon className="h-6 w-6 text-on-surface-variant" />
                               )}
                             </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-sm">{item.name}</p>
-                              <p className="text-xs text-gray-500">الكمية: {item.quantity}</p>
+                            <div className="min-w-0 flex-1">
+                              <p className="line-clamp-2 text-sm font-bold text-on-surface">{item.name}</p>
+                              <p className="mt-0.5 text-xs text-on-surface-variant">الكمية: {item.quantity}</p>
                             </div>
-                            <p className="font-bold text-sm">{item.price * item.quantity} د.ك</p>
+                            <p className="shrink-0 text-xs font-bold text-on-surface" dir="ltr">{toArabicPrice(Number(item.price) * item.quantity)}</p>
                           </div>
                         ))}
                       </div>
-                      
-                      <div className="flex gap-3 mt-6">
-                        <Link
-                          href={`/track?order=${order.order_number}`}
-                          className="flex-1 py-3 bg-primary text-white rounded-xl font-bold text-center hover:bg-primary-hover transition-colors"
-                        >
+
+                      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <Link href={`/orders/${order.id}/invoice`} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-outline-variant/70 bg-white px-3 text-sm font-bold">
+                          <DocumentTextIcon className="h-5 w-5 text-primary" />
+                          عرض الفاتورة
+                        </Link>
+                        <Link href={`/track?order=${encodeURIComponent(order.order_number)}`} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-outline-variant/70 bg-white px-3 text-sm font-bold">
+                          <TruckIcon className="h-5 w-5 text-primary" />
                           تتبع الطلب
                         </Link>
-                        <a
-                          href={`/api/orders/${order.id}/invoice`}
-                          className="py-3 px-4 rounded-xl border border-gray-200 font-bold text-center hover:bg-gray-50 transition-colors"
-                        >
-                          ⬇️ الفاتورة
-                        </a>
                         {order.status === 'pending' && (
                           <button
-                            onClick={async () => {
-                              if (!confirm('هل أنت متأكدة من إلغاء هذا الطلب؟')) return
-                              const r = await fetch(`/api/account/orders/${order.id}/cancel`, { method: 'POST' })
-                              const d = await r.json()
-                              if (r.ok) {
-                                toast.success('تم إلغاء الطلب')
-                                setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'cancelled' } : o))
-                                setSelectedOrder(null)
-                              } else {
-                                toast.error(d.error || 'تعذر الإلغاء')
-                              }
-                            }}
-                            className="flex items-center gap-1.5 px-4 py-3 border-2 border-red-200 text-red-500 rounded-xl font-bold hover:bg-red-50 transition-colors text-sm"
+                            type="button"
+                            disabled={cancellingId === order.id}
+                            onClick={() => cancelOrder(order)}
+                            className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-3 text-sm font-bold text-red-600 disabled:opacity-60 sm:col-span-2"
                           >
-                            <NoSymbolIcon className="w-4 h-4" />
+                            {cancellingId === order.id ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <NoSymbolIcon className="h-5 w-5" />}
                             إلغاء الطلب
                           </button>
                         )}
-                        {order.status === 'delivered' && (
-                          <button className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold hover:border-primary hover:text-primary transition-colors">
-                            إعادة الطلب
-                          </button>
-                        )}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
-                </motion.div>
+                </article>
               )
             })}
           </div>
         )}
       </div>
-    </div>
+    </main>
   )
 }

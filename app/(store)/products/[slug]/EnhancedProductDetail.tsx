@@ -33,9 +33,16 @@ import { trackViewContent, trackAddToCart } from '@/lib/analytics'
 
 // ─── Trust Features ────────────────────────────────────────────────────────
 const BASE_TRUST = [
-  { Icon: ShieldCheckIcon, title: 'ضمان الجودة',  desc: '100٪ طبيعي' },
-  { Icon: SparklesIcon,   title: 'صنع في الكويت', desc: 'بأيدٍ محلية' },
+  { Icon: ShieldCheckIcon, title: 'دفع آمن',       desc: 'حماية بياناتك' },
+  { Icon: SparklesIcon,   title: 'استرجاع مرن',   desc: 'وفق الشروط' },
 ]
+
+function splitBenefits(value?: string) {
+  return (value || '')
+    .split(/\r?\n|\s*\|\s*/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
 
 // ─── Loading Skeleton ──────────────────────────────────────────────────────
 function ProductSkeleton() {
@@ -92,6 +99,9 @@ export default function EnhancedProductDetail() {
       const json = await res.json()
       setProduct(json.product)
       setRelated(json.related || [])
+      setActiveTab('desc')
+      setSelectedImage(0)
+      setQuantity(1)
       if (json.product) {
         trackViewContent({ id: json.product.id, name_ar: json.product.name_ar, price: json.product.sale_price ?? json.product.price })
       }
@@ -217,11 +227,13 @@ export default function EnhancedProductDetail() {
     ? Math.round((1 - displayPrice / originalPrice) * 100)
     : 0
 
+  const benefits = splitBenefits(product.benefits_ar)
+  const ingredients = product.ingredients_ar || product.ingredients_en
   const TABS: Array<['desc' | 'ingredients' | 'how', string]> = [
     ['desc', 'الوصف'],
-    ['ingredients', 'المكونات'],
-    ['how', 'طريقة الاستخدام'],
   ]
+  if (ingredients) TABS.push(['ingredients', 'المكونات'])
+  if (product.usage_ar) TABS.push(['how', 'طريقة الاستخدام'])
 
   return (
     <div
@@ -284,7 +296,7 @@ export default function EnhancedProductDetail() {
                   {images[selectedImage] ? (
                     <Image
                       src={images[selectedImage]}
-                      alt={product.name_ar}
+                      alt={selectedImage === 0 ? (product.image_alt || product.name_ar) : `${product.name_ar} — صورة ${selectedImage + 1}`}
                       fill
                       priority
                       sizes="(max-width: 1024px) 100vw, 50vw"
@@ -384,16 +396,21 @@ export default function EnhancedProductDetail() {
               )}
             </div>
 
-            {/* Rating Mock */}
-            <div className="flex items-center gap-2">
-              <div className="flex">
-                {[1,2,3,4,5].map(i => (
-                  <StarIcon key={i} className="w-4 h-4 text-amber-400" />
-                ))}
+            {/* Verified rating — hidden until the product has approved reviews. */}
+            {product.rating != null && (product.review_count || 0) > 0 && (
+              <div className="flex items-center gap-2" aria-label={`${product.rating.toFixed(1)} من 5، ${product.review_count} تقييم`}>
+                <div className="flex" aria-hidden="true">
+                  {[1,2,3,4,5].map(i => (
+                    <StarIcon
+                      key={i}
+                      className={`w-4 h-4 ${i <= Math.round(product.rating || 0) ? 'text-amber-400' : 'text-gray-200'}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-medium text-on-surface">{product.rating.toFixed(1)}</span>
+                <span className="text-sm text-on-surface-variant">({product.review_count} تقييم)</span>
               </div>
-              <span className="text-sm font-medium text-on-surface">4.9</span>
-              <span className="text-sm text-on-surface-variant">(+١٢٠ تقييم)</span>
-            </div>
+            )}
 
             {/* Price */}
             <div className="flex items-baseline gap-3">
@@ -631,54 +648,34 @@ export default function EnhancedProductDetail() {
                   <p className="leading-relaxed text-sm">
                     {product.description_ar || 'لا يوجد وصف مفصل لهذا المنتج.'}
                   </p>
-                  <ul className="space-y-2 mt-4">
-                    {['مناسب لجميع أنواع البشرة', 'خالٍ من البارابين والسلفات', 'لم يُختبر على الحيوانات', 'تغليف صديق للبيئة', 'مُختبر طبياً'].map(item => (
+                  {benefits.length > 0 && (
+                    <ul className="space-y-2 mt-4">
+                    {benefits.map(item => (
                       <li key={item} className="flex items-center gap-2.5 text-sm">
                         <CheckIcon className="w-4 h-4 text-primary flex-shrink-0" />
                         {item}
                       </li>
                     ))}
-                  </ul>
+                    </ul>
+                  )}
                 </div>
               )}
 
-              {activeTab === 'ingredients' && (
+              {activeTab === 'ingredients' && ingredients && (
                 <div className="max-w-2xl space-y-4">
-                  <p className="text-sm leading-relaxed">
-                    {product.ingredients_ar || 'مكونات طبيعية 100٪ مختارة بعناية.'}
+                  <p
+                    className="text-sm leading-relaxed whitespace-pre-line"
+                    dir={/[\u0600-\u06ff]/.test(ingredients) ? 'rtl' : 'ltr'}
+                  >
+                    {ingredients}
                   </p>
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {['ماء', 'جلسرين', 'زيت الأرغان', 'فيتامين E', 'مستخلص الصبار', 'زيت جوز الهند', 'نياسيناميد'].map(ing => (
-                      <span
-                        key={ing}
-                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-beige text-primary"
-                      >
-                        {ing}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               )}
 
-              {activeTab === 'how' && (
-                <ol className="space-y-4 max-w-2xl">
-                  {[
-                    'نظفي بشرتك جيداً بالغسول المناسب لنوعها',
-                    'ضعي كمية صغيرة (حجم الحمصة) على الوجه والرقبة',
-                    'دلكي بلطف بحركات دائرية تصاعدية',
-                    'انتظري حتى الامتصاص الكامل (٢-٣ دقائق)',
-                    'استخدمي صباحاً ومساءً للحصول على أفضل النتائج',
-                  ].map((step, i) => (
-                    <li key={i} className="flex gap-4">
-                      <span
-                        className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5 bg-primary"
-                      >
-                        {i + 1}
-                      </span>
-                      <p className="text-sm leading-relaxed pt-1">{step}</p>
-                    </li>
-                  ))}
-                </ol>
+              {activeTab === 'how' && product.usage_ar && (
+                <p className="max-w-2xl text-sm leading-8 whitespace-pre-line">
+                  {product.usage_ar}
+                </p>
               )}
             </motion.div>
           </AnimatePresence>

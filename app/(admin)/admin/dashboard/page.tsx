@@ -9,6 +9,7 @@ import {
   ChartBarIcon, UsersIcon, ArrowTrendingUpIcon, ClockIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline'
+import { KUWAIT_TIME_ZONE, kuwaitDateKey, kuwaitDaysAgo } from '@/lib/kuwait-time'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 interface DayData { label: string; count: number; revenue: number }
@@ -103,10 +104,13 @@ export default function AdminDashboard() {
         setData(json)
         const days: DayData[] = []
         for (let i = 6; i >= 0; i--) {
-          const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-          const label = i === 0 ? 'اليوم' : d.toLocaleDateString('ar-KW', { weekday: 'short' })
-          const dateStr = d.toISOString().slice(0, 10)
-          const dayOrders = (json.chartData || []).filter(o => o.created_at.slice(0, 10) === dateStr)
+          const d = kuwaitDaysAgo(new Date(), i)
+          const label = i === 0 ? 'اليوم' : d.toLocaleDateString('ar-KW', {
+            weekday: 'short',
+            timeZone: KUWAIT_TIME_ZONE,
+          })
+          const dateStr = kuwaitDateKey(d)
+          const dayOrders = (json.chartData || []).filter(o => kuwaitDateKey(o.created_at) === dateStr)
           days.push({ label, count: dayOrders.length, revenue: dayOrders.reduce((s, o) => s + Number(o.total), 0) })
         }
         setChartDays(days)
@@ -146,7 +150,13 @@ export default function AdminDashboard() {
   )
 
   const { stats, recentOrders, lowStock } = data
-  const today = new Date().toLocaleDateString('ar-KW', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  const today = new Date().toLocaleDateString('ar-KW', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: KUWAIT_TIME_ZONE,
+  })
   const weekRevenue = chartDays.reduce((s, d) => s + d.revenue, 0)
   const weekOrders  = chartDays.reduce((s, d) => s + d.count, 0)
 
@@ -228,12 +238,12 @@ export default function AdminDashboard() {
           subtitle="الطلبات الواردة اليوم"
         />
         <StatCard
-          title="إجمالي المبيعات"
+          title="إجمالي المبيعات المحصّلة"
           value={toArabicPrice(stats.totalSales)}
           icon={CurrencyDollarIcon}
           iconBg="bg-emerald-50"
           iconColor="text-emerald-600"
-          subtitle="الإيرادات الكاملة"
+          subtitle="الطلبات المدفوعة غير الملغاة"
         />
         <StatCard
           title="قيد الانتظار"
@@ -270,7 +280,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl p-5 border border-beige">
           <div className="flex items-start justify-between mb-1">
             <div>
-              <p className="text-xs font-medium opacity-50">الإيرادات — آخر ٧ أيام</p>
+              <p className="text-xs font-medium opacity-50">الإيرادات المحصّلة — آخر ٧ أيام</p>
               <p className="text-2xl font-bold mt-0.5 text-on-surface">
                 {toArabicPrice(weekRevenue)}
               </p>
@@ -303,7 +313,7 @@ export default function AdminDashboard() {
           ) : (
             <>
               {/* Desktop Table */}
-              <div className="hidden md:block overflow-x-auto">
+              <div className="hidden xl:block overflow-x-auto">
                 <table className="w-full text-sm bg-surface border-b border-beige">
                   <thead>
                     <tr>
@@ -320,7 +330,7 @@ export default function AdminDashboard() {
                           i < recentOrders.length - 1 ? 'border-b border-beige' : ''
                         }`}
                       >
-                        <td className="px-4 py-3.5 pr-5">
+                        <td className="px-4 py-3.5 pr-5 whitespace-nowrap">
                           <span className="font-mono font-bold text-xs text-primary">
                             #{order.order_number}
                           </span>
@@ -336,7 +346,7 @@ export default function AdminDashboard() {
                             {STATUS_LABELS[order.status] || order.status}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 text-xs opacity-40" dir="ltr">
+                        <td className="px-4 py-3.5 text-xs opacity-40 whitespace-nowrap" dir="ltr">
                           {formatDateTime(order.created_at)}
                         </td>
                         <td className="px-4 py-3.5 pl-5">
@@ -354,7 +364,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Mobile Cards */}
-              <div className="md:hidden p-4 space-y-3">
+              <div className="xl:hidden p-4 space-y-3">
                 {recentOrders.map((order) => (
                   <Link
                     key={order.id}

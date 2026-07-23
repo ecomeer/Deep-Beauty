@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     for (const id of ids) {
       const { data: current } = await supabaseAdmin
         .from('orders')
-        .select('status')
+        .select('status,payment_method,payment_status')
         .eq('id', id)
         .single()
       if (!current) { failed++; continue }
@@ -37,7 +37,14 @@ export async function POST(req: NextRequest) {
 
       const { data, error } = await supabaseAdmin
         .from('orders')
-        .update({ status: target })
+        .update({
+          status: target,
+          ...(target === 'delivered' &&
+          current.payment_method === 'cod' &&
+          current.payment_status === 'unpaid'
+            ? { payment_status: 'paid' }
+            : {}),
+        })
         .eq('id', id)
         .eq('status', fromStatus)
         .select('id')

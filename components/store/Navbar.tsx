@@ -26,7 +26,7 @@ const EnhancedCartSidebar = dynamic(() => import('./EnhancedCartSidebar'), { ssr
 const NAV_LINKS = [
   { href: '/', label: 'الرئيسية' },
   { href: '/products?category=collections', label: 'المجموعات' },
-  { href: '/products', label: 'المنتجات الفردية' },
+  { href: '/products', label: 'جميع المنتجات' },
   { href: '/offers', label: 'العروض' },
   { href: '/contact', label: 'تواصل معنا' },
 ]
@@ -73,7 +73,7 @@ export default function Navbar() {
     setMobileOpen(false)
   }, [pathname])
 
-  // "المجموعات" (/products?category=collections) and "المنتجات الفردية" (/products)
+  // "المجموعات" (/products?category=collections) and "جميع المنتجات" (/products)
   // share the /products pathname, so we must inspect the category query param to
   // highlight the right one — usePathname() alone drops the query string.
   const isActive = (href: string) => {
