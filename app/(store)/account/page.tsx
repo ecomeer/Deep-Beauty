@@ -123,14 +123,14 @@ export default function AccountPage() {
         </div>
 
         {/* Stats */}
-        <div className="max-w-2xl mx-auto px-4 pb-5 grid grid-cols-4 gap-3 mt-2">
+        <div className="max-w-2xl mx-auto px-4 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-2">
           {[
             { val: stats.totalOrders,                     label: 'طلب' },
             { val: Number(stats.totalSpent).toFixed(3),   label: 'د.ك' },
             { val: stats.wishlistCount,                    label: 'مفضلة' },
             { val: user.loyaltyPoints ?? 0,                label: 'نقطة' },
           ].map(({ val, label }) => (
-            <div key={label} className="text-center rounded-2xl py-3" style={{ background: 'rgba(255,255,255,0.15)' }}>
+            <div key={label} className="text-center rounded-2xl py-3 min-w-0" style={{ background: 'rgba(255,255,255,0.15)' }}>
               <p className="text-white font-bold text-xl leading-none">{val}</p>
               <p className="text-white/70 text-xs mt-1">{label}</p>
             </div>
@@ -195,8 +195,9 @@ export default function AccountPage() {
                 const statusLabel = STATUS_LABELS[order.status] || STATUS_LABELS.pending
                 const statusColor = STATUS_COLORS[order.status] || STATUS_COLORS.pending
                 return (
-                  <div
+                  <Link
                     key={order.id}
+                    href={`/orders/${order.id}`}
                     className="flex items-center gap-3 px-4 py-3.5"
                     style={{ borderBottom: i < recentOrders.length - 1 ? '1px solid var(--beige)' : 'none' }}
                   >
@@ -208,10 +209,10 @@ export default function AccountPage() {
                       <p className="text-xs mt-0.5 text-on-surface-variant">{order.item_count} منتجات</p>
                     </div>
                     <div className="text-left flex-shrink-0">
-                      <p className="font-bold text-sm mb-1 text-on-surface" dir="ltr">{order.total} د.ك</p>
+                      <p className="font-bold text-sm mb-1 text-on-surface" dir="ltr">{Number(order.total).toFixed(3)} د.ك</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColor}`}>{statusLabel}</span>
                     </div>
-                  </div>
+                  </Link>
                 )
               })}
             </div>

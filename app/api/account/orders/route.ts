@@ -3,6 +3,7 @@ import { requireUser } from '@/lib/supabase-server'
 import { ACTIVE_ORDER_STATUSES } from '@/lib/order-status'
 
 interface OrderItemRow {
+  product_id: string | null
   product_name_ar: string | null
   product_name_en: string | null
   quantity: number
@@ -15,7 +16,8 @@ export async function GET(request: NextRequest) {
     if (authError) return authError
 
     const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const requestedLimit = Number.parseInt(searchParams.get('limit') || '20', 10)
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 50) : 20
     const filter = searchParams.get('filter') || 'all'
 
     // Primary: match by user_id (set after migration), fallback: match by email
@@ -52,6 +54,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const productIds = Array.from(new Set(
+      (orders ?? []).flatMap((order) =>
+        ((order.order_items as OrderItemRow[] | null) ?? [])
+          .map((item) => item.product_id)
+          .filter((id): id is string => Boolean(id))
+      )
+    ))
+    const { data: products } = productIds.length
+      ? await supabase.from('products').select('id, images, slug').in('id', productIds)
+      : { data: [] }
+    const productDetails = new Map(
+      (products ?? []).map((product) => [
+        product.id,
+        { image: product.images?.[0] || null, slug: product.slug || null },
+      ])
+    )
+
     // Format orders for frontend
     const formattedOrders = (orders ?? []).map(order => ({
       id: order.id,
@@ -68,7 +87,8 @@ export async function GET(request: NextRequest) {
       items: ((order.order_items as OrderItemRow[] | null) ?? []).map((item) => ({
         name: item.product_name_ar,
         name_en: item.product_name_en,
-        image: null,           // no image stored in order_items; fetch from product if needed
+        image: item.product_id ? productDetails.get(item.product_id)?.image || null : null,
+        slug: item.product_id ? productDetails.get(item.product_id)?.slug || null : null,
         quantity: item.quantity,
         price: item.unit_price,
       })),
