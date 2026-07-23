@@ -11,7 +11,7 @@ export default function ReturnsPage() {
       <h1 className="text-4xl font-bold mb-2 font-headline text-on-surface">
         سياسة الاسترجاع والاستبدال
       </h1>
-      <p className="text-sm opacity-50 mb-10">آخر تحديث: أبريل 2025</p>
+      <p className="text-sm opacity-50 mb-10">آخر تحديث: يوليو 2026</p>
 
       <div className="space-y-8 text-sm leading-8 opacity-80">
         <section>
@@ -56,9 +56,9 @@ export default function ReturnsPage() {
           <h2 className="text-xl font-bold mb-3 text-primary">٦. تواصل معنا</h2>
           <p>
             للاستفسار عن أي طلب استرجاع:{' '}
-            <Link href="/#contact" className="text-primary">تواصل معنا</Link>
+            <Link href="/contact" className="text-primary">تواصل معنا</Link>
             {' '}أو عبر البريد:{' '}
-            <a href="mailto:contact@deepbeauty.kw" className="text-primary">contact@deepbeauty.kw</a>
+            <a href="mailto:contact@deepbeautykw.com" className="text-primary">contact@deepbeautykw.com</a>
           </p>
         </section>
       </div>

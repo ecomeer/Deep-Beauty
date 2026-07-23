@@ -21,6 +21,11 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category')      // category slug
     const featured  = searchParams.get('featured')     // 'true' | null
     const search    = searchParams.get('search')       // text search
+    const ids = (searchParams.get('ids') || '')
+      .split(',')
+      .map((id) => id.trim())
+      .filter((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id))
+      .slice(0, 8)
     const rawLimit  = parseInt(searchParams.get('limit') || '20')
     // FIXED: clamp limit to protect query performance.
     const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 100) : 20
@@ -36,6 +41,10 @@ export async function GET(request: NextRequest) {
 
     if (featured === 'true') {
       query = query.eq('is_featured', true)
+    }
+
+    if (ids.length > 0) {
+      query = query.in('id', ids)
     }
 
     if (search) {

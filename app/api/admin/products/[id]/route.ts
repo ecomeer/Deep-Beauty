@@ -31,10 +31,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       'name_ar','name_en','slug','category','price','compare_price',
       'stock_quantity','weight_grams','is_active','is_featured',
       'description_ar','description_en','ingredients_ar','ingredients_en','images',
+      'usage_ar','benefits_ar','seo_title','meta_description','image_alt','product_type',
     ]
     const updateFields: Record<string, unknown> = {}
     for (const key of allowed) {
-      if (key in body) updateFields[key] = body[key]
+      if (key in body) {
+        updateFields[key] = key === 'product_type'
+          ? (body[key] === 'bundle' ? 'bundle' : 'product')
+          : body[key]
+      }
     }
 
     // Capture the pre-update stock level so we can detect a 0 → positive

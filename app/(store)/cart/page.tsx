@@ -38,7 +38,7 @@ export default function CartPage() {
       <div className="w-24 h-24 rounded-full bg-surface-container flex items-center justify-center">
         <ShoppingBagIcon className="w-12 h-12 text-outline" />
       </div>
-      <h2 className="text-3xl font-headline text-on-surface">سلتك فارغة</h2>
+      <h1 className="text-3xl font-headline text-on-surface">سلتك فارغة</h1>
       <p className="text-on-surface-variant">أضيفي منتجات لتبدأ تجربة التسوق</p>
       <Link href="/products" className="bg-primary text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-container transition-colors inline-flex items-center gap-2">
         <ArrowLeftIcon className="w-4 h-4" />

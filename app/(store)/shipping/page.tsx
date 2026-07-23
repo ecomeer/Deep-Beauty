@@ -12,7 +12,7 @@ export default function ShippingPage() {
       >
         الشحن والاسترجاع
       </h1>
-      <p className="text-sm opacity-50 mb-10">آخر تحديث: أبريل 2025</p>
+      <p className="text-sm opacity-50 mb-10">آخر تحديث: يوليو 2026</p>
 
       <div className="space-y-8 text-sm leading-8 opacity-80">
 
@@ -22,7 +22,7 @@ export default function ShippingPage() {
           </h2>
           <div className="space-y-3">
             {[
-              { country: 'الكويت', time: '١–٢ يوم عمل', price: 'مجاني على الطلبات فوق ١٥ د.ك' },
+              { country: 'الكويت', time: '١–٢ يوم عمل', price: 'مجاني لجميع الطلبات' },
               { country: 'السعودية', time: '٣–٥ أيام عمل', price: 'يحدد عند الطلب' },
               { country: 'الإمارات', time: '٣–٥ أيام عمل', price: 'يحدد عند الطلب' },
               { country: 'قطر', time: '٣–٥ أيام عمل', price: 'يحدد عند الطلب' },
@@ -57,7 +57,7 @@ export default function ShippingPage() {
             سياسة الاسترجاع والاستبدال
           </h2>
           <ul className="list-disc list-inside space-y-2 mr-2">
-            <li>نقبل الإرجاع خلال <strong>١٤ يوماً</strong> من تاريخ الاستلام</li>
+            <li>نقبل الإرجاع خلال <strong>٧ أيام</strong> من تاريخ الاستلام</li>
             <li>يجب أن يكون المنتج غير مستخدم وفي عبوته الأصلية</li>
             <li>لا نقبل إرجاع المنتجات المفتوحة لأسباب صحية إلا في حالة العيوب التصنيعية</li>
             <li>تكلفة الشحن عند الإرجاع على عاتق العميل إلا في حالة وجود عيب في المنتج</li>
@@ -69,10 +69,10 @@ export default function ShippingPage() {
             كيفية طلب الاسترجاع
           </h2>
           <ol className="list-decimal list-inside space-y-2 mr-2">
-            <li>تواصل معنا عبر البريد الإلكتروني خلال ١٤ يوماً من الاستلام</li>
+            <li>تواصل معنا عبر البريد الإلكتروني خلال ٧ أيام من الاستلام</li>
             <li>أرسل صورة للمنتج ورقم الطلب</li>
             <li>سنتواصل معك خلال ٢٤ ساعة لتأكيد الاسترجاع</li>
-            <li>يتم استرداد المبلغ خلال ٥–٧ أيام عمل</li>
+            <li>بعد استلام المنتج وفحصه، يتم استرداد المبلغ خلال ٣–٥ أيام عمل</li>
           </ol>
         </section>
 

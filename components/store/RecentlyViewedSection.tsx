@@ -1,9 +1,10 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCountry } from '@/context/CountryContext'
-import { useRecentlyViewed } from '@/hooks/useRecentlyViewed'
+import { RecentlyViewedItem, useRecentlyViewed } from '@/hooks/useRecentlyViewed'
 import { SparklesIcon } from '@heroicons/react/24/outline'
 
 /**
@@ -13,8 +14,53 @@ import { SparklesIcon } from '@heroicons/react/24/outline'
 export default function RecentlyViewedSection({ excludeIds = [] }: { excludeIds?: string[] }) {
   const { items } = useRecentlyViewed(excludeIds)
   const { formatPrice } = useCountry()
+  const [currentItems, setCurrentItems] = useState<RecentlyViewedItem[]>([])
+  const itemIds = useMemo(() => items.map((item) => item.id).join(','), [items])
 
-  if (items.length === 0) return null
+  useEffect(() => {
+    if (!itemIds) {
+      setCurrentItems([])
+      return
+    }
+
+    const controller = new AbortController()
+    setCurrentItems([])
+
+    fetch(`/api/products?ids=${encodeURIComponent(itemIds)}&limit=8`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error('Unable to refresh recently viewed products')
+        return res.json()
+      })
+      .then(({ products = [] }) => {
+        const byId = new Map<string, RecentlyViewedItem>(
+          products.map((product: RecentlyViewedItem & { images?: string[] }) => [
+            product.id,
+            {
+              id: product.id,
+              slug: product.slug,
+              name_ar: product.name_ar,
+              image: product.images?.[0] || product.image || '',
+              price: product.price,
+              sale_price: product.sale_price,
+            },
+          ])
+        )
+        setCurrentItems(
+          itemIds
+            .split(',')
+            .map((id) => byId.get(id))
+            .filter((item): item is RecentlyViewedItem => Boolean(item))
+        )
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+        setCurrentItems([])
+      })
+
+    return () => controller.abort()
+  }, [itemIds])
+
+  if (currentItems.length === 0) return null
 
   return (
     <section className="mt-8 border-t border-beige pt-10 pb-4" aria-label="شاهدتِها مؤخراً">
@@ -26,7 +72,7 @@ export default function RecentlyViewedSection({ excludeIds = [] }: { excludeIds?
       </div>
 
       <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-4 md:px-8 pb-2 no-scrollbar lg:max-w-[var(--container-max)] lg:mx-auto">
-        {items.map((item) => (
+        {currentItems.map((item) => (
           <Link
             key={item.id}
             href={`/products/${item.slug}`}

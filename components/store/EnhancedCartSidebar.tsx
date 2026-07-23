@@ -241,6 +241,7 @@ export default function EnhancedCartSidebar() {
                               whileTap={{ scale: 0.85 }}
                               onClick={() => item.quantity > 1 && updateQuantity(item.id, item.quantity - 1)}
                               disabled={item.quantity <= 1}
+                              aria-label={`تقليل كمية ${item.name_ar}`}
                               className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
                             >
                               <MinusIcon className="w-3 h-3" />
@@ -249,6 +250,7 @@ export default function EnhancedCartSidebar() {
                             <motion.button
                               whileTap={{ scale: 0.85 }}
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              aria-label={`زيادة كمية ${item.name_ar}`}
                               className="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
                             >
                               <PlusIcon className="w-3 h-3" />
@@ -262,6 +264,7 @@ export default function EnhancedCartSidebar() {
                             whileHover={{ scale: 1.1, rotate: 10 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleRemove(item.id)}
+                            aria-label={`حذف ${item.name_ar} من السلة`}
                             className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                           >
                             <TrashIcon className="w-4 h-4" />

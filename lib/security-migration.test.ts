@@ -3,13 +3,13 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const root = process.cwd()
-const migration = readFileSync(
-  join(root, 'supabase/migrations/20260717010000_security_authorization_hardening.sql'),
-  'utf8'
+const readText = (path: string) => readFileSync(path, 'utf8').replace(/\r\n/g, '\n')
+const migration = readText(
+  join(root, 'supabase/migrations/20260717010000_security_authorization_hardening.sql')
 )
-const checkoutRoute = readFileSync(join(root, 'app/api/checkout/route.ts'), 'utf8')
-const bestsellersRoute = readFileSync(join(root, 'app/api/products/bestsellers/route.ts'), 'utf8')
-const staffRoute = readFileSync(join(root, 'app/api/admin/staff/route.ts'), 'utf8')
+const checkoutRoute = readText(join(root, 'app/api/checkout/route.ts'))
+const bestsellersRoute = readText(join(root, 'app/api/products/bestsellers/route.ts'))
+const staffRoute = readText(join(root, 'app/api/admin/staff/route.ts'))
 
 describe('security hardening migration contract', () => {
   it('adds a versioned secure checkout RPC without dropping the live legacy RPC', () => {

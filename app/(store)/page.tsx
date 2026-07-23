@@ -31,7 +31,7 @@ export default async function HomePage() {
   let categories: Category[] = []
   let banners: Banner[] = []
   let offersProducts: Product[] = []
-  let announcementText = '🚚 شحن مجاني للطلبات فوق ٢٠ د.ك'
+  let announcementText = '🚚 شحن مجاني لجميع الطلبات داخل الكويت'
 
   const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const sbKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
