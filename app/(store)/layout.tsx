@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Navbar from '@/components/store/Navbar'
 import StitchFooter from '@/components/store/StitchFooter'
 import WhatsAppButton from '@/components/store/WhatsAppButton'
@@ -67,7 +68,13 @@ export default async function StoreLayout({ children }: { children: React.ReactN
             success: { iconTheme: { primary: 'var(--primary)', secondary: 'var(--white)' } },
           }} />
           <Analytics />
-          <Navbar />
+          <Suspense
+            fallback={
+              <div className="fixed top-0 inset-x-0 z-40 h-[var(--nav-height)] bg-surface border-b border-dark-beige" />
+            }
+          >
+            <Navbar />
+          </Suspense>
           <main id="main-content">
             {children}
           </main>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import {
   ShoppingBagIcon,
   Bars3Icon,
@@ -39,6 +39,8 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const category = searchParams.get('category')
 
   const rafId = useRef<number | null>(null)
   const handleScroll = useCallback(() => {
@@ -71,7 +73,19 @@ export default function Navbar() {
     setMobileOpen(false)
   }, [pathname])
 
-  const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href)
+  // "المجموعات" (/products?category=collections) and "المنتجات الفردية" (/products)
+  // share the /products pathname, so we must inspect the category query param to
+  // highlight the right one — usePathname() alone drops the query string.
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    if (href === '/products?category=collections') {
+      return pathname.startsWith('/products') && category === 'collections'
+    }
+    if (href === '/products') {
+      return pathname.startsWith('/products') && category !== 'collections'
+    }
+    return pathname.startsWith(href)
+  }
 
   return (
     <>
@@ -328,7 +342,7 @@ export default function Navbar() {
 
           <div className="px-5 pb-2">
             <p className="text-xs text-on-surface-variant uppercase tracking-wider font-semibold mb-2">الدولة / العملة</p>
-            <CountrySelector />
+            <CountrySelector inline />
           </div>
         </div>
       </aside>

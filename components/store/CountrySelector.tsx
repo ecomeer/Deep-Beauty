@@ -5,7 +5,7 @@ import { useCountry } from '@/context/CountryContext'
 import { GULF_COUNTRIES, GulfCountry } from '@/lib/currency'
 import { ChevronDownIcon } from '@heroicons/react/24/outline'
 
-export default function CountrySelector() {
+export default function CountrySelector({ inline = false }: { inline?: boolean }) {
   const { selectedCountry, countryConfig, setCountry } = useCountry()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -31,7 +31,9 @@ export default function CountrySelector() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors ${
+          inline ? 'w-full' : ''
+        }`}
         aria-label="اختيار الدولة"
       >
         <img
@@ -41,13 +43,19 @@ export default function CountrySelector() {
           height={16}
           className="w-6 h-4 object-cover rounded-sm"
         />
-        <span className="text-sm font-medium hidden sm:block">{countryConfig.name_ar}</span>
-        <span className="text-xs text-gray-500 hidden sm:block">({countryConfig.currency})</span>
-        <ChevronDownIcon className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span className={`text-sm font-medium ${inline ? 'block' : 'hidden sm:block'}`}>{countryConfig.name_ar}</span>
+        <span className={`text-xs text-gray-500 ${inline ? 'block' : 'hidden sm:block'}`}>({countryConfig.currency})</span>
+        <ChevronDownIcon className={`w-4 h-4 transition-transform ${inline ? 'ms-auto' : ''} ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
+        <div
+          className={
+            inline
+              ? 'mt-2 w-full bg-white rounded-xl border border-gray-100 py-2'
+              : 'absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50'
+          }
+        >
           <p className="text-xs text-gray-500 px-4 py-2 border-b border-gray-100">
             اختر بلدك / العملة
           </p>
