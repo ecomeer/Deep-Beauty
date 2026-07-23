@@ -17,9 +17,21 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const body = await req.json()
     const { id } = await params
 
+    // Whitelist updatable columns — never forward arbitrary client keys to the
+    // row (mass-assignment). Mirrors the create route's field set; excludes
+    // server-managed fields like sent_count/sent_at/created_at.
+    const allowed: Record<string, unknown> = {}
+    for (const key of ['title', 'description', 'type', 'target_audience', 'content', 'scheduled_at', 'is_active'] as const) {
+      if (key in body) allowed[key] = body[key]
+    }
+
+    if (Object.keys(allowed).length === 0) {
+      return NextResponse.json({ error: 'No updatable fields provided' }, { status: 400 })
+    }
+
     const { data, error } = await supabaseAdmin
       .from('marketing_campaigns')
-      .update(body)
+      .update(allowed)
       .eq('id', id)
       .select()
       .single()

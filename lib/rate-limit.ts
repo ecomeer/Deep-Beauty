@@ -61,6 +61,16 @@ export function contactLimiter(ip: string): boolean {
   return rateLimit(`contact:${ip}`, 5, 10 * 60_000)
 }
 
+/**
+ * Pre-configured limiter for authentication endpoints: 10 attempts per 5
+ * minutes per IP. Throttles credential brute-force / password spraying against
+ * login and registration. `scope` separates counters (e.g. 'admin-login',
+ * 'login', 'register') so one endpoint can't exhaust another's budget.
+ */
+export function authLimiter(ip: string, scope: string): boolean {
+  return rateLimit(`auth:${scope}:${ip}`, 10, 5 * 60_000)
+}
+
 /** Extracts the client IP from forwarded headers set by the hosting proxy. */
 export function getClientIp(req: { headers: { get(name: string): string | null } }): string {
   return (

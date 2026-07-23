@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { requireAdmin } from '@/lib/auth-admin'
+import { revalidateStorefront } from '@/lib/revalidate-storefront'
 
 export async function GET(req: NextRequest) {
   const _authErr = await requireAdmin(req, 'marketing')
@@ -76,6 +77,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    revalidateStorefront()
     return NextResponse.json({ sale: data }, { status: 201 })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
@@ -109,6 +111,7 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    revalidateStorefront()
     return NextResponse.json({ sale: data })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
@@ -124,5 +127,6 @@ export async function DELETE(req: NextRequest) {
 
   const { error } = await supabaseAdmin.from('flash_sales').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidateStorefront()
   return NextResponse.json({ ok: true })
 }

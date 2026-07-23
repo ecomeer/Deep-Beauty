@@ -13,8 +13,14 @@ interface CartItem {
 // release expired unpaid online-payment reservations, then email eligible
 // abandoned carts. Both operations are idempotent.
 export async function GET(req: NextRequest) {
+  // Fail closed: a missing CRON_SECRET must NOT leave this endpoint open. An
+  // unauthenticated caller could otherwise trigger up to 100 emails per hit.
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && req.headers.get('authorization') !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    console.error('CRON_SECRET is not configured; refusing to run cron job')
+    return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+  }
+  if (req.headers.get('authorization') !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

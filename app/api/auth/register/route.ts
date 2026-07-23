@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createWritableServerClient } from '@/lib/supabase-server'
 import { sendEmail, welcomeEmail } from '@/lib/email'
+import { authLimiter, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    if (!authLimiter(getClientIp(request), 'register')) {
+      return NextResponse.json(
+        { error: 'محاولات كثيرة جداً. حاول مرة أخرى بعد قليل' },
+        { status: 429 }
+      )
+    }
+
     const { name, email, phone, password } = await request.json()
 
     if (!name || !email || !password) {
